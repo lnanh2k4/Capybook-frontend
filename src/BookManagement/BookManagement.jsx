@@ -1,40 +1,27 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
-import './BookManagement.css';
+import React, { useEffect, useState } from 'react';
+import { fetchBooks, deleteBook } from './api'; // Import các function từ api.js
+import { useNavigate } from 'react-router-dom';
+import './BookManagement.css'; // Import file CSS
 
 function BookManagement() {
-    const navigate = useNavigate(); // Initialize the useNavigate hook
-    const [formData, setFormData] = useState({
-        title: '',
-        publicationYear: '',
-        author: '',
-        dimensions: '',
-        translator: '',
-        hardcover: '',
-        publisher: '',
-        weight: '',
-        description: '',
-        image: null
-    });
-    const [imagePreview, setImagePreview] = useState(null);
-    const [books, setBooks] = useState([
-        { id: 1, title: 'Book A', author: 'Nguyen Van A', translator: 'Nguyen Van B', price: '50.000' },
-        { id: 2, title: 'Book B', author: 'Nguyen Van A', translator: 'Nguyen Van B', price: '35.000' },
-        { id: 3, title: 'Book C', author: 'Nguyen Van A', translator: 'Nguyen Van B', price: '30.000' },
-        { id: 4, title: 'Book D', author: 'Nguyen Van A', translator: 'Nguyen Van B', price: '35.000' },
-        { id: 5, title: 'Book E', author: 'Nguyen Van A', translator: 'Nguyen Van B', price: '120.000' },
-    ]);
+    const navigate = useNavigate();
+    const [books, setBooks] = useState([]);
 
-    const handleChange = (e) => {
-        const { name, value, files } = e.target;
-        if (name === 'image' && files.length > 0) {
-            const file = files[0];
-            setImagePreview(URL.createObjectURL(file));
-            setFormData({ ...formData, image: file });
-        } else {
-            setFormData({
-                ...formData,
-                [name]: value
+    useEffect(() => {
+        fetchBooks().then(response => {
+            console.log("Fetched books data:", response.data); // In dữ liệu sách ra console
+            setBooks(response.data);
+        }).catch(error => {
+            console.error('Error fetching books:', error);
+        });
+    }, []);
+
+    const handleDelete = (id) => {
+        if (window.confirm("Are you sure you want to delete this book?")) {
+            deleteBook(id).then(() => {
+                setBooks(books.filter(book => book.bookId !== id));
+            }).catch(error => {
+                console.error('Error deleting book:', error);
             });
         }
     };
@@ -44,7 +31,6 @@ function BookManagement() {
     };
     const goToEditBook = () => {
         navigate('/book-edit');
-
     };
     const goToBookDetail = () => {
         navigate('/book-detail');
@@ -101,7 +87,6 @@ function BookManagement() {
             <div className="table-container">
                 <div className="action-container">
                     <button className='add-book' onClick={goToAddBook}>Add book</button> {/* Navigate to Add Book page */}
-
                     <div className="search-container">
                         <input
                             type="text"
@@ -124,17 +109,17 @@ function BookManagement() {
                     </thead>
                     <tbody>
                         {books.map((book) => (
-                            <tr key={book.id}>
-                                <td>{book.id}</td>
-                                <td>{book.title}</td>
+                            <tr key={book.bookId}>
+                                <td>{book.bookId}</td>
+                                <td>{book.bookTitle}</td>
                                 <td>{book.author}</td>
                                 <td>{book.translator}</td>
-                                <td>{book.price}</td>
+                                <td>{book.bookPrice}</td> {/* Ensure correct case for price field */}
                                 <td>
                                     <div className="action-buttons">
                                         <button className="detail" onClick={goToBookDetail}>Detail</button>
                                         <button className="edit" onClick={goToEditBook}>Edit</button>
-                                        <button className="delete">Delete</button>
+                                        <button className="delete" onClick={() => handleDelete(book.bookId)}>Delete</button>
                                     </div>
                                 </td>
                             </tr>
@@ -152,4 +137,4 @@ function BookManagement() {
     );
 }
 
-export default BookManagement; // Exporting the correct component name
+export default BookManagement;

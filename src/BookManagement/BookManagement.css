@@ -1,4 +1,66 @@
 /* Nền bảng và chữ */
+.dashboard-container-alt {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+    background: #4ea8c4;
+}
+
+.dashboard-title {
+    text-align: center;
+    height: 2vh;
+    /* Adjust height if necessary */
+    padding: 10px 0;
+    background-color: #4ea8c4;
+    color: #020405;
+    font-size: 1.3rem;
+    /* Adjust font size */
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 20px;
+    width: 80%;
+    max-height: 500px;
+    /* Điều chỉnh chiều cao tối đa */
+    overflow-y: scroll;
+    /* Kích hoạt cuộn dọc */
+    scrollbar-width: none;
+    /* Firefox: Ẩn thanh cuộn */
+}
+
+.dashboard-grid::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari và các trình duyệt Webkit khác: Ẩn thanh cuộn */
+}
+
+
+.dashboard-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    margin: 5px 0;
+    cursor: pointer;
+    transition: background-color 0.5;
+    border-radius: 5px;
+    background-color: #f8fdff;
+    /* Đổi màu nền nút */
+}
+
+.dashboard-item:hover {
+    background-color: #007bff;
+    /* Đổi màu khi hover */
+}
+
+.dashboard-icon {
+    margin-right: 10px;
+}
+
+.dashboard-item p {
+    font-size: 1rem;
+    margin: 0;
+}
+
 .search-container {
     display: flex;
     /* Sử dụng Flexbox để sắp xếp phần tử */
