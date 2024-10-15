@@ -230,7 +230,7 @@ button[type="button"] {
     font-size: 14px;
     color: #fff;
     background-color: #020405;
-    padding: 0px;
+    padding: 20px;
     /* Adjust padding if necessary */
     height: 100%;
     /* Ensure it fills the grid row */

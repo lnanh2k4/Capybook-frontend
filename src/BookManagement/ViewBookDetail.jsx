@@ -7,29 +7,39 @@ function ViewBookDetail() {
     const { bookId } = useParams(); // Lấy bookId từ URL
     const navigate = useNavigate(); // Điều hướng giữa các trang
     const [formData, setFormData] = useState({
-        title: '',
+        bookTitle: '',
         publicationYear: '',
         author: '',
-        dimensions: '',
+        dimension: '', // Đúng với tên cột trong database
         translator: '',
         hardcover: '',
         publisher: '',
         weight: '',
-        description: '',
-        image: null
+        bookDescription: '', // Đúng với tên cột trong database
+        image: null,
+        bookPrice: '',
+        isbn: ''
     });
 
     const [imagePreview, setImagePreview] = useState(null);
 
     useEffect(() => {
-        // Gọi API để lấy dữ liệu sách theo bookId
-        fetchBookById(bookId).then(response => {
-            setFormData(response.data);
-            setImagePreview(response.data.image); // Nếu API trả về URL ảnh
-        }).catch(error => {
-            console.error('Error fetching book details:', error);
-        });
-    }, [bookId]); // Chỉ chạy lại khi bookId thay đổi
+        fetchBookById(bookId)
+            .then(response => {
+                setFormData(response.data);
+                const imageFromDB = response.data.image;
+                if (imageFromDB && imageFromDB.startsWith(`/uploads/book_`)) {
+                    const fullImagePath = `http://localhost:6789${imageFromDB}`;
+                    setImagePreview(fullImagePath);
+                } else {
+                    setImagePreview(imageFromDB);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching book details:', error);
+            });
+    }, [bookId]);
+
 
     const goToBookManagement = () => {
         navigate('/book-management'); // Điều hướng về trang Book Management
@@ -85,7 +95,7 @@ function ViewBookDetail() {
                     <div className="form-left">
                         <div className="form-group">
                             <label>Title</label>
-                            <input type="text" name="title" value={formData.bookTitle} readOnly />
+                            <input type="text" name="bookTitle" value={formData.bookTitle} readOnly />
                         </div>
                         <div className="form-group">
                             <label>Publication Year</label>
@@ -99,8 +109,11 @@ function ViewBookDetail() {
                             <label>Dimensions</label>
                             <input type="text" name="dimensions" value={formData.dimension} readOnly />
                         </div>
+                        <div className="form-group">
+                            <label>Price</label>
+                            <input type="text" name="bookPrice" value={formData.bookPrice} readOnly />
+                        </div>
                     </div>
-
                     <div className="form-center">
                         <div className="form-group">
                             <label>Translator</label>
@@ -118,29 +131,31 @@ function ViewBookDetail() {
                             <label>Weight</label>
                             <input type="text" name="weight" value={formData.weight} readOnly />
                         </div>
+                        <div className="form-group">
+                            <label>Isbn</label>
+                            <input type="text" name="isbn" value={formData.isbn} readOnly />
+                        </div>
                     </div>
-
                     <div className="form-right">
                         {imagePreview && (
                             <div className="image-preview">
                                 <img src={imagePreview} alt="Selected Preview" />
                             </div>
                         )}
-                    </div>
 
+                    </div>
                     <div className="form-bottom">
                         <div className="form-group">
                             <label className='description'>Description</label>
                             <textarea name="description" value={formData.bookDescription} readOnly />
                         </div>
                     </div>
-
                     <div className="form-buttons">
                         <button type="button" onClick={goToBookManagement}>Cancel</button>
                     </div>
+
                 </form>
             </div>
-
             <div className="titlemanagement">
                 <div> Book Management - View Book Detail </div>
             </div>

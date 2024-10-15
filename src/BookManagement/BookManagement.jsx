@@ -29,8 +29,8 @@ function BookManagement() {
     const goToAddBook = () => {
         navigate('/add-book');
     };
-    const goToEditBook = () => {
-        navigate('/book-edit');
+    const goToEditBook = (bookId) => {
+        navigate(`/edit-book/${bookId}`);
     };
     const goToBookDetail = (bookId) => {
         navigate(`/book-detail/${bookId}`); // Corrected string interpolation
@@ -108,6 +108,7 @@ function BookManagement() {
                         </tr>
                     </thead>
                     <tbody>
+
                         {books.map((book) => (
                             <tr key={book.bookID}>
                                 <td>{book.bookID}</td>
@@ -117,8 +118,9 @@ function BookManagement() {
                                 <td>{book.bookPrice}</td> {/* Ensure correct case for price field */}
                                 <td>
                                     <div className="action-buttons">
-                                        <button className="detail" onClick={() => goToBookDetail(book.bookID)}>Detail</button> {/* Sử dụng book.bookId */}
-                                        <button className="edit" onClick={goToEditBook}>Edit</button>
+                                        <button className="detail" onClick={() => goToBookDetail(book.bookID)}>Detail</button>
+                                        {/* Đã sửa lại hàm onClick để không tự động gọi goToEditBook */}
+                                        <button className="edit" onClick={() => goToEditBook(book.bookID)}>Edit</button>
                                         <button className="delete" onClick={() => handleDelete(book.bookID)}>Delete</button>
                                     </div>
                                 </td>

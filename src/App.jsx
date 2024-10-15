@@ -12,6 +12,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/add-book" element={<AddBook />} />
+        <Route path="/edit-book/:bookId" element={<EditBook />} />
         <Route path="/book-management" element={<BookManagement />} />
         <Route path="/book-detail" element={<ViewBookDetail />} />
         <Route path="/book-edit" element={<EditBook />} />
