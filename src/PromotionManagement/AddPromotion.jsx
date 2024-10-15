@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Sử dụng useNavigate để điều hướng
+import { addPromotion } from "./PromotionAPI"; // Import API addPromotion
 import "./AddPromotion.css";
 
 const AddPromotion = () => {
@@ -23,10 +24,17 @@ const AddPromotion = () => {
     });
   };
 
+  // Gọi API addPromotion khi submit form
   const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log(formData); // For debugging, you can send data to the server here
-    navigate("/promotion-management"); // Điều hướng về Promotion Management sau khi submit
+    e.preventDefault(); // Ngăn hành vi mặc định của form
+    addPromotion(formData)
+      .then(() => {
+        console.log("Promotion added successfully!");
+        navigate("/promotion-management");
+      })
+      .catch((error) => {
+        console.error("Error adding promotion:", error);
+      });
   };
 
   const handleReset = () => {
@@ -160,7 +168,9 @@ const AddPromotion = () => {
           </div>
 
           <div className="form-buttons">
-            <button type="submit">Submit</button>
+            <button type="submit" onClick={goToPromotionManagement}>
+              Submit
+            </button>
             <button type="button" onClick={handleReset}>
               Reset
             </button>

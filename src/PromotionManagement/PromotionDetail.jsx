@@ -1,52 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { updatePromotion, fetchPromotionDetail } from "./PromotionAPI"; // Import API
-import "./EditPromotion.css"; // Import CSS
+import { useParams, useNavigate } from "react-router-dom"; // Thêm useParams và useNavigate
+import { fetchPromotionDetail } from "./PromotionAPI"; // Import API để lấy chi tiết khuyến mãi
+import "./PromotionDetail.css";
 
-const EditPromotion = () => {
+function PromotionDetail() {
   const { proID } = useParams(); // Lấy proID từ URL
-  const navigate = useNavigate(); // Sử dụng để điều hướng
-  const [formData, setFormData] = useState({
-    proName: "",
-    proCode: "",
-    discount: "",
-    startDate: "",
-    endDate: "",
-  });
+  const navigate = useNavigate(); // Điều hướng giữa các trang
+  const [formData, setFormData] = useState({});
+  console.log("proID nhận từ URL:", proID);
 
   useEffect(() => {
-    // Lấy dữ liệu khuyến mãi chi tiết theo proID
+    // Gọi API để lấy dữ liệu khuyến mãi theo proID
     fetchPromotionDetail(proID)
       .then((response) => {
-        setFormData(response.data); // Đưa dữ liệu vào form
+        console.log("Fetched promotion data:", response.data); // In ra dữ liệu nhận được từ API
+        setFormData(response.data); // Cập nhật dữ liệu vào form
       })
       .catch((error) => {
         console.error("Error fetching promotion details:", error);
       });
-  }, [proID]);
+  }, [proID]); // Chỉ chạy lại khi proID thay đổi
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Gọi API để cập nhật thông tin khuyến mãi
-    updatePromotion(proID, formData)
-      .then(() => {
-        navigate("/promotion-management"); // Điều hướng về Promotion Management sau khi cập nhật
-      })
-      .catch((error) => {
-        console.error("Error updating promotion:", error);
-      });
-  };
-
-  const handleCancel = () => {
-    navigate("/promotion-management"); // Điều hướng về Promotion Management khi cancel
+  const goToPromotionManagement = () => {
+    navigate("/promotion-management"); // Điều hướng về trang Promotion Management
   };
 
   return (
@@ -61,7 +37,6 @@ const EditPromotion = () => {
         </div>
         <h2 className="dashboard-title">{"Le Nhut Anh"}</h2>
         <div className="dashboard-grid">
-          {/* Các item trong dashboard */}
           <div className="dashboard-item">
             <i className="fas fa-book dashboard-icon"></i>
             <p>Account Management</p>
@@ -99,7 +74,6 @@ const EditPromotion = () => {
           <img src="/back_icon.png" className="leave-logo-image" />
         </div>
       </div>
-
       <div className="add-promotion-container">
         <form className="add-promotion-form">
           <div className="form-left">
@@ -109,8 +83,7 @@ const EditPromotion = () => {
                 type="text"
                 name="proName"
                 value={formData.proName}
-                onChange={handleChange}
-                placeholder="Enter Promotion Name"
+                readOnly
               />
             </div>
             <div className="form-group">
@@ -119,18 +92,16 @@ const EditPromotion = () => {
                 type="text"
                 name="proCode"
                 value={formData.proCode}
-                onChange={handleChange}
-                placeholder="Enter Promotion Code"
+                readOnly
               />
             </div>
             <div className="form-group">
               <label>Discount</label>
               <input
-                type="number"
+                type="text"
                 name="discount"
                 value={formData.discount}
-                onChange={handleChange}
-                placeholder="Enter Discount"
+                readOnly
               />
             </div>
           </div>
@@ -142,7 +113,7 @@ const EditPromotion = () => {
                 type="date"
                 name="startDate"
                 value={formData.startDate}
-                onChange={handleChange}
+                readOnly
               />
             </div>
             <div className="form-group">
@@ -151,32 +122,29 @@ const EditPromotion = () => {
                 type="date"
                 name="endDate"
                 value={formData.endDate}
-                onChange={handleChange}
+                readOnly
               />
             </div>
           </div>
 
           <div className="form-buttons">
-            <button type="submit" onClick={handleSubmit}>
-              Save
-            </button>
-            <button type="button" onClick={handleCancel}>
-              Cancel
+            <button type="button" onClick={goToPromotionManagement}>
+              Back
             </button>
           </div>
         </form>
       </div>
 
       <div className="titlemanagement">
-        <div> Promotion Management - Edit Promotion </div>
+        <div> Promotion Management - View Promotion Detail </div>
       </div>
       <div className="copyright">
-        <div>© {new Date().getFullYear()}</div>
+        <div>© Copyright {new Date().getFullYear()}</div>
         <div>Cabybook Management System</div>
         <div>All Rights Reserved</div>
       </div>
     </div>
   );
-};
+}
 
-export default EditPromotion;
+export default PromotionDetail;

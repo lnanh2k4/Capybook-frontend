@@ -150,7 +150,7 @@ th {
 }
 
 /* Nút Add Book */
-button.add-book {
+button.add-promotion {
   background-color: #2760da;
   /* Màu xanh dương nhạt */
   color: white;
@@ -171,7 +171,7 @@ button.add-book {
 }
 
 /* Nút Detail */
-button.detail {
+button.detail-btn {
   background-color: #007bff;
   /* Màu xanh dương */
   color: white;
@@ -183,7 +183,7 @@ button.detail {
 }
 
 /* Nút Edit */
-button.edit {
+button.edit-btn {
   background-color: #28a745;
   /* Màu xanh lá cây */
   color: white;
@@ -195,7 +195,7 @@ button.edit {
 }
 
 /* Nút Delete */
-button.delete {
+button.delete-btn {
   background-color: #dc3545;
   /* Màu đỏ */
   color: white;
