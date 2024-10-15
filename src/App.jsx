@@ -15,6 +15,7 @@ function App() {
         <Route path="/book-management" element={<BookManagement />} />
         <Route path="/book-detail" element={<ViewBookDetail />} />
         <Route path="/book-edit" element={<EditBook />} />
+        <Route path="/book-detail/:bookId" element={<ViewBookDetail />} /> {/* Đảm bảo route này tồn tại */}
       </Routes>
     </Router>
   );
