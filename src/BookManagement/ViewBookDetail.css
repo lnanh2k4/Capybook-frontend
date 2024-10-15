@@ -126,11 +126,10 @@ body {
 
 .image-preview img {
     max-width: 100%;
-    /* Đảm bảo ảnh không vượt quá chiều rộng của phần tử */
     height: auto;
-    border: 10px solid #ccc;
-    border-radius: 5px;
+    display: block;
 }
+
 
 .form-right .form-group {
     width: 100%;
