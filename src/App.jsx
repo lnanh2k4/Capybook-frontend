@@ -23,6 +23,8 @@ function App() {
         <Route path="/add-promotion" element={<AddPromotion />} />
         <Route path="/order-management" element={<OrderManagement />} />
         <Route path="/order-detail/:id" element={<OrderDetail />} />
+        <Route path="/book-detail/:bookId" element={<ViewBookDetail />} />{" "}
+        {/* Đảm bảo route này tồn tại */}
       </Routes>
     </Router>
   );

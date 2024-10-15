@@ -1,21 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // Thêm useNavigate
+import { useParams, useNavigate } from 'react-router-dom'; // Thêm useParams và useNavigate
+import { fetchBookById } from './api'; // Import API để lấy chi tiết sách
 import './ViewBookDetail.css';
 
-const sampleBook = {
-    title: 'The Great Gatsby',
-    publicationYear: '1925',
-    author: 'F. Scott Fitzgerald',
-    dimensions: '5 x 8 inches',
-    translator: '',
-    hardcover: 'Yes',
-    publisher: 'Scribner',
-    weight: '0.5 lbs',
-    description: 'A novel set in the 1920s that explores themes of decadence, idealism, resistance to change, and social upheaval.',
-    image: null
-};
-
 function ViewBookDetail() {
+    const { bookId } = useParams(); // Lấy bookId từ URL
+    const navigate = useNavigate(); // Điều hướng giữa các trang
     const [formData, setFormData] = useState({
         title: '',
         publicationYear: '',
@@ -31,32 +21,15 @@ function ViewBookDetail() {
 
     const [imagePreview, setImagePreview] = useState(null);
 
-    const navigate = useNavigate(); // Thêm useNavigate để điều hướng
-
     useEffect(() => {
-        // Load the sample book data when the component mounts
-        loadSampleData();
-    }, []);
-
-    const loadSampleData = () => {
-        setFormData(sampleBook);
-        setImagePreview(null); // Reset the image preview if necessary
-    };
-
-    const handleChange = (e) => {
-        const { name, value, files } = e.target;
-
-        if (name === 'image' && files.length > 0) {
-            const file = files[0];
-            setImagePreview(URL.createObjectURL(file));
-            setFormData({ ...formData, image: file });
-        } else {
-            setFormData({
-                ...formData,
-                [name]: value
-            });
-        }
-    };
+        // Gọi API để lấy dữ liệu sách theo bookId
+        fetchBookById(bookId).then(response => {
+            setFormData(response.data);
+            setImagePreview(response.data.image); // Nếu API trả về URL ảnh
+        }).catch(error => {
+            console.error('Error fetching book details:', error);
+        });
+    }, [bookId]); // Chỉ chạy lại khi bookId thay đổi
 
     const goToBookManagement = () => {
         navigate('/book-management'); // Điều hướng về trang Book Management
@@ -112,38 +85,38 @@ function ViewBookDetail() {
                     <div className="form-left">
                         <div className="form-group">
                             <label>Title</label>
-                            <input type="text" name="title" value={formData.title} onChange={handleChange} placeholder="Title of the book" />
+                            <input type="text" name="title" value={formData.bookTitle} readOnly />
                         </div>
                         <div className="form-group">
                             <label>Publication Year</label>
-                            <input type="text" name="publicationYear" value={formData.publicationYear} onChange={handleChange} placeholder="Publication year" />
+                            <input type="text" name="publicationYear" value={formData.publicationYear} readOnly />
                         </div>
                         <div className="form-group">
                             <label>Author</label>
-                            <input type="text" name="author" value={formData.author} onChange={handleChange} placeholder="Author of the book" />
+                            <input type="text" name="author" value={formData.author} readOnly />
                         </div>
                         <div className="form-group">
                             <label>Dimensions</label>
-                            <input type="text" name="dimensions" value={formData.dimensions} onChange={handleChange} placeholder="Dimensions of the book" />
+                            <input type="text" name="dimensions" value={formData.dimension} readOnly />
                         </div>
                     </div>
 
                     <div className="form-center">
                         <div className="form-group">
                             <label>Translator</label>
-                            <input type="text" name="translator" value={formData.translator} onChange={handleChange} placeholder="Translator of the book" />
+                            <input type="text" name="translator" value={formData.translator} readOnly />
                         </div>
                         <div className="form-group">
                             <label>Hardcover</label>
-                            <input type="text" name="hardcover" value={formData.hardcover} onChange={handleChange} placeholder="Hardcover of the book" />
+                            <input type="text" name="hardcover" value={formData.hardcover} readOnly />
                         </div>
                         <div className="form-group">
                             <label>Publisher</label>
-                            <input type="text" name="publisher" value={formData.publisher} onChange={handleChange} placeholder="Publisher of the book" />
+                            <input type="text" name="publisher" value={formData.publisher} readOnly />
                         </div>
                         <div className="form-group">
                             <label>Weight</label>
-                            <input type="text" name="weight" value={formData.weight} onChange={handleChange} placeholder="Weight of the book" />
+                            <input type="text" name="weight" value={formData.weight} readOnly />
                         </div>
                     </div>
 
@@ -153,21 +126,18 @@ function ViewBookDetail() {
                                 <img src={imagePreview} alt="Selected Preview" />
                             </div>
                         )}
-                        <div className="form-group">
-                            <label>Image</label>
-                            <input type="file" name="image" onChange={handleChange} />
-                        </div>
                     </div>
 
                     <div className="form-bottom">
                         <div className="form-group">
                             <label className='description'>Description</label>
-                            <textarea name="description" value={formData.description} onChange={handleChange} placeholder="Description of the book" />
+                            <textarea name="description" value={formData.bookDescription} readOnly />
                         </div>
                     </div>
 
                     <div className="form-buttons">
-                        <button type="button" onClick={goToBookManagement}>Cancel</button> </div>
+                        <button type="button" onClick={goToBookManagement}>Cancel</button>
+                    </div>
                 </form>
             </div>
 
