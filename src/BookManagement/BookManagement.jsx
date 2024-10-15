@@ -32,8 +32,8 @@ function BookManagement() {
     const goToEditBook = () => {
         navigate('/book-edit');
     };
-    const goToBookDetail = () => {
-        navigate('/book-detail');
+    const goToBookDetail = (bookId) => {
+        navigate(`/book-detail/${bookId}`); // Corrected string interpolation
     };
 
     return (
@@ -109,17 +109,17 @@ function BookManagement() {
                     </thead>
                     <tbody>
                         {books.map((book) => (
-                            <tr key={book.bookId}>
-                                <td>{book.bookId}</td>
+                            <tr key={book.bookID}>
+                                <td>{book.bookID}</td>
                                 <td>{book.bookTitle}</td>
                                 <td>{book.author}</td>
                                 <td>{book.translator}</td>
                                 <td>{book.bookPrice}</td> {/* Ensure correct case for price field */}
                                 <td>
                                     <div className="action-buttons">
-                                        <button className="detail" onClick={goToBookDetail}>Detail</button>
+                                        <button className="detail" onClick={() => goToBookDetail(book.bookID)}>Detail</button> {/* Sử dụng book.bookId */}
                                         <button className="edit" onClick={goToEditBook}>Edit</button>
-                                        <button className="delete" onClick={() => handleDelete(book.bookId)}>Delete</button>
+                                        <button className="delete" onClick={() => handleDelete(book.bookID)}>Delete</button>
                                     </div>
                                 </td>
                             </tr>
@@ -136,5 +136,4 @@ function BookManagement() {
         </div>
     );
 }
-
 export default BookManagement;
