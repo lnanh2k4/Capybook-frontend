@@ -9,6 +9,8 @@ import PromotionManagement from "./PromotionManagement/PromotionManagement";
 import AddPromotion from "./PromotionManagement/AddPromotion";
 import OrderManagement from "./OrderManagement/OrderManagement";
 import OrderDetail from "./OrderManagement/OrderDetail";
+import PromotionDetail from "./PromotionManagement/PromotionDetail";
+import EditPromotion from "./PromotionManagement/EditPromotion";
 
 function App() {
   return (
@@ -21,10 +23,12 @@ function App() {
         <Route path="/book-edit" element={<EditBook />} />
         <Route path="/promotion-management" element={<PromotionManagement />} />
         <Route path="/add-promotion" element={<AddPromotion />} />
+        <Route path="/edit-promotion/:proID" element={<EditPromotion />} />
         <Route path="/order-management" element={<OrderManagement />} />
         <Route path="/order-detail/:id" element={<OrderDetail />} />
-        <Route path="/book-detail/:bookId" element={<ViewBookDetail />} />{" "}
-        {/* Đảm bảo route này tồn tại */}
+        <Route path="/book-detail/:bookId" element={<ViewBookDetail />} />
+        <Route path="/book-detail/:bookId" element={<ViewBookDetail />} />
+        <Route path="/promotion-detail/:proID" element={<PromotionDetail />} />
       </Routes>
     </Router>
   );

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./PromotionManagement.css";
+import { fetchPromotions, deletePromotion } from "./PromotionAPI";
 
-const PromotionTable = () => {
+const PromotionManagement = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [promotions, setPromotions] = useState([]);
@@ -11,49 +12,52 @@ const PromotionTable = () => {
   useEffect(() => {
     fetchPromotions()
       .then((response) => {
-        console.log("Fetched promotions data:", response.data);
-        setPromotions(response.data);
+        console.log("Fetched promotion data:", response.data);
+        // Kiểm tra xem dữ liệu trả về có phải là một mảng không
+        if (Array.isArray(response.data)) {
+          // Lọc các khuyến mãi có proStatus === 1
+          const activePromotions = response.data.filter(
+            (promo) => promo.proStatus === 1
+          );
+          setPromotions(activePromotions); // Chỉ thêm những khuyến mãi có proStatus = 1 vào state
+        } else {
+          console.error("Expected an array but got", response.data);
+        }
       })
       .catch((error) => {
-        console.error("Error fetching promotions:", error);
+        console.error("Error fetching promotion:", error);
       });
   }, []);
-
-  // Hàm giả định để gọi API lấy danh sách khuyến mãi - Thay thế bằng API thật
-  const fetchPromotions = async () => {
-    // Thay hàm này bằng API thật để lấy dữ liệu khuyến mãi từ server/backend
-    return new Promise((resolve, reject) => {
-      // Đoạn này hiện tại không có dữ liệu mẫu
-      resolve({ data: [] }); // Trả về mảng rỗng, khi có dữ liệu thực, API sẽ trả về danh sách khuyến mãi
-    });
-  };
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
   };
 
-  const filteredPromotions = promotions.filter(
-    (promo) =>
-      promo.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      promo.code.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   const goToAddPromotion = () => {
     navigate("/add-promotion");
   };
 
-  const goToEditPromotion = () => {
-    navigate("/promotion-edit");
+  const goToEditPromotion = (proID) => {
+    navigate(`/edit-promotion/${proID}`);
   };
 
-  const goToPromotionDetail = () => {
-    navigate("/promotion-detail");
+  const goToPromotionDetail = (proID) => {
+    navigate(`/promotion-detail/${proID}`);
   };
 
-  const handleDelete = (id) => {
+  // Hàm xử lý khi bấm nút Delete
+  const handleDelete = (proID) => {
     if (window.confirm("Are you sure you want to delete this promotion?")) {
-      // Thêm code xóa khuyến mãi
-      setPromotions(promotions.filter((promo) => promo.id !== id));
+      deletePromotion(proID)
+        .then(() => {
+          // Sau khi xóa thành công, cập nhật danh sách khuyến mãi
+          setPromotions(promotions.filter((promo) => promo.proID !== proID));
+          alert("Promotion deleted successfully");
+        })
+        .catch((error) => {
+          console.error("Error deleting promotion:", error);
+          alert("Failed to delete promotion");
+        });
     }
   };
 
@@ -137,28 +141,31 @@ const PromotionTable = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredPromotions.length > 0 ? (
-              filteredPromotions.map((promo) => (
-                <tr key={promo.id}>
-                  <td>{promo.id}</td>
-                  <td>{promo.name}</td>
-                  <td>{promo.code}</td>
+            {Array.isArray(promotions) && promotions.length > 0 ? (
+              promotions.map((promo) => (
+                <tr key={promo.proID}>
+                  <td>{promo.proID}</td>
+                  <td>{promo.proName}</td>
+                  <td>{promo.proCode}</td>
                   <td>{promo.discount}</td>
                   <td>{promo.startDate}</td>
                   <td>{promo.endDate}</td>
                   <td>
                     <button
                       className="detail-btn"
-                      onClick={goToPromotionDetail}
+                      onClick={() => goToPromotionDetail(promo.proID)}
                     >
                       Detail
                     </button>
-                    <button className="edit-btn" onClick={goToEditPromotion}>
+                    <button
+                      className="edit-btn"
+                      onClick={() => goToEditPromotion(promo.proID)} // Sử dụng hàm callback để điều hướng
+                    >
                       Edit
                     </button>
                     <button
                       className="delete-btn"
-                      onClick={() => handleDelete(promo.id)}
+                      onClick={() => handleDelete(promo.proID)}
                     >
                       Delete
                     </button>
@@ -184,4 +191,4 @@ const PromotionTable = () => {
   );
 };
 
-export default PromotionTable;
+export default PromotionManagement;
