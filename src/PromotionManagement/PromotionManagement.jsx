@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./PromotionManagement.css";
-import { fetchPromotions, deletePromotion } from "./PromotionAPI";
+import { fetchPromotions, deletePromotion } from "../config";
+import DashboardContainer from "../DashBoardContainer.jsx";
 
 const PromotionManagement = () => {
   const navigate = useNavigate();
@@ -13,7 +14,6 @@ const PromotionManagement = () => {
     fetchPromotions()
       .then((response) => {
         console.log("Fetched promotion data:", response.data);
-        // Kiểm tra xem dữ liệu trả về có phải là một mảng không
         if (Array.isArray(response.data)) {
           // Lọc các khuyến mãi có proStatus === 1
           const activePromotions = response.data.filter(
@@ -29,87 +29,64 @@ const PromotionManagement = () => {
       });
   }, []);
 
+  const handleDelete = async (proID) => {
+    if (window.confirm("Are you sure you want to delete this promotion?")) {
+      try {
+        // Fetch the current promotion details
+        const response = await fetchPromotions(proID);
+        const currentPromotionData = response.data;
+
+        // Create a new FormData object to send the updated promotion status
+        const formDataToSend = new FormData();
+        formDataToSend.append(
+          "promotion",
+          JSON.stringify({ ...currentPromotionData, proStatus: 0 })
+        );
+
+        // Send the updated promotion data to the server
+        await deletePromotion(proID, formDataToSend);
+
+        // Update the promotions state to reflect the soft delete
+        setPromotions(
+          promotions.map((promo) =>
+            promo.proID === proID ? { ...promo, proStatus: 0 } : promo
+          )
+        );
+
+        alert("Promotion marked as deleted successfully!");
+      } catch (error) {
+        console.error("Error marking promotion as deleted:", error);
+        alert("Failed to mark promotion as deleted.");
+      }
+    }
+  };
+
+  const activePromotions = promotions.filter(
+    (promo) =>
+      promo.proStatus === 1 &&
+      (promo.proName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        promo.proCode.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
   };
 
   const goToAddPromotion = () => {
-    navigate("/add-promotion");
+    navigate("/dashboard/add-promotion");
   };
 
   const goToEditPromotion = (proID) => {
-    navigate(`/edit-promotion/${proID}`);
+    navigate(`/dashboard/edit-promotion/${proID}`);
   };
 
   const goToPromotionDetail = (proID) => {
-    navigate(`/promotion-detail/${proID}`);
-  };
-
-  // Hàm xử lý khi bấm nút Delete
-  const handleDelete = (proID) => {
-    if (window.confirm("Are you sure you want to delete this promotion?")) {
-      deletePromotion(proID)
-        .then(() => {
-          // Sau khi xóa thành công, cập nhật danh sách khuyến mãi
-          setPromotions(promotions.filter((promo) => promo.proID !== proID));
-          alert("Promotion deleted successfully");
-        })
-        .catch((error) => {
-          console.error("Error deleting promotion:", error);
-          alert("Failed to delete promotion");
-        });
-    }
+    navigate(`/dashboard/promotion-detail/${proID}`);
   };
 
   return (
     <div className="main-container">
-      <div className="dashboard-container-alt">
-        <div className="logo-container">
-          <img
-            src="/logo-capybook.png"
-            alt="Cabybook Logo"
-            className="logo-image"
-          />
-        </div>
-        <h2 className="dashboard-title">{"Le Nhut Anh"}</h2>
-        <div className="dashboard-grid">
-          <div className="dashboard-item">
-            <i className="fas fa-book dashboard-icon"></i>
-            <p>Account Management</p>
-          </div>
-          <div className="dashboard-item">
-            <i className="fas fa-user dashboard-icon"></i>
-            <p>Book Management</p>
-          </div>
-          <div className="dashboard-item">
-            <i className="fas fa-tags dashboard-icon"></i>
-            <p>Order Management</p>
-          </div>
-          <div className="dashboard-item">
-            <i className="fas fa-tags dashboard-icon"></i>
-            <p>Promotion Management</p>
-          </div>
-          <div className="dashboard-item">
-            <i className="fas fa-tags dashboard-icon"></i>
-            <p>Category Management</p>
-          </div>
-          <div className="dashboard-item">
-            <i className="fas fa-tags dashboard-icon"></i>
-            <p>Supplier Management</p>
-          </div>
-          <div className="dashboard-item">
-            <i className="fas fa-tags dashboard-icon"></i>
-            <p>Inventory Management</p>
-          </div>
-          <div className="dashboard-item">
-            <i className="fas fa-tags dashboard-icon"></i>
-            <p>Notification Management</p>
-          </div>
-        </div>
-        <div className="leave-logo-container">
-          <img src="/back_icon.png" className="leave-logo-image" />
-        </div>
-      </div>
+      <DashboardContainer />
       <div className="titlemanagement">
         <div>Promotion Management</div>
       </div>
@@ -141,8 +118,8 @@ const PromotionManagement = () => {
             </tr>
           </thead>
           <tbody>
-            {Array.isArray(promotions) && promotions.length > 0 ? (
-              promotions.map((promo) => (
+            {Array.isArray(activePromotions) && activePromotions.length > 0 ? (
+              activePromotions.map((promo) => (
                 <tr key={promo.proID}>
                   <td>{promo.proID}</td>
                   <td>{promo.proName}</td>
@@ -159,7 +136,7 @@ const PromotionManagement = () => {
                     </button>
                     <button
                       className="edit-btn"
-                      onClick={() => goToEditPromotion(promo.proID)} // Sử dụng hàm callback để điều hướng
+                      onClick={() => goToEditPromotion(promo.proID)}
                     >
                       Edit
                     </button>

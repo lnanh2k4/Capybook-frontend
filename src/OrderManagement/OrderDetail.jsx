@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom"; // Import useParams để lấy id từ URL
 import "./OrderDetail.css";
-
+import DashboardContainer from "../DashBoardContainer.jsx";
 const OrderDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams(); // Lấy id từ URL
@@ -66,22 +66,7 @@ const OrderDetail = () => {
 
   return (
     <div className="order-detail-container">
-      <div className="dashboard-container-alt">
-        <div className="logo-container">
-          <img
-            src="/logo-capybook.png"
-            alt="Cabybook Logo"
-            className="logo-image"
-          />
-        </div>
-        <h2 className="dashboard-title">{"Le Nhut Anh"}</h2>
-        <div className="dashboard-grid">
-          {/* Các thành phần khác của dashboard */}
-        </div>
-        <div className="leave-logo-container">
-          <img src="/back_icon.png" className="leave-logo-image" />
-        </div>
-      </div>
+      <DashboardContainer />
 
       {/* Nút Back */}
       <button className="back-button" onClick={handleBack}>
