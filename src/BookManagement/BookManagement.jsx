@@ -35,14 +35,12 @@ function BookManagement() {
 
                 // Append the image file if it exists
                 if (currentBookData.image) {
-                    const imageFile = currentBookData.image; // Assuming the image is stored in the book data
-                    formDataToSend.append('image', imageFile); // Add the image to the FormData
+                    const imageFile = currentBookData.image;
+                    formDataToSend.append('image', imageFile);
                 }
 
-                // Send the updated data via a PUT request
                 await updateBook(id, formDataToSend);
 
-                // Update the state to reflect the change (optional)
                 setBooks(books.map(book =>
                     book.bookID === id ? { ...book, bookStatus: 0 } : book
                 ));
@@ -59,7 +57,7 @@ function BookManagement() {
         navigate(`/dashboard/books/edit/${bookId}`);
     };
     const goToBookDetail = (bookId) => {
-        navigate(`/dashboard/books/detail/${bookId}`); // Corrected string interpolation
+        navigate(`/dashboard/books/detail/${bookId}`);
     };
     const activeBooks = books.filter(book => book.bookStatus === 1);
     return (
