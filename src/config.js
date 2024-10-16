@@ -22,4 +22,10 @@ const updateBook = (bookId, formDataToSend) => {
 const deleteBook = (id) => client.delete(`/books/${id}`);
 const fetchBookById = (bookId) => client.get(`/v1/books/${bookId}`);
 
-export { fetchAccounts, fetchBooks, fetchBookDetail, addBook, updateBook, deleteBook, fetchBookById }
+const searchBooks = (searchTerm) => {
+    return axios.get(`http://localhost:6789/api/v1/books/search`, {
+        params: { query: searchTerm }
+    });
+};
+
+export { fetchAccounts, fetchBooks, fetchBookDetail, addBook, updateBook, deleteBook, fetchBookById, searchBooks }
