@@ -5,6 +5,9 @@ const client = axios.create({
 });
 
 const fetchAccounts = () => client.get('v1/accounts/');
+const fetchAccountDetail = (username) => client.get(`v1/accounts/detail/${username}`);
+const deleteAccount = (username) => client.delete(`v1/accounts/delete/${username}`);
+
 const fetchBooks = () => client.get('v1/books/');
 const fetchBookDetail = (id) => client.get(`/v1/books/${id}`); // Hàm lấy chi tiết sách
 
@@ -31,6 +34,7 @@ const fetchPromotionDetail = (proID) => {
     console.log("Fetching promotion detail for ID:", proID);  // Log the proID
     return client.get(`/v1/promotions/${proID}`);
 };
+
 
 const addPromotion = (promotion) => client.post('/v1/promotions/', promotion);
 

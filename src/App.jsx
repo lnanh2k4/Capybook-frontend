@@ -11,17 +11,21 @@ import OrderDetail from "./OrderManagement/OrderDetail";
 import PromotionDetail from "./PromotionManagement/PromotionDetail";
 import EditPromotion from "./PromotionManagement/EditPromotion";
 import AccountManagement from "./AccountManagement/AccountManagement";
+import AccountDetail from "./AccountManagement/AccountDetail";
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/dashboard/books/add" element={<AddBook />} />
+
+        <Route path="/dashboard/books/add/" element={<AddBook />} />
+
         <Route path="/dashboard/books/edit/:bookId" element={<EditBook />} />
         <Route path="/dashboard/books" element={<BookManagement />} />
         <Route path="/dashboard/books/detail" element={<ViewBookDetail />} />
         <Route path="/dashboard/books/edit" element={<EditBook />} />
+
         <Route
           path="/dashboard/promotion-management"
           element={<PromotionManagement />}
@@ -49,6 +53,7 @@ function App() {
           element={<PromotionDetail />}
         />
         <Route path="/accounts/" element={<AccountManagement />} />
+
       </Routes>
     </Router>
   );
