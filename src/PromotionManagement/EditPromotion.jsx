@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { updatePromotion, fetchPromotionDetail } from "../config"; // Import API
 import "./EditPromotion.css"; // Import CSS
 import DashboardContainer from "../DashBoardContainer.jsx";
+
 const EditPromotion = () => {
   const { proID } = useParams(); // Lấy proID từ URL
   const navigate = useNavigate(); // Sử dụng để điều hướng
@@ -12,6 +13,7 @@ const EditPromotion = () => {
     discount: "",
     startDate: "",
     endDate: "",
+    quantity: "", // Thêm quantity vào form
   });
 
   useEffect(() => {
@@ -56,39 +58,6 @@ const EditPromotion = () => {
         <form className="add-promotion-form">
           <div className="form-left">
             <div className="form-group">
-              <label>Promotion Name</label>
-              <input
-                type="text"
-                name="proName"
-                value={formData.proName}
-                onChange={handleChange}
-                placeholder="Enter Promotion Name"
-              />
-            </div>
-            <div className="form-group">
-              <label>Promotion Code</label>
-              <input
-                type="text"
-                name="proCode"
-                value={formData.proCode}
-                onChange={handleChange}
-                placeholder="Enter Promotion Code"
-              />
-            </div>
-            <div className="form-group">
-              <label>Discount</label>
-              <input
-                type="number"
-                name="discount"
-                value={formData.discount}
-                onChange={handleChange}
-                placeholder="Enter Discount"
-              />
-            </div>
-          </div>
-
-          <div className="form-center">
-            <div className="form-group">
               <label>Start Date</label>
               <input
                 type="date"
@@ -97,6 +66,9 @@ const EditPromotion = () => {
                 onChange={handleChange}
               />
             </div>
+          </div>
+
+          <div className="form-center">
             <div className="form-group">
               <label>End Date</label>
               <input
@@ -104,6 +76,19 @@ const EditPromotion = () => {
                 name="endDate"
                 value={formData.endDate}
                 onChange={handleChange}
+              />
+            </div>
+          </div>
+
+          <div className="form-right">
+            <div className="form-group">
+              <label>Quantity</label>
+              <input
+                type="number"
+                name="quantity"
+                value={formData.quantity}
+                onChange={handleChange}
+                placeholder="Enter Quantity"
               />
             </div>
           </div>
