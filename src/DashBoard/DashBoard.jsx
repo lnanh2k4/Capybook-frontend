@@ -15,7 +15,9 @@ function Dashboard() {
   const goToPromotionManagement = () => {
     navigate("/promotion-management");
   };
-
+  const goToCategoryManagement = () => {
+    navigate("/category-management");
+  };
   return (
     <div className="main-container">
       <div className="dashboard-container-alt">
@@ -44,7 +46,7 @@ function Dashboard() {
             <i className="fas fa-tags dashboard-icon"></i>
             <p>Promotion Management</p>
           </div>
-          <div className="dashboard-item">
+          <div className="dashboard-item" onClick={goToCategoryManagement}>
             <i className="fas fa-tags dashboard-icon"></i>
             <p>Category Management</p>
           </div>

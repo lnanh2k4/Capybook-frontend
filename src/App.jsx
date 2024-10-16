@@ -11,6 +11,9 @@ import OrderDetail from "./OrderManagement/OrderDetail";
 import PromotionDetail from "./PromotionManagement/PromotionDetail";
 import EditPromotion from "./PromotionManagement/EditPromotion";
 import AccountManagement from "./AccountManagement/AccountManagement";
+import CategoryManagement from "./CategoryManagement/CategoryManagement";
+import AddCategory from "./CategoryManagement/AddCategory";
+import EditCategory from "./CategoryManagement/EditCategory";
 
 function App() {
   return (
@@ -31,6 +34,9 @@ function App() {
         <Route path="/dashboard/books/detail/:bookId" element={<ViewBookDetail />} />
         <Route path="/promotion-detail/:proID" element={<PromotionDetail />} />
         <Route path="/accounts/" element={<AccountManagement />} />
+        <Route path="/dashboard/Category/" element={<CategoryManagement />} />
+        <Route path="/dashboard/addCategory/" element={<AddCategory />} />
+        <Route path="/dashboard/editCategory/" element={<EditCategory />} />
       </Routes>
     </Router>
   );
