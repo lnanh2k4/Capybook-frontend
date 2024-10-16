@@ -16,6 +16,9 @@ function DashboardContainer() {
     const goToPromotionManagement = () => {
         navigate("/promotion-management");
     };
+    const goToSupplierManagement = () => {
+        navigate("/supplier-management");
+    };
 
     return (
         <div className="dashboard-container-alt">
@@ -44,7 +47,7 @@ function DashboardContainer() {
                     <i className="fas fa-tags dashboard-icon"></i>
                     <p>Category Management</p>
                 </div>
-                <div className="dashboard-item">
+                <div className="dashboard-item" onClick={goToSupplierManagement}>
                     <i className="fas fa-tags dashboard-icon"></i>
                     <p>Supplier Management</p>
                 </div>

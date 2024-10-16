@@ -11,7 +11,10 @@ import OrderDetail from "./OrderManagement/OrderDetail";
 import PromotionDetail from "./PromotionManagement/PromotionDetail";
 import EditPromotion from "./PromotionManagement/EditPromotion";
 import AccountManagement from "./AccountManagement/AccountManagement";
-
+import AddSupplier from './SupplierManagement/AddSupplier';
+import SupplierManagement from './SupplierManagement/SupplierManagement';
+import ViewSupplierDetail from './SupplierManagement/ViewSupplierDetail';
+import EditSupplier from './SupplierManagement/EditSupplier';
 function App() {
   return (
     <Router>
@@ -31,6 +34,10 @@ function App() {
         <Route path="/dashboard/books/detail/:bookId" element={<ViewBookDetail />} />
         <Route path="/promotion-detail/:proID" element={<PromotionDetail />} />
         <Route path="/accounts/" element={<AccountManagement />} />
+        <Route path="/supplier-management" element={<SupplierManagement />} />
+        <Route path="/add-supplier" element={<AddSupplier />} />
+        <Route path="/supplier-detail/:supID" element={<ViewSupplierDetail />} />
+        <Route path="/supplier-edit/:supID" element={<EditSupplier />} />
       </Routes>
     </Router>
   );
