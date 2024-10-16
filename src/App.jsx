@@ -12,12 +12,14 @@ import PromotionDetail from "./PromotionManagement/PromotionDetail";
 import EditPromotion from "./PromotionManagement/EditPromotion";
 import AccountManagement from "./AccountManagement/AccountManagement";
 import AccountDetail from "./AccountManagement/AccountDetail";
+import AddAccount from "./AccountManagement/AddAccount";
+import EditAccount from "./AccountManagement/EditAccount";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/" element={<Dashboard />} />
 
         <Route path="/dashboard/books/add/" element={<AddBook />} />
 
@@ -52,7 +54,10 @@ function App() {
           path="/dashboard/promotion-detail/:proID"
           element={<PromotionDetail />}
         />
-        <Route path="/accounts/" element={<AccountManagement />} />
+        <Route path="/dashboard/accounts" element={<AccountManagement />} />
+        <Route path="/dashboard/accounts/detail/:username" element={<AccountDetail />} />
+        <Route path="/dashboard/accounts/add" element={<AddAccount />} />
+        <Route path="/dashboard/accounts/:username" element={<EditAccount />} />
 
       </Routes>
     </Router>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; // Thêm useParams và useNavigate
-import { fetchAccountDetail } from '../config'; // Import API để lấy chi tiết sách
+import { useParams, useNavigate } from 'react-router-dom';
+import { fetchAccountDetail } from '../config';
+import DashboardContainer from '../DashBoardContainer';
 
 const AccountDetail = () => {
     const { username } = useParams();
@@ -39,8 +40,9 @@ const AccountDetail = () => {
 
     return (
         <div className="main-container">
-            <div className="add-book-container">
-                <form className="add-book-form">
+            <DashboardContainer />
+            <div className="add-account-container">
+                <form className="add-account-form">
                     <div className="form-left">
                         <div className="form-group">
                             <label>Username</label>
@@ -86,7 +88,13 @@ const AccountDetail = () => {
                         </div>
                         <div className="form-group">
                             <label>Manager ID</label>
-                            <input type="text" name="managerID" value={formData.staffDTOCollection && formData.staffDTOCollection.length > 0 && formData.staffDTOCollection[0] ? formData.staffDTOCollection[0].managerID.staffID : ""} readOnly />
+                            <input type="text" name="managerID"
+                                value={formData.staffDTOCollection &&
+                                    formData.staffDTOCollection.length > 0 &&
+                                    formData.staffDTOCollection[0]?.managerID?.staffID ?
+                                    formData.staffDTOCollection[0].managerID.staffID : ""}
+                                readOnly
+                            />
                         </div>
                     </div>
                     <div className="form-buttons">
@@ -95,7 +103,7 @@ const AccountDetail = () => {
 
                 </form>
             </div>
-            <div className="titlemanagement">
+            <div className="title-management">
                 <div> Account Management - View Account Detail </div>
             </div>
         </div>

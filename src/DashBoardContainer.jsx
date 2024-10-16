@@ -1,10 +1,14 @@
-import React from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import "./DashBoardView.css";
 function DashboardContainer() {
   const navigate = useNavigate(); // Initialize useNavigate inside the component
 
   // Define navigation functions inside DashboardContainer
+
+  const goToAccountManagement = () => {
+    navigate("/dashboard/accounts");
+  };
+
   const goToBookManagement = () => {
     navigate("/dashboard/books");
   };
@@ -28,6 +32,10 @@ function DashboardContainer() {
       </div>
       <h2 className="dashboard-title">{"Le Nhut Anh"}</h2>
       <div className="dashboard-grid">
+        <div className="dashboard-item" onClick={goToAccountManagement}>
+          <i className="fas fa-user dashboard-icon"></i>
+          <p>Account Management</p>
+        </div>
         <div className="dashboard-item" onClick={goToBookManagement}>
           <i className="fas fa-user dashboard-icon"></i>
           <p>Book Management</p>
