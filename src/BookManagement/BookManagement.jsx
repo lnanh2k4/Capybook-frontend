@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { fetchBooks, updateBook, fetchBookById } from '../config'; // Import functions from the API
 import { useNavigate } from 'react-router-dom';
 import './BookManagement.css'; // Import CSS for styling

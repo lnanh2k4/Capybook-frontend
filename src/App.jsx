@@ -11,13 +11,14 @@ import OrderDetail from "./OrderManagement/OrderDetail";
 import PromotionDetail from "./PromotionManagement/PromotionDetail";
 import EditPromotion from "./PromotionManagement/EditPromotion";
 import AccountManagement from "./AccountManagement/AccountManagement";
+import AccountDetail from "./AccountManagement/AccountDetail";
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/dashboard/books/addbook" element={<AddBook />} />
+        <Route path="/dashboard/books/add/" element={<AddBook />} />
         <Route path="/dashboard/books/edit/:bookId" element={<EditBook />} />
         <Route path="/dashboard/books" element={<BookManagement />} />
         <Route path="/dashboard/books/detail" element={<ViewBookDetail />} />
@@ -30,7 +31,8 @@ function App() {
         <Route path="/dashboard/books/detail/:bookId" element={<ViewBookDetail />} />
         <Route path="/dashboard/books/detail/:bookId" element={<ViewBookDetail />} />
         <Route path="/promotion-detail/:proID" element={<PromotionDetail />} />
-        <Route path="/accounts/" element={<AccountManagement />} />
+        <Route path="/dashboard/accounts/" element={<AccountManagement />} />
+        <Route path="/dashboard/accounts/detail/:username" element={<AccountDetail />} />
       </Routes>
     </Router>
   );

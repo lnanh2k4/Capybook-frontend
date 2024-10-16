@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { fetchAccounts } from '../config'; // Import các function từ api.js
-// import { useNavigate } from 'react-router-dom';
+import { fetchAccounts, deleteAccount } from '../config'; // Import các function từ api.js
+import { useNavigate } from 'react-router-dom';
 
 const AccountManagement = () => {
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
 
     // const goToAddAccount = () => {
     //     navigate('/account/add');
@@ -11,30 +11,29 @@ const AccountManagement = () => {
     // const goToEditAccount = (username) => {
     //     navigate(`/account/edit/${username}`);
     // };
-    // const goToAccountDetail = (username) => {
-    //     navigate(`/account/detail/${username}`); // Corrected string interpolation
-    // };
+    const goToAccountDetail = (username) => {
+        navigate(`/dashboard/accounts/detail/${username}`);
+    };
 
 
     const [accounts, setAccounts] = useState([]);
     useEffect(() => {
         fetchAccounts().then(response => {
-            console.log("Fetched account data:", response.data); // In dữ liệu account ra console
             setAccounts(response.data);
         }).catch(error => {
             console.error('Error account books:', error);
         });
     }, []);
 
-    // const handleDelete = (username) => {
-    //     if (window.confirm("Are you sure you want to delete this account?")) {
-    //         deleteAccount(username).then(() => {
-    //             setAccounts(accounts.filter(account => account.username !== username));
-    //         }).catch(error => {
-    //             console.error('Error deleting account:', error);
-    //         });
-    //     }
-    // };
+    const handleDelete = (username) => {
+        if (window.confirm("Are you sure you want to delete this account?")) {
+            deleteAccount(username).then(() => {
+                setAccounts(accounts.filter(account => account.username !== username));
+            }).catch(error => {
+                console.error('Error deleting account:', error);
+            });
+        }
+    };
     return (
         <div className="table-container">
             <div className="action-container">
@@ -70,9 +69,9 @@ const AccountManagement = () => {
                             <td>{account.email}</td>
                             <td>
                                 <div className="action-buttons">
-                                    <button className="detail">Detail</button>
+                                    <button className="detail" onClick={() => goToAccountDetail(account.username)}>Detail</button>
                                     <button className="edit" >Edit</button>
-                                    <button className="delete">Delete</button>
+                                    <button className="delete" onClick={() => handleDelete(account.username)}>Delete</button>
                                 </div>
                             </td>
                         </tr>

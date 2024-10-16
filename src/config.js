@@ -5,6 +5,9 @@ const client = axios.create({
 });
 
 const fetchAccounts = () => client.get('v1/accounts/');
+const fetchAccountDetail = (username) => client.get(`v1/accounts/detail/${username}`);
+const deleteAccount = (username) => client.delete(`v1/accounts/delete/${username}`);
+
 const fetchBooks = () => client.get('v1/books/');
 const fetchBookDetail = (id) => client.get(`/v1/books/${id}`); // Hàm lấy chi tiết sách
 
@@ -28,4 +31,4 @@ const searchBooks = (searchTerm) => {
     });
 };
 
-export { fetchAccounts, fetchBooks, fetchBookDetail, addBook, updateBook, deleteBook, fetchBookById, searchBooks }
+export { fetchAccounts, fetchBooks, fetchBookDetail, addBook, updateBook, deleteBook, fetchBookById, searchBooks, fetchAccountDetail, deleteAccount }
