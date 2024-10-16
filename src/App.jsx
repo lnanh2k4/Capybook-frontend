@@ -11,6 +11,9 @@ import OrderDetail from "./OrderManagement/OrderDetail";
 import PromotionDetail from "./PromotionManagement/PromotionDetail";
 import EditPromotion from "./PromotionManagement/EditPromotion";
 import AccountManagement from "./AccountManagement/AccountManagement";
+import CategoryManagement from "./CategoryManagement/CategoryManagement";
+import AddCategory from "./CategoryManagement/AddCategory";
+import EditCategory from "./CategoryManagement/EditCategory";
 
 import AddSupplier from "./SupplierManagement/AddSupplier";
 import SupplierManagement from "./SupplierManagement/SupplierManagement";
@@ -37,6 +40,12 @@ function App() {
 
         <Route path="/dashboard/books/detail" element={<ViewBookDetail />} />
         <Route path="/dashboard/books/edit" element={<EditBook />} />
+
+       
+        <Route path="/dashboard/Category/" element={<CategoryManagement />} />
+        <Route path="/dashboard/addCategory/" element={<AddCategory />} />
+        <Route path="/dashboard/editCategory/" element={<EditCategory />} />
+
 
 
         <Route
@@ -72,6 +81,7 @@ function App() {
         <Route path="/dashboard/accounts/detail/:username" element={<AccountDetail />} />
         <Route path="/dashboard/accounts/add" element={<AddAccount />} />
         <Route path="/dashboard/accounts/:username" element={<EditAccount />} />
+
 
 
       </Routes>
