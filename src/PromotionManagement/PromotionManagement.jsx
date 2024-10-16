@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./PromotionManagement.css";
-import { fetchPromotions, deletePromotion } from "./PromotionAPI";
+import { fetchPromotions, deletePromotion } from "../config";
 
 const PromotionManagement = () => {
   const navigate = useNavigate();
@@ -34,15 +34,15 @@ const PromotionManagement = () => {
   };
 
   const goToAddPromotion = () => {
-    navigate("/add-promotion");
+    navigate("/dashboard/add-promotion");
   };
 
   const goToEditPromotion = (proID) => {
-    navigate(`/edit-promotion/${proID}`);
+    navigate(`/dashboard/edit-promotion/${proID}`);
   };
 
   const goToPromotionDetail = (proID) => {
-    navigate(`/promotion-detail/${proID}`);
+    navigate(`/dashboard/promotion-detail/${proID}`);
   };
 
   // Hàm xử lý khi bấm nút Delete

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { updatePromotion, fetchPromotionDetail } from "./PromotionAPI"; // Import API
+import { updatePromotion, fetchPromotionDetail } from "../config"; // Import API
 import "./EditPromotion.css"; // Import CSS
 
 const EditPromotion = () => {
@@ -38,7 +38,7 @@ const EditPromotion = () => {
     // Gọi API để cập nhật thông tin khuyến mãi
     updatePromotion(proID, formData)
       .then(() => {
-        navigate("/promotion-management"); // Điều hướng về Promotion Management sau khi cập nhật
+        navigate("/dashboard/promotion-management"); // Điều hướng về Promotion Management sau khi cập nhật
       })
       .catch((error) => {
         console.error("Error updating promotion:", error);
@@ -46,7 +46,7 @@ const EditPromotion = () => {
   };
 
   const handleCancel = () => {
-    navigate("/promotion-management"); // Điều hướng về Promotion Management khi cancel
+    navigate("/dashboard/promotion-management"); // Điều hướng về Promotion Management khi cancel
   };
 
   return (

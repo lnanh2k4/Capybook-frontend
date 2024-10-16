@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Sử dụng useNavigate để điều hướng
-import { addPromotion } from "./PromotionAPI"; // Import API addPromotion
+import { addPromotion } from "../config"; // Import API addPromotion
 import "./AddPromotion.css";
 
 const AddPromotion = () => {
@@ -24,17 +24,33 @@ const AddPromotion = () => {
     });
   };
 
-  // Gọi API addPromotion khi submit form
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault(); // Ngăn hành vi mặc định của form
-    addPromotion(formData)
-      .then(() => {
-        console.log("Promotion added successfully!");
-        navigate("/promotion-management");
-      })
-      .catch((error) => {
-        console.error("Error adding promotion:", error);
-      });
+
+    try {
+      // Tạo đối tượng dữ liệu khuyến mãi
+      const promotionData = {
+        proName: formData.promotionName,
+        proCode: formData.promotionCode,
+        quantity: formData.quantity,
+        discount: formData.discountQuantity,
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        proStatus: 1, // Có thể thêm trường này nếu cần thiết
+      };
+
+      // In log để kiểm tra dữ liệu promotionData
+      console.log("Promotion data to be sent:", promotionData);
+
+      // Gửi dữ liệu JSON trực tiếp
+      await addPromotion(promotionData);
+      console.log("Promotion added successfully!");
+
+      // Điều hướng về trang Promotion Management sau khi thêm thành công
+      navigate("/dashboard/promotion-management");
+    } catch (error) {
+      console.error("Error adding promotion:", error);
+    }
   };
 
   const handleReset = () => {
@@ -46,10 +62,6 @@ const AddPromotion = () => {
       startDate: "",
       endDate: "",
     });
-  };
-
-  const goToPromotionManagement = () => {
-    navigate("/promotion-management"); // Điều hướng về Promotion Management
   };
 
   return (
@@ -102,7 +114,7 @@ const AddPromotion = () => {
         </div>
       </div>
       <div className="add-promotion-container">
-        <form className="add-promotion-form" onSubmit={handleSubmit}>
+        <form className="add-promotion-form">
           <div className="form-left">
             <div className="form-group">
               <label>Promotion Name</label>
@@ -168,7 +180,7 @@ const AddPromotion = () => {
           </div>
 
           <div className="form-buttons">
-            <button type="submit" onClick={goToPromotionManagement}>
+            <button type="submit" onClick={handleSubmit}>
               Submit
             </button>
             <button type="button" onClick={handleReset}>

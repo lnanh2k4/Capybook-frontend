@@ -22,14 +22,32 @@ function App() {
         <Route path="/dashboard/books" element={<BookManagement />} />
         <Route path="/dashboard/books/detail" element={<ViewBookDetail />} />
         <Route path="/dashboard/books/edit" element={<EditBook />} />
-        <Route path="/promotion-management" element={<PromotionManagement />} />
-        <Route path="/add-promotion" element={<AddPromotion />} />
-        <Route path="/edit-promotion/:proID" element={<EditPromotion />} />
-        <Route path="/order-management" element={<OrderManagement />} />
-        <Route path="/order-detail/:id" element={<OrderDetail />} />
-        <Route path="/dashboard/books/detail/:bookId" element={<ViewBookDetail />} />
-        <Route path="/dashboard/books/detail/:bookId" element={<ViewBookDetail />} />
-        <Route path="/promotion-detail/:proID" element={<PromotionDetail />} />
+        <Route
+          path="/dashboard/promotion-management"
+          element={<PromotionManagement />}
+        />
+        <Route path="/dashboard/add-promotion" element={<AddPromotion />} />
+        <Route
+          path="/dashboard/edit-promotion/:proID"
+          element={<EditPromotion />}
+        />
+        <Route
+          path="/dashboard/order-management"
+          element={<OrderManagement />}
+        />
+        <Route path="/dashboard/order-detail/:id" element={<OrderDetail />} />
+        <Route
+          path="/dashboard/books/detail/:bookId"
+          element={<ViewBookDetail />}
+        />
+        <Route
+          path="/dashboard/books/detail/:bookId"
+          element={<ViewBookDetail />}
+        />
+        <Route
+          path="/dashboard/promotion-detail/:proID"
+          element={<PromotionDetail />}
+        />
         <Route path="/accounts/" element={<AccountManagement />} />
       </Routes>
     </Router>
