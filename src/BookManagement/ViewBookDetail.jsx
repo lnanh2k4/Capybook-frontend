@@ -42,7 +42,7 @@ function ViewBookDetail() {
 
 
     const goToBookManagement = () => {
-        navigate('/book-management'); // Điều hướng về trang Book Management
+        navigate("/dashboard/books");
     };
 
     return (
@@ -57,7 +57,7 @@ function ViewBookDetail() {
                         <i className="fas fa-book dashboard-icon"></i>
                         <p>Account Management</p>
                     </div>
-                    <div className="dashboard-item">
+                    <div className="dashboard-item" onClick={goToBookManagement}>
                         <i className="fas fa-user dashboard-icon"></i>
                         <p>Book Management</p>
                     </div>

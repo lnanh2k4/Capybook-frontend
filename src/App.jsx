@@ -16,19 +16,19 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/add-book" element={<AddBook />} />
-        <Route path="/edit-book/:bookId" element={<EditBook />} />
-        <Route path="/book-management" element={<BookManagement />} />
-        <Route path="/book-detail" element={<ViewBookDetail />} />
-        <Route path="/book-edit" element={<EditBook />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dashboard/books/addbook" element={<AddBook />} />
+        <Route path="/dashboard/books/edit/:bookId" element={<EditBook />} />
+        <Route path="/dashboard/books" element={<BookManagement />} />
+        <Route path="/dashboard/books/detail" element={<ViewBookDetail />} />
+        <Route path="/dashboard/books/edit" element={<EditBook />} />
         <Route path="/promotion-management" element={<PromotionManagement />} />
         <Route path="/add-promotion" element={<AddPromotion />} />
         <Route path="/edit-promotion/:proID" element={<EditPromotion />} />
         <Route path="/order-management" element={<OrderManagement />} />
         <Route path="/order-detail/:id" element={<OrderDetail />} />
-        <Route path="/book-detail/:bookId" element={<ViewBookDetail />} />
-        <Route path="/book-detail/:bookId" element={<ViewBookDetail />} />
+        <Route path="/dashboard/books/detail/:bookId" element={<ViewBookDetail />} />
+        <Route path="/dashboard/books/detail/:bookId" element={<ViewBookDetail />} />
         <Route path="/promotion-detail/:proID" element={<PromotionDetail />} />
         <Route path="/accounts/" element={<AccountManagement />} />
       </Routes>

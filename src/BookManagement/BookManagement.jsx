@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { fetchBooks, deleteBook } from '../config'; // Import các function từ api.js
+import React, { useEffect, useState } from 'react';
+import { fetchBooks, updateBook, fetchBookById } from '../config'; // Import các function từ api.js
 import { useNavigate } from 'react-router-dom';
 import './BookManagement.css'; // Import file CSS
 
@@ -16,26 +16,52 @@ function BookManagement() {
         });
     }, []);
 
-    const handleDelete = (id) => {
-        if (window.confirm("Are you sure you want to delete this book?")) {
-            deleteBook(id).then(() => {
-                setBooks(books.filter(book => book.bookId !== id));
-            }).catch(error => {
-                console.error('Error deleting book:', error);
-            });
+    const handleDelete = async (id) => {
+        if (window.confirm("Are you sure you want to deactivate this book?")) {
+            try {
+                // Fetch the current book data by its ID (assuming `fetchBookById` is an API call you have).
+                const response = await fetchBookById(id);
+                const currentBookData = response.data; // Get the existing book data
+
+                // Update the bookStatus to 0
+                const updatedBookData = {
+                    ...currentBookData,
+                    bookStatus: 0 // Set the bookStatus to 0 for deactivation
+                };
+
+                // Create a FormData object
+                const formDataToSend = new FormData();
+                formDataToSend.append('book', JSON.stringify(updatedBookData));
+
+                // Append the image file if it exists
+                if (currentBookData.image) {
+                    const imageFile = currentBookData.image; // Assuming the image is stored in the book data
+                    formDataToSend.append('image', imageFile); // Add the image to the FormData
+                }
+
+                // Send the updated data via a PUT request
+                await updateBook(id, formDataToSend);
+
+                // Update the state to reflect the change (optional)
+                setBooks(books.map(book =>
+                    book.bookID === id ? { ...book, bookStatus: 0 } : book
+                ));
+            } catch (error) {
+                console.error('Error deactivating book:', error);
+            }
         }
     };
 
     const goToAddBook = () => {
-        navigate('/add-book');
+        navigate('/dashboard/books/addbook');
     };
     const goToEditBook = (bookId) => {
-        navigate(`/edit-book/${bookId}`);
+        navigate(`/dashboard/books/edit/${bookId}`);
     };
     const goToBookDetail = (bookId) => {
-        navigate(`/book-detail/${bookId}`); // Corrected string interpolation
+        navigate(`/dashboard/books/detail/${bookId}`); // Corrected string interpolation
     };
-
+    const activeBooks = books.filter(book => book.bookStatus === 1);
     return (
         <div className="main-container">
             <div className="dashboard-container-alt">
@@ -109,7 +135,7 @@ function BookManagement() {
                     </thead>
                     <tbody>
 
-                        {books.map((book) => (
+                        {activeBooks.map((book) => (
                             <tr key={book.bookID}>
                                 <td>{book.bookID}</td>
                                 <td>{book.bookTitle}</td>
@@ -119,7 +145,6 @@ function BookManagement() {
                                 <td>
                                     <div className="action-buttons">
                                         <button className="detail" onClick={() => goToBookDetail(book.bookID)}>Detail</button>
-                                        {/* Đã sửa lại hàm onClick để không tự động gọi goToEditBook */}
                                         <button className="edit" onClick={() => goToEditBook(book.bookID)}>Edit</button>
                                         <button className="delete" onClick={() => handleDelete(book.bookID)}>Delete</button>
                                     </div>

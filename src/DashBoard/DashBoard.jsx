@@ -5,7 +5,7 @@ function Dashboard() {
   const navigate = useNavigate();
 
   const goToBookManagement = () => {
-    navigate("/book-management");
+    navigate("/dashboard/books");
   };
 
   const goToOrderManagement = () => {

@@ -72,7 +72,7 @@ function AddBook() {
             }
 
             await addBook(formDataToSend);
-            navigate('/book-management');
+            navigate("/dashboard/books");
         } catch (error) {
             console.error('Error adding book:', error);
         }
@@ -98,7 +98,7 @@ function AddBook() {
     };
 
     const goToBookManagement = () => {
-        navigate('/book-management');
+        navigate("/dashboard/books");
     };
     return (
         <div className="main-container">

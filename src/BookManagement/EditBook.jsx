@@ -85,14 +85,14 @@ function EditBook() {
             }
 
             await updateBook(bookId, formDataToSend);
-            navigate('/book-management');
+            navigate("/dashboard/books");
         } catch (error) {
             console.error('Error updating book:', error);
         }
     };
 
     const goToBookManagement = () => {
-        navigate('/book-management');
+        navigate("/dashboard/books");
     };
 
     return (
