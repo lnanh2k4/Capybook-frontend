@@ -11,10 +11,10 @@ import OrderDetail from "./OrderManagement/OrderDetail";
 import PromotionDetail from "./PromotionManagement/PromotionDetail";
 import EditPromotion from "./PromotionManagement/EditPromotion";
 import AccountManagement from "./AccountManagement/AccountManagement";
-import AddSupplier from './SupplierManagement/AddSupplier';
-import SupplierManagement from './SupplierManagement/SupplierManagement';
-import ViewSupplierDetail from './SupplierManagement/ViewSupplierDetail';
-import EditSupplier from './SupplierManagement/EditSupplier';
+import AddSupplier from "./SupplierManagement/AddSupplier";
+import SupplierManagement from "./SupplierManagement/SupplierManagement";
+import ViewSupplierDetail from "./SupplierManagement/ViewSupplierDetail";
+import EditSupplier from "./SupplierManagement/EditSupplier";
 function App() {
   return (
     <Router>
@@ -23,8 +23,8 @@ function App() {
         <Route path="/dashboard/books/add" element={<AddBook />} />
         <Route path="/dashboard/books/edit/:bookId" element={<EditBook />} />
         <Route path="/dashboard/books" element={<BookManagement />} />
-        <Route path="/dashboard/books/detail" element={<ViewBookDetail />} />
-        <Route path="/dashboard/books/edit" element={<EditBook />} />
+        <Route path="/dashboard/accounts" element={<AccountManagement />} />
+
         <Route
           path="/dashboard/promotion-management"
           element={<PromotionManagement />}
@@ -43,19 +43,16 @@ function App() {
           path="/dashboard/books/detail/:bookId"
           element={<ViewBookDetail />}
         />
-        <Route
-          path="/dashboard/books/detail/:bookId"
-          element={<ViewBookDetail />}
-        />
+
         <Route
           path="/dashboard/promotion-detail/:proID"
           element={<PromotionDetail />}
         />
-        <Route path="/accounts/" element={<AccountManagement />} />
-        <Route path="/supplier-management" element={<SupplierManagement />} />
-        <Route path="/add-supplier" element={<AddSupplier />} />
-        <Route path="/supplier-detail/:supID" element={<ViewSupplierDetail />} />
-        <Route path="/supplier-edit/:supID" element={<EditSupplier />} />
+        <Route path="/dashboard/suppliers" element={<SupplierManagement />} />
+        <Route path="/dashboard/suppliers/add" element={<AddSupplier />} />
+        <Route path="/dashboard/supplier/:supID" element={<ViewSupplierDetail />} />
+        <Route path="/dashboard/suppliers/edit/:supID" element={<EditSupplier />} />
+
       </Routes>
     </Router>
   );

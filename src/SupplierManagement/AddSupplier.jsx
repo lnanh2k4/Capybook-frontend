@@ -1,110 +1,69 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './AddSupplier.css';
-import { addSupplier } from './SupplierApi';
-function AddSupplier() {
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Sử dụng useNavigate để điều hướng
+import { addSupplier } from '../config'; // Import API addSupplier
+import "./AddSupplier.css";
+import DashboardContainer from "../DashBoardContainer.jsx";
+
+const AddSupplier = () => {
     const [formData, setFormData] = useState({
-        supName: '',
-        supEmail: '',
-        supPhone: '',
-        supAddress: ''
+        supName: "",
+        supEmail: "",
+        supPhone: "",
+        supAddress: "",
     });
 
+    // Khởi tạo useNavigate để điều hướng
     const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({
             ...formData,
-            [name]: value
+            [name]: value,
         });
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+        e.preventDefault(); // Ngăn hành vi mặc định của form
 
         try {
+            // Tạo đối tượng dữ liệu nhà cung cấp
             const supplierData = {
                 supName: formData.supName,
                 supEmail: formData.supEmail,
                 supPhone: formData.supPhone,
                 supAddress: formData.supAddress,
-                supStatus: 1
+                supStatus: 1, // Có thể thêm trạng thái nếu cần thiết
             };
-            console.log("Supplier data:", supplierData);
 
-            // Send the supplier data as JSON to the backend
+            // In log để kiểm tra dữ liệu supplierData
+            console.log("Supplier data to be sent:", supplierData);
+
+            // Gửi dữ liệu JSON trực tiếp
             await addSupplier(supplierData);
+            console.log("Supplier added successfully!");
 
-            // Navigate to supplier management after success
-            navigate('/supplier-management');
+            // Điều hướng về trang Supplier Management sau khi thêm thành công
+            navigate("/dashboard/suppliers");
         } catch (error) {
-            console.error('Error adding supplier:', error);
+            console.error("Error adding supplier:", error);
         }
     };
 
-
     const handleReset = () => {
         setFormData({
-            supName: '',
-            supEmail: '',
-            supPhone: '',
-            supAddress: ''
+            supName: "",
+            supEmail: "",
+            supPhone: "",
+            supAddress: "",
         });
-    };
-
-    const goToSupplierManagement = () => {
-        navigate('/supplier-management');
     };
 
     return (
         <div className="main-container">
-            <div className="dashboard-container-alt">
-                <div className="logo-container">
-                    <img src="/logo-capybook.png" alt="Capybook Logo" className="logo-image" />
-                </div>
-                <h2 className="dashboard-title">{"Le Nhut Anh"}</h2>
-                <div className="dashboard-grid">
-                    <div className="dashboard-item">
-                        <i className="fas fa-supplier dashboard-icon"></i>
-                        <p>Account Management</p>
-                    </div>
-                    <div className="dashboard-item">
-                        <i className="fas fa-user dashboard-icon"></i>
-                        <p>Book Management</p>
-                    </div>
-                    <div className="dashboard-item">
-                        <i className="fas fa-tags dashboard-icon"></i>
-                        <p>Order Management</p>
-                    </div>
-                    <div className="dashboard-item">
-                        <i className="fas fa-tags dashboard-icon"></i>
-                        <p>Promotion Management</p>
-                    </div>
-                    <div className="dashboard-item">
-                        <i className="fas fa-tags dashboard-icon"></i>
-                        <p>Category Management</p>
-                    </div>
-                    <div className="dashboard-item" onClick={goToSupplierManagement}>
-                        <i className="fas fa-tags dashboard-icon"></i>
-                        <p>Supplier Management</p>
-                    </div>
-                    <div className="dashboard-item">
-                        <i className="fas fa-tags dashboard-icon"></i>
-                        <p>Inventory Management</p>
-                    </div>
-                    <div className="dashboard-item">
-                        <i className="fas fa-tags dashboard-icon"></i>
-                        <p>Notification Management</p>
-                    </div>
-                </div>
-                <div className="leave-logo-container">
-                    <img src="/back_icon.png" className="leave-logo-image" />
-                </div>
-            </div>
-
+            <DashboardContainer />
             <div className="add-supplier-container">
-                <form className="add-supplier-form" onSubmit={handleSubmit}>
+                <form className="add-supplier-form">
                     <div className="form-left">
                         <div className="form-group">
                             <label>Supplier Name</label>
@@ -113,7 +72,7 @@ function AddSupplier() {
                                 name="supName"
                                 value={formData.supName}
                                 onChange={handleChange}
-                                placeholder="Supplier Name"
+                                placeholder="Enter Supplier Name"
                             />
                         </div>
                         <div className="form-group">
@@ -123,7 +82,7 @@ function AddSupplier() {
                                 name="supPhone"
                                 value={formData.supPhone}
                                 onChange={handleChange}
-                                placeholder="Supplier Phone"
+                                placeholder="Enter Supplier Phone"
                             />
                         </div>
                         <div className="form-group">
@@ -133,7 +92,7 @@ function AddSupplier() {
                                 name="supEmail"
                                 value={formData.supEmail}
                                 onChange={handleChange}
-                                placeholder="Supplier Email"
+                                placeholder="Enter Supplier Email"
                             />
                         </div>
                         <div className="form-group">
@@ -143,14 +102,18 @@ function AddSupplier() {
                                 name="supAddress"
                                 value={formData.supAddress}
                                 onChange={handleChange}
-                                placeholder="Supplier Address"
+                                placeholder="Enter Supplier Address"
                             />
                         </div>
                     </div>
 
                     <div className="form-buttons">
-                        <button type="submit">Submit</button>
-                        <button type="button" onClick={handleReset}>Reset</button>
+                        <button type="submit" onClick={handleSubmit}>
+                            Submit
+                        </button>
+                        <button type="button" onClick={handleReset}>
+                            Reset
+                        </button>
                     </div>
                 </form>
             </div>
@@ -159,12 +122,12 @@ function AddSupplier() {
                 <div>Supplier Management - Add Supplier</div>
             </div>
             <div className="copyright">
-                <div>© Copyright {new Date().getFullYear()}</div>
-                <div>Capybook Management System</div>
+                <div>© {new Date().getFullYear()}</div>
+                <div>Cabybook Management System</div>
                 <div>All Rights Reserved</div>
             </div>
         </div>
     );
-}
+};
 
 export default AddSupplier;

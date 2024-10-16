@@ -1,96 +1,57 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { fetchSupplierById, updateSupplier } from './SupplierApi'; // Assuming these functions are defined in your API file
-import './EditSupplier.css';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { updateSupplier, fetchSupplierById } from "../config"; // Import API functions
+import "./EditSupplier.css"; // Import CSS
+import DashboardContainer from "../DashBoardContainer.jsx"; // Import dashboard layout
 
-function EditSupplier() {
-    const { supID } = useParams(); // Get supplierId from the URL
-    const navigate = useNavigate(); // Define navigate function
-
+const EditSupplier = () => {
+    const { supID } = useParams(); // Get supID from URL
+    const navigate = useNavigate(); // To navigate back to supplier management
     const [formData, setFormData] = useState({
-        supName: '',
-        supEmail: '',
-        supPhone: '',
-        supAddress: '',
+        supName: "",
+        supEmail: "",
+        supPhone: "",
+        supAddress: "",
     });
 
     useEffect(() => {
-        if (supID) {
-            // Fetch supplier details by ID
-            fetchSupplierById(supID)
-                .then(response => {
-                    setFormData(response.data); // Set form data with the fetched supplier details
-                })
-                .catch(error => {
-                    console.error('Error fetching supplier details:', error);
-                });
-        } else {
-            console.error('supplierId is not defined');
-        }
+        // Fetch supplier details by supID
+        fetchSupplierById(supID)
+            .then((response) => {
+                setFormData(response.data); // Fill form with fetched supplier data
+            })
+            .catch((error) => {
+                console.error("Error fetching supplier details:", error);
+            });
     }, [supID]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({
             ...formData,
-            [name]: value
+            [name]: value,
         });
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
-        try {
-            const supplierData = {
-                supName: formData.supName,
-                supEmail: formData.supEmail,
-                supPhone: formData.supPhone,
-                supAddress: formData.supAddress,
-                supStatus: 1 // Default supplier status, can be adjusted as needed
-            };
-
-            // Assuming updateSupplier is an API function to update supplier data
-            await updateSupplier(supID, supplierData); // Use supplierId correctly here
-            navigate('/supplier-management'); // Navigate back to supplier management after update
-        } catch (error) {
-            console.error('Error updating supplier:', error);
-        }
+        // Call API to update supplier data
+        updateSupplier(supID, formData)
+            .then(() => {
+                navigate("/dashboard/suppliers"); // Redirect to supplier management after update
+            })
+            .catch((error) => {
+                console.error("Error updating supplier:", error);
+            });
     };
 
-    const handleReset = () => {
-        setFormData({
-            supName: '',
-            supEmail: '',
-            supPhone: '',
-            supAddress: '',
-        });
-    };
-
-    const goToSupplierManagement = () => {
-        navigate('/supplier-management');
+    const handleCancel = () => {
+        navigate("/dashboard/suppliers"); // Navigate back to supplier management on cancel
     };
 
     return (
         <div className="main-container">
-            <div className="dashboard-container-alt">
-                <div className="logo-container">
-                    <img src="/logo-capybook.png" alt="Cabybook Logo" className="logo-image" />
-                </div>
-                <h2 className="dashboard-title">{"Le Nhut Anh"}</h2>
-                <div className="dashboard-grid">
-                    <div className="dashboard-item"><i className="fas fa-book dashboard-icon"></i><p>Account Management</p></div>
-                    <div className="dashboard-item"><i className="fas fa-user dashboard-icon"></i><p>Book Management</p></div>
-                    <div className="dashboard-item"><i className="fas fa-tags dashboard-icon"></i><p>Order Management</p></div>
-                    <div className="dashboard-item"><i className="fas fa-tags dashboard-icon"></i><p>Promotion Management</p></div>
-                    <div className="dashboard-item"><i className="fas fa-tags dashboard-icon"></i><p>Category Management</p></div>
-                    <div className="dashboard-item" onClick={goToSupplierManagement}><i className="fas fa-tags dashboard-icon"></i><p>Supplier Management</p></div>
-                    <div className="dashboard-item"><i className="fas fa-tags dashboard-icon"></i><p>Inventory Management</p></div>
-                    <div className="dashboard-item"><i className="fas fa-tags dashboard-icon"></i><p>Notification Management</p></div>
-                </div>
-                <div className="leave-logo-container">
-                    <img src="/back_icon.png" className="leave-logo-image" />
-                </div>
-            </div>
-
+            <DashboardContainer />
             <div className="edit-supplier-container">
                 <form className="edit-supplier-form" onSubmit={handleSubmit}>
                     <div className="form-left">
@@ -101,7 +62,7 @@ function EditSupplier() {
                                 name="supName"
                                 value={formData.supName}
                                 onChange={handleChange}
-                                placeholder="Supplier Name"
+                                placeholder="Enter Supplier Name"
                                 required
                             />
                         </div>
@@ -112,7 +73,7 @@ function EditSupplier() {
                                 name="supPhone"
                                 value={formData.supPhone}
                                 onChange={handleChange}
-                                placeholder="Supplier Phone"
+                                placeholder="Enter Supplier Phone"
                                 required
                             />
                         </div>
@@ -123,7 +84,7 @@ function EditSupplier() {
                                 name="supEmail"
                                 value={formData.supEmail}
                                 onChange={handleChange}
-                                placeholder="Supplier Email"
+                                placeholder="Enter Supplier Email"
                                 required
                             />
                         </div>
@@ -134,15 +95,17 @@ function EditSupplier() {
                                 name="supAddress"
                                 value={formData.supAddress}
                                 onChange={handleChange}
-                                placeholder="Supplier Address"
+                                placeholder="Enter Supplier Address"
                                 required
                             />
                         </div>
                     </div>
 
                     <div className="form-buttons">
-                        <button type="submit">Submit</button>
-                        <button type="button" onClick={goToSupplierManagement}>Cancel</button>
+                        <button type="submit">Save</button>
+                        <button type="button" onClick={handleCancel}>
+                            Cancel
+                        </button>
                     </div>
                 </form>
             </div>
@@ -151,12 +114,12 @@ function EditSupplier() {
                 <div> Supplier Management - Edit Supplier </div>
             </div>
             <div className="copyright">
-                <div>© Copyright {new Date().getFullYear()}</div>
+                <div>© {new Date().getFullYear()}</div>
                 <div>Cabybook Management System</div>
                 <div>All Rights Reserved</div>
             </div>
         </div>
     );
-}
+};
 
 export default EditSupplier;
