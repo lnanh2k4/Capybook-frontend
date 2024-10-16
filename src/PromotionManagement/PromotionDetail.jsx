@@ -32,11 +32,20 @@ function PromotionDetail() {
         <form className="add-promotion-form">
           <div className="form-left">
             <div className="form-group">
+              <label>Promotion ID</label> {/* Thêm ô Promotion ID */}
+              <input
+                type="text"
+                name="proID"
+                value={formData.proID || ""} // Hiển thị proID
+                readOnly
+              />
+            </div>
+            <div className="form-group">
               <label>Promotion Name</label>
               <input
                 type="text"
                 name="proName"
-                value={formData.proName}
+                value={formData.proName || ""}
                 readOnly
               />
             </div>
@@ -45,16 +54,7 @@ function PromotionDetail() {
               <input
                 type="text"
                 name="proCode"
-                value={formData.proCode}
-                readOnly
-              />
-            </div>
-            <div className="form-group">
-              <label>Discount</label>
-              <input
-                type="text"
-                name="discount"
-                value={formData.discount}
+                value={formData.proCode || ""}
                 readOnly
               />
             </div>
@@ -66,7 +66,7 @@ function PromotionDetail() {
               <input
                 type="date"
                 name="startDate"
-                value={formData.startDate}
+                value={formData.startDate || ""}
                 readOnly
               />
             </div>
@@ -75,7 +75,47 @@ function PromotionDetail() {
               <input
                 type="date"
                 name="endDate"
-                value={formData.endDate}
+                value={formData.endDate || ""}
+                readOnly
+              />
+            </div>
+            <div className="form-group">
+              <label>Discount</label>
+              <input
+                type="text"
+                name="discount"
+                value={formData.discount || ""}
+                readOnly
+              />
+            </div>
+          </div>
+
+          <div className="form-right">
+            <div className="form-group">
+              <label>Created By</label>
+              <input
+                type="text"
+                name="createdBy"
+                value={formData.createdBy?.username || "N/A"} // Hiển thị tên người tạo
+                readOnly
+              />
+            </div>
+            <div className="form-group">
+              <label>Approved By</label>
+              <input
+                type="text"
+                name="approvedBy"
+                value={formData.approvedBy?.username || "N/A"} // Hiển thị tên người phê duyệt
+                readOnly
+              />
+            </div>
+            <div className="form-group">
+              <label>Promotion Quantity</label>{" "}
+              {/* Thêm trường Promotion Quantity */}
+              <input
+                type="text"
+                name="quantity"
+                value={formData.quantity || ""} // Hiển thị số lượng khuyến mãi
                 readOnly
               />
             </div>

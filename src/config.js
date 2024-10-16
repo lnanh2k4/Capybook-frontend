@@ -4,7 +4,21 @@ const client = axios.create({
     baseURL: URLString, // Địa chỉ API của bạn
 });
 
+const addAccount = (account) => {
+    return client.post('v1/accounts/', account, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        }
+    });
+};
 const fetchAccounts = () => client.get('v1/accounts/');
+const fetchAccountDetail = (username) => client.get(`v1/accounts/detail/${username}`);
+const deleteAccount = (username) => client.delete(`v1/accounts/delete/${username}`);
+const updateAccount = (username, formDataToSend) => {
+    return axios.put(`${URLString}v1/accounts/${username}`, formDataToSend);
+};
+
+
 const fetchBooks = () => client.get('v1/books/');
 const fetchBookDetail = (id) => client.get(`/v1/books/${id}`); // Hàm lấy chi tiết sách
 
@@ -17,7 +31,6 @@ const addBook = (formData) => {
     });
 };
 const updateBook = (bookId, formDataToSend) => {
-
     return axios.put(`${URLString}v1/books/${bookId}`, formDataToSend);
 };
 const deleteBook = (id) => client.delete(`/books/${id}`);
@@ -58,6 +71,7 @@ const fetchPromotionDetail = (proID) => {
     return client.get(`/v1/promotions/${proID}`);
 };
 
+
 const addPromotion = (promotion) => client.post('/v1/promotions/', promotion);
 
 const updatePromotion = (id, promotion) => client.put(`/v1/promotions/${id}`, promotion);
@@ -67,7 +81,12 @@ const deletePromotion = (proID) => {
     return client.delete(`/v1/promotions/${proID}`);  // Sử dụng PUT thay vì DELETE
 };
 
+const fetchPromotionById = (proID) => client.get(`/v1/promotions/${proID}`);
+
 
 export { fetchPromotions, fetchPromotionDetail, addPromotion, updatePromotion, deletePromotion }
 
+
+
+export { updateAccount, fetchPromotions, fetchPromotionDetail, addPromotion, updatePromotion, deletePromotion, fetchPromotionById, fetchAccountDetail, deleteAccount, addAccount }
 

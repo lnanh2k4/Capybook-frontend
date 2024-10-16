@@ -207,7 +207,7 @@ button[type="button"] {
     justify-content: flex-start;
 }
 
-.titlemanagement {
+.title-management {
     grid-column: 2;
     grid-row: 1;
     display: flex;

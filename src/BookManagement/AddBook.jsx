@@ -97,9 +97,7 @@ function AddBook() {
         setImagePreview(null);
     };
 
-    const goToBookManagement = () => {
-        navigate("/dashboard/books");
-    };
+
     return (
         <div className="main-container">
             <DashboardContainer />
