@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { fetchAccounts } from '../config'; // Import các function từ api.js
 // import { useNavigate } from 'react-router-dom';
-
+import DashboardContainer from "../DashBoardContainer.jsx";
 const AccountManagement = () => {
     // const navigate = useNavigate();
 
@@ -37,6 +37,7 @@ const AccountManagement = () => {
     // };
     return (
         <div className="table-container">
+            <DashboardContainer />
             <div className="action-container">
                 <button className='add-book'>Add account</button>
                 <div className="search-container">
