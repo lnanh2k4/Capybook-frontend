@@ -77,39 +77,17 @@ function EditBook() {
                 bookStatus: 1,
                 bookQuantity: formData.bookQuantity
             };
-
             formDataToSend.append('book', JSON.stringify(bookData));
 
             if (formData.image) {
                 formDataToSend.append('image', formData.image);
             }
-
             await updateBook(bookId, formDataToSend);
             navigate('/book-management');
         } catch (error) {
             console.error('Error updating book:', error);
         }
     };
-
-    const handleReset = () => {
-        setFormData({
-            bookTitle: '',
-            publicationYear: '',
-            author: '',
-            dimension: '', // Khớp với tên cột trong database
-            translator: '',
-            hardcover: '',
-            publisher: '',
-            weight: '',
-            bookDescription: '', // Khớp với tên cột trong database
-            image: null,
-            bookPrice: '', // Khớp với tên cột trong database
-            isbn: '',
-            bookQuantity: ''
-        });
-        setImagePreview(null);
-    };
-
     const goToBookManagement = () => {
         navigate('/book-management');
     };

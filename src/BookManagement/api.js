@@ -18,6 +18,7 @@ export const addBook = (formData) => {
 export const updateBook = (bookId, formDataToSend) => {
     return axios.put(`http://localhost:6789/api/v1/books/${bookId}`, formDataToSend);
 };
-export const deleteBook = (id) => client.delete(`/books/${id}`);
-export const fetchBookById = (bookId) => client.get(`/v1/books/${bookId}`);
+export const deleteBook = (id) => client.delete(`api/books/${id}`);
+export const fetchBookById = (bookId) => client.get(`v1/books/${bookId}`);
+
 
