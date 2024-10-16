@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./PromotionManagement.css";
-import { fetchPromotions, deletePromotion } from "./PromotionAPI";
+import { fetchPromotions, deletePromotion } from "../config";
 import DashboardContainer from "../DashBoardContainer.jsx";
 const PromotionManagement = () => {
   const navigate = useNavigate();
@@ -29,34 +29,45 @@ const PromotionManagement = () => {
       });
   }, []);
 
+  const activePromotions = promotions.filter(
+    (promo) =>
+      promo.proStatus === 0 &&
+      (promo.proName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        promo.proCode.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
   };
 
   const goToAddPromotion = () => {
-    navigate("/add-promotion");
+    navigate("/dashboard/add-promotion");
   };
 
   const goToEditPromotion = (proID) => {
-    navigate(`/edit-promotion/${proID}`);
+    navigate(`/dashboard/edit-promotion/${proID}`);
   };
 
   const goToPromotionDetail = (proID) => {
-    navigate(`/promotion-detail/${proID}`);
+    navigate(`/dashboard/promotion-detail/${proID}`);
   };
 
   // Hàm xử lý khi bấm nút Delete
   const handleDelete = (proID) => {
     if (window.confirm("Are you sure you want to delete this promotion?")) {
-      deletePromotion(proID)
+      deletePromotion(proID) // Gọi API để set proStatus = 0
         .then(() => {
-          // Sau khi xóa thành công, cập nhật danh sách khuyến mãi
-          setPromotions(promotions.filter((promo) => promo.proID !== proID));
-          alert("Promotion deleted successfully");
+          // Sau khi đánh dấu xóa thành công, có thể lọc hoặc cập nhật danh sách khuyến mãi
+          setPromotions(
+            promotions.map((promo) =>
+              promo.proID === proID ? { ...promo, proStatus: 0 } : promo
+            )
+          );
+          alert("Promotion marked as deleted successfully");
         })
         .catch((error) => {
-          console.error("Error deleting promotion:", error);
-          alert("Failed to delete promotion");
+          console.error("Error marking promotion as deleted:", error);
+          alert("Failed to mark promotion as deleted");
         });
     }
   };
