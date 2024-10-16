@@ -15,28 +15,75 @@ import CategoryManagement from "./CategoryManagement/CategoryManagement";
 import AddCategory from "./CategoryManagement/AddCategory";
 import EditCategory from "./CategoryManagement/EditCategory";
 
+import AddSupplier from "./SupplierManagement/AddSupplier";
+import SupplierManagement from "./SupplierManagement/SupplierManagement";
+import ViewSupplierDetail from "./SupplierManagement/ViewSupplierDetail";
+import EditSupplier from "./SupplierManagement/EditSupplier";
+
+import AccountDetail from "./AccountManagement/AccountDetail";
+import AddAccount from "./AccountManagement/AddAccount";
+import EditAccount from "./AccountManagement/EditAccount";
+
+
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/dashboard/books/addbook" element={<AddBook />} />
+        <Route path="/" element={<Dashboard />} />
+
+        <Route path="/dashboard/books/add/" element={<AddBook />} />
+
         <Route path="/dashboard/books/edit/:bookId" element={<EditBook />} />
         <Route path="/dashboard/books" element={<BookManagement />} />
+
+        <Route path="/dashboard/accounts" element={<AccountManagement />} />
+
         <Route path="/dashboard/books/detail" element={<ViewBookDetail />} />
         <Route path="/dashboard/books/edit" element={<EditBook />} />
-        <Route path="/promotion-management" element={<PromotionManagement />} />
-        <Route path="/add-promotion" element={<AddPromotion />} />
-        <Route path="/edit-promotion/:proID" element={<EditPromotion />} />
-        <Route path="/order-management" element={<OrderManagement />} />
-        <Route path="/order-detail/:id" element={<OrderDetail />} />
-        <Route path="/dashboard/books/detail/:bookId" element={<ViewBookDetail />} />
-        <Route path="/dashboard/books/detail/:bookId" element={<ViewBookDetail />} />
-        <Route path="/promotion-detail/:proID" element={<PromotionDetail />} />
-        <Route path="/accounts/" element={<AccountManagement />} />
+
+       
         <Route path="/dashboard/Category/" element={<CategoryManagement />} />
         <Route path="/dashboard/addCategory/" element={<AddCategory />} />
         <Route path="/dashboard/editCategory/" element={<EditCategory />} />
+
+
+
+        <Route
+          path="/dashboard/promotion-management"
+          element={<PromotionManagement />}
+        />
+        <Route path="/dashboard/add-promotion" element={<AddPromotion />} />
+        <Route
+          path="/dashboard/edit-promotion/:proID"
+          element={<EditPromotion />}
+        />
+        <Route
+          path="/dashboard/order-management"
+          element={<OrderManagement />}
+        />
+        <Route path="/dashboard/order-detail/:id" element={<OrderDetail />} />
+        <Route
+          path="/dashboard/books/detail/:bookId"
+          element={<ViewBookDetail />}
+        />
+
+        <Route
+          path="/dashboard/promotion-detail/:proID"
+          element={<PromotionDetail />}
+        />
+
+        <Route path="/dashboard/suppliers" element={<SupplierManagement />} />
+        <Route path="/dashboard/suppliers/add" element={<AddSupplier />} />
+        <Route path="/dashboard/supplier/:supID" element={<ViewSupplierDetail />} />
+        <Route path="/dashboard/suppliers/edit/:supID" element={<EditSupplier />} />
+
+        <Route path="/dashboard/accounts" element={<AccountManagement />} />
+        <Route path="/dashboard/accounts/detail/:username" element={<AccountDetail />} />
+        <Route path="/dashboard/accounts/add" element={<AddAccount />} />
+        <Route path="/dashboard/accounts/:username" element={<EditAccount />} />
+
+
+
       </Routes>
     </Router>
   );

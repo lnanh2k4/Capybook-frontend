@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom"; // Thêm useParams và useNavigate
-import { fetchPromotionDetail } from "./PromotionAPI"; // Import API để lấy chi tiết khuyến mãi
+import { fetchPromotionDetail } from "../config"; // Import API để lấy chi tiết khuyến mãi
 import "./PromotionDetail.css";
-
+import DashboardContainer from "../DashBoardContainer.jsx";
 function PromotionDetail() {
   const { proID } = useParams(); // Lấy proID từ URL
   const navigate = useNavigate(); // Điều hướng giữa các trang
@@ -22,67 +22,30 @@ function PromotionDetail() {
   }, [proID]); // Chỉ chạy lại khi proID thay đổi
 
   const goToPromotionManagement = () => {
-    navigate("/promotion-management"); // Điều hướng về trang Promotion Management
+    navigate("/dashboard/promotion-management"); // Điều hướng về trang Promotion Management
   };
 
   return (
     <div className="main-container">
-      <div className="dashboard-container-alt">
-        <div className="logo-container">
-          <img
-            src="/logo-capybook.png"
-            alt="Cabybook Logo"
-            className="logo-image"
-          />
-        </div>
-        <h2 className="dashboard-title">{"Le Nhut Anh"}</h2>
-        <div className="dashboard-grid">
-          <div className="dashboard-item">
-            <i className="fas fa-book dashboard-icon"></i>
-            <p>Account Management</p>
-          </div>
-          <div className="dashboard-item">
-            <i className="fas fa-user dashboard-icon"></i>
-            <p>Book Management</p>
-          </div>
-          <div className="dashboard-item">
-            <i className="fas fa-tags dashboard-icon"></i>
-            <p>Order Management</p>
-          </div>
-          <div className="dashboard-item">
-            <i className="fas fa-tags dashboard-icon"></i>
-            <p>Promotion Management</p>
-          </div>
-          <div className="dashboard-item">
-            <i className="fas fa-tags dashboard-icon"></i>
-            <p>Category Management</p>
-          </div>
-          <div className="dashboard-item">
-            <i className="fas fa-tags dashboard-icon"></i>
-            <p>Supplier Management</p>
-          </div>
-          <div className="dashboard-item">
-            <i className="fas fa-tags dashboard-icon"></i>
-            <p>Inventory Management</p>
-          </div>
-          <div className="dashboard-item">
-            <i className="fas fa-tags dashboard-icon"></i>
-            <p>Notification Management</p>
-          </div>
-        </div>
-        <div className="leave-logo-container">
-          <img src="/back_icon.png" className="leave-logo-image" />
-        </div>
-      </div>
+      <DashboardContainer />
       <div className="add-promotion-container">
         <form className="add-promotion-form">
           <div className="form-left">
+            <div className="form-group">
+              <label>Promotion ID</label> {/* Thêm ô Promotion ID */}
+              <input
+                type="text"
+                name="proID"
+                value={formData.proID || ""} // Hiển thị proID
+                readOnly
+              />
+            </div>
             <div className="form-group">
               <label>Promotion Name</label>
               <input
                 type="text"
                 name="proName"
-                value={formData.proName}
+                value={formData.proName || ""}
                 readOnly
               />
             </div>
@@ -91,16 +54,7 @@ function PromotionDetail() {
               <input
                 type="text"
                 name="proCode"
-                value={formData.proCode}
-                readOnly
-              />
-            </div>
-            <div className="form-group">
-              <label>Discount</label>
-              <input
-                type="text"
-                name="discount"
-                value={formData.discount}
+                value={formData.proCode || ""}
                 readOnly
               />
             </div>
@@ -112,7 +66,7 @@ function PromotionDetail() {
               <input
                 type="date"
                 name="startDate"
-                value={formData.startDate}
+                value={formData.startDate || ""}
                 readOnly
               />
             </div>
@@ -121,7 +75,47 @@ function PromotionDetail() {
               <input
                 type="date"
                 name="endDate"
-                value={formData.endDate}
+                value={formData.endDate || ""}
+                readOnly
+              />
+            </div>
+            <div className="form-group">
+              <label>Discount</label>
+              <input
+                type="text"
+                name="discount"
+                value={formData.discount || ""}
+                readOnly
+              />
+            </div>
+          </div>
+
+          <div className="form-right">
+            <div className="form-group">
+              <label>Created By</label>
+              <input
+                type="text"
+                name="createdBy"
+                value={formData.createdBy?.username || "N/A"} // Hiển thị tên người tạo
+                readOnly
+              />
+            </div>
+            <div className="form-group">
+              <label>Approved By</label>
+              <input
+                type="text"
+                name="approvedBy"
+                value={formData.approvedBy?.username || "N/A"} // Hiển thị tên người phê duyệt
+                readOnly
+              />
+            </div>
+            <div className="form-group">
+              <label>Promotion Quantity</label>{" "}
+              {/* Thêm trường Promotion Quantity */}
+              <input
+                type="text"
+                name="quantity"
+                value={formData.quantity || ""} // Hiển thị số lượng khuyến mãi
                 readOnly
               />
             </div>
