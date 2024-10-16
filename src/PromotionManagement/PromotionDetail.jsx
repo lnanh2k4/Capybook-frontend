@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom"; // Thêm useParams và useNavigate
-import { fetchPromotionDetail } from "./PromotionAPI"; // Import API để lấy chi tiết khuyến mãi
+import { fetchPromotionDetail } from "../config"; // Import API để lấy chi tiết khuyến mãi
 import "./PromotionDetail.css";
 import DashboardContainer from "../DashBoardContainer.jsx";
 function PromotionDetail() {
@@ -22,7 +22,7 @@ function PromotionDetail() {
   }, [proID]); // Chỉ chạy lại khi proID thay đổi
 
   const goToPromotionManagement = () => {
-    navigate("/promotion-management"); // Điều hướng về trang Promotion Management
+    navigate("/dashboard/promotion-management"); // Điều hướng về trang Promotion Management
   };
 
   return (
