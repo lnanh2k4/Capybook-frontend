@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchBookById, updateBook } from './api';
+import { fetchBookById, updateBook } from '../config';
 
 function EditBook() {
     const { bookId } = useParams(); // Lấy bookId từ URL
@@ -89,25 +89,6 @@ function EditBook() {
         } catch (error) {
             console.error('Error updating book:', error);
         }
-    };
-
-    const handleReset = () => {
-        setFormData({
-            bookTitle: '',
-            publicationYear: '',
-            author: '',
-            dimension: '', // Khớp với tên cột trong database
-            translator: '',
-            hardcover: '',
-            publisher: '',
-            weight: '',
-            bookDescription: '', // Khớp với tên cột trong database
-            image: null,
-            bookPrice: '', // Khớp với tên cột trong database
-            isbn: '',
-            bookQuantity: ''
-        });
-        setImagePreview(null);
     };
 
     const goToBookManagement = () => {
@@ -277,7 +258,7 @@ function EditBook() {
                     </div>
 
                     <div className="form-buttons">
-                        <button type="submit">Submit</button>
+                        <button type="submit">Submit </button>
                         <button type="button" onClick={goToBookManagement}>Cancel</button>
                     </div>
                 </form>
