@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom'; // Thêm useParams và useNavigate
-import { fetchBookById } from './api'; // Import API để lấy chi tiết sách
+import { fetchBookById } from '../config'; // Import API để lấy chi tiết sách
 import './ViewBookDetail.css';
 
 function ViewBookDetail() {

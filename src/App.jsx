@@ -1,4 +1,3 @@
-import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Dashboard from "./DashBoard/DashBoard"; // Adjust this path if necessary
 import AddBook from "./BookManagement/AddBook"; // Assuming this component exists
@@ -11,6 +10,7 @@ import OrderManagement from "./OrderManagement/OrderManagement";
 import OrderDetail from "./OrderManagement/OrderDetail";
 import PromotionDetail from "./PromotionManagement/PromotionDetail";
 import EditPromotion from "./PromotionManagement/EditPromotion";
+import AccountManagement from "./AccountManagement/AccountManagement";
 
 function App() {
   return (
@@ -30,6 +30,7 @@ function App() {
         <Route path="/book-detail/:bookId" element={<ViewBookDetail />} />
         <Route path="/book-detail/:bookId" element={<ViewBookDetail />} />
         <Route path="/promotion-detail/:proID" element={<PromotionDetail />} />
+        <Route path="/accounts/" element={<AccountManagement />} />
       </Routes>
     </Router>
   );

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { fetchBooks, deleteBook } from './api'; // Import các function từ api.js
+import { useEffect, useState } from 'react';
+import { fetchBooks, deleteBook } from '../config'; // Import các function từ api.js
 import { useNavigate } from 'react-router-dom';
 import './BookManagement.css'; // Import file CSS
 

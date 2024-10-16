@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { addBook } from './api'; // Giả sử bạn đã định nghĩa API này
+import { addBook } from '../config';
 import './AddBook.css';
 
 function AddBook() {

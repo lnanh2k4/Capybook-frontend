@@ -1,4 +1,3 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./Dashboard.css";
 
@@ -28,7 +27,7 @@ function Dashboard() {
           />
         </div>
         <h2 className="dashboard-title">{"Le Nhut Anh"}</h2>
-        <div className="dashboard-grid">
+        <div className="dashboard-grid" onClick={goToBookManagement}>
           <div className="dashboard-item">
             <i className="fas fa-book dashboard-icon"></i>
             <p>Account Management</p>
