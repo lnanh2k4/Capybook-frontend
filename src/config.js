@@ -41,5 +41,6 @@ const deletePromotion = (proID) => {
     return client.delete(`/v1/promotions/${proID}`);  // Sử dụng PUT thay vì DELETE
 };
 
+const fetchPromotionById = (proID) => client.get(`/v1/promotions/${proID}`);
 
-  export {fetchPromotions, fetchPromotionDetail, addPromotion, updatePromotion, deletePromotion}
+  export {fetchPromotions, fetchPromotionDetail, addPromotion, updatePromotion, deletePromotion, fetchPromotionById}
