@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchBookById, updateBook } from '../config';
-
+import DashboardContainer from "../DashBoardContainer.jsx";
 function EditBook() {
     const { bookId } = useParams(); // Lấy bookId từ URL
     const navigate = useNavigate();
@@ -97,49 +97,7 @@ function EditBook() {
 
     return (
         <div className="main-container">
-            <div className="dashboard-container-alt">
-                <div className="logo-container">
-                    <img src="/logo-capybook.png" alt="Cabybook Logo" className="logo-image" />
-                </div>
-                <h2 className="dashboard-title">{"Le Nhut Anh"}</h2>
-                <div className="dashboard-grid">
-                    <div className="dashboard-item">
-                        <i className="fas fa-book dashboard-icon"></i>
-                        <p>Account Management</p>
-                    </div>
-                    <div className="dashboard-item" onClick={goToBookManagement}>
-                        <i className="fas fa-user dashboard-icon"></i>
-                        <p>Book Management</p>
-                    </div>
-                    <div className="dashboard-item">
-                        <i className="fas fa-tags dashboard-icon"></i>
-                        <p>Order Management</p>
-                    </div>
-                    <div className="dashboard-item">
-                        <i className="fas fa-tags dashboard-icon"></i>
-                        <p>Promotion Management</p>
-                    </div>
-                    <div className="dashboard-item">
-                        <i className="fas fa-tags dashboard-icon"></i>
-                        <p>Category Management</p>
-                    </div>
-                    <div className="dashboard-item">
-                        <i className="fas fa-tags dashboard-icon"></i>
-                        <p>Supplier Management</p>
-                    </div>
-                    <div className="dashboard-item">
-                        <i className="fas fa-tags dashboard-icon"></i>
-                        <p>Inventory Management</p>
-                    </div>
-                    <div className="dashboard-item">
-                        <i className="fas fa-tags dashboard-icon"></i>
-                        <p>Notification Management</p>
-                    </div>
-                </div>
-                <div className="leave-logo-container">
-                    <img src="/back_icon.png" className="leave-logo-image" />
-                </div>
-            </div>
+            <DashboardContainer />
             <div className="add-book-container">
                 <form className="add-book-form" onSubmit={handleSubmit}>
                     <div className="form-left">

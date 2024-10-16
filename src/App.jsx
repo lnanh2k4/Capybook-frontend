@@ -17,7 +17,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/dashboard/books/addbook" element={<AddBook />} />
+        <Route path="/dashboard/books/add" element={<AddBook />} />
         <Route path="/dashboard/books/edit/:bookId" element={<EditBook />} />
         <Route path="/dashboard/books" element={<BookManagement />} />
         <Route path="/dashboard/books/detail" element={<ViewBookDetail />} />

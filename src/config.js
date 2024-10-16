@@ -1,7 +1,7 @@
 import axios from 'axios';
-
+const URLString = 'http://localhost:6789/api/'
 const client = axios.create({
-    baseURL: 'http://localhost:6789/api/', // Địa chỉ API của bạn
+    baseURL: URLString, // Địa chỉ API của bạn
 });
 
 const fetchAccounts = () => client.get('v1/accounts/');
@@ -17,13 +17,14 @@ const addBook = (formData) => {
     });
 };
 const updateBook = (bookId, formDataToSend) => {
-    return axios.put(`http://localhost:6789/api/v1/books/${bookId}`, formDataToSend);
+
+    return axios.put(`${URLString}v1/books/${bookId}`, formDataToSend);
 };
 const deleteBook = (id) => client.delete(`/books/${id}`);
 const fetchBookById = (bookId) => client.get(`/v1/books/${bookId}`);
 
 const searchBooks = (searchTerm) => {
-    return axios.get(`http://localhost:6789/api/v1/books/search`, {
+    return axios.get(`${URLString}v1/books/search`, {
         params: { query: searchTerm }
     });
 };

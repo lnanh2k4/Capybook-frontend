@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { updatePromotion, fetchPromotionDetail } from "./PromotionAPI"; // Import API
 import "./EditPromotion.css"; // Import CSS
-
+import DashboardContainer from "../DashBoardContainer.jsx";
 const EditPromotion = () => {
   const { proID } = useParams(); // Lấy proID từ URL
   const navigate = useNavigate(); // Sử dụng để điều hướng
@@ -51,55 +51,7 @@ const EditPromotion = () => {
 
   return (
     <div className="main-container">
-      <div className="dashboard-container-alt">
-        <div className="logo-container">
-          <img
-            src="/logo-capybook.png"
-            alt="Cabybook Logo"
-            className="logo-image"
-          />
-        </div>
-        <h2 className="dashboard-title">{"Le Nhut Anh"}</h2>
-        <div className="dashboard-grid">
-          {/* Các item trong dashboard */}
-          <div className="dashboard-item">
-            <i className="fas fa-book dashboard-icon"></i>
-            <p>Account Management</p>
-          </div>
-          <div className="dashboard-item">
-            <i className="fas fa-user dashboard-icon"></i>
-            <p>Book Management</p>
-          </div>
-          <div className="dashboard-item">
-            <i className="fas fa-tags dashboard-icon"></i>
-            <p>Order Management</p>
-          </div>
-          <div className="dashboard-item">
-            <i className="fas fa-tags dashboard-icon"></i>
-            <p>Promotion Management</p>
-          </div>
-          <div className="dashboard-item">
-            <i className="fas fa-tags dashboard-icon"></i>
-            <p>Category Management</p>
-          </div>
-          <div className="dashboard-item">
-            <i className="fas fa-tags dashboard-icon"></i>
-            <p>Supplier Management</p>
-          </div>
-          <div className="dashboard-item">
-            <i className="fas fa-tags dashboard-icon"></i>
-            <p>Inventory Management</p>
-          </div>
-          <div className="dashboard-item">
-            <i className="fas fa-tags dashboard-icon"></i>
-            <p>Notification Management</p>
-          </div>
-        </div>
-        <div className="leave-logo-container">
-          <img src="/back_icon.png" className="leave-logo-image" />
-        </div>
-      </div>
-
+      <DashboardContainer />
       <div className="add-promotion-container">
         <form className="add-promotion-form">
           <div className="form-left">
