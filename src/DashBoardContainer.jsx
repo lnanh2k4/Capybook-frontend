@@ -17,8 +17,13 @@ function DashboardContainer() {
     navigate("/dashboard/order-management");
   };
 
+
   const goToPromotionManagement = () => {
     navigate("/dashboard/promotion-management");
+  };
+
+  const goToSupplierManagement = () => {
+    navigate("/dashboard/suppliers");
   };
 
   return (
@@ -39,6 +44,7 @@ function DashboardContainer() {
         <div className="dashboard-item" onClick={goToBookManagement}>
           <i className="fas fa-user dashboard-icon"></i>
           <p>Book Management</p>
+
         </div>
         <div className="dashboard-item" onClick={goToOrderManagement}>
           <i className="fas fa-tags dashboard-icon"></i>
@@ -52,7 +58,7 @@ function DashboardContainer() {
           <i className="fas fa-tags dashboard-icon"></i>
           <p>Category Management</p>
         </div>
-        <div className="dashboard-item">
+        <div className="dashboard-item" onClick={goToSupplierManagement}>
           <i className="fas fa-tags dashboard-icon"></i>
           <p>Supplier Management</p>
         </div>

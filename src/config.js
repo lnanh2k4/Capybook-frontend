@@ -36,7 +36,33 @@ const updateBook = (bookId, formDataToSend) => {
 const deleteBook = (id) => client.delete(`/books/${id}`);
 const fetchBookById = (bookId) => client.get(`/v1/books/${bookId}`);
 
-export { fetchAccounts, fetchBooks, fetchBookDetail, addBook, updateBook, deleteBook, fetchBookById }
+const fetchSuppliers = () => client.get('v1/suppliers/');
+// Fetch supplier details by ID
+const fetchSupplierDetail = (supID) => {
+    console.log("Fetching supplier detail for ID:", supID);  // Log the supID
+    return client.get(`/v1/suppliers/${supID}`);
+};
+
+// Add a new supplier
+
+const addSupplier = (supplier) => client.post('/v1/suppliers/', supplier);
+
+// Update an existing supplier by ID
+const updateSupplier = (supID, supplierData) => {
+    return client.put(`/v1/suppliers/${supID}`, supplierData, {
+        headers: {
+            'Content-Type': 'application/json', // Đảm bảo kiểu nội dung là JSON
+        }
+    });
+}
+// Soft-delete a supplier (hide it) by ID
+const deleteSupplier = (id) => client.delete(`/suppliers/${id}`);
+
+// Fetch supplier by ID (Duplicate method - either remove or keep as an alias to fetchSupplierDetail)
+const fetchSupplierById = (supID) => client.get(`/v1/suppliers/${supID}`);
+
+
+export { fetchAccounts, fetchBooks, fetchBookDetail, addBook, updateBook, deleteBook, fetchBookById, fetchSuppliers, fetchSupplierDetail, addSupplier, updateSupplier, deleteSupplier, fetchSupplierById }
 
 const fetchPromotions = () => client.get('v1/promotions/');
 
@@ -57,4 +83,10 @@ const deletePromotion = (proID) => {
 
 const fetchPromotionById = (proID) => client.get(`/v1/promotions/${proID}`);
 
+
+export { fetchPromotions, fetchPromotionDetail, addPromotion, updatePromotion, deletePromotion }
+
+
+
 export { updateAccount, fetchPromotions, fetchPromotionDetail, addPromotion, updatePromotion, deletePromotion, fetchPromotionById, fetchAccountDetail, deleteAccount, addAccount }
+
