@@ -71,7 +71,6 @@ const fetchPromotionDetail = (proID) => {
     return client.get(`/v1/promotions/${proID}`);
 };
 
-
 const addPromotion = (promotion) => client.post('/v1/promotions/', promotion);
 
 const updatePromotion = (id, promotion) => client.put(`/v1/promotions/${id}`, promotion);
@@ -82,11 +81,6 @@ const deletePromotion = (proID) => {
 };
 
 const fetchPromotionById = (proID) => client.get(`/v1/promotions/${proID}`);
-
-
-export { fetchPromotions, fetchPromotionDetail, addPromotion, updatePromotion, deletePromotion }
-
-
 
 export { updateAccount, fetchPromotions, fetchPromotionDetail, addPromotion, updatePromotion, deletePromotion, fetchPromotionById, fetchAccountDetail, deleteAccount, addAccount }
 
