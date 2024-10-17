@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Sử dụng useNavigate để điều hướng
-import { addPromotion } from "../config"; // Import API addPromotion
+import { useNavigate } from "react-router-dom";
+import { addPromotion } from "../config";
 import "./AddPromotion.css";
 import DashboardContainer from "../DashBoardContainer.jsx";
 const AddPromotion = () => {
@@ -13,7 +13,6 @@ const AddPromotion = () => {
     endDate: "",
   });
 
-  // Khởi tạo useNavigate để điều hướng
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -25,10 +24,9 @@ const AddPromotion = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Ngăn hành vi mặc định của form
+    e.preventDefault();
 
     try {
-      // Tạo đối tượng dữ liệu khuyến mãi
       const promotionData = {
         proName: formData.promotionName,
         proCode: formData.promotionCode,
@@ -36,17 +34,15 @@ const AddPromotion = () => {
         discount: formData.discountQuantity,
         startDate: formData.startDate,
         endDate: formData.endDate,
-        proStatus: 1, // Có thể thêm trường này nếu cần thiết
+        proStatus: 1,
       };
 
-      // In log để kiểm tra dữ liệu promotionData
       console.log("Promotion data to be sent:", promotionData);
 
       // Gửi dữ liệu JSON trực tiếp
       await addPromotion(promotionData);
       console.log("Promotion added successfully!");
 
-      // Điều hướng về trang Promotion Management sau khi thêm thành công
       navigate("/dashboard/promotion-management");
     } catch (error) {
       console.error("Error adding promotion:", error);
@@ -90,16 +86,6 @@ const AddPromotion = () => {
                 placeholder="Enter Promotion Code"
               />
             </div>
-            <div className="form-group">
-              <label>Quantity</label>
-              <input
-                type="number"
-                name="quantity"
-                value={formData.quantity}
-                onChange={handleChange}
-                placeholder="Enter Quantity"
-              />
-            </div>
           </div>
 
           <div className="form-center">
@@ -113,6 +99,19 @@ const AddPromotion = () => {
                 placeholder="Enter Discount Quantity"
               />
             </div>
+            <div className="form-group">
+              <label>Quantity</label>
+              <input
+                type="number"
+                name="quantity"
+                value={formData.quantity}
+                onChange={handleChange}
+                placeholder="Enter Quantity"
+              />
+            </div>
+          </div>
+
+          <div className="form-right">
             <div className="form-group">
               <label>Start Date</label>
               <input
