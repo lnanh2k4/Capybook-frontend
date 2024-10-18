@@ -1,17 +1,50 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppstoreOutlined, BookOutlined, UserOutlined, TagsOutlined, BellOutlined, TruckOutlined, NotificationOutlined, BarsOutlined } from '@ant-design/icons';
 import { Menu } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './DashboardContainer.css'; // Import CSS for the component
 
 const DashboardContainer = () => {
   const navigate = useNavigate();
+  const location = useLocation();  // Sử dụng useLocation để lấy URL hiện tại
   const [collapsed, setCollapsed] = useState(true); // Trạng thái cho việc thu gọn
   const [current, setCurrent] = useState('1');
 
+  useEffect(() => {
+    // Cập nhật mục được chọn dựa trên URL
+    const path = location.pathname;
+    switch (path) {
+      case '/dashboard/accounts':
+        setCurrent('1');
+        break;
+      case '/dashboard/books':
+        setCurrent('2');
+        break;
+      case '/dashboard/order-management':
+        setCurrent('3');
+        break;
+      case '/dashboard/promotion-management':
+        setCurrent('4');
+        break;
+      case '/dashboard/suppliers':
+        setCurrent('5');
+        break;
+      case '/dashboard/category-management':
+        setCurrent('6');
+        break;
+      case '/dashboard/inventory-management':
+        setCurrent('7');
+        break;
+      case '/dashboard/notification-management':
+        setCurrent('8');
+        break;
+      default:
+        setCurrent('1'); // Mặc định là accounts nếu không tìm thấy
+    }
+  }, [location]);  // Mỗi khi URL thay đổi, useEffect sẽ chạy
+
   const onClick = (e) => {
     setCurrent(e.key);
-
     switch (e.key) {
       case '1':
         navigate("/dashboard/accounts");
@@ -103,7 +136,7 @@ const DashboardContainer = () => {
         style={{
           width: '100%',
         }}
-        selectedKeys={[current]}
+        selectedKeys={[current]}  // Đặt mục được chọn theo giá trị của state "current"
         mode="inline"
         items={items}
       />

@@ -154,7 +154,6 @@ function BookManagement() {
                         style={{ width: 300, marginLeft: '20px' }}
                     />
                 </div>
-
                 <Table
                     columns={columns}
                     dataSource={filteredBooks} // Use filteredBooks here

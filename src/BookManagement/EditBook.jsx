@@ -83,7 +83,7 @@ function EditBook() {
                     form={form}
                     layout="vertical"
                     onFinish={handleSubmit}
-                    style={{ maxWidth: '800px', margin: 'auto' }}
+                    style={{ maxWidth: '700px', margin: 'auto' }}
                 >
                     <Form.Item
                         label="Title"
@@ -96,15 +96,21 @@ function EditBook() {
                     <Form.Item
                         label="Publication Year"
                         name="publicationYear"
-                        rules={[{ required: true, message: 'Please enter the publication year' }]}
+                        rules={[
+                            { required: true, message: 'Please enter the publication year' },
+                            { pattern: /^[0-9]{4}$/, message: 'Publication year must be a 4-digit number' }
+                        ]}
                     >
-                        <DatePicker picker="year" style={{ width: '100%' }} />
+                        <Input placeholder="Publication year" />
                     </Form.Item>
 
                     <Form.Item
                         label="Author"
                         name="author"
-                        rules={[{ required: true, message: 'Please enter the author' }]}
+                        rules={[
+                            { required: true, message: 'Please enter the author' },
+                            { pattern: /^[a-zA-Z\s]+$/, message: 'Author name should only contain letters and spaces' }
+                        ]}
                     >
                         <Input placeholder="Author of the book" />
                     </Form.Item>
@@ -120,7 +126,10 @@ function EditBook() {
                     <Form.Item
                         label="Price"
                         name="bookPrice"
-                        rules={[{ required: true, message: 'Please enter the price' }]}
+                        rules={[
+                            { required: true, message: 'Please enter the price' },
+                            { type: 'number', message: 'Price must be a number' }
+                        ]}
                     >
                         <InputNumber style={{ width: '100%' }} placeholder="Price of the book" />
                     </Form.Item>
@@ -128,7 +137,6 @@ function EditBook() {
                     <Form.Item
                         label="Translator"
                         name="translator"
-                        rules={[{ required: true, message: 'Please enter the translator' }]}
                     >
                         <Input placeholder="Translator of the book" />
                     </Form.Item>
@@ -136,7 +144,9 @@ function EditBook() {
                     <Form.Item
                         label="Hardcover"
                         name="hardcover"
-                        rules={[{ required: true, message: 'Please enter the hardcover details' }]}
+                        rules={[
+                            { required: true, message: 'Please enter the hardcover details' },
+                            { type: 'number', message: 'Hardcover must be a number' }]}
                     >
                         <Input placeholder="Hardcover of the book" />
                     </Form.Item>
@@ -152,15 +162,21 @@ function EditBook() {
                     <Form.Item
                         label="Weight"
                         name="weight"
-                        rules={[{ required: true, message: 'Please enter the weight' }]}
+                        rules={[
+                            { required: true, message: 'Please enter the weight' },
+                            { type: 'float', message: 'Weight must be a number' }
+                        ]}
                     >
-                        <Input placeholder="Weight of the book" />
+                        <InputNumber style={{ width: '100%' }} placeholder="Weight of the book" />
                     </Form.Item>
 
                     <Form.Item
                         label="ISBN"
                         name="isbn"
-                        rules={[{ required: true, message: 'Please enter the ISBN' }]}
+                        rules={[
+                            { required: true, message: 'Please enter the ISBN' },
+                            { type: 'number', message: 'ISBN must be a number' }
+                        ]}
                     >
                         <Input placeholder="International Standard Book Number" />
                     </Form.Item>
@@ -208,6 +224,7 @@ function EditBook() {
                         </Button>
                     </Form.Item>
                 </Form>
+
             </div>
         </div>
     );

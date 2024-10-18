@@ -104,6 +104,7 @@ function AddBook() {
 
                     <Form.Item label="Author" name="author" rules={[{ required: true, message: 'Please enter the author' }]}>
                         <Input placeholder="Author of the book" />
+
                     </Form.Item>
 
                     <Form.Item label="Dimensions" name="dimension" rules={[{ required: true, message: 'Please enter the dimensions' }]}>
