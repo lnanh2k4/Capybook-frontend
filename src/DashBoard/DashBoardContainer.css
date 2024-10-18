@@ -1,102 +1,71 @@
 /* Styling for the whole dashboard container */
-.dashboard-container-alt {
+.dashboard-container {
+    position: fixed;
+    /* Đặt thanh công cụ ở vị trí cố định */
+    top: 0;
+    left: 0;
+    height: 100vh;
+    /* Chiều cao toàn màn hình */
+    z-index: 999;
+    /* Đảm bảo rằng thanh công cụ hiển thị trên cùng */
     background-color: #ffffff;
-    /* Đổi nền thành trắng để dễ nhìn hơn */
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: #333;
-    min-height: 100vh;
-    border-radius: 15px;
-    /* Rounded corners for the dashboard */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    /* Màu nền thanh công cụ */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    /* Tạo đổ bóng để phân biệt thanh công cụ */
+    transition: width 0.3s ease;
+    /* Hiệu ứng chuyển động */
+    overflow: hidden;
+    /* Ẩn các thành phần bên trong khi thanh công cụ thu gọn */
 }
 
-/* Styling for the logo and title section */
 .logo-container {
     text-align: center;
-    margin-bottom: 20px;
+    padding: 20px 0;
+    /* Tạo khoảng cách giữa logo và phần còn lại */
 }
 
 .logo-image {
-    width: 150px;
+    width: 100%;
+    /* Đặt kích thước của logo phù hợp với độ rộng của menu */
     height: auto;
-    margin-bottom: 10px;
 }
 
-.dashboard-title {
-    text-align: center;
-    font-size: 1.8rem;
-    color: #0073e6;
-    /* Đổi màu tiêu đề thành xanh đậm để nổi bật hơn */
-    margin-bottom: 20px;
-    font-weight: bold;
-}
-
-/* Ant Menu item customization */
 .ant-menu {
-    background-color: #eef1f3 !important;
-    /* Đổi nền menu thành xám nhạt để dễ nhìn hơn */
-    border-radius: 10px;
-    /* Thêm độ bo góc cho menu */
+    border-right: none;
+    /* Loại bỏ đường viền phải của menu */
 }
 
-/* Màu chữ cho các mục menu */
-.ant-menu-item {
-    color: #333333 !important;
-    /* Màu chữ xám đậm để rõ ràng hơn */
+/* Khi thanh công cụ mở rộng */
+.dashboard-container.expanded {
+    width: 250px;
 }
 
-/* Màu chữ khi mục menu được chọn */
-.ant-menu-item-selected {
-    color: #0073e6 !important;
-    /* Màu chữ xanh đậm khi được chọn */
+/* Khi thanh công cụ thu gọn */
+.dashboard-container.collapsed {
+    width: 80px;
 }
 
-/* Màu chữ khi hover */
-.ant-menu-item:hover {
-    color: #005bb5 !important;
-    /* Màu chữ xanh dương đậm khi hover */
-    background-color: #e46600 !important;
-    /* Đổi nền khi hover thành xanh nhạt */
+.main-content {
+    margin-left: 80px;
+    /* Điều chỉnh lề trái khi thanh công cụ thu gọn */
+    transition: margin-left 0.3s ease;
+    /* Hiệu ứng chuyển động khi thay đổi kích thước */
 }
 
-/* Thay đổi màu biểu tượng */
-.ant-menu-item .anticon {
-    color: #0073e6 !important;
-    /* Màu biểu tượng xanh đậm */
+/* Khi thanh công cụ mở rộng, điều chỉnh lề cho nội dung chính */
+.dashboard-container.expanded~.main-content {
+    margin-left: 250px;
 }
 
-/* Thay đổi màu biểu tượng khi mục được chọn */
-.ant-menu-item-selected .anticon {
-    color: #fd6500 !important;
-    /* Màu biểu tượng xanh đậm hơn khi mục được chọn */
-}
-
-/* Styling for the switch */
-.switch-theme {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 20px;
-}
-
-/* Flexbox layout adjustments for responsive design */
+/* Điều chỉnh giao diện khi màn hình nhỏ */
 @media screen and (max-width: 768px) {
-    .dashboard-container-alt {
-        padding: 10px;
+    .dashboard-container {
+        position: absolute;
+        /* Thanh công cụ không cố định trên màn hình nhỏ */
+        z-index: 999;
     }
 
-    .dashboard-title {
-        font-size: 1.4rem;
-    }
-
-    .logo-image {
-        width: 100px;
-    }
-
-    .ant-menu-item {
-        padding: 10px 15px;
-        font-size: 1rem;
+    .main-content {
+        margin-left: 0;
     }
 }
