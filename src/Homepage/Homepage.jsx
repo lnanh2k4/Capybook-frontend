@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Layout, Menu, Card, Input, Row, Col, Badge } from 'antd';
-import { ShoppingCartOutlined } from '@ant-design/icons';
-import './Homepage.css';
+import { Layout, Menu, Card, Input, Row, Col, Tag, Typography } from 'antd';
+import './Homepage.css'; // Ensure this path is correct for your CSS file
 import { fetchBooks } from '../config';
 
 const { Header, Footer, Content } = Layout;
 const { Search } = Input;
+const { Title } = Typography;
 
 const headerStyle = {
     textAlign: 'center',
@@ -46,21 +46,14 @@ const Homepage = () => {
     }, []);
 
     const filteredBooks = books.filter(
-        book => (book?.title?.toLowerCase().includes(searchTerm) || book?.author?.toLowerCase().includes(searchTerm))
+        book => book?.title?.toLowerCase().includes(searchTerm) || book?.author?.toLowerCase().includes(searchTerm)
     );
-
-    const menuItems = [
-        { label: 'Home', key: '1' },
-        { label: 'Shop', key: '2' },
-        { label: 'Contact', key: '3' },
-        { label: (<span>Cart (0)</span>), key: '4', icon: <ShoppingCartOutlined /> },
-    ];
 
     return (
         <Layout>
             <Header style={headerStyle}>
                 <div className="logo" style={{ float: 'left', color: '#fff', fontSize: '20px' }}>Capybook</div>
-                <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['1']} items={menuItems} />
+                <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['1']} items={[{ label: 'Home', key: '1' }]} />
             </Header>
             <Content style={contentStyle}>
                 <div style={{ textAlign: 'center', marginBottom: '20px' }}>
@@ -72,28 +65,20 @@ const Homepage = () => {
                         style={{ maxWidth: '500px', margin: '0 auto' }}
                     />
                 </div>
-                <Row gutter={[16, 40]}>
+
+                <Row gutter={[16, 16]}>
                     {filteredBooks.map((book) => (
                         <Col key={book.id} xs={24} sm={12} md={8} lg={6}>
                             <Card
-                                cover={
-                                    <img
-                                        alt={book.title}
-                                        src={book.image || 'https://via.placeholder.com/150'}
-                                        style={{ height: '250', objectFit: 'fill' }}
-                                    />
-                                }
-                                bordered={false}
-                                bodyStyle={{ padding: '10px' }}
-                                style={{ width: 250, overflow: 'hidden' }}
+                                hoverable
+                                style={{ width: 300, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+                                cover={<img alt={book.bookTitle} src={book.image || 'https://via.placeholder.com/150'} style={{ height: '250px', objectFit: 'cover' }} />}
                             >
-                                <Badge.Ribbon text={`$${book.bookPrice}`} color="volcano">
-                                    <Card.Meta
-                                        title={book.title}
-                                        description={<div style={{ fontWeight: 'bold' }}>{book.bookTitle}</div>}
-                                        style={{ padding: '10px' }}
-                                    />
-                                </Badge.Ribbon>
+                                <div style={{ padding: '0px 0px 0 0px' }}>  {/* Reduced bottom padding */}
+                                    <Title level={5} style={{ marginBottom: '10px' }}>{book.bookTitle}</Title> {/* Reduced margin between title and description */}
+                                    <Title level={4} type="danger">{`${book.bookPrice} đ`}</Title>
+                                    <Tag color="volcano">{`${book.discount}% off`}</Tag>
+                                </div>
                             </Card>
                         </Col>
                     ))}
