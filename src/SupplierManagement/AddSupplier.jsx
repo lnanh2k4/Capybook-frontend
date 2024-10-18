@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Sử dụng useNavigate để điều hướng
 import { addSupplier } from '../config'; // Import API addSupplier
-import "./AddSupplier.css";
-import DashboardContainer from "../DashBoardContainer.jsx";
+import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 
 const AddSupplier = () => {
     const [formData, setFormData] = useState({

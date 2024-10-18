@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addAccount } from '../config.js';
-import DashboardContainer from "../DashBoardContainer.jsx";
+import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 const AddAccount = () => {
     const [formData, setFormData] = useState({
         username: '',

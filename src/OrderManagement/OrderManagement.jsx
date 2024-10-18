@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import "./OrderManagement.css"; // Sử dụng CSS tương tự hoặc điều chỉnh phù hợp
-import DashboardContainer from "../DashBoardContainer.jsx";
+import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 const OrderManagement = () => {
   const [orders, setOrders] = useState([
     {

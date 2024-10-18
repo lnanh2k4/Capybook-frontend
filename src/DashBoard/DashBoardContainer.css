@@ -1,0 +1,102 @@
+/* Styling for the whole dashboard container */
+.dashboard-container-alt {
+    background-color: #ffffff;
+    /* Đổi nền thành trắng để dễ nhìn hơn */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #333;
+    min-height: 100vh;
+    border-radius: 15px;
+    /* Rounded corners for the dashboard */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Styling for the logo and title section */
+.logo-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.logo-image {
+    width: 150px;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+.dashboard-title {
+    text-align: center;
+    font-size: 1.8rem;
+    color: #0073e6;
+    /* Đổi màu tiêu đề thành xanh đậm để nổi bật hơn */
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+/* Ant Menu item customization */
+.ant-menu {
+    background-color: #eef1f3 !important;
+    /* Đổi nền menu thành xám nhạt để dễ nhìn hơn */
+    border-radius: 10px;
+    /* Thêm độ bo góc cho menu */
+}
+
+/* Màu chữ cho các mục menu */
+.ant-menu-item {
+    color: #333333 !important;
+    /* Màu chữ xám đậm để rõ ràng hơn */
+}
+
+/* Màu chữ khi mục menu được chọn */
+.ant-menu-item-selected {
+    color: #0073e6 !important;
+    /* Màu chữ xanh đậm khi được chọn */
+}
+
+/* Màu chữ khi hover */
+.ant-menu-item:hover {
+    color: #005bb5 !important;
+    /* Màu chữ xanh dương đậm khi hover */
+    background-color: #e46600 !important;
+    /* Đổi nền khi hover thành xanh nhạt */
+}
+
+/* Thay đổi màu biểu tượng */
+.ant-menu-item .anticon {
+    color: #0073e6 !important;
+    /* Màu biểu tượng xanh đậm */
+}
+
+/* Thay đổi màu biểu tượng khi mục được chọn */
+.ant-menu-item-selected .anticon {
+    color: #fd6500 !important;
+    /* Màu biểu tượng xanh đậm hơn khi mục được chọn */
+}
+
+/* Styling for the switch */
+.switch-theme {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+/* Flexbox layout adjustments for responsive design */
+@media screen and (max-width: 768px) {
+    .dashboard-container-alt {
+        padding: 10px;
+    }
+
+    .dashboard-title {
+        font-size: 1.4rem;
+    }
+
+    .logo-image {
+        width: 100px;
+    }
+
+    .ant-menu-item {
+        padding: 10px 15px;
+        font-size: 1rem;
+    }
+}

@@ -1,53 +1,63 @@
-import { useEffect, useState } from 'react';
-import { fetchBooks, updateBook, fetchBookById } from '../config'; // Import functions from the API
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './BookManagement.css'; // Import CSS for styling
-import DashboardContainer from "../DashBoardContainer.jsx";
+import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
+import { fetchBooks, updateBook, fetchBookById } from '../config'; // Import functions from the API
+import { Space, Table, Tag, Button, Input, message } from 'antd';
+
+const { Search } = Input;
+
 function BookManagement() {
     const navigate = useNavigate();
     const [books, setBooks] = useState([]);
     const [searchTerm, setSearchTerm] = useState(''); // Search state to filter books
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     useEffect(() => {
-        fetchBooks().then(response => {
-            console.log("Fetched books data:", response.data); // Log fetched book data
-            setBooks(response.data);
-        }).catch(error => {
-            console.error('Error fetching books:', error);
-        });
+        const loadBooks = async () => {
+            setLoading(true);
+            try {
+                const response = await fetchBooks();
+                setBooks(response.data);
+                setError('');
+            } catch (error) {
+                console.error('Error fetching books:', error);
+                setError('Failed to fetch books');
+                message.error('Failed to fetch books');
+            }
+            setLoading(false);
+        };
+
+        loadBooks();
     }, []);
 
     const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to deactivate this book?")) {
             try {
-                // Fetch the current book data by its ID
-                const response = await fetchBookById(id);
-                const currentBookData = response.data;
+                const currentBookData = await fetchBookById(id);
 
-                // Update the book status to 0 (deactivated)
                 const updatedBookData = {
-                    ...currentBookData,
+                    ...currentBookData.data,
                     bookStatus: 0
                 };
 
                 const formDataToSend = new FormData();
                 formDataToSend.append('book', JSON.stringify(updatedBookData));
 
-                // Append the image file if it exists
-                if (currentBookData.image) {
-                    const imageFile = currentBookData.image;
+                if (currentBookData.data.image) {
+                    const imageFile = currentBookData.data.image;
                     formDataToSend.append('image', imageFile);
                 }
 
-                // Update the book
                 await updateBook(id, formDataToSend);
-
-                // Update the state to reflect the change
                 setBooks(books.map(book =>
                     book.bookID === id ? { ...book, bookStatus: 0 } : book
                 ));
+                message.success('Book deactivated successfully');
             } catch (error) {
                 console.error('Error deactivating book:', error);
+                message.error('Failed to deactivate book');
             }
         }
     };
@@ -64,66 +74,95 @@ function BookManagement() {
         navigate(`/dashboard/books/detail/${bookId}`);
     };
 
-    // Filter the books that are active and match the search term
-    const activeBooks = books.filter(book =>
-        book.bookStatus === 1 &&
-        (book.bookTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            book.author.toLowerCase().includes(searchTerm.toLowerCase()))
+    const columns = [
+        {
+            title: 'Book ID',
+            dataIndex: 'bookID',
+            key: 'bookID',
+        },
+        {
+            title: 'Title',
+            dataIndex: 'bookTitle',
+            key: 'bookTitle',
+        },
+        {
+            title: 'Author',
+            dataIndex: 'author',
+            key: 'author',
+        },
+        {
+            title: 'Translator',
+            dataIndex: 'translator',
+            key: 'translator',
+        },
+        {
+            title: 'Price',
+            dataIndex: 'bookPrice',
+            key: 'bookPrice',
+        },
+        {
+            title: 'Status',
+            dataIndex: 'bookStatus',
+            key: 'bookStatus',
+            render: (status) => (
+                <Tag color={status === 1 ? 'green' : 'volcano'}>
+                    {status === 1 ? 'Active' : 'Inactive'}
+                </Tag>
+            ),
+        },
+        {
+            title: 'Action',
+            key: 'action',
+            render: (_, record) => (
+                <Space size="middle">
+                    <Button type="link" onClick={() => goToBookDetail(record.bookID)}>Detail</Button>
+                    {record.bookStatus === 1 && (
+                        <>
+                            <Button type="link" onClick={() => goToEditBook(record.bookID)}>Edit</Button>
+                            <Button type="link" danger onClick={() => handleDelete(record.bookID)}>Delete</Button>
+                        </>
+                    )}
+                </Space>
+            ),
+        },
+    ];
+
+    // Use filteredBooks as dataSource when there is a search term
+    const filteredBooks = books.filter(book =>
+    (book.bookTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        book.author.toLowerCase().includes(searchTerm.toLowerCase()))
     );
+
+    if (loading) return <p>Loading books...</p>;
+    if (error) return <p>Error: {error}</p>;
 
     return (
         <div className="main-container">
-            <DashboardContainer />
-            <div className="titlemanagement">
-                <div> Book Management</div>
+            <div className="dashboard-container">
+                <DashboardContainer />
             </div>
 
-            <div className="table-container">
+            <div className="dashboard-content">
+                <div className="titlemanagement">
+                    <div>Book Management</div>
+                </div>
                 <div className="action-container">
-                    <button className='add-book' onClick={goToAddBook}>Add book</button>
-                    <div className="search-container">
-                        <input
-                            type="text"
-                            placeholder="Search by title or author"
-                            className="search-input"
-                            value={searchTerm}
-                            onChange={e => setSearchTerm(e.target.value)} // Handle search input change
-                        />
-                    </div>
+                    <Button type="primary" onClick={goToAddBook}>Add book</Button>
+                    <Search
+                        placeholder="Search by title or author"
+                        className="search-input"
+                        value={searchTerm}
+                        onChange={e => setSearchTerm(e.target.value)}
+                        style={{ width: 300, marginLeft: '20px' }}
+                    />
                 </div>
 
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Book ID</th>
-                            <th>Title</th>
-                            <th>Author</th>
-                            <th>Translator</th>
-                            <th>Price</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {activeBooks.map((book) => (
-                            <tr key={book.bookID}>
-                                <td>{book.bookID}</td>
-                                <td>{book.bookTitle}</td>
-                                <td>{book.author}</td>
-                                <td>{book.translator}</td>
-                                <td>{book.bookPrice}</td>
-                                <td>
-                                    <div className="action-buttons">
-                                        <button className="detail" onClick={() => goToBookDetail(book.bookID)}>Detail</button>
-                                        <button className="edit" onClick={() => goToEditBook(book.bookID)}>Edit</button>
-                                        <button className="delete" onClick={() => handleDelete(book.bookID)}>Delete</button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                <Table
+                    columns={columns}
+                    dataSource={filteredBooks} // Use filteredBooks here
+                    rowKey={record => record.bookID}
+                />
             </div>
-
             <div className="copyright">
                 <div>© Copyright {new Date().getFullYear()}</div>
                 <div>Cabybook Management System</div>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { fetchAccounts, deleteAccount } from '../config';
 import { useNavigate } from 'react-router-dom';
-import DashboardContainer from "../DashBoardContainer.jsx";
+import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 
 const AccountManagement = () => {
     const navigate = useNavigate();

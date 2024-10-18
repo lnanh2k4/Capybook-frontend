@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import "./PromotionManagement.css";
 import { fetchPromotions, deletePromotion } from "../config";
-import DashboardContainer from "../DashBoardContainer.jsx";
+import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 
 const PromotionManagement = () => {
   const navigate = useNavigate();

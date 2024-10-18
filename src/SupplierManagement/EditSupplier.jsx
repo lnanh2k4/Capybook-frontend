@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { updateSupplier, fetchSupplierById } from "../config"; // Import API functions
-import "./EditSupplier.css"; // Import CSS
-import DashboardContainer from "../DashBoardContainer.jsx"; // Import dashboard layout
+import DashboardContainer from "../DashBoard/DashBoardContainer.jsx"; // Import dashboard layout
 
 const EditSupplier = () => {
     const { supID } = useParams(); // Get supID from URL

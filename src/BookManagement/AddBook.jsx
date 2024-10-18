@@ -1,268 +1,165 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { PlusOutlined } from '@ant-design/icons';
+import {
+    Button,
+    Form,
+    Input,
+    InputNumber,
+    Upload,
+    message,
+} from 'antd';
 import { addBook } from '../config';
-import './AddBook.css';
-import DashboardContainer from "../DashBoardContainer.jsx";
-function AddBook() {
-    const [formData, setFormData] = useState({
-        bookTitle: '',
-        publicationYear: '',
-        author: '',
-        dimension: '',
-        translator: '',
-        hardcover: '',
-        publisher: '',
-        weight: '',
-        bookDescription: '',
-        image: null,
-        bookPrice: '',
-        isbn: '',
-        bookQuantity: ''
-    });
+import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 
+const { TextArea } = Input;
+
+function AddBook() {
+    const [form] = Form.useForm();
     const [imagePreview, setImagePreview] = useState(null);
+    const [fileList, setFileList] = useState([]); // Define fileList state
     const navigate = useNavigate();
 
-    const handleChange = (e) => {
-        const { name, value, files } = e.target;
-        if (name === 'image' && files.length > 0) {
-            const file = files[0];
+    const handleImageChange = ({ fileList: newFileList }) => {
+        const file = newFileList[0]?.originFileObj;
+        if (file) {
             const reader = new FileReader();
-            reader.onload = (event) => {
-                setImagePreview(event.target.result);
+            reader.onload = (e) => {
+                setImagePreview(e.target.result);
             };
             reader.readAsDataURL(file);
-            setFormData({ ...formData, image: file });
-        } else {
-            setFormData({
-                ...formData,
-                [name]: value // Cập nhật giá trị cho trường đang thay đổi
-            });
         }
+        setFileList(newFileList); // Update fileList state
     };
 
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
+    const handleSubmit = async (values) => {
         try {
             const formDataToSend = new FormData();
-
-            // Tạo đối tượng dữ liệu sách
             const bookData = {
-                bookTitle: formData.bookTitle,
-                publicationYear: formData.publicationYear,
-                author: formData.author,
-                dimension: formData.dimension,
-                translator: formData.translator,
-                hardcover: formData.hardcover,
-                publisher: formData.publisher,
-                weight: formData.weight,
-                bookDescription: formData.bookDescription,
-                bookPrice: formData.bookPrice,
-                isbn: formData.isbn,
+                bookTitle: values.bookTitle,
+                publicationYear: values.publicationYear,
+                author: values.author,
+                dimension: values.dimension,
+                translator: values.translator,
+                hardcover: values.hardcover,
+                publisher: values.publisher,
+                weight: values.weight,
+                bookDescription: values.bookDescription,
+                bookPrice: values.bookPrice,
+                isbn: values.isbn,
+                bookQuantity: values.bookQuantity,
                 bookStatus: 1,
-                bookQuantity: formData.bookQuantity
             };
 
             formDataToSend.append('book', JSON.stringify(bookData));
-
-            if (formData.image) {
-                formDataToSend.append('image', formData.image);
-            }
-
-            // Log dữ liệu trước khi gửi
-            for (let pair of formDataToSend.entries()) {
-                console.log(pair[0], pair[1]);
+            if (fileList.length > 0) {
+                formDataToSend.append('image', fileList[0].originFileObj); // Add only one image file
             }
 
             await addBook(formDataToSend);
+            message.success('Book added successfully');
             navigate("/dashboard/books");
         } catch (error) {
             console.error('Error adding book:', error);
-
-            if (error.response) {
-                console.log("Error response status:", error.response.status);  // Trạng thái lỗi
-                console.log("Error response data:", error.response.data);  // Dữ liệu lỗi từ server
-            }
+            message.error('Failed to add book');
         }
     };
 
-
-    const handleReset = () => {
-        setFormData({
-            bookTitle: '',
-            publicationYear: '',
-            author: '',
-            dimension: '',
-            translator: '',
-            hardcover: '',
-            publisher: '',
-            weight: '',
-            bookDescription: '',
-            image: null,
-            bookPrice: '',
-            isbn: '',
-            bookQuantity: ''
-        });
+    const handleRemove = () => {
         setImagePreview(null);
+        setFileList([]); // Reset the fileList when the image is removed
     };
 
     return (
         <div className="main-container">
-            <DashboardContainer />
-            <div className="add-book-container">
-                <form className="add-book-form" onSubmit={handleSubmit}>
-                    <div className="form-left">
-                        <div className="form-group">
-                            <label>Title</label>
-                            <input
-                                type="text"
-                                name="bookTitle"
-                                value={formData.bookTitle || ''}
-                                onChange={handleChange}
-                                placeholder="Title of the book"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Publication Year</label>
-                            <input
-                                type="text"
-                                name="publicationYear"
-                                value={formData.publicationYear || ''}
-                                onChange={handleChange}
-                                placeholder="Publication year"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Author</label>
-                            <input
-                                type="text"
-                                name="author"
-                                value={formData.author || ''}
-                                onChange={handleChange}
-                                placeholder="Author of the book"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Dimensions</label>
-                            <input
-                                type="text"
-                                name="dimension"
-                                value={formData.dimension || ''}
-                                onChange={handleChange}
-                                placeholder="Dimensions of the book"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Price</label>
-                            <input
-                                type="text"
-                                name="bookPrice"
-                                value={formData.bookPrice || ''}
-                                onChange={handleChange}
-                                placeholder="Price of the book"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="form-center">
-                        <div className="form-group">
-                            <label>Translator</label>
-                            <input
-                                type="text"
-                                name="translator"
-                                value={formData.translator || ''}
-                                onChange={handleChange}
-                                placeholder="Translator of the book"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Hardcover</label>
-                            <input
-                                type="text"
-                                name="hardcover"
-                                value={formData.hardcover || ''}
-                                onChange={handleChange}
-                                placeholder="Hardcover of the book"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Publisher</label>
-                            <input
-                                type="text"
-                                name="publisher"
-                                value={formData.publisher || ''}
-                                onChange={handleChange}
-                                placeholder="Publisher of the book"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Weight</label>
-                            <input
-                                type="text"
-                                name="weight"
-                                value={formData.weight || ''}
-                                onChange={handleChange}
-                                placeholder="Weight of the book"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Isbn</label>
-                            <input
-                                type="text"
-                                name="isbn"
-                                value={formData.isbn || ''}
-                                onChange={handleChange}
-                                placeholder="International Standard Book Number"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="form-right">
-                        {imagePreview && (
-                            <div className="image-preview">
-                                <img src={imagePreview} alt="Selected Preview" />
-                            </div>
-                        )}
-                        <div className="form-group">
-                            <label>Image</label>
-                            <input type="file" name="image" onChange={handleChange} />
-                        </div>
-                        <div className="form-group">
-                            <label>Quantity</label>
-                            <input
-                                type="text"
-                                name="bookQuantity"
-                                value={formData.bookQuantity || ''}
-                                onChange={handleChange}
-                                placeholder="Quantity of the book"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="form-bottom">
-                        <div className="form-group">
-                            <label className="description">Description</label>
-                            <textarea
-                                name="bookDescription"
-                                value={formData.bookDescription || ''}
-                                onChange={handleChange}
-                                placeholder="Description of the book"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="form-buttons">
-                        <button type="submit">Submit</button>
-                        <button type="button" onClick={handleReset}>Reset</button>
-                    </div>
-                </form>
+            <div className="dashboard-container">
+                <DashboardContainer />
             </div>
 
-            <div className="titlemanagement">
-                <div> Book Management - Add Book </div>
+            <div className="dashboard-content">
+                <div className="titlemanagement">
+                    <div>Book Management - Add Book</div>
+                </div>
+
+                <Form
+                    form={form}
+                    onFinish={handleSubmit}
+                    layout="vertical"
+                    style={{ maxWidth: '800px', margin: 'auto' }}
+                >
+                    <Form.Item label="Title" name="bookTitle" rules={[{ required: true, message: 'Please enter the title' }]}>
+                        <Input placeholder="Title of the book" />
+                    </Form.Item>
+
+                    <Form.Item label="Publication Year" name="publicationYear" rules={[{ required: true, message: 'Please enter the publication year' }]}>
+                        <Input placeholder="Publication year" />
+                    </Form.Item>
+
+                    <Form.Item label="Author" name="author" rules={[{ required: true, message: 'Please enter the author' }]}>
+                        <Input placeholder="Author of the book" />
+                    </Form.Item>
+
+                    <Form.Item label="Dimensions" name="dimension" rules={[{ required: true, message: 'Please enter the dimensions' }]}>
+                        <Input placeholder="Dimensions of the book" />
+                    </Form.Item>
+
+                    <Form.Item label="Price" name="bookPrice" rules={[{ required: true, message: 'Please enter the price' }]}>
+                        <Input placeholder="Price of the book" />
+                    </Form.Item>
+
+                    <Form.Item label="Translator" name="translator" >
+                        <Input placeholder="Translator of the book" />
+                    </Form.Item>
+
+                    <Form.Item label="Hardcover" name="hardcover" rules={[{ required: true, message: 'Please enter the hardcover' }]}>
+                        <Input placeholder="Hardcover details" />
+                    </Form.Item>
+
+                    <Form.Item label="Publisher" name="publisher" rules={[{ required: true, message: 'Please enter the publisher' }]}>
+                        <Input placeholder="Publisher of the book" />
+                    </Form.Item>
+
+                    <Form.Item label="Weight" name="weight" rules={[{ required: true, message: 'Please enter the weight' }]}>
+                        <Input placeholder="Weight of the book" />
+                    </Form.Item>
+
+                    <Form.Item label="ISBN" name="isbn" rules={[{ required: true, message: 'Please enter the ISBN' }]}>
+                        <Input placeholder="International Standard Book Number" />
+                    </Form.Item>
+                    <Form.Item label="Quantity" name="bookQuantity" rules={[{ required: true, message: 'Please enter the quantity' }]}>
+                        <InputNumber min={1} placeholder="Quantity" />
+                    </Form.Item>
+                    {/* Image Upload Section */}
+                    <Form.Item label="Image" name="image">
+                        <Upload
+                            listType="picture-card"
+                            maxCount={1}
+                            fileList={fileList} // Controlled by state
+                            beforeUpload={() => false} // Prevent immediate upload
+                            onChange={handleImageChange} // Handle file change
+                            onRemove={handleRemove} // Handle file removal
+                        >
+                            {fileList.length < 1 && (
+                                <>
+                                    <PlusOutlined />
+                                    <div style={{ marginTop: 8 }}>Upload</div>
+                                </>
+                            )}
+                        </Upload>
+                        {imagePreview && <img src={imagePreview} alt="Preview" style={{ width: '200px', marginTop: '-100px' }} />}
+                    </Form.Item>
+
+                    <Form.Item label="Description" name="bookDescription" rules={[{ required: true, message: 'Please enter a description' }]}>
+                        <TextArea rows={4} placeholder="Description of the book" />
+                    </Form.Item>
+
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit">Submit</Button>
+                        <Button htmlType="button" onClick={() => form.resetFields()} style={{ marginLeft: '40px' }}>Reset</Button>
+                    </Form.Item>
+                </Form>
             </div>
+
             <div className="copyright">
                 <div>© Copyright {new Date().getFullYear()}</div>
                 <div>Cabybook Management System</div>

@@ -1,214 +1,98 @@
-/* Nền bảng và chữ */
-.dashboard-container-alt {
-    grid-column: 1;
-    grid-row: 1 / span 3;
-    background: #4ea8c4;
-}
-
-.dashboard-title {
-    text-align: center;
-    height: 2vh;
-    /* Adjust height if necessary */
-    padding: 10px 0;
-    background-color: #4ea8c4;
-    color: #020405;
-    font-size: 1.3rem;
-    /* Adjust font size */
-}
-
-.dashboard-grid {
+.main-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 20px;
-    width: 80%;
-    max-height: 500px;
-    /* Điều chỉnh chiều cao tối đa */
-    overflow-y: scroll;
-    /* Kích hoạt cuộn dọc */
-    scrollbar-width: none;
-    /* Firefox: Ẩn thanh cuộn */
+    grid-template-columns: 1fr 3fr;
+    /* 2 cột: sidebar chiếm 1 phần và nội dung chính chiếm 3 phần */
+    grid-template-rows: auto 50px;
+    /* Hàng 1 tự động điều chỉnh theo nội dung, hàng 2 cố định chiều cao 50px */
+    height: 100vh;
+    /* Chiều cao toàn trang */
 }
 
-.dashboard-grid::-webkit-scrollbar {
-    display: none;
-    /* Chrome, Safari và các trình duyệt Webkit khác: Ẩn thanh cuộn */
-}
-
-
-.dashboard-item {
+.dashboard-container {
+    grid-column: 1 / 2;
+    /* Cột đầu tiên */
+    grid-row: 1 / 2;
+    /* Hàng đầu tiên */
+    background-color: #4b301f;
+    /* Màu cam đậm FPT */
+    padding: 25px;
     display: flex;
-    align-items: center;
-    padding: 10px;
-    margin: 5px 0;
-    cursor: pointer;
-    transition: background-color 0.5;
-    border-radius: 5px;
-    background-color: #f8fdff;
-    /* Đổi màu nền nút */
-}
-
-.dashboard-item:hover {
-    background-color: #007bff;
-    /* Đổi màu khi hover */
-}
-
-.dashboard-icon {
-    margin-right: 10px;
-}
-
-.dashboard-item p {
-    font-size: 1rem;
-    margin: 0;
-}
-
-.search-container {
-    display: flex;
-    /* Sử dụng Flexbox để sắp xếp phần tử */
-    align-items: center;
-    /* Căn giữa theo chiều dọc */
-    margin: 20px 0;
-    /* Thêm khoảng cách phía trên và dưới */
-}
-
-.action-container {
-    display: flex;
+    flex-direction: column;
     justify-content: space-between;
-    /* Giãn cách giữa Add Book và Search */
-    align-items: center;
-    /* Căn giữa theo chiều dọc */
-    margin-bottom: 20px;
-    /* Khoảng cách dưới cùng */
-}
-
-.search-input {
-    flex: 1;
-    /* Chiếm toàn bộ chiều rộng còn lại */
-    padding: 10px;
-    /* Thêm padding bên trong */
-    border: 1px solid #ccc;
-    /* Viền màu xám */
-    border-radius: 5px;
-    /* Bo tròn các góc */
-    font-size: 16px;
-    /* Kích thước font chữ */
-}
-
-.search-button {
-    background-color: #007bff;
-    /* Màu nền xanh dương */
     color: white;
-    /* Màu chữ trắng */
-    border: none;
-    /* Không viền */
-    border-radius: 5px;
-    /* Bo tròn các góc */
-    padding: 10px 20px;
-    /* Thêm padding */
-    cursor: pointer;
-    /* Con trỏ chuột khi hover */
-    margin-left: 10px;
-    /* Khoảng cách giữa input và button */
-    font-size: 16px;
-    /* Kích thước font chữ */
+    background-image: url('https://i.pinimg.com/originals/3d/54/a3/3d54a3afe927891ec41fec08f2c563d8.jpg');
+    background-size: cover;
+    background-position: center;
 }
 
-.search-button:hover {
-    background-color: #0056b3;
-    /* Đổi màu khi hover */
-}
-
-.table-container {
+/*https://daihoc.fpt.edu.vn/wp-content/uploads/2022/04/dai-hoc-fpt-2-3.jpeg
+/* Styles for the main dashboard content */
+.dashboard-content {
+    padding: 40px;
+    background-color: rgba(255, 255, 255, 0.9);
+    /* Semi-transparent white background */
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    /* Soft shadow */
+    text-align: center;
     margin: 20px;
-    padding: 20px;
-    background-color: #f5f5f5;
-    /* Nền cho vùng chứa bảng */
+}
+
+/* Styles for the title in the dashboard */
+.dashboard-content h1 {
+    font-size: 2.5rem;
+    /* Large font size */
+    color: #333;
+    /* Darker text color for contrast */
+    margin-bottom: 15px;
+}
+
+/* Styles for the description text */
+.dashboard-content p {
+    font-size: 1.2rem;
+    /* Slightly larger font for readability */
+    color: #666;
+    /* Softer color for body text */
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+/* Copyright section */
+.copyright {
+    grid-column: 1 / 3;
+    /* Nằm ngang qua cả hai cột */
+    grid-row: 2 / 4;
+    background-color: #333;
+    /* Dark background for footer */
+    color: #fff;
+    /* White text for contrast */
+    padding: 10px;
+    text-align: center;
+    font-size: 0.9rem;
+    /* Smaller font size for copyright */
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin: 20px;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-    background-color: white;
-    /* Nền bảng trắng */
+/* Styling for individual copyright lines */
+.copyright div {
+    margin: 5px 0;
+    /* Adds a bit of spacing between the lines */
 }
 
-th,
-td {
-    padding: 12px;
-    text-align: left;
-    border: 1px solid #ddd;
-    color: black;
-    /* Chữ màu đen */
-}
+/* Add responsiveness for mobile screens */
+@media screen and (max-width: 768px) {
+    .dashboard-content {
+        padding: 20px;
+        font-size: 1rem;
+        /* Adjust font size on smaller screens */
+    }
 
-th {
-    background-color: #007bff;
-    /* Màu nền cho tiêu đề */
-    color: white;
-    /* Chữ màu trắng cho tiêu đề */
-}
+    .dashboard-content h1 {
+        font-size: 2rem;
+    }
 
-/* Nút Add Book */
-button.add-book {
-    background-color: #2760da;
-    /* Màu xanh dương nhạt */
-    color: white;
-    /* Chữ màu trắng */
-    border: none;
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.action-buttons {
-    display: flex;
-    /* Sử dụng Flexbox để căn giữa */
-    justify-content: center;
-    /* Căn giữa các nút */
-    gap: 10px;
-    /* Khoảng cách giữa các nút */
-}
-
-/* Nút Detail */
-button.detail {
-    background-color: #007bff;
-    /* Màu xanh dương */
-    color: white;
-    /* Chữ màu trắng */
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-/* Nút Edit */
-button.edit {
-    background-color: #28a745;
-    /* Màu xanh lá cây */
-    color: white;
-    /* Chữ màu trắng */
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-/* Nút Delete */
-button.delete {
-    background-color: #dc3545;
-    /* Màu đỏ */
-    color: white;
-    /* Chữ màu trắng */
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-/* Tùy chọn hover cho các nút */
-button:hover {
-    opacity: 0.9;
-    /* Tăng độ mờ khi hover */
+    .dashboard-content p {
+        font-size: 1rem;
+    }
 }

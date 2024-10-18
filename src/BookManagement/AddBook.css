@@ -1,271 +1,97 @@
-html,
-body {
-    height: 100%;
-    margin: 0;
-}
-
 .main-container {
     display: grid;
-    grid-template-columns: 3fr 7fr;
-    /* Adjust column ratio */
-    grid-template-rows: 1fr 8fr 1fr;
-    /* Adjust row ratio */
+    grid-template-columns: 1fr 3fr;
+    /* 2 cột: sidebar chiếm 1 phần và nội dung chính chiếm 3 phần */
+    grid-template-rows: auto 50px;
+    /* Hàng 1 tự động điều chỉnh theo nội dung, hàng 2 cố định chiều cao 50px */
     height: 100vh;
-    background-color: #e3e6e9;
+    /* Chiều cao toàn trang */
 }
 
-.logo-container {
-    text-align: center;
-}
-
-.logo-image {
-    max-width: 60%;
-    height: auto;
-    margin-top: -60px;
-}
-
-.dashboard-container-alt {
-    grid-column: 1;
-    grid-row: 1 / span 3;
-    background: #4ea8c4;
-}
-
-.dashboard-title {
-    text-align: center;
-    height: 2vh;
-    /* Adjust height if necessary */
-    padding: 10px 0;
-    background-color: #4ea8c4;
-    color: #020405;
-    font-size: 1.3rem;
-    /* Adjust font size */
-}
-
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 20px;
-    width: 80%;
-    max-height: 500px;
-    /* Điều chỉnh chiều cao tối đa */
-    overflow-y: scroll;
-    /* Kích hoạt cuộn dọc */
-    scrollbar-width: none;
-    /* Firefox: Ẩn thanh cuộn */
-}
-
-.dashboard-grid::-webkit-scrollbar {
-    display: none;
-    /* Chrome, Safari và các trình duyệt Webkit khác: Ẩn thanh cuộn */
-}
-
-
-.dashboard-item {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    margin: 5px 0;
-    cursor: pointer;
-    transition: background-color 0.5;
-    border-radius: 5px;
-    background-color: #f8fdff;
-    /* Đổi màu nền nút */
-}
-
-.dashboard-item:hover {
-    background-color: #007bff;
-    /* Đổi màu khi hover */
-}
-
-.dashboard-icon {
-    margin-right: 10px;
-}
-
-.dashboard-item p {
-    font-size: 1rem;
-    margin: 0;
-}
-
-.Addbook {
-    text-align: center;
-    font-size: 2rem;
-}
-
-.add-book-form {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    /* 3 cột đều nhau */
-    grid-template-rows: auto auto;
-    gap: 20px;
-    width: 100%;
-    /* Chiếm toàn bộ chiều rộng */
-}
-
-.description {
-    grid-column: span 3;
-    /* Chiếm toàn bộ 3 cột */
-}
-
-.form-left,
-.form-center {
+.dashboard-container {
+    grid-column: 1 / 2;
+    /* Cột đầu tiên */
+    grid-row: 1 / 2;
+    /* Hàng đầu tiên */
+    background-color: #4b301f;
+    /* Màu cam đậm FPT */
+    padding: 25px;
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    justify-content: space-between;
+    color: white;
+    background-image: url('https://daihoc.fpt.edu.vn/wp-content/uploads/2022/04/dai-hoc-fpt-2-3.jpeg');
+    background-size: cover;
+    background-position: center;
 }
 
-.form-right {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+/* Styles for the main dashboard content */
+.dashboard-content {
+    padding: 40px;
+    background-color: rgba(255, 255, 255, 0.9);
+    /* Semi-transparent white background */
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    /* Soft shadow */
+    text-align: center;
+    margin: 20px;
 }
 
-.image-preview {
+/* Styles for the title in the dashboard */
+.dashboard-content h1 {
+    font-size: 2.5rem;
+    /* Large font size */
+    color: #333;
+    /* Darker text color for contrast */
     margin-bottom: 15px;
 }
 
-.image-preview img {
-    max-width: 100%;
-    /* Đảm bảo ảnh không vượt quá chiều rộng của phần tử */
-    height: auto;
-    border: 10px solid #ccc;
-    border-radius: 5px;
+/* Styles for the description text */
+.dashboard-content p {
+    font-size: 1.2rem;
+    /* Slightly larger font for readability */
+    color: #666;
+    /* Softer color for body text */
+    line-height: 1.6;
+    margin-bottom: 20px;
 }
 
-.form-right .form-group {
-    width: 100%;
-    text-align: center;
-}
-
-.form-bottom {
-    grid-column: span 3;
-}
-
-.form-bottom .form-group {
-    width: 100%;
-}
-
-.form-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.form-group label {
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-.form-group input,
-.form-group textarea {
-    padding: 10px;
-    border: 1px solid #204b9c;
-    border-radius: 5px;
-    background: #f5f5f5;
-}
-
-textarea {
-    resize: vertical;
-    height: 100px;
-}
-
-.form-buttons {
-    grid-column: span 3;
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-}
-
-button {
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-button[type="submit"] {
-    background-color: #007bff;
-    color: white;
-}
-
-button[type="button"] {
-    background-color: #1e222e;
-    color: white;
-}
-
-.add-book-container {
-    grid-column: 2;
-    /* Second column */
-    grid-row: 2;
-    /* Second row */
-    padding: 20px;
-    background-color: #82878a;
-    max-width: 2000px;
-    margin: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-}
-
-.titlemanagement {
-    grid-column: 2;
-    grid-row: 1;
-    display: flex;
-    /* Use flexbox */
-    justify-content: center;
-    /* Center horizontally */
-    align-items: center;
-    /* Center vertically */
-    text-align: center;
-    font-size: 40px;
-    background-color: #0a6b9c;
-    height: 100%;
-    /* Make sure it takes the full height of the grid cell */
-}
-
+/* Copyright section */
 .copyright {
-    grid-column: 2;
-    grid-row: 3;
-    text-align: center;
-    font-size: 14px;
+    grid-column: 1 / 3;
+    /* Nằm ngang qua cả hai cột */
+    grid-row: 2 / 4;
+    background-color: #333;
+    /* Dark background for footer */
     color: #fff;
-    background-color: #020405;
-    padding: 20px;
-    /* Adjust padding if necessary */
-    height: 100%;
-    /* Ensure it fills the grid row */
-    display: flex;
-    flex-direction: column;
-    /* Stack the elements vertically */
-    justify-content: center;
-    /* Center vertically */
-    align-items: center;
-    /* Center horizontally */
-    gap: 5px;
-    /* Space between lines */
+    /* White text for contrast */
+    padding: 10px;
+    text-align: center;
+    font-size: 0.9rem;
+    /* Smaller font size for copyright */
+    border-radius: 8px;
+    margin: 20px;
 }
 
-
-
-.leave-logo-container {
-    display: flex;
-    justify-content: center;
-    /* Horizontally centers the image */
-    align-items: center;
-    /* Vertically centers the image */
-    height: 5vh;
-    /* Full height to center vertically (optional) */
+/* Styling for individual copyright lines */
+.copyright div {
+    margin: 5px 0;
+    /* Adds a bit of spacing between the lines */
 }
 
-.leave-logo-image {
-    width: 30px;
-    /* Adjust size as needed */
-    height: auto;
-    /* Keeps the image aspect ratio */
-    margin-top: 50px;
-}
+/* Add responsiveness for mobile screens */
+@media screen and (max-width: 768px) {
+    .dashboard-content {
+        padding: 20px;
+        font-size: 1rem;
+        /* Adjust font size on smaller screens */
+    }
 
-.titlemanagement {
-    font-weight: bold;
+    .dashboard-content h1 {
+        font-size: 2rem;
+    }
 
+    .dashboard-content p {
+        font-size: 1rem;
+    }
 }

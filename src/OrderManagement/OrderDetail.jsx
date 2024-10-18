@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom"; // Import useParams để lấy id từ URL
-import "./OrderDetail.css";
-import DashboardContainer from "../DashBoardContainer.jsx";
+import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 const OrderDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams(); // Lấy id từ URL

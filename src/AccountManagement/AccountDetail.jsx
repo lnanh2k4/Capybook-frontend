@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchAccountDetail } from '../config';
-import DashboardContainer from '../DashBoardContainer';
+import DashboardContainer from '../DashBoard/DashBoardContainer';
 
 const AccountDetail = () => {
     const { username } = useParams();

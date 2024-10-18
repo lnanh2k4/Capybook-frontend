@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { addPromotion } from "../config";
-import "./AddPromotion.css";
-import DashboardContainer from "../DashBoardContainer.jsx";
+import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 const AddPromotion = () => {
   const [formData, setFormData] = useState({
     promotionName: "",

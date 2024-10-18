@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { updatePromotion, fetchPromotionDetail } from "../config"; // Import API
-import "./EditPromotion.css"; // Import CSS
-import DashboardContainer from "../DashBoardContainer.jsx";
+import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 
 const EditPromotion = () => {
   const { proID } = useParams(); // Lấy proID từ URL

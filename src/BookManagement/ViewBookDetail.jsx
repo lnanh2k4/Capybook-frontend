@@ -1,21 +1,23 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; // Thêm useParams và useNavigate
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Card, Descriptions, Button, Image } from 'antd'; // Import các component cần thiết từ Ant Design
 import { fetchBookById } from '../config'; // Import API để lấy chi tiết sách
-import './ViewBookDetail.css';
-import DashboardContainer from "../DashBoardContainer.jsx";
+import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
+
 function ViewBookDetail() {
     const { bookId } = useParams(); // Lấy bookId từ URL
     const navigate = useNavigate(); // Điều hướng giữa các trang
-    const [formData, setFormData] = useState({
+
+    const [bookData, setBookData] = useState({
         bookTitle: '',
         publicationYear: '',
         author: '',
-        dimension: '', // Đúng với tên cột trong database
+        dimension: '',
         translator: '',
         hardcover: '',
         publisher: '',
         weight: '',
-        bookDescription: '', // Đúng với tên cột trong database
+        bookDescription: '',
         image: null,
         bookPrice: '',
         isbn: ''
@@ -26,7 +28,7 @@ function ViewBookDetail() {
     useEffect(() => {
         fetchBookById(bookId)
             .then(response => {
-                setFormData(response.data);
+                setBookData(response.data);
                 const imageFromDB = response.data.image;
                 if (imageFromDB && imageFromDB.startsWith(`/uploads/book_`)) {
                     const fullImagePath = `http://localhost:6789${imageFromDB}`;
@@ -40,84 +42,64 @@ function ViewBookDetail() {
             });
     }, [bookId]);
 
-
     const goToBookManagement = () => {
         navigate("/dashboard/books");
     };
 
     return (
         <div className="main-container">
-            <DashboardContainer />
-            <div className="add-book-container">
-                <form className="add-book-form">
-                    <div className="form-left">
-                        <div className="form-group">
-                            <label>Title</label>
-                            <input type="text" name="bookTitle" value={formData.bookTitle} readOnly />
-                        </div>
-                        <div className="form-group">
-                            <label>Publication Year</label>
-                            <input type="text" name="publicationYear" value={formData.publicationYear} readOnly />
-                        </div>
-                        <div className="form-group">
-                            <label>Author</label>
-                            <input type="text" name="author" value={formData.author} readOnly />
-                        </div>
-                        <div className="form-group">
-                            <label>Dimensions</label>
-                            <input type="text" name="dimensions" value={formData.dimension} readOnly />
-                        </div>
-                        <div className="form-group">
-                            <label>Price</label>
-                            <input type="text" name="bookPrice" value={formData.bookPrice} readOnly />
-                        </div>
-                    </div>
-                    <div className="form-center">
-                        <div className="form-group">
-                            <label>Translator</label>
-                            <input type="text" name="translator" value={formData.translator} readOnly />
-                        </div>
-                        <div className="form-group">
-                            <label>Hardcover</label>
-                            <input type="text" name="hardcover" value={formData.hardcover} readOnly />
-                        </div>
-                        <div className="form-group">
-                            <label>Publisher</label>
-                            <input type="text" name="publisher" value={formData.publisher} readOnly />
-                        </div>
-                        <div className="form-group">
-                            <label>Weight</label>
-                            <input type="text" name="weight" value={formData.weight} readOnly />
-                        </div>
-                        <div className="form-group">
-                            <label>Isbn</label>
-                            <input type="text" name="isbn" value={formData.isbn} readOnly />
-                        </div>
-                    </div>
-                    <div className="form-right">
+            <div className="dashboard-container">
+                <DashboardContainer />
+            </div>
+
+            <div className="dashboard-content" style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+                <Card
+                    title="Book Management - View Book Detail"
+                    style={{ marginBottom: '30px', padding: '20px' }}
+                    headStyle={{ fontSize: '20px', textAlign: 'center' }}
+                >
+                    <div style={{ display: 'flex', gap: '40px', alignItems: 'flex-start' }}>
                         {imagePreview && (
-                            <div className="image-preview">
-                                <img src={imagePreview} alt="Selected Preview" />
+                            <div style={{ flex: '0 0 300px', textAlign: 'center' }}>
+                                <Image
+                                    width={400}
+                                    src={imagePreview}
+                                    alt="Book Image"
+                                    style={{ borderRadius: '8px' }} // Bo tròn các góc ảnh
+                                />
                             </div>
                         )}
-
-                    </div>
-                    <div className="form-bottom">
-                        <div className="form-group">
-                            <label className='description'>Description</label>
-                            <textarea name="description" value={formData.bookDescription} readOnly />
+                        <div style={{ flex: '1', maxWidth: '100%' }}>
+                            <Descriptions
+                                bordered
+                                column={1}
+                                layout="horizontal"
+                                style={{ marginBottom: '20px' }} // Giãn phần mô tả với khoảng cách
+                                labelStyle={{ fontWeight: 'bold', fontSize: '14px', paddingBottom: '10px' }} // Tăng kích thước font chữ cho label
+                                contentStyle={{ fontSize: '14px', paddingBottom: '10px', textAlign: 'right' }} // Tăng kích thước font chữ cho nội dung và canh phải
+                            >
+                                <Descriptions.Item label="Title" contentStyle={{ textAlign: 'left' }}>{bookData.bookTitle}</Descriptions.Item>
+                                <Descriptions.Item label="Publication Year" contentStyle={{ textAlign: 'left' }}>{bookData.publicationYear}</Descriptions.Item>
+                                <Descriptions.Item label="Author" contentStyle={{ textAlign: 'left' }}>{bookData.author}</Descriptions.Item>
+                                <Descriptions.Item label="Dimensions" contentStyle={{ textAlign: 'left' }}>{bookData.dimension}</Descriptions.Item>
+                                <Descriptions.Item label="Price" contentStyle={{ textAlign: 'left' }}>{bookData.bookPrice}</Descriptions.Item>
+                                <Descriptions.Item label="Translator" contentStyle={{ textAlign: 'left' }}>{bookData.translator}</Descriptions.Item>
+                                <Descriptions.Item label="Hardcover" contentStyle={{ textAlign: 'left' }}>{bookData.hardcover}</Descriptions.Item>
+                                <Descriptions.Item label="Publisher" contentStyle={{ textAlign: 'left' }}>{bookData.publisher}</Descriptions.Item>
+                                <Descriptions.Item label="Weight" contentStyle={{ textAlign: 'left' }}>{bookData.weight}</Descriptions.Item>
+                                <Descriptions.Item label="Isbn" contentStyle={{ textAlign: 'left' }}>{bookData.isbn}</Descriptions.Item>
+                                <Descriptions.Item label="Description" contentStyle={{ textAlign: 'left' }}>{bookData.bookDescription}</Descriptions.Item>
+                            </Descriptions>
                         </div>
                     </div>
-                    <div className="form-buttons">
-                        <button type="button" onClick={goToBookManagement}>Cancel</button>
-                    </div>
 
-                </form>
+                    <div style={{ marginTop: '30px', textAlign: 'center' }}>
+                        <Button type="primary" onClick={goToBookManagement}>Back to Book Management</Button>
+                    </div>
+                </Card>
             </div>
-            <div className="titlemanagement">
-                <div> Book Management - View Book Detail </div>
-            </div>
-            <div className="copyright">
+
+            <div className="copyright" style={{ textAlign: 'center', paddingTop: '10px' }}>
                 <div>© Copyright {new Date().getFullYear()}</div>
                 <div>Cabybook Management System</div>
                 <div>All Rights Reserved</div>

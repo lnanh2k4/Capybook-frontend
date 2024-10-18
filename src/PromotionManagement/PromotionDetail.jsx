@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom"; // Thêm useParams và useNavigate
 import { fetchPromotionDetail } from "../config"; // Import API để lấy chi tiết khuyến mãi
-import "./PromotionDetail.css";
-import DashboardContainer from "../DashBoardContainer.jsx";
+import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 function PromotionDetail() {
   const { proID } = useParams(); // Lấy proID từ URL
   const navigate = useNavigate(); // Điều hướng giữa các trang

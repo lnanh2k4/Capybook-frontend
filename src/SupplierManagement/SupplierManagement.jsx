@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchSuppliers, updateSupplier, fetchSupplierById } from '../config'; // Adjusted import path
-import './SupplierManagement.css'; // Import the CSS file
-import DashboardContainer from '../DashBoardContainer.jsx';
+import DashboardContainer from '../DashBoard/DashBoardContainer.jsx';
 
 function SupplierManagement() {
     const navigate = useNavigate();
