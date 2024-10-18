@@ -1,74 +1,52 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Space, Table, Button, Input, message } from "antd"; // Import Ant Design components
 import { fetchPromotions, deletePromotion } from "../config";
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
+
+const { Search } = Input;
 
 const PromotionManagement = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [promotions, setPromotions] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  // useEffect để lấy dữ liệu từ API hoặc nguồn dữ liệu khác
   useEffect(() => {
+    setLoading(true);
     fetchPromotions()
       .then((response) => {
-        console.log("Fetched promotion data:", response.data);
         if (Array.isArray(response.data)) {
-          // Lọc các khuyến mãi có proStatus === 1
+          // Filter promotions where proStatus === 1
           const activePromotions = response.data.filter(
             (promo) => promo.proStatus === 1
           );
-          setPromotions(activePromotions); // Chỉ thêm những khuyến mãi có proStatus = 1 vào state
+          setPromotions(activePromotions);
         } else {
           console.error("Expected an array but got", response.data);
         }
       })
       .catch((error) => {
-        console.error("Error fetching promotion:", error);
+        console.error("Error fetching promotions:", error);
+        message.error("Failed to fetch promotions");
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, []);
 
   const handleDelete = async (proID) => {
     if (window.confirm("Are you sure you want to delete this promotion?")) {
       try {
-        // Fetch the current promotion details
-        const response = await fetchPromotions(proID);
-        const currentPromotionData = response.data;
-
-        // Create a new FormData object to send the updated promotion status
-        const formDataToSend = new FormData();
-        formDataToSend.append(
-          "promotion",
-          JSON.stringify({ ...currentPromotionData, proStatus: 0 })
-        );
-
-        // Send the updated promotion data to the server
-        await deletePromotion(proID, formDataToSend);
-
-        // Update the promotions state to reflect the soft delete
-        setPromotions(
-          promotions.map((promo) =>
-            promo.proID === proID ? { ...promo, proStatus: 0 } : promo
-          )
-        );
-
-        alert("Promotion marked as deleted successfully!");
+        // Soft delete by setting proStatus to 0
+        await deletePromotion(proID);
+        setPromotions(promotions.filter((promo) => promo.proID !== proID));
+        message.success("Promotion deleted successfully");
       } catch (error) {
-        console.error("Error marking promotion as deleted:", error);
-        alert("Failed to mark promotion as deleted.");
+        console.error("Error deleting promotion:", error);
+        message.error("Failed to delete promotion");
       }
     }
-  };
-
-  const activePromotions = promotions.filter(
-    (promo) =>
-      promo.proStatus === 1 &&
-      (promo.proName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        promo.proCode.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
-
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
   };
 
   const goToAddPromotion = () => {
@@ -83,81 +61,96 @@ const PromotionManagement = () => {
     navigate(`/dashboard/promotion-detail/${proID}`);
   };
 
+  const columns = [
+    {
+      title: "Promotion ID",
+      dataIndex: "proID",
+      key: "proID",
+    },
+    {
+      title: "Promotion Name",
+      dataIndex: "proName",
+      key: "proName",
+    },
+    {
+      title: "Promotion Code",
+      dataIndex: "proCode",
+      key: "proCode",
+    },
+    {
+      title: "Discount",
+      dataIndex: "discount",
+      key: "discount",
+    },
+    {
+      title: "Start Date",
+      dataIndex: "startDate",
+      key: "startDate",
+    },
+    {
+      title: "End Date",
+      dataIndex: "endDate",
+      key: "endDate",
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (_, record) => (
+        <Space size="middle">
+          <Button type="link" onClick={() => goToPromotionDetail(record.proID)}>
+            Detail
+          </Button>
+          <Button type="link" onClick={() => goToEditPromotion(record.proID)}>
+            Edit
+          </Button>
+          <Button type="link" danger onClick={() => handleDelete(record.proID)}>
+            Delete
+          </Button>
+        </Space>
+      ),
+    },
+  ];
+
+  // Filter promotions based on the search term
+  const filteredPromotions = promotions.filter(
+    (promo) =>
+      promo.proStatus === 1 &&
+      (promo.proName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        promo.proCode.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
   return (
     <div className="main-container">
-      <DashboardContainer />
-      <div className="titlemanagement">
-        <div>Promotion Management</div>
+      <div className="dashboard-container">
+        <DashboardContainer />
       </div>
-      <div className="table-container">
-        <div className="action-container">
-          <button className="add-promotion" onClick={goToAddPromotion}>
-            Add promotion
-          </button>
-          <div className="search-container">
-            <input
-              type="text"
-              placeholder="Search"
-              className="search-input"
-              value={searchTerm}
-              onChange={handleSearchChange}
-            />
-          </div>
+
+      <div className="dashboard-content">
+        <div className="titlemanagement">
+          <h1>Promotion Management</h1>
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Promotion ID</th>
-              <th>Promotion Name</th>
-              <th>Promotion Code</th>
-              <th>Discount</th>
-              <th>Start date</th>
-              <th>End date</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Array.isArray(activePromotions) && activePromotions.length > 0 ? (
-              activePromotions.map((promo) => (
-                <tr key={promo.proID}>
-                  <td>{promo.proID}</td>
-                  <td>{promo.proName}</td>
-                  <td>{promo.proCode}</td>
-                  <td>{promo.discount}</td>
-                  <td>{promo.startDate}</td>
-                  <td>{promo.endDate}</td>
-                  <td>
-                    <button
-                      className="detail-btn"
-                      onClick={() => goToPromotionDetail(promo.proID)}
-                    >
-                      Detail
-                    </button>
-                    <button
-                      className="edit-btn"
-                      onClick={() => goToEditPromotion(promo.proID)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="delete-btn"
-                      onClick={() => handleDelete(promo.proID)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="7" className="no-data">
-                  No promotions found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+
+        <div className="action-container" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+          <Button type="primary" onClick={goToAddPromotion}>
+            Add Promotion
+          </Button>
+          <Search
+            placeholder="Search by promotion name or code"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{ width: 300 }}
+          />
+        </div>
+
+        <Table
+          columns={columns}
+          dataSource={filteredPromotions}
+          rowKey="proID"
+          loading={loading}
+          pagination={{ pageSize: 10 }}
+        />
       </div>
+
       <div className="copyright">
         <div>© {new Date().getFullYear()}</div>
         <div>Capybook Management System</div>

@@ -1,31 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Space, Table, Button, Input, message } from 'antd'; // Ant Design components
 import { fetchSuppliers, updateSupplier, fetchSupplierById } from '../config'; // Adjusted import path
 import DashboardContainer from '../DashBoard/DashBoardContainer.jsx';
+
+const { Search } = Input;
 
 function SupplierManagement() {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [suppliers, setSuppliers] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     // Fetch suppliers from API
     useEffect(() => {
-        fetchSuppliers().then(response => {
-            console.log("Fetched supplier data:", response.data); // Log fetched book data
-            setSuppliers(response.data);
-        }).catch(error => {
-            console.error('Error fetching supplier:', error);
-        });
+        setLoading(true);
+        fetchSuppliers()
+            .then(response => {
+                setSuppliers(response.data);
+                setLoading(false);
+            })
+            .catch(error => {
+                console.error('Error fetching supplier:', error);
+                message.error('Failed to fetch suppliers');
+                setLoading(false);
+            });
     }, []);
 
     const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to deactivate this supplier?")) {
             try {
-                // Fetch the current book data by its ID
                 const response = await fetchSupplierById(id);
                 const currentSupplierData = response.data;
 
-                // Update the book status to 0 (deactivated)
                 const updatedSupplierData = {
                     ...currentSupplierData,
                     supStatus: 0
@@ -34,24 +41,25 @@ function SupplierManagement() {
                 const formDataToSend = new FormData();
                 formDataToSend.append('supplier', JSON.stringify(updatedSupplierData));
 
-
-
-                // Update the book
                 await updateSupplier(id, formDataToSend);
 
-                // Update the state to reflect the change
                 setSuppliers(suppliers.map(supplier =>
                     supplier.supID === id ? { ...supplier, supStatus: 0 } : supplier
                 ));
+                message.success('Supplier deactivated successfully');
             } catch (error) {
                 console.error('Error deactivating supplier:', error);
+                message.error('Failed to deactivate supplier');
             }
         }
     };
-    const activeSuppliers = suppliers.filter(supplier =>
-        supplier.supStatus === 1
 
+    const filteredSuppliers = suppliers.filter(supplier =>
+        supplier.supStatus === 1 &&
+        (supplier.supName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            supplier.supEmail.toLowerCase().includes(searchTerm.toLowerCase()))
     );
+
     const handleSearchChange = (event) => {
         setSearchTerm(event.target.value);
     };
@@ -68,57 +76,69 @@ function SupplierManagement() {
         navigate(`/dashboard/supplier/${supID}`);
     };
 
+    const columns = [
+        {
+            title: 'Supplier ID',
+            dataIndex: 'supID',
+            key: 'supID',
+        },
+        {
+            title: 'Supplier Name',
+            dataIndex: 'supName',
+            key: 'supName',
+        },
+        {
+            title: 'Supplier Email',
+            dataIndex: 'supEmail',
+            key: 'supEmail',
+        },
+        {
+            title: 'Supplier Phone',
+            dataIndex: 'supPhone',
+            key: 'supPhone',
+        },
+        {
+            title: 'Supplier Address',
+            dataIndex: 'supAddress',
+            key: 'supAddress',
+        },
+        {
+            title: 'Action',
+            key: 'action',
+            render: (_, record) => (
+                <Space size="middle">
+                    <Button type="link" onClick={() => gotoViewSupplierDetail(record.supID)}>Detail</Button>
+                    <Button type="link" onClick={() => goToEditSupplier(record.supID)}>Edit</Button>
+                    <Button type="link" danger onClick={() => handleDelete(record.supID)}>Delete</Button>
+                </Space>
+            ),
+        },
+    ];
+
     return (
         <div className="main-container">
             <DashboardContainer />
-            <div className="titlemanagement">
-                <div>Supplier Management</div>
-            </div>
-            <div className="table-container">
-                <div className="action-container">
-                    <button className="add-supplier" onClick={goToAddSupplier}>
-                        Add Supplier
-                    </button>
-                    <div className="search-container">
-                        <input
-                            type="text"
-                            placeholder="Search"
-                            className="search-input"
-                            value={searchTerm}
-                            onChange={handleSearchChange}
-                        />
-                    </div>
+            <div className="dashboard-content">
+                <div className="titlemanagement">
+                    <h1>Supplier Management</h1>
                 </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Supplier ID</th>
-                            <th>Supplier Name</th>
-                            <th>Supplier Email</th>
-                            <th>Supplier Phone</th>
-                            <th>Supplier Address</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {activeSuppliers.map((supplier) => (
-                            <tr key={supplier.supID}>
-                                <td>{supplier.supID}</td>
-                                <td>{supplier.supName}</td>
-                                <td>{supplier.supEmail}</td>
-                                <td>{supplier.supPhone}</td>
-                                <td>{supplier.supAddress}</td>
-                                <td>
-                                    <div className="action-buttons">
-                                        <button className="detail" onClick={() => gotoViewSupplierDetail(supplier.supID)}>Detail</button>
-                                        <button className="edit" onClick={() => goToEditSupplier(supplier.supID)}>Edit</button>
-                                        <button className="delete" onClick={() => handleDelete(supplier.supID)}>Delete</button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                <div className="action-container" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+                    <Button type="primary" onClick={goToAddSupplier}>Add Supplier</Button>
+                    <Search
+                        placeholder="Search by name or email"
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                        style={{ width: 300 }}
+                    />
+                </div>
+
+                <Table
+                    columns={columns}
+                    dataSource={filteredSuppliers}
+                    rowKey="supID"
+                    loading={loading}
+                    pagination={{ pageSize: 10 }}
+                />
             </div>
             <div className="copyright">
                 <div>© Copyright {new Date().getFullYear()}</div>
@@ -127,6 +147,6 @@ function SupplierManagement() {
             </div>
         </div>
     );
-};
+}
 
 export default SupplierManagement;

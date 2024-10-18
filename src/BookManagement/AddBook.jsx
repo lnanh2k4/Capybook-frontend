@@ -70,6 +70,13 @@ function AddBook() {
         setFileList([]); // Reset the fileList when the image is removed
     };
 
+    // Add handleReset function to reset form, image preview, and file list
+    const handleReset = () => {
+        form.resetFields(); // Reset the form fields
+        setImagePreview(null); // Reset image preview
+        setFileList([]); // Reset the fileList to empty
+    };
+
     return (
         <div className="main-container">
             <div className="dashboard-container">
@@ -107,7 +114,7 @@ function AddBook() {
                         <Input placeholder="Price of the book" />
                     </Form.Item>
 
-                    <Form.Item label="Translator" name="translator" >
+                    <Form.Item label="Translator" name="translator">
                         <Input placeholder="Translator of the book" />
                     </Form.Item>
 
@@ -126,9 +133,11 @@ function AddBook() {
                     <Form.Item label="ISBN" name="isbn" rules={[{ required: true, message: 'Please enter the ISBN' }]}>
                         <Input placeholder="International Standard Book Number" />
                     </Form.Item>
+
                     <Form.Item label="Quantity" name="bookQuantity" rules={[{ required: true, message: 'Please enter the quantity' }]}>
                         <InputNumber min={1} placeholder="Quantity" />
                     </Form.Item>
+
                     {/* Image Upload Section */}
                     <Form.Item label="Image" name="image">
                         <Upload
@@ -155,7 +164,7 @@ function AddBook() {
 
                     <Form.Item>
                         <Button type="primary" htmlType="submit">Submit</Button>
-                        <Button htmlType="button" onClick={() => form.resetFields()} style={{ marginLeft: '40px' }}>Reset</Button>
+                        <Button htmlType="button" onClick={handleReset} style={{ marginLeft: '40px' }}>Reset</Button>
                     </Form.Item>
                 </Form>
             </div>

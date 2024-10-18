@@ -126,8 +126,6 @@ function BookManagement() {
             ),
         },
     ];
-
-    // Use filteredBooks as dataSource when there is a search term
     const filteredBooks = books.filter(book =>
     (book.bookTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
         book.author.toLowerCase().includes(searchTerm.toLowerCase()))
