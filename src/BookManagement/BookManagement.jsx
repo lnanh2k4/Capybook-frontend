@@ -53,7 +53,7 @@ function BookManagement() {
     };
 
     const goToAddBook = () => {
-        navigate('/dashboard/books/addbook');
+        navigate('/dashboard/books/add');
     };
 
     const goToEditBook = (bookId) => {

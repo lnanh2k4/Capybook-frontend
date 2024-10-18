@@ -53,13 +53,13 @@ function AddBook() {
                 bookTitle: formData.bookTitle,
                 publicationYear: formData.publicationYear,
                 author: formData.author,
-                dimension: formData.dimension, // Khớp với tên cột trong database
+                dimension: formData.dimension,
                 translator: formData.translator,
                 hardcover: formData.hardcover,
                 publisher: formData.publisher,
                 weight: formData.weight,
-                bookDescription: formData.bookDescription, // Khớp với tên cột trong database
-                bookPrice: formData.bookPrice, // Khớp với tên cột trong database
+                bookDescription: formData.bookDescription,
+                bookPrice: formData.bookPrice,
                 isbn: formData.isbn,
                 bookStatus: 1,
                 bookQuantity: formData.bookQuantity
@@ -71,32 +71,42 @@ function AddBook() {
                 formDataToSend.append('image', formData.image);
             }
 
+            // Log dữ liệu trước khi gửi
+            for (let pair of formDataToSend.entries()) {
+                console.log(pair[0], pair[1]);
+            }
+
             await addBook(formDataToSend);
             navigate("/dashboard/books");
         } catch (error) {
             console.error('Error adding book:', error);
+
+            if (error.response) {
+                console.log("Error response status:", error.response.status);  // Trạng thái lỗi
+                console.log("Error response data:", error.response.data);  // Dữ liệu lỗi từ server
+            }
         }
     };
+
 
     const handleReset = () => {
         setFormData({
             bookTitle: '',
             publicationYear: '',
             author: '',
-            dimension: '', // Khớp với tên cột trong database
+            dimension: '',
             translator: '',
             hardcover: '',
             publisher: '',
             weight: '',
-            bookDescription: '', // Khớp với tên cột trong database
+            bookDescription: '',
             image: null,
-            bookPrice: '', // Khớp với tên cột trong database
+            bookPrice: '',
             isbn: '',
             bookQuantity: ''
         });
         setImagePreview(null);
     };
-
 
     return (
         <div className="main-container">
