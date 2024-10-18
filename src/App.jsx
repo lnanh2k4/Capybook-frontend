@@ -22,13 +22,14 @@ import AccountDetail from "./AccountManagement/AccountDetail";
 import AddAccount from "./AccountManagement/AddAccount";
 import EditAccount from "./AccountManagement/EditAccount";
 
+import Homepage from "./Homepage/homepage";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Dashboard />} />
-
+        <Route path="/" element={<Homepage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/dashboard/books/add/" element={<AddBook />} />
         <Route path="/dashboard/books/edit/:bookId" element={<EditBook />} />
         <Route path="/dashboard/books" element={<BookManagement />} />

@@ -1,0 +1,28 @@
+.ant-menu-item {
+    height: 64px;
+    line-height: 64px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.ant-menu-item a {
+    display: block;
+    padding: 0 20px;
+    height: 100%;
+    line-height: 64px;
+    transition: background-color 0.3s ease;
+}
+
+.ant-menu-item-selected a,
+.ant-menu-item a:hover {
+    background-color: #4096ff !important;
+    color: white !important;
+    text-decoration: none;
+}
+
+.ant-menu-item a:active {
+    background-color: #1d4c9b !important;
+    transform: translateY(1px);
+}
