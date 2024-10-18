@@ -78,3 +78,33 @@
         margin-left: 0;
     }
 }
+
+.username-container {
+    background-color: #f0f0f0;
+    /* Màu nền xám nhạt */
+    padding: 10px 15px;
+    /* Khoảng cách trong khung */
+    border-radius: 10px;
+    /* Bo tròn các góc */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    /* Đổ bóng nhẹ */
+    margin: 15px auto;
+    /* Căn giữa khung với khoảng cách trên dưới */
+    width: 80%;
+    /* Độ rộng của khung */
+    text-align: center;
+    /* Căn giữa nội dung */
+    color: #333;
+    /* Màu chữ tối */
+    font-weight: bold;
+    /* Chữ đậm */
+    font-size: 1.2rem;
+    /* Tăng kích thước chữ */
+    transition: background-color 0.3s ease;
+    /* Hiệu ứng chuyển đổi màu nền */
+}
+
+.username-container:hover {
+    background-color: #e0e0e0;
+    /* Đổi màu nền khi hover */
+}

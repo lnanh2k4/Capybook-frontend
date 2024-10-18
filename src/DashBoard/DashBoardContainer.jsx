@@ -128,7 +128,9 @@ const DashboardContainer = () => {
       <div className="logo-container">
         <img src="/logo-capybook.png" alt="Cabybook Logo" className="logo-image" />
       </div>
-
+      <div className="username-container" style={{ textAlign: 'center', margin: '10px 0', color: '#333' }}>
+        <strong>Guest</strong> {/* Hiển thị tên người dùng */}
+      </div>
       <Menu
         theme="light"
         onClick={onClick}
