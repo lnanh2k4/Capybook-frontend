@@ -1,23 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Space, Table, Button, Input, message } from "antd"; // Import Ant Design components
-import { fetchPromotions, deletePromotion } from "../config";
+import { Space, Table, Button, Input, message, Tag } from "antd"; // Import Ant Design components
+import { fetchPromotions, searchPromotions, deletePromotion } from "../config"; // Import searchPromotions từ API
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
+import moment from 'moment'; // Import moment for date comparison
 
 const { Search } = Input;
 
 const PromotionManagement = () => {
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(""); // Sử dụng để lưu giá trị tìm kiếm
   const [promotions, setPromotions] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // Fetch tất cả khuyến mãi khi lần đầu vào trang
   useEffect(() => {
     setLoading(true);
     fetchPromotions()
       .then((response) => {
         if (Array.isArray(response.data)) {
-          // Filter promotions where proStatus === 1
           const activePromotions = response.data.filter(
             (promo) => promo.proStatus === 1
           );
@@ -34,6 +35,50 @@ const PromotionManagement = () => {
         setLoading(false);
       });
   }, []);
+
+  // Hàm thực hiện khi nhấn nút search
+  const handleSearch = (value) => {
+    if (!value) {
+      // Nếu không có giá trị tìm kiếm, fetch lại tất cả các promotions
+      fetchPromotions()
+        .then((response) => {
+          if (Array.isArray(response.data)) {
+            const activePromotions = response.data.filter(
+              (promo) => promo.proStatus === 1
+            );
+            setPromotions(activePromotions);
+          } else {
+            console.error("Expected an array but got", response.data);
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching promotions:", error);
+          message.error("Failed to fetch promotions");
+        })
+        .finally(() => setLoading(false));
+    } else {
+      // Thực hiện tìm kiếm với searchTerm
+      setLoading(true);
+      searchPromotions(value) // Gọi API tìm kiếm với giá trị searchTerm
+        .then((response) => {
+          if (Array.isArray(response.data)) {
+            const activePromotions = response.data.filter(
+              (promo) => promo.proStatus === 1
+            );
+            setPromotions(activePromotions);
+          } else {
+            console.error("Expected an array but got", response.data);
+          }
+        })
+        .catch((error) => {
+          console.error("Error searching promotions:", error);
+          message.error("Failed to search promotions");
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  };
 
   const handleDelete = async (proID) => {
     if (window.confirm("Are you sure you want to delete this promotion?")) {
@@ -59,6 +104,14 @@ const PromotionManagement = () => {
 
   const goToPromotionDetail = (proID) => {
     navigate(`/dashboard/promotion-detail/${proID}`);
+  };
+
+  // Function to check if promotion is active based on startDate and endDate
+  const isPromotionActive = (startDate, endDate) => {
+    const today = moment();
+    const start = moment(startDate);
+    const end = moment(endDate);
+    return today.isBetween(start, end, 'day', '[]');
   };
 
   const columns = [
@@ -93,6 +146,18 @@ const PromotionManagement = () => {
       key: "endDate",
     },
     {
+      title: "Status", // New column for active/inactive status
+      key: "status",
+      render: (_, record) => {
+        const active = isPromotionActive(record.startDate, record.endDate);
+        return (
+          <Tag color={active ? "green" : "red"}>
+            {active ? "Active" : "Inactive"}
+          </Tag>
+        );
+      },
+    },
+    {
       title: "Action",
       key: "action",
       render: (_, record) => (
@@ -111,14 +176,6 @@ const PromotionManagement = () => {
     },
   ];
 
-  // Filter promotions based on the search term
-  const filteredPromotions = promotions.filter(
-    (promo) =>
-      promo.proStatus === 1 &&
-      (promo.proName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        promo.proCode.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
-
   return (
     <div className="main-container">
       <div className="dashboard-container">
@@ -130,21 +187,29 @@ const PromotionManagement = () => {
           <h1>Promotion Management</h1>
         </div>
 
-        <div className="action-container" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+        <div
+          className="action-container"
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            marginBottom: "20px",
+          }}
+        >
           <Button type="primary" onClick={goToAddPromotion}>
             Add Promotion
           </Button>
           <Search
             placeholder="Search by promotion name or code"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => setSearchTerm(e.target.value)} // Lưu giá trị nhập vào searchTerm
+            onSearch={handleSearch} // Thực hiện tìm kiếm khi nhấn vào icon search
             style={{ width: 300 }}
           />
         </div>
 
         <Table
           columns={columns}
-          dataSource={filteredPromotions}
+          dataSource={promotions}
           rowKey="proID"
           loading={loading}
           pagination={{ pageSize: 10 }}
