@@ -141,7 +141,7 @@ const NotificationManagement = () => {
             </div>
             <div className="dashboard-content">
                 <div className="title-management">
-                    <h1>Account Management</h1>
+                    <h1>Notification Management</h1>
                 </div>
                 <div className="action-container" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
                     <Button type="primary" onClick={goToAddNotification}>Add Notification</Button>
