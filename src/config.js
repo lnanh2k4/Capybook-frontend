@@ -69,6 +69,10 @@ const deletePromotion = (proID) => {
     return client.delete(`/v1/promotions/${proID}`);
 };
 
+const searchPromotions = (searchTerm) => {
+    return client.get(`/v1/promotions/search?term=${searchTerm}`);
+};
+
 const fetchPromotionById = (proID) => client.get(`/v1/promotions/${proID}`);
 
 const fetchCategories = () => client.get('v1/categories/');
@@ -90,11 +94,10 @@ const searchCategories = (searchTerm) => {
     return client.get(`/v1/categories/search?term=${searchTerm}`);
 };
 
-
-
 const fetchCategoryById = (catID) => client.get(`/v1/categories/${catID}`);
 
 export {
+    searchPromotions,
     searchCategories,
     updateAccount,
     fetchPromotions,
