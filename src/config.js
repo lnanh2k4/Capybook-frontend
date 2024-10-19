@@ -18,6 +18,8 @@ const updateAccount = (username, formDataToSend) => {
     return axios.put(`${URLString}v1/accounts/${username}`, formDataToSend);
 };
 
+const fetchNotifications = () => client.get('v1/notifications/');
+
 
 const fetchBooks = () => client.get('v1/books/');
 const fetchBookDetail = (id) => client.get(`/v1/books/${id}`); // Hàm lấy chi tiết sách
@@ -71,5 +73,5 @@ const deletePromotion = (proID) => {
 
 const fetchPromotionById = (proID) => client.get(`/v1/promotions/${proID}`);
 
-export { updateAccount, fetchPromotions, fetchPromotionDetail, addPromotion, updatePromotion, deletePromotion, fetchPromotionById, fetchAccountDetail, deleteAccount, addAccount }
+export { updateAccount, fetchPromotions, fetchPromotionDetail, addPromotion, updatePromotion, deletePromotion, fetchPromotionById, fetchAccountDetail, deleteAccount, addAccount, fetchNotifications }
 

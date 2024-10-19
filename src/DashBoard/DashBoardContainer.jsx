@@ -35,7 +35,7 @@ const DashboardContainer = () => {
       case '/dashboard/inventory-management':
         setCurrent('7');
         break;
-      case '/dashboard/notification-management':
+      case '/dashboard/notifications/':
         setCurrent('8');
         break;
       default:
@@ -68,7 +68,7 @@ const DashboardContainer = () => {
         navigate("/dashboard/inventory-management");
         break;
       case '8':
-        navigate("/dashboard/notification-management");
+        navigate("/dashboard/notifications/");
         break;
       default:
         break;
