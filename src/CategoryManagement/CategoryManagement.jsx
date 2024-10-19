@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Space, Table, Button, Input, message } from "antd"; // Import Ant Design components
-import { fetchCategories, deleteCategory } from "../config";
+import { Space, Table, Button, Input, message, Modal } from "antd";
+import { fetchCategories, searchCategories, deleteCategory } from "../config"; // Thêm searchCategories từ API
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 
 const { Search } = Input;
@@ -12,16 +12,23 @@ const CategoryManagement = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // Fetch tất cả danh mục khi lần đầu vào trang
   useEffect(() => {
     setLoading(true);
     fetchCategories()
       .then((response) => {
         if (Array.isArray(response.data)) {
-          // Filter categories where catStatus === 1 (active categories)
           const activeCategories = response.data.filter(
             (category) => category.catStatus === 1
           );
-          setCategories(activeCategories);
+          const updatedCategories = activeCategories.map((category) => {
+            const parent = category.parentCatID
+              ? response.data.find((cat) => cat.catID === category.parentCatID)?.catName
+              : "Parent";
+            return { ...category, parent };
+          });
+
+          setCategories(updatedCategories);
         } else {
           console.error("Expected an array but got", response.data);
         }
@@ -35,18 +42,58 @@ const CategoryManagement = () => {
       });
   }, []);
 
+  // Hàm thực hiện khi nhấn nút search
+  const handleSearch = () => {
+    setLoading(true);
+    searchCategories(searchTerm) // Gọi API tìm kiếm
+      .then((response) => {
+        if (Array.isArray(response.data)) {
+          const activeCategories = response.data.filter(
+            (category) => category.catStatus === 1
+          );
+          const updatedCategories = activeCategories.map((category) => {
+            const parent = category.parentCatID
+              ? response.data.find((cat) => cat.catID === category.parentCatID)?.catName
+              : "Parent";
+            return { ...category, parent };
+          });
+
+          setCategories(updatedCategories);
+        } else {
+          console.error("Expected an array but got", response.data);
+        }
+      })
+      .catch((error) => {
+        console.error("Error searching categories:", error);
+        message.error("Failed to search categories");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
   const handleDelete = async (catID) => {
+    const categoryToDelete = categories.find((category) => category.catID === catID);
+    const childCategories = categories.filter(
+      (category) => category.parentCatID === catID
+    );
+
+    if (childCategories.length > 0) {
+      Modal.warning({
+        title: "Cannot delete parent category",
+        content: `Category "${categoryToDelete.catName}" has child categories and cannot be deleted.`,
+      });
+      return;
+    }
+
     if (window.confirm("Are you sure you want to delete this category?")) {
       try {
-        // Soft delete by setting catStatus to 0
         await deleteCategory(catID);
-        setCategories(
-          categories.filter((category) => category.catID !== catID)
-        );
-        message.success("Category deleted successfully");
+        setCategories(categories.filter((category) => category.catID !== catID));
+        message.success("Category marked as deleted (status set to 0) successfully");
       } catch (error) {
-        console.error("Error deleting category:", error);
-        message.error("Failed to delete category");
+        console.error("Error soft deleting category:", error);
+        message.error("Failed to soft delete category");
       }
     }
   };
@@ -60,7 +107,7 @@ const CategoryManagement = () => {
   };
 
   const goToCategoryDetail = (catID) => {
-    navigate(`/dashboard/category-detail/${catID}`);
+    navigate(`/dashboard/category/detail/${catID}`);
   };
 
   const columns = [
@@ -81,6 +128,12 @@ const CategoryManagement = () => {
       render: (status) => (status === 1 ? "Active" : "Inactive"),
     },
     {
+      title: "Type",
+      dataIndex: "parent",
+      key: "parent",
+      render: (parent) => (parent === "Parent" ? "Parent" : `Child of: ${parent}`),
+    },
+    {
       title: "Action",
       key: "action",
       render: (_, record) => (
@@ -98,13 +151,6 @@ const CategoryManagement = () => {
       ),
     },
   ];
-
-  // Filter categories based on the search term
-  const filteredCategories = categories.filter(
-    (category) =>
-      category.catStatus === 1 &&
-      category.catName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   return (
     <div className="main-container">
@@ -132,13 +178,14 @@ const CategoryManagement = () => {
             placeholder="Search by category name"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            onSearch={handleSearch} // Thực hiện tìm kiếm khi nhấn vào biểu tượng search
             style={{ width: 300 }}
           />
         </div>
 
         <Table
           columns={columns}
-          dataSource={filteredCategories}
+          dataSource={categories}
           rowKey="catID"
           loading={loading}
           pagination={{ pageSize: 10 }}

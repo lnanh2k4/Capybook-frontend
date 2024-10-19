@@ -65,27 +65,37 @@ const fetchPromotionDetail = (proID) => {
 const addPromotion = (promotion) => client.post('/v1/promotions/', promotion);
 const updatePromotion = (id, promotion) => client.put(`/v1/promotions/${id}`, promotion);
 const deletePromotion = (proID) => {
-    console.log("Marking promotion as deleted with ID:", proID); 
-    return client.delete(`/v1/promotions/${proID}`); 
+    console.log("Marking promotion as deleted with ID:", proID);
+    return client.delete(`/v1/promotions/${proID}`);
 };
 
 const fetchPromotionById = (proID) => client.get(`/v1/promotions/${proID}`);
 
 const fetchCategories = () => client.get('v1/categories/');
 const fetchCategoryDetail = (catID) => {
-    console.log("Fetching category detail for ID:", catID);  
+    console.log("Fetching category detail for ID:", catID);
     return client.get(`/v1/categories/${catID}`);
 };
-const addCategory = (category) => client.post('/v1/categories/', category);
+const addCategory = (category) => {
+    console.log("Data being sent to backend in addCategory:", category);
+    return client.post('/v1/categories/', category);
+};
 const updateCategory = (catID, category) => client.put(`/v1/categories/${catID}`, category);
 const deleteCategory = (catID) => {
-    console.log("Marking category as deleted with ID:", catID); 
-    return client.delete(`/v1/categories/${catID}`);  
+    console.log("Soft deleting category with ID:", catID);
+    return client.put(`/v1/categories/${catID}/soft-delete`); // Sử dụng PUT thay vì DELETE
 };
+
+const searchCategories = (searchTerm) => {
+    return client.get(`/v1/categories/search?term=${searchTerm}`);
+};
+
+
 
 const fetchCategoryById = (catID) => client.get(`/v1/categories/${catID}`);
 
 export {
+    searchCategories,
     updateAccount,
     fetchPromotions,
     fetchPromotionDetail,
@@ -99,8 +109,8 @@ export {
     fetchCategories,
     fetchCategoryDetail,
     addCategory,
-    updateCategory,   
-    deleteCategory,   
+    updateCategory,
+    deleteCategory,
     fetchCategoryById,
     fetchNotifications
 };
