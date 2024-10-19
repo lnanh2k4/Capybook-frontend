@@ -24,6 +24,9 @@ import EditAccount from "./AccountManagement/EditAccount";
 
 import NotificationManagement from "./NotificationManagement/NotificationManagement";
 
+import CategoryManagement from "./CategoryManagement/CategoryManagement";
+import AddCategory from "./CategoryManagement/AddCategory"
+
 import Homepage from "./Homepage/homepage";
 
 function App() {
@@ -63,6 +66,10 @@ function App() {
         <Route path="/dashboard/notifications/add" element={<AddAccount />} />
         <Route path="/dashboard/notifications/:notID" element={<EditAccount />} />
 
+        <Route path="/dashboard/category" element={<CategoryManagement />} />
+        {/* <Route path="/dashboard/category/detail/:catID" element={<CategoryDetail />} /> */}
+        <Route path="/dashboard/category/add" element={<AddCategory />} />
+        {/* <Route path="/dashboard/category/:catID" element={<EditCategory />} /> */}
       </Routes>
     </Router>
   );

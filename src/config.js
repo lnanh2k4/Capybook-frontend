@@ -17,9 +17,7 @@ const deleteAccount = (username) => client.delete(`v1/accounts/delete/${username
 const updateAccount = (username, formDataToSend) => {
     return axios.put(`${URLString}v1/accounts/${username}`, formDataToSend);
 };
-
 const fetchNotifications = () => client.get('v1/notifications/');
-
 
 const fetchBooks = () => client.get('v1/books/');
 const fetchBookDetail = (id) => client.get(`/v1/books/${id}`); // Hàm lấy chi tiết sách
@@ -61,17 +59,49 @@ const fetchSupplierById = (supID) => client.get(`/v1/suppliers/${supID}`);
 export { fetchAccounts, fetchBooks, fetchBookDetail, addBook, updateBook, deleteBook, fetchBookById, fetchSuppliers, fetchSupplierDetail, addSupplier, updateSupplier, deleteSupplier, fetchSupplierById }
 const fetchPromotions = () => client.get('v1/promotions/');
 const fetchPromotionDetail = (proID) => {
-    console.log("Fetching promotion detail for ID:", proID);  // Log the proID
+    console.log("Fetching promotion detail for ID:", proID);
     return client.get(`/v1/promotions/${proID}`);
 };
 const addPromotion = (promotion) => client.post('/v1/promotions/', promotion);
 const updatePromotion = (id, promotion) => client.put(`/v1/promotions/${id}`, promotion);
 const deletePromotion = (proID) => {
-    console.log("Marking promotion as deleted with ID:", proID);  // Kiểm tra proID trước khi gọi API
-    return client.delete(`/v1/promotions/${proID}`);  // Sử dụng PUT thay vì DELETE
+    console.log("Marking promotion as deleted with ID:", proID); 
+    return client.delete(`/v1/promotions/${proID}`); 
 };
 
 const fetchPromotionById = (proID) => client.get(`/v1/promotions/${proID}`);
 
-export { updateAccount, fetchPromotions, fetchPromotionDetail, addPromotion, updatePromotion, deletePromotion, fetchPromotionById, fetchAccountDetail, deleteAccount, addAccount, fetchNotifications }
+const fetchCategories = () => client.get('v1/categories/');
+const fetchCategoryDetail = (catID) => {
+    console.log("Fetching category detail for ID:", catID);  
+    return client.get(`/v1/categories/${catID}`);
+};
+const addCategory = (category) => client.post('/v1/categories/', category);
+const updateCategory = (catID, category) => client.put(`/v1/categories/${catID}`, category);
+const deleteCategory = (catID) => {
+    console.log("Marking category as deleted with ID:", catID); 
+    return client.delete(`/v1/categories/${catID}`);  
+};
+
+const fetchCategoryById = (catID) => client.get(`/v1/categories/${catID}`);
+
+export {
+    updateAccount,
+    fetchPromotions,
+    fetchPromotionDetail,
+    addPromotion,
+    updatePromotion,
+    deletePromotion,
+    fetchPromotionById,
+    fetchAccountDetail,
+    deleteAccount,
+    addAccount,
+    fetchCategories,
+    fetchCategoryDetail,
+    addCategory,
+    updateCategory,   
+    deleteCategory,   
+    fetchCategoryById,
+    fetchNotifications
+};
 

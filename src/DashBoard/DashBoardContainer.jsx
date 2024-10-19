@@ -29,7 +29,7 @@ const DashboardContainer = () => {
       case '/dashboard/suppliers':
         setCurrent('5');
         break;
-      case '/dashboard/category-management':
+      case '/dashboard/category':
         setCurrent('6');
         break;
       case '/dashboard/inventory-management':
@@ -62,7 +62,7 @@ const DashboardContainer = () => {
         navigate("/dashboard/suppliers");
         break;
       case '6':
-        navigate("/dashboard/category-management");
+        navigate("/dashboard/category");
         break;
       case '7':
         navigate("/dashboard/inventory-management");
