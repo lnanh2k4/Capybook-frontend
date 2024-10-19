@@ -128,9 +128,7 @@ const AccountManagement = () => {
                 <DashboardContainer />
             </div>
             <div className="dashboard-content">
-                <div className="titlemanagement">
-                    <h1>Account Management</h1>
-                </div>
+                <h1>Account Management</h1>
                 <div className="action-container" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
                     <Button type="primary" onClick={goToAddAccount}>Add Account</Button>
                     <Search
@@ -140,7 +138,6 @@ const AccountManagement = () => {
                         style={{ width: 300 }}
                     />
                 </div>
-
                 <Table
                     columns={columns}
                     dataSource={filteredAccounts}

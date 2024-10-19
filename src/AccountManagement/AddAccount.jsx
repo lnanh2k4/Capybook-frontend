@@ -2,6 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addAccount } from '../config.js';
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
+import {
+    Button,
+    Form,
+    Input,
+    Radio,
+    Select
+} from 'antd';
 const AddAccount = () => {
     const [formData, setFormData] = useState({
         username: '',
@@ -15,7 +22,8 @@ const AddAccount = () => {
         sex: -1,
         staffDTOCollection: '',
         password: '',
-    });
+    }
+    );
 
     const navigate = useNavigate();
 
@@ -25,6 +33,7 @@ const AddAccount = () => {
             ...formData,
             [name]: value,
         });
+        console.log(value)
     };
 
     const handleSubmit = async (e) => {
@@ -68,116 +77,97 @@ const AddAccount = () => {
         });
     };
 
-
+    const { TextArea } = Input;
     return (
-        <div className="main-container">
+        <>
+            <h1 style={{ textAlign: 'center' }}>Add Account</h1>
             <DashboardContainer />
             <div className="add-account-container">
-                <form className="add-account-form" onSubmit={handleSubmit}>
-                    <div className="form-left">
-                        <div className="form-group">
-                            <label>Username</label>
-                            <input
-                                type="text"
-                                name="username"
-                                value={formData.username || ''}
-                                onChange={handleChange}
-                                placeholder="Username of account "
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Last Name</label>
-                            <input
-                                type="text"
-                                name="lastName"
-                                value={formData.lastName || ''}
-                                onChange={handleChange}
-                                placeholder="Last name of account"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>First Name</label>
-                            <input
-                                type="text"
-                                name="firstName"
-                                value={formData.firstName || ''}
-                                onChange={handleChange}
-                                placeholder="First name of account"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Date Of Birth</label>
-                            <input
-                                type="date"
-                                name="dob"
-                                value={formData.dob || ''}
-                                onChange={handleChange}
-                                placeholder="Date of birth"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Address</label>
-                            <input
-                                type="text"
-                                name="address"
-                                value={formData.address || ''}
-                                onChange={handleChange}
-                                placeholder="Address of account"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Email</label>
-                            <input
-                                type="email"
-                                name="email"
-                                value={formData.email || ''}
-                                onChange={handleChange}
-                                placeholder="Email of account"
-                            />
-                        </div>
-                    </div>
+                <Form
+                    labelCol={{
+                        span: 4,
+                    }}
+                    wrapperCol={{
+                        span: 14,
+                    }}
+                    layout="horizontal"
+                    style={{
+                        maxWidth: 600,
+                        marginLeft: '20%',
+                        background: '255, 255, 0, 0.9',
+                        padding: '3%',
+                        borderRadius: '5%'
+                    }}
+                >
+                    <Form.Item label="Username">
+                        <Input name="username"
+                            value={formData.username || ''}
+                            onChange={handleChange}
+                            placeholder="Username of account " />
+                    </Form.Item>
+                    <Form.Item label="Fist Name">
+                        <Input type="text"
+                            name="firstName"
+                            value={formData.firstName || ''}
+                            onChange={handleChange}
+                            placeholder="First name of account" />
+                    </Form.Item>
+                    <Form.Item label="Last Name">
+                        <Input type="text"
+                            name="lastName"
+                            value={formData.lastName || ''}
+                            onChange={handleChange}
+                            placeholder="Last name of account" />
+                    </Form.Item>
+                    <Form.Item label="Date Of Birth">
+                        <Input type='date' name="dob"
+                            value={formData.dob || ''}
+                            onChange={handleChange}
+                            placeholder="Date of birth" />
+                    </Form.Item>
+                    <Form.Item label="Email">
+                        <Input type='email'
+                            name="email"
+                            value={formData.email || ''}
+                            onChange={handleChange}
+                            placeholder="Email of account" />
+                    </Form.Item>
+                    <Form.Item label="Phone">
+                        <Input type='tel'
+                            name="phone"
+                            value={formData.phone || ''}
+                            onChange={handleChange}
+                            placeholder="Phone number of account" />
+                    </Form.Item>
+                    <Form.Item label="Sex">
+                        <Radio.Group name='sex'>
+                            <Radio value="0"> Female </Radio>
+                            <Radio value="1"> Male </Radio>
+                        </Radio.Group>
+                    </Form.Item>
 
-                    <div className="form-center">
-                        <div className="form-group">
-                            <label>Phone</label>
-                            <input
-                                type="tel"
-                                name="phone"
-                                value={formData.phone || ''}
-                                onChange={handleChange}
-                                placeholder="Phone number of account"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Role</label>
-                            <select name='role' onChange={handleChange}>
-                                <option value={0}>Admin</option>
-                                <option value={1}>Customer</option>
-                                <option value={3}>Seller staff</option>
-                                <option value={4}>Warehouse staff</option>
-                            </select>
-                        </div>
-                        <div className="form-group">
-                            <label>Sex</label>
-                            <select name='sex' onChange={handleChange}>
-                                <option value={1}>Male</option>
-                                <option value={0}>Female</option>
-                            </select>
-                        </div>
-
-                    </div>
-                    <div className="form-buttons">
-                        <button type="submit">Submit</button>
-                        <button type="button" onClick={handleReset}>Reset</button>
-                    </div>
-                </form>
-            </div>
-
-            <div className="title-management">
-                <div> Account Management - Add Account </div>
-            </div>
-
-        </div>
+                    <Form.Item label="Role">
+                        <Select name="role">
+                            <Select.Option value="0">Admin</Select.Option>
+                            <Select.Option value="1">Customer</Select.Option>
+                            <Select.Option value="2">Seller staff</Select.Option>
+                            <Select.Option value="3">Warehouse staff</Select.Option>
+                        </Select>
+                    </Form.Item>
+                    <Form.Item label="Address">
+                        <TextArea rows={4} type="text"
+                            name="address"
+                            value={formData.address || ''}
+                            onChange={handleChange}
+                            placeholder="Address of account" />
+                    </Form.Item>
+                    <Form.Item>
+                        <Button type='default' onClick={handleSubmit}>Submit</Button>
+                        <Button type='default' onClick={handleReset} style={{ marginLeft: 10 }}>Reset</Button>
+                    </Form.Item>
+                </Form>
+            </div >
+        </>
     );
 }
 
