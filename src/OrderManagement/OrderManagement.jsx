@@ -47,81 +47,85 @@ const OrderManagement = () => {
 
   return (
     <div className="main-container">
-      <DashboardContainer />
-      <div className="titlemanagement">
-        <div>Order Management</div>
+      <div className="dashboard-container">
+        <DashboardContainer />
       </div>
-      <div className="table-container">
-        <div className="action-container">
-          <div className="search-container">
-            <input
-              type="text"
-              placeholder="Search by Full Name..."
-              className="search-input"
-              value={searchTerm}
-              onChange={handleSearchChange}
-            />
-          </div>
+      <div className="dashboard-content">
+        <div className="titlemanagement">
+          <div>Order Management</div>
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Full Name</th>
-              <th>Order Date</th>
-              <th>Order Price</th>
-              <th>Order Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredOrders.length > 0 ? (
-              filteredOrders.map((order) => (
-                <tr key={order.id}>
-                  <td>{order.id}</td>
-                  <td>{order.fullName}</td>
-                  <td>{order.orderDate}</td>
-                  <td>{order.orderPrice.toFixed(2)} VND</td>
-                  <td>
-                    <select
-                      value={order.orderStatus}
-                      onChange={(e) =>
-                        handleStatusChange(order.id, e.target.value)
-                      }
-                    >
-                      <option value="Pending">Pending</option>
-                      <option value="Shipped">Shipped</option>
-                      <option value="Delivered">Delivered</option>
-                      <option value="Cancelled">Cancelled</option>
-                    </select>
-                  </td>
-                  <td>
-                    <div className="action-buttons">
-                      <button
-                        className="detail"
-                        onClick={() => handleDetail(order.id)}
+        <div className="table-container">
+          <div className="action-container">
+            <div className="search-container">
+              <input
+                type="text"
+                placeholder="Search by Full Name..."
+                className="search-input"
+                value={searchTerm}
+                onChange={handleSearchChange}
+              />
+            </div>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Full Name</th>
+                <th>Order Date</th>
+                <th>Order Price</th>
+                <th>Order Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredOrders.length > 0 ? (
+                filteredOrders.map((order) => (
+                  <tr key={order.id}>
+                    <td>{order.id}</td>
+                    <td>{order.fullName}</td>
+                    <td>{order.orderDate}</td>
+                    <td>{order.orderPrice.toFixed(2)} VND</td>
+                    <td>
+                      <select
+                        value={order.orderStatus}
+                        onChange={(e) =>
+                          handleStatusChange(order.id, e.target.value)
+                        }
                       >
-                        Detail
-                      </button>
-                      <button
-                        className="delete"
-                        onClick={() => handleDelete(order.id)}
-                      >
-                        Delete
-                      </button>
-                    </div>
+                        <option value="Pending">Pending</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Cancelled">Cancelled</option>
+                      </select>
+                    </td>
+                    <td>
+                      <div className="action-buttons">
+                        <button
+                          className="detail"
+                          onClick={() => handleDetail(order.id)}
+                        >
+                          Detail
+                        </button>
+                        <button
+                          className="delete"
+                          onClick={() => handleDelete(order.id)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" className="no-data">
+                    No orders found
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="6" className="no-data">
-                  No orders found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
       <div className="copyright">
         <div>© {new Date().getFullYear()}</div>

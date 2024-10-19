@@ -15,7 +15,7 @@
     /* Sidebar chiếm cả chiều cao */
     background-color: #4b301f;
     padding: 30px;
-    max-height: 90vh;
+    max-height: 95vh;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -55,21 +55,25 @@
 }
 
 .copyright {
-    grid-column: 2 / 3;
-    /* Nằm ngang qua cả hai cột */
-    grid-row: 2 / 4;
+    grid-column: 1 / 3;
+    grid-row: 2 / 3;
     background-color: #333;
     color: #fff;
     padding: 10px;
+    /* Reduced padding */
     text-align: center;
     font-size: 0.9rem;
     border-radius: 8px;
     margin: 20px;
+    min-height: 80px;
+    /* Further reduced minimum height */
 }
 
 .copyright div {
-    margin: 5px 0;
+    margin: 3px 0;
+    /* Smaller margins for child divs */
 }
+
 
 /* Responsive styling */
 @media screen and (max-width: 768px) {
