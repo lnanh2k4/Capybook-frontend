@@ -22,6 +22,8 @@ import AccountDetail from "./AccountManagement/AccountDetail";
 import AddAccount from "./AccountManagement/AddAccount";
 import EditAccount from "./AccountManagement/EditAccount";
 
+import NotificationManagement from "./NotificationManagement/NotificationManagement";
+
 import Homepage from "./Homepage/homepage";
 
 function App() {
@@ -56,7 +58,10 @@ function App() {
         <Route path="/dashboard/accounts/add" element={<AddAccount />} />
         <Route path="/dashboard/accounts/:username" element={<EditAccount />} />
 
-
+        <Route path="/dashboard/notifications/" element={<NotificationManagement />} />
+        <Route path="/dashboard/notifications/detail/:notID" element={<AccountDetail />} />
+        <Route path="/dashboard/notifications/add" element={<AddAccount />} />
+        <Route path="/dashboard/notifications/:notID" element={<EditAccount />} />
 
       </Routes>
     </Router>
