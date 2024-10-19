@@ -18,7 +18,11 @@ function AddCategory() {
         fetchCategories()
             .then((response) => {
                 if (Array.isArray(response.data)) {
-                    setParentCategories(response.data);
+                    // Lọc ra các category có parentCatID === null và catStatus === 1 (active)
+                    const filteredCategories = response.data.filter(
+                        (category) => category.parentCatID === null && category.catStatus === 1
+                    );
+                    setParentCategories(filteredCategories);
                 } else {
                     console.error("Expected an array but got", response.data);
                 }
@@ -42,7 +46,7 @@ function AddCategory() {
 
             await addCategory(categoryData); // API call to add category
             message.success('Category added successfully');
-            navigate("/dashboard/categories"); // Navigate back to category management page
+            navigate("/dashboard/category"); // Navigate back to category management page
         } catch (error) {
             console.error('Error adding category:', error);
             message.error('Failed to add category');
