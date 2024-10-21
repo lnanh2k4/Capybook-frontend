@@ -103,7 +103,7 @@ const CategoryManagement = () => {
   };
 
   const goToEditCategory = (catID) => {
-    navigate(`/dashboard/edit-category/${catID}`);
+    navigate(`/dashboard/category/${catID}`);
   };
 
   const goToCategoryDetail = (catID) => {
