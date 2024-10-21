@@ -13,7 +13,7 @@ const addAccount = (account) => {
 };
 const fetchAccounts = () => client.get('v1/accounts/');
 const fetchAccountDetail = (username) => client.get(`v1/accounts/detail/${username}`);
-const deleteAccount = (username) => client.delete(`v1/accounts/delete/${username}`);
+const deleteAccount = (username) => client.delete(`v1/accounts/${username}`);
 const updateAccount = (username, formDataToSend) => {
     return axios.put(`${URLString}v1/accounts/${username}`, formDataToSend);
 };
