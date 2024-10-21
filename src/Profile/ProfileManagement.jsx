@@ -64,7 +64,7 @@ const AccountDetail = () => {
                 <Form.Item label="Username">
                     <Input name="username"
                         value={formData.username || ''}
-                        placeholder="Username of account " readOnly disabled />
+                        placeholder="Username of account " readOnly />
                 </Form.Item>
                 <Form.Item label="Fist Name">
                     <Input type="text"
@@ -104,7 +104,7 @@ const AccountDetail = () => {
                 </Form.Item>
 
                 <Form.Item label="Role">
-                    <Select name="role" value={String(formData.role)} readOnly disabled>
+                    <Select name="role" value={String(formData.role)} readOnly>
                         <Select.Option value="0" >Admin</Select.Option>
                         <Select.Option value="1" >Customer</Select.Option>
                         <Select.Option value="2" >Seller staff</Select.Option>
