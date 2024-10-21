@@ -17,9 +17,9 @@ const AddAccount = () => {
         dob: '',
         email: '',
         phone: '',
-        role: -1,
+        role: 0,
         address: '',
-        sex: -1,
+        sex: '',
         staffDTOCollection: '',
         password: '',
     }
@@ -33,7 +33,7 @@ const AddAccount = () => {
             ...formData,
             [name]: value,
         });
-        console.log(value)
+        console.log(formData)
     };
 
     const handleSubmit = async (e) => {
@@ -76,8 +76,17 @@ const AddAccount = () => {
             staffDTOCollection: '',
         });
     };
+    const handleSelect = (value) => {
+        setFormData(
+            {
+                ...formData,
+                ['role']: value
+            }
+        )
+    }
 
     const { TextArea } = Input;
+    const { Option } = Select;
     return (
         <>
             <h1 style={{ textAlign: 'center' }}>Add Account</h1>
@@ -140,18 +149,18 @@ const AddAccount = () => {
                             placeholder="Phone number of account" />
                     </Form.Item>
                     <Form.Item label="Sex">
-                        <Radio.Group name='sex'>
+                        <Radio.Group name='sex' onChange={handleChange}>
                             <Radio value="0"> Female </Radio>
                             <Radio value="1"> Male </Radio>
                         </Radio.Group>
                     </Form.Item>
 
                     <Form.Item label="Role">
-                        <Select name="role">
-                            <Select.Option value="0">Admin</Select.Option>
-                            <Select.Option value="1">Customer</Select.Option>
-                            <Select.Option value="2">Seller staff</Select.Option>
-                            <Select.Option value="3">Warehouse staff</Select.Option>
+                        <Select name='role' defaultValue="0" onChange={handleSelect}>
+                            <Option value="0" >Admin</Option>
+                            <Option value="1">Customer</Option>
+                            <Option value="2">Seller staff</Option>
+                            <Option value="3">Warehouse staff</Option>
                         </Select>
                     </Form.Item>
                     <Form.Item label="Address">

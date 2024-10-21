@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchAccountDetail } from '../config';
-import DashboardContainer from '../DashBoard/DashBoardContainer';
 import {
     Button,
     Form,
@@ -41,10 +40,6 @@ const AccountDetail = () => {
                 console.error('Error fetching book details:', error);
             });
     }, [username]);
-
-
-
-
     return (
         <>
             {/* <DashboardContainer /> */}
@@ -100,20 +95,20 @@ const AccountDetail = () => {
                         value={formData.phone || ''}
                         placeholder="Phone number of account" readOnly />
                 </Form.Item>
-                {console.log("Sex ", formData.sex)}
+                {console.log("Sex", formData.sex)}
                 <Form.Item label="Sex" readOnly>
-                    <Radio.Group name='sex' value={formData.sex}>
+                    <Radio.Group name='sex' value={String(formData.sex)} readOnly>
                         <Radio value="0"  > Female </Radio>
                         <Radio value="1" > Male </Radio>
                     </Radio.Group>
                 </Form.Item>
 
                 <Form.Item label="Role">
-                    <Select name="role" readOnly>
-                        <Select.Option value="0" checked={formData.role == 0 ? true : false}>Admin</Select.Option>
-                        <Select.Option value="1" checked={formData.role == 1 ? true : false}>Customer</Select.Option>
-                        <Select.Option value="2" checked={formData.role == 2 ? true : false}>Seller staff</Select.Option>
-                        <Select.Option value="3" checked={formData.role == 3 ? true : false}>Warehouse staff</Select.Option>
+                    <Select name="role" value={String(formData.role)} readOnly>
+                        <Select.Option value="0" >Admin</Select.Option>
+                        <Select.Option value="1" >Customer</Select.Option>
+                        <Select.Option value="2" >Seller staff</Select.Option>
+                        <Select.Option value="3" >Warehouse staff</Select.Option>
                     </Select>
                 </Form.Item>
                 <Form.Item label="Address" readOnly>
