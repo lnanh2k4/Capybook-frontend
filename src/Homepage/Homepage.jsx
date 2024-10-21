@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Layout, Menu, Card, Input, Row, Col, Tag, Typography } from 'antd';
+import { Layout, Menu, Card, Input, Row, Col, Tag, Typography, Dropdown, Button, Badge } from 'antd';
+import { UserOutlined, AppstoreOutlined, SettingOutlined, ShoppingCartOutlined, BellOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import './Homepage.css'; // Ensure this path is correct for your CSS file
 import { fetchBooks } from '../config';
 
@@ -8,12 +10,13 @@ const { Search } = Input;
 const { Title } = Typography;
 
 const headerStyle = {
-    textAlign: 'center',
-    color: '#fff',
-    height: 64,
-    paddingInline: 48,
-    lineHeight: '64px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     backgroundColor: '#4096ff',
+    padding: '0 20px',
+    height: '64px',
+    color: '#fff',
 };
 
 const contentStyle = {
@@ -30,9 +33,11 @@ const footerStyle = {
 };
 
 const Homepage = () => {
-    const [books, setBooks] = useState([]);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [books, setBooks] = useState([]); // State for books
+    const [searchTerm, setSearchTerm] = useState(''); // State for search term
+    const navigate = useNavigate(); // Initialize navigate for routing
 
+    // Fetch books when the component mounts
     useEffect(() => {
         fetchBooks().then(response => {
             setBooks(response.data);
@@ -41,41 +46,84 @@ const Homepage = () => {
         });
     }, []);
 
+    // Handle search input
     const handleSearch = useCallback((value) => {
         setSearchTerm(value.toLowerCase());
     }, []);
 
+    // Filter books based on the search term
     const filteredBooks = books.filter(
-        book => book?.title?.toLowerCase().includes(searchTerm) || book?.author?.toLowerCase().includes(searchTerm)
+        (book) => book?.title?.toLowerCase().includes(searchTerm) || book?.author?.toLowerCase().includes(searchTerm)
     );
+
+    const handleDashboardClick = () => {
+        navigate('/dashboard');
+    };
+
+    const userMenu = (
+        <Menu
+            items={[
+                { key: 'dashboard', label: 'Dashboard', icon: <AppstoreOutlined />, onClick: handleDashboardClick },
+                { key: 'signout', label: 'Sign out', icon: <SettingOutlined /> },
+            ]}
+        />
+    );
+
+    // Define menu items
+    const menuItems = [
+        { label: 'Home', key: '1' },  // Each object must contain 'label' and 'key'
+        { label: 'About', key: '2' },
+        { label: 'Books', key: '3' }
+    ];
 
     return (
         <Layout>
+            {/* Header */}
             <Header style={headerStyle}>
-                <div className="logo" style={{ float: 'left', color: '#fff', fontSize: '20px' }}>Capybook</div>
-                <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['1']} items={[{ label: 'Home', key: '1' }]} />
-            </Header>
-            <Content style={contentStyle}>
-                <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                    <h1>Book Store</h1>
-                    <Search
-                        placeholder="Search for books by title or author"
-                        onSearch={handleSearch}
-                        enterButton
-                        style={{ maxWidth: '500px', margin: '0 auto' }}
-                    />
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <img src="/logo-capybook.png" alt="Capybook Logo" style={{ height: '40px', marginRight: '20px' }} />
+                    <div className="logo" style={{ fontSize: '20px', fontWeight: 'bold' }}>Capybook</div>
                 </div>
 
+                {/* Search Bar */}
+                <Search
+                    placeholder="Search for books or orders"
+                    onSearch={handleSearch}
+                    enterButton
+                    style={{ maxWidth: '500px' }}
+                />
+
+                {/* Icons for Notifications and Shopping Cart with click events */}
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div className="icon-container" onClick={() => alert('Notification clicked!')}>
+                        <BellOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
+                    </div>
+                    <div className="icon-container" onClick={() => alert('Shopping cart clicked!')}>
+                        <ShoppingCartOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
+                    </div>
+                    <Dropdown overlay={userMenu} trigger={['click']} placement="bottomRight">
+                        <Button
+                            type="text"
+                            icon={<UserOutlined />}
+                            style={{ color: '#fff' }}
+                        >
+                            chó Khanh
+                        </Button>
+                    </Dropdown>
+                </div>
+            </Header>
+
+            <Content style={contentStyle}>
                 <Row gutter={[16, 16]}>
-                    {filteredBooks.map((book) => (
-                        <Col key={book.id} xs={24} sm={12} md={8} lg={6}>
+                    {filteredBooks.map((book, index) => (
+                        <Col key={book.id || index} xs={24} sm={12} md={8} lg={6}>
                             <Card
                                 hoverable
                                 style={{ width: 300, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
                                 cover={<img alt={book.bookTitle} src={book.image || 'https://via.placeholder.com/150'} style={{ height: '250px', objectFit: 'cover' }} />}
                             >
-                                <div style={{ padding: '0px 0px 0 0px' }}>  {/* Reduced bottom padding */}
-                                    <Title level={5} style={{ marginBottom: '10px' }}>{book.bookTitle}</Title> {/* Reduced margin between title and description */}
+                                <div style={{ padding: '0px 0px 0 0px' }}>
+                                    <Title level={5} style={{ marginBottom: '10px' }}>{book.bookTitle}</Title>
                                     <Title level={4} type="danger">{`${book.bookPrice} đ`}</Title>
                                     <Tag color="volcano">{`${book.discount}% off`}</Tag>
                                 </div>
@@ -84,6 +132,8 @@ const Homepage = () => {
                     ))}
                 </Row>
             </Content>
+
+            {/* Footer */}
             <Footer style={footerStyle}>
                 <div>© {new Date().getFullYear()} Capybook Management System</div>
                 <div>All Rights Reserved</div>

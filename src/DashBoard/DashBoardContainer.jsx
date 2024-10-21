@@ -142,6 +142,9 @@ const DashboardContainer = () => {
         mode="inline"
         items={items}
       />
+      <div className="back-logo-container" style={{ position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)' }}>
+        <img src="/back_icon.png" alt="Back Logo" style={{ height: '50px' }} /> {/* Thay đổi kích thước tùy ý */}
+      </div>
     </div>
   );
 };
