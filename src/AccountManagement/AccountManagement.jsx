@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Space, Table, Tag, Button, Input, message } from 'antd'; // Ant Design components
+import { Space, Table, Modal, Button, Input, message } from 'antd'; // Ant Design components
 import { fetchAccounts, deleteAccount } from '../config'; // API imports
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
+import {
+    DeleteOutlined,
+    EditOutlined, InfoCircleOutlined
+} from '@ant-design/icons';
 
 const { Search } = Input;
 
@@ -31,20 +35,6 @@ const AccountManagement = () => {
             });
     }, []);
 
-    const handleDelete = (username) => {
-        if (window.confirm("Are you sure you want to delete this account?")) {
-            deleteAccount(username)
-                .then(() => {
-                    setAccounts(accounts.filter(account => account.username !== username));
-                    message.success('Account deleted successfully');
-                })
-                .catch(error => {
-                    console.error('Error deleting account:', error);
-                    message.error('Failed to delete account');
-                });
-        }
-    };
-
     const goToAddAccount = () => {
         navigate('/dashboard/accounts/add');
     };
@@ -55,6 +45,26 @@ const AccountManagement = () => {
 
     const goToAccountDetail = (username) => {
         navigate(`/dashboard/accounts/detail/${username}`);
+    };
+
+    const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
+    const showModal = () => {
+        setIsModalDeleteOpen(true);
+    };
+    const handleOk = (username) => {
+        setIsModalDeleteOpen(false);
+        deleteAccount(username)
+            .then(() => {
+                setAccounts(accounts.filter(account => account.username !== username));
+                message.success('Account deleted successfully');
+            })
+            .catch(error => {
+                console.error('Error deleting account:', error);
+                message.error('Failed to delete account');
+            });
+    };
+    const handleCancel = () => {
+        setIsModalDeleteOpen(false);
     };
 
     // Define the columns for the Ant Design Table
@@ -108,9 +118,13 @@ const AccountManagement = () => {
             key: 'action',
             render: (record) => (
                 <Space size="middle">
-                    <Button type="link" onClick={() => goToAccountDetail(record.username)}>Detail</Button>
-                    <Button type="link" onClick={() => goToEditAccount(record.username)}>Edit</Button>
-                    <Button type="link" danger onClick={() => handleDelete(record.username)}>Delete</Button>
+                    <Button type="link" onClick={() => goToAccountDetail(record.username)}><InfoCircleOutlined title='Detail' /></Button>
+                    <Button type="link" onClick={() => goToEditAccount(record.username)}><EditOutlined title='Edit' /></Button>
+                    <Button type="link" danger onClick={() => showModal()}><DeleteOutlined title='Delete' /></Button>
+                    <Modal title="Delete Account Confirmation" open={isModalDeleteOpen} onOk={() => handleOk(record.username)}
+                        onCancel={handleCancel} maskClosable={false} okButtonProps={{ danger: true }} >
+                        <p>Do you want to delete {record.username} account?</p>
+                    </Modal>
                 </Space>
             ),
         },
