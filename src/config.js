@@ -87,8 +87,10 @@ const addCategory = (category) => {
 const updateCategory = (catID, category) => client.put(`/v1/categories/${catID}`, category);
 const deleteCategory = (catID) => {
     console.log("Soft deleting category with ID:", catID);
-    return client.put(`/v1/categories/${catID}/soft-delete`); // Sử dụng PUT thay vì DELETE
+    return client.put(`/v1/categories/${catID}/soft-delete`);
 };
+
+
 
 const searchCategories = (searchTerm) => {
     return client.get(`/v1/categories/search?term=${searchTerm}`);

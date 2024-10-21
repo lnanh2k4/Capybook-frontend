@@ -22,9 +22,9 @@ const EditCategory = () => {
                 });
 
                 const allCategoriesResponse = await fetchCategories();
-                // Lọc các danh mục chỉ có parentCatID = null và không phải là chính nó
-                const rootCategories = allCategoriesResponse.data.filter(cat => cat.catID !== category.catID);
-                setCategories(rootCategories);
+                // Lọc các danh mục chỉ có catStatus = 1 và không phải là chính nó
+                const validCategories = allCategoriesResponse.data.filter(cat => cat.catID !== category.catID && cat.catStatus === 1);
+                setCategories(validCategories);
 
             } catch (error) {
                 console.error("Error fetching category detail:", error);
