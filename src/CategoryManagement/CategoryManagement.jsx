@@ -78,30 +78,59 @@ const CategoryManagement = () => {
   };
 
   const handleDelete = async (catID) => {
-    const categoryToDelete = categories.find((category) => category.catID === catID);
-    const childCategories = categories.filter(
-      (category) => category.parentCatID === catID
-    );
+  const categoryToDelete = categories.find((category) => category.catID === catID);
+  const childCategories = categories.filter(
+    (category) => category.parentCatID === catID
+  );
 
-    if (childCategories.length > 0) {
-      Modal.warning({
-        title: "Cannot delete parent category",
-        content: `Category "${categoryToDelete.catName}" has child categories and cannot be deleted.`,
-      });
-      return;
-    }
+  if (childCategories.length > 0) {
+    Modal.warning({
+      title: "Cannot delete parent category",
+      content: `Category "${categoryToDelete.catName}" has child categories and cannot be deleted.`,
+    });
+    return;
+  }
 
-    if (window.confirm("Are you sure you want to delete this category?")) {
-      try {
-        await deleteCategory(catID);  
-        setCategories(categories.filter((category) => category.catID !== catID));
-        message.success("Category marked as deleted (status set to 0) successfully");
-      } catch (error) {
-        console.error("Error soft deleting category:", error);
-        message.error("Failed to soft delete category");
-      }
+  if (window.confirm("Are you sure you want to delete this category?")) {
+    try {
+      await deleteCategory(catID);  
+      message.success("Category marked as deleted (status set to 0) successfully");
+
+      // Fetch lại dữ liệu sau khi xóa thành công
+      setLoading(true);
+      fetchCategories()
+        .then((response) => {
+          if (Array.isArray(response.data)) {
+            const activeCategories = response.data.filter(
+              (category) => category.catStatus === 1
+            );
+            const updatedCategories = activeCategories.map((category) => {
+              const parent = category.parentCatID
+                ? response.data.find((cat) => cat.catID === category.parentCatID)?.catName
+                : "Parent";
+              return { ...category, parent };
+            });
+
+            setCategories(updatedCategories);
+          } else {
+            console.error("Expected an array but got", response.data);
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching categories:", error);
+          message.error("Failed to fetch categories");
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } catch (error) {
+      console.error("Error soft deleting category:", error);
+      message.error("Failed to soft delete category");
     }
-  };
+  }
+};
+
+
 
   const goToAddCategory = () => {
     navigate("/dashboard/category/add");

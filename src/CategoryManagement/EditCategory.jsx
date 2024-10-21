@@ -96,7 +96,7 @@ const EditCategory = () => {
                                 No Parent
                             </Select.Option>
 
-                            {categories.map(category => (
+                            {categories.filter(category => category.catStatus === 1).map(category => (
                                 <Select.Option key={category.catID} value={category.catID}>
                                     {category.catName}
                                 </Select.Option>
