@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Space, Table, Button, Input, message, Modal } from "antd";
-import { fetchCategories, searchCategories, deleteCategory } from "../config"; // Thêm searchCategories từ API
+import { fetchCategories, searchCategories, deleteCategory } from "../config"; 
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 
 const { Search } = Input;
@@ -45,7 +45,7 @@ const CategoryManagement = () => {
   // Hàm thực hiện khi nhấn nút search
   const handleSearch = () => {
     setLoading(true);
-    searchCategories(searchTerm) // Gọi API tìm kiếm
+    searchCategories(searchTerm)
       .then((response) => {
         if (Array.isArray(response.data)) {
           const activeCategories = response.data.filter(
@@ -72,38 +72,68 @@ const CategoryManagement = () => {
       });
   };
 
-  const handleDelete = async (catID) => {
-    const categoryToDelete = categories.find((category) => category.catID === catID);
-    const childCategories = categories.filter(
-      (category) => category.parentCatID === catID
-    );
-
-    if (childCategories.length > 0) {
-      Modal.warning({
-        title: "Cannot delete parent category",
-        content: `Category "${categoryToDelete.catName}" has child categories and cannot be deleted.`,
-      });
-      return;
-    }
-
-    if (window.confirm("Are you sure you want to delete this category?")) {
-      try {
-        await deleteCategory(catID);
-        setCategories(categories.filter((category) => category.catID !== catID));
-        message.success("Category marked as deleted (status set to 0) successfully");
-      } catch (error) {
-        console.error("Error soft deleting category:", error);
-        message.error("Failed to soft delete category");
-      }
-    }
+  // Cho phép chỉnh sửa cả danh mục con
+  const handleEditCategory = (category) => {
+    navigate(`/dashboard/category/${category.catID}`);
   };
+
+  const handleDelete = async (catID) => {
+  const categoryToDelete = categories.find((category) => category.catID === catID);
+  const childCategories = categories.filter(
+    (category) => category.parentCatID === catID
+  );
+
+  if (childCategories.length > 0) {
+    Modal.warning({
+      title: "Cannot delete parent category",
+      content: `Category "${categoryToDelete.catName}" has child categories and cannot be deleted.`,
+    });
+    return;
+  }
+
+  if (window.confirm("Are you sure you want to delete this category?")) {
+    try {
+      await deleteCategory(catID);  
+      message.success("Category marked as deleted (status set to 0) successfully");
+
+      // Fetch lại dữ liệu sau khi xóa thành công
+      setLoading(true);
+      fetchCategories()
+        .then((response) => {
+          if (Array.isArray(response.data)) {
+            const activeCategories = response.data.filter(
+              (category) => category.catStatus === 1
+            );
+            const updatedCategories = activeCategories.map((category) => {
+              const parent = category.parentCatID
+                ? response.data.find((cat) => cat.catID === category.parentCatID)?.catName
+                : "Parent";
+              return { ...category, parent };
+            });
+
+            setCategories(updatedCategories);
+          } else {
+            console.error("Expected an array but got", response.data);
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching categories:", error);
+          message.error("Failed to fetch categories");
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } catch (error) {
+      console.error("Error soft deleting category:", error);
+      message.error("Failed to soft delete category");
+    }
+  }
+};
+
+
 
   const goToAddCategory = () => {
     navigate("/dashboard/category/add");
-  };
-
-  const goToEditCategory = (catID) => {
-    navigate(`/dashboard/edit-category/${catID}`);
   };
 
   const goToCategoryDetail = (catID) => {
@@ -141,7 +171,7 @@ const CategoryManagement = () => {
           <Button type="link" onClick={() => goToCategoryDetail(record.catID)}>
             Detail
           </Button>
-          <Button type="link" onClick={() => goToEditCategory(record.catID)}>
+          <Button type="link" onClick={() => handleEditCategory(record)}>
             Edit
           </Button>
           <Button type="link" danger onClick={() => handleDelete(record.catID)}>
@@ -178,7 +208,7 @@ const CategoryManagement = () => {
             placeholder="Search by category name"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            onSearch={handleSearch} // Thực hiện tìm kiếm khi nhấn vào biểu tượng search
+            onSearch={handleSearch}
             style={{ width: 300 }}
           />
         </div>
