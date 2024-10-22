@@ -1,162 +1,171 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchAccountDetail, updateAccount } from '../config';
-import {
-    Button,
-    Form,
-    Input,
-    Radio,
-    Select
-} from 'antd';
+import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
+import { Form, Input, Button, Radio, message, Select } from 'antd';
 
-const EditAccount = () => {
+function EditAccount() {
     const { username } = useParams();
     const navigate = useNavigate();
+    const [form] = Form.useForm(); // Ant Design form instance
 
     const goToAccountManagement = () => {
-        navigate(`/dashboard/accounts/`);
+        navigate("/dashboard/accounts");
     };
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
-    };
-
-    const [formData, setFormData] = useState({
-        username: '',
-        firstName: '',
-        lastName: '',
-        dob: '',
-        email: '',
-        phone: '',
-        role: '',
-        address: '',
-        sex: '',
-        staffDTOCollection: '',
-    });
-
-    const { TextArea } = Input
 
     useEffect(() => {
-        fetchAccountDetail(username)
-            .then(response => {
-                setFormData(response.data);
-                console.log("data", response.data)
-            })
-            .catch(error => {
-                console.error('Error fetching account:', error);
-            });
-    }, [username]);
+        if (username) {
+            fetchAccountDetail(username)
+                .then(response => {
+                    const formData = response.data;
+                    form.setFieldsValue({
+                        ...formData,
+                        role: formData.role.toString(),
+                        sex: formData.sex.toString()
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching account details:', error);
+                    message.error('Failed to fetch account details.');
+                });
+        }
+    }, [username, form]);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
+    const handleSubmit = async (values) => {
         try {
             const formDataToSend = new FormData();
-            const accountData = {
-                username: formData.username,
-                firstName: formData.firstName,
-                lastName: formData.lastName,
-                dob: formData.dob,
-                email: formData.email,
-                phone: formData.phone,
-                role: formData.role,
-                address: formData.address,
-                sex: formData.sex,
-                password: formData.password
+
+            // Create the book data object, explicitly setting bookStatus to 1
+            const updatedAccountData = {
+                ...values,
             };
 
-            formDataToSend.append('account', JSON.stringify(accountData));
+            formDataToSend.append('account', JSON.stringify(updatedAccountData));
+
             await updateAccount(username, formDataToSend);
+            message.success('Account updated successfully');
             navigate("/dashboard/accounts");
         } catch (error) {
-            console.error('Error adding accounts:', error);
+            console.error('Error updating account:', error);
+            message.error('Failed to update account.');
         }
     };
 
     return (
         <>
-            {/* <DashboardContainer /> */}
-            <h1 style={{ textAlign: 'center' }}>View Account Detail</h1>
-            {/* <DashboardContainer /> */}
+            <h1 style={{ textAlign: 'center' }}>Account Management - Edit Account</h1>
             <Form
-                labelCol={{
-                    span: 4,
-                }}
-                wrapperCol={{
-                    span: 14,
-                }}
-                layout="horizontal"
-                style={{
-                    maxWidth: 600,
-                    marginLeft: '20%',
-                    background: '255, 255, 0, 0.9',
-                    padding: '3%',
-                    borderRadius: '5%'
-                }}
+                form={form}
+                layout="vertical"
+                onFinish={handleSubmit}
+                style={{ maxWidth: '700px', margin: 'auto' }}
             >
-                <Form.Item label="Username">
-                    <Input name="username"
-                        value={formData.username || ''}
-                        placeholder="Username of account " />
-                </Form.Item>
-                <Form.Item label="Fist Name">
-                    <Input type="text"
-                        name="firstName"
-                        value={formData.firstName || ''}
-                        placeholder="First name of account" />
-                </Form.Item>
-                <Form.Item label="Last Name">
-                    <Input type="text"
-                        name="lastName"
-                        value={formData.lastName || ''}
-                        placeholder="Last name of account" />
-                </Form.Item>
-                <Form.Item label="Date Of Birth">
-                    <Input type='date' name="dob"
-                        value={formData.dob || ''}
-                        placeholder="Date of birth" />
-                </Form.Item>
-                <Form.Item label="Email">
-                    <Input type='email'
-                        name="email"
-                        value={formData.email || ''}
-                        placeholder="Email of account" />
-                </Form.Item>
-                <Form.Item label="Phone">
-                    <Input type='tel'
-                        name="phone"
-                        value={formData.phone || ''}
-                        placeholder="Phone number of account" />
-                </Form.Item>
-                {console.log("Sex", formData.sex)}
-                <Form.Item label="Sex">
-                    <Radio.Group name='sex' value={String(formData.sex)}>
-                        <Radio value="0"  > Female </Radio>
-                        <Radio value="1" > Male </Radio>
-                    </Radio.Group>
+                <Form.Item
+                    label="Username"
+                    name="username"
+                    rules={[{ required: true, message: 'Please enter username' }]}
+                >
+                    <Input placeholder="Username of account" disabled />
                 </Form.Item>
 
-                <Form.Item label="Role">
-                    <Select name="role" value={String(formData.role)}>
+                <Form.Item
+                    label="First Name"
+                    name="firstName"
+                    rules={[
+                        { required: true, message: 'Please enter first name' },
+                    ]}
+                >
+                    <Input placeholder="First name of account" />
+                </Form.Item>
+
+                <Form.Item
+                    label="Last Name"
+                    name="lastName"
+                    rules={[
+                        { required: true, message: 'Please enter last name' },
+                    ]}
+                >
+                    <Input placeholder="Last name of account" />
+                </Form.Item>
+
+                <Form.Item
+                    label="Date of birth"
+                    name="dob"
+                    rules={[{ required: true, message: 'Please enter the dimensions' }]}
+                >
+                    <Input type='date' placeholder="Date of birth of account" />
+                </Form.Item>
+
+                <Form.Item
+                    label="email"
+                    name="email"
+                    rules={[
+                        { required: true, message: 'Please enter email' },
+                    ]}
+                >
+                    <Input type='email' placeholder='Email of account' />
+                </Form.Item>
+
+                <Form.Item
+                    label="Phone"
+                    name="phone"
+                    rules={[
+                        { required: true, message: 'Please enter phone' },
+                    ]}
+                >
+                    <Input placeholder="Phone of account" />
+                </Form.Item>
+
+                <Form.Item
+                    label="Role"
+                    name="role"
+                    rules={[
+                        { required: true, message: 'Please select role' }]}
+                >
+                    <Select name="role" readOnly>
                         <Select.Option value="0" >Admin</Select.Option>
                         <Select.Option value="1" >Customer</Select.Option>
                         <Select.Option value="2" >Seller staff</Select.Option>
                         <Select.Option value="3" >Warehouse staff</Select.Option>
                     </Select>
                 </Form.Item>
-                <Form.Item label="Address" readOnly>
-                    <TextArea rows={4} type="text"
-                        name="address"
-                        value={formData.address || ''}
-                        placeholder="Address of account" />
+
+                <Form.Item
+                    label="Address"
+                    name="address"
+                    rules={[{ required: true, message: 'Please enter the address' }]}
+                >
+                    <Input type='TextArea' placeholder="Address of account" />
                 </Form.Item>
+
+                <Form.Item
+                    label="Sex"
+                    name="sex"
+                    rules={[
+                        { required: true, message: 'Please enter the sex' },
+                    ]}
+                >
+                    <Radio.Group name='sex' readOnly>
+                        <Radio value="0"  > Female </Radio>
+                        <Radio value="1" > Male </Radio>
+                    </Radio.Group>
+                </Form.Item>
+
+
                 <Form.Item>
-                    <Button type='default' onClick={goToAccountManagement}>Cancel</Button>
+                    <Button type="primary" htmlType="submit">
+                        Submit
+                    </Button>
+                    <Button
+                        htmlType="button"
+                        onClick={goToAccountManagement}
+                        style={{ marginLeft: '10px' }}
+                    >
+                        Cancel
+                    </Button>
                 </Form.Item>
-            </Form >
+            </Form>
+
         </>
     );
 }
