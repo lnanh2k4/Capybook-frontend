@@ -42,7 +42,10 @@ const fetchSupplierDetail = (supID) => {
 
 
 const addSupplier = (supplier) => client.post('/v1/suppliers/', supplier);
-// Update an existing supplier by ID
+
+
+// Soft-delete a supplier (hide it) by ID
+const deleteSupplier = (id) => client.delete(`/suppliers/${id}`);
 const updateSupplier = (supID, supplierData) => {
     return client.put(`/v1/suppliers/${supID}`, supplierData, {
         headers: {
@@ -50,10 +53,6 @@ const updateSupplier = (supID, supplierData) => {
         }
     });
 }
-
-// Soft-delete a supplier (hide it) by ID
-const deleteSupplier = (id) => client.delete(`/suppliers/${id}`);
-
 // Fetch supplier by ID (Duplicate method - either remove or keep as an alias to fetchSupplierDetail)
 const fetchSupplierById = (supID) => client.get(`/v1/suppliers/${supID}`);
 export { fetchAccounts, fetchBooks, fetchBookDetail, addBook, updateBook, deleteBook, fetchBookById, fetchSuppliers, fetchSupplierDetail, addSupplier, updateSupplier, deleteSupplier, fetchSupplierById }
