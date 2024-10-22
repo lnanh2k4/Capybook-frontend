@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Space, Table, Modal, Button, Input, message } from 'antd'; // Ant Design components
-import { fetchAccounts, deleteAccount } from '../config'; // API imports
+import { fetchAccounts, deleteAccount, searchAccount } from '../config'; // API imports
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import {
     DeleteOutlined,
@@ -11,9 +11,25 @@ import {
 const { Search } = Input;
 
 const AccountManagement = () => {
+
+    //navigation
     const navigate = useNavigate();
+    const goToAddAccount = () => {
+        navigate('/dashboard/accounts/add');
+    };
+
+    const goToEditAccount = (username) => {
+        navigate(`/dashboard/accounts/${username}`);
+    };
+
+    const goToAccountDetail = (username) => {
+        navigate(`/dashboard/accounts/detail/${username}`);
+    };
+
+
+    //user state of accounts, search, loading, error
     const [accounts, setAccounts] = useState([]);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchKey, setSearchKey] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -35,18 +51,8 @@ const AccountManagement = () => {
             });
     }, []);
 
-    const goToAddAccount = () => {
-        navigate('/dashboard/accounts/add');
-    };
 
-    const goToEditAccount = (username) => {
-        navigate(`/dashboard/accounts/${username}`);
-    };
-
-    const goToAccountDetail = (username) => {
-        navigate(`/dashboard/accounts/detail/${username}`);
-    };
-
+    //Handle Modal Delete
     const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
     const showModal = () => {
         setIsModalDeleteOpen(true);
@@ -66,6 +72,42 @@ const AccountManagement = () => {
     const handleCancel = () => {
         setIsModalDeleteOpen(false);
     };
+
+    //Handle Search
+    const handleSearch = (value) => {
+        setSearchKey(value)
+        if (!value) {
+            fetchAccounts()
+                .then(response => {
+                    setAccounts(response.data);
+                    setError('');
+                })
+                .catch(error => {
+                    console.error('Error fetching accounts:', error);
+                    setError('Failed to fetch accounts');
+                    message.error('Failed to fetch accounts');
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+
+        } else {
+            setLoading(true)
+            searchAccount(value).then(response => {
+                setAccounts(response.data);
+                setError('');
+            })
+                .catch(error => {
+                    console.error('Error fetching accounts:', error);
+                    setError('Failed to fetch accounts');
+                    message.error('Failed to fetch accounts');
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+        }
+    }
+
 
     // Define the columns for the Ant Design Table
     const columns = [
@@ -119,22 +161,21 @@ const AccountManagement = () => {
             render: (record) => (
                 <Space size="middle">
                     <Button type="link" onClick={() => goToAccountDetail(record.username)}><InfoCircleOutlined title='Detail' /></Button>
-                    <Button type="link" onClick={() => goToEditAccount(record.username)}><EditOutlined title='Edit' /></Button>
-                    <Button type="link" danger onClick={() => showModal()}><DeleteOutlined title='Delete' /></Button>
+                    <Button type="link" style={{ color: 'orange' }} onClick={() => goToEditAccount(record.username)}><EditOutlined title='Edit' /></Button>
+                    {
+                        (record.role !== 0) && (
+                            <Button type="link" danger onClick={() => showModal()}><DeleteOutlined title='Disable' /></Button>
+                        )
+                    }
+
                     <Modal title="Delete Account Confirmation" open={isModalDeleteOpen} onOk={() => handleOk(record.username)}
-                        onCancel={handleCancel} maskClosable={false} okButtonProps={{ danger: true }} >
+                        onCancel={handleCancel} maskClosable={false} closable={false} okButtonProps={{ danger: true }}  >
                         <p>Do you want to delete {record.username} account?</p>
                     </Modal>
                 </Space>
             ),
         },
     ];
-
-    // Filter accounts based on search term
-    const filteredAccounts = accounts.filter(account =>
-        account.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        `${account.lastName} ${account.firstName}`.toLowerCase().includes(searchTerm.toLowerCase())
-    );
 
     return (
         <div className="main-container">
@@ -145,16 +186,16 @@ const AccountManagement = () => {
                 <h1>Account Management</h1>
                 <div className="action-container" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
                     <Button type="primary" onClick={goToAddAccount}>Add Account</Button>
-                    <Search
+                    <Input
                         placeholder="Search by username or full name"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        value={searchKey}
+                        onChange={(e) => handleSearch(e.target.value)}
                         style={{ width: 300 }}
                     />
                 </div>
                 <Table
                     columns={columns}
-                    dataSource={filteredAccounts}
+                    dataSource={accounts}
                     rowKey="username"
                     loading={loading}
                     pagination={{ pageSize: 10 }}
