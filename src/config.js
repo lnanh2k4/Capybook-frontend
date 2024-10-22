@@ -17,6 +17,8 @@ const deleteAccount = (username) => client.delete(`v1/accounts/${username}`);
 const updateAccount = (username, formDataToSend) => {
     return axios.put(`${URLString}v1/accounts/${username}`, formDataToSend);
 };
+const searchAccount = (keyword) => client.get(`v1/accounts/search?keyword=${keyword}`);
+
 const fetchNotifications = () => client.get('v1/notifications/');
 
 const fetchBooks = () => client.get('v1/books/');
@@ -130,6 +132,7 @@ export {
     updateCategory,
     deleteCategory,
     fetchCategoryById,
-    fetchNotifications
+    fetchNotifications,
+    searchAccount
 };
 
