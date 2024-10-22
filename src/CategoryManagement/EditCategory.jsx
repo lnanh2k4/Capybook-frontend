@@ -118,7 +118,7 @@ const EditCategory = () => {
                     </Form.Item>
                 </Form>
             </div>
-
+                            {/* root */}
             <div className="copyright">
                 <div>© {new Date().getFullYear()}</div>
                 <div>Capybook Management System</div>

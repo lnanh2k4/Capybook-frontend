@@ -130,8 +130,6 @@ const CategoryManagement = () => {
   }
 };
 
-
-
   const goToAddCategory = () => {
     navigate("/dashboard/category/add");
   };
@@ -150,18 +148,6 @@ const CategoryManagement = () => {
       title: "Category Name",
       dataIndex: "catName",
       key: "catName",
-    },
-    {
-      title: "Category Status",
-      dataIndex: "catStatus",
-      key: "catStatus",
-      render: (status) => (status === 1 ? "Active" : "Inactive"),
-    },
-    {
-      title: "Type",
-      dataIndex: "parent",
-      key: "parent",
-      render: (parent) => (parent === "Parent" ? "Parent" : `Child of: ${parent}`),
     },
     {
       title: "Action",

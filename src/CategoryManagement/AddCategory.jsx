@@ -11,6 +11,7 @@ function AddCategory() {
     const navigate = useNavigate();
     const [parentCategories, setParentCategories] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [isFormEmpty, setIsFormEmpty] = useState(true);
 
     // Fetch existing categories to populate the parent category dropdown
     useEffect(() => {
@@ -36,6 +37,13 @@ function AddCategory() {
             });
     }, []);
 
+    // Kiểm tra xem form có trống hay không
+    const handleFormChange = () => {
+        const values = form.getFieldsValue();
+        const isEmpty = !values.catName || values.catName.trim() === '';
+        setIsFormEmpty(isEmpty);
+    };
+
     const handleSubmit = async (values) => {
         try {
             const categoryData = {
@@ -53,8 +61,13 @@ function AddCategory() {
         }
     };
 
-    const handleReset = () => {
-        form.resetFields(); // Reset form fields
+    const handleResetOrBack = () => {
+        if (isFormEmpty) {
+            navigate("/dashboard/category"); // Navigate back to category management page
+        } else {
+            form.resetFields(); // Reset form fields
+            setIsFormEmpty(true); // Cập nhật trạng thái form về trống
+        }
     };
 
     return (
@@ -72,6 +85,7 @@ function AddCategory() {
                     form={form}
                     onFinish={handleSubmit}
                     layout="vertical"
+                    onFieldsChange={handleFormChange} // Trigger when form changes
                     style={{ maxWidth: '600px', margin: 'auto' }}
                 >
                     <Form.Item
@@ -104,8 +118,8 @@ function AddCategory() {
                         <Button type="primary" htmlType="submit">
                             Submit
                         </Button>
-                        <Button htmlType="button" onClick={handleReset} style={{ marginLeft: '20px' }}>
-                            Reset
+                        <Button htmlType="button" onClick={handleResetOrBack} style={{ marginLeft: '20px' }}>
+                            {isFormEmpty ? 'Back' : 'Reset'}
                         </Button>
                     </Form.Item>
                 </Form>
