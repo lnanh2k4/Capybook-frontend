@@ -54,6 +54,7 @@ function SupplierManagement() {
         }
     };
 
+
     const filteredSuppliers = suppliers.filter(supplier =>
         supplier.supStatus === 1 &&
         (
