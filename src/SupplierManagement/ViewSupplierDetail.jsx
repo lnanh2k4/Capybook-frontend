@@ -1,78 +1,74 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom'; // Import useParams and useNavigate
-import { fetchSupplierDetail } from '../config'; // Import API to fetch supplier details
-import DashboardContainer from "../DashBoard/DashBoardContainer.jsx"; // Importing dashboard container for consistency
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Card, Button, Descriptions, message } from "antd"; // Import Ant Design components
+import { fetchSupplierDetail } from "../config"; // API to fetch supplier details
+import DashboardContainer from "../DashBoard/DashBoardContainer.jsx"; // Dashboard layout
 
-function ViewSupplierDetail() {
-    const { supID } = useParams(); // Get supID from the URL
-    const navigate = useNavigate(); // Use navigate for redirection
+const ViewSupplierDetail = () => {
+    const { supID } = useParams(); // Get supID from URL
+    const navigate = useNavigate(); // Navigation between pages
     const [formData, setFormData] = useState({});
 
-    console.log("supID received from URL:", supID);
-
     useEffect(() => {
-        // Fetch supplier data when the component mounts
+        // Fetch supplier data when component mounts
         fetchSupplierDetail(supID)
             .then((response) => {
-                console.log("Fetched supplier data:", response.data); // Log the fetched data
-                setFormData(response.data); // Update form data with fetched supplier info
+                console.log("Fetched supplier data:", response.data); // Log fetched data
+                setFormData(response.data); // Update form data with supplier info
             })
             .catch((error) => {
                 console.error("Error fetching supplier details:", error);
+                message.error("Failed to fetch supplier details");
             });
     }, [supID]); // Re-run when supID changes
 
     const goToSupplierManagement = () => {
-        navigate('/dashboard/suppliers'); // Navigate back to Supplier Management
+        navigate("/dashboard/suppliers"); // Navigate back to Supplier Management
     };
 
     return (
         <div className="main-container">
-            {/* Dashboard section */}
             <DashboardContainer />
 
-            {/* Supplier details section */}
-            <div className="view-supplier-container">
-                <form className="view-supplier-form">
-                    <div className="form-left">
-                        <div className="form-group">
-                            <label>Supplier Name</label>
-                            <input type="text" name="supName" value={formData.supName || ''} readOnly />
-                        </div>
-                        <div className="form-group">
-                            <label>Supplier Email</label>
-                            <input type="text" name="supEmail" value={formData.supEmail || ''} readOnly />
-                        </div>
-                        <div className="form-group">
-                            <label>Supplier Phone</label>
-                            <input type="text" name="supPhone" value={formData.supPhone || ''} readOnly />
-                        </div>
-                    </div>
+            <div className="dashboard-content">
+                <Card
+                    title={`Supplier Detail - ${formData.supName || "N/A"}`}
+                    bordered={false}
+                    style={{ width: "100%", margin: "auto", maxWidth: "800px" }}
+                >
+                    <Descriptions column={1} bordered>
+                        <Descriptions.Item label="Supplier ID">
+                            {formData.supID || "N/A"}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Supplier Name">
+                            {formData.supName || "N/A"}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Supplier Email">
+                            {formData.supEmail || "N/A"}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Supplier Phone">
+                            {formData.supPhone || "N/A"}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Supplier Address">
+                            {formData.supAddress || "N/A"}
+                        </Descriptions.Item>
+                    </Descriptions>
 
-                    <div className="form-center">
-                        <div className="form-group">
-                            <label>Supplier Address</label>
-                            <input type="text" name="supAddress" value={formData.supAddress || ''} readOnly />
-                        </div>
+                    <div style={{ textAlign: "center", marginTop: "20px" }}>
+                        <Button type="primary" onClick={goToSupplierManagement}>
+                            Back
+                        </Button>
                     </div>
-
-                    <div className="form-buttons">
-                        <button type="button" onClick={goToSupplierManagement}>Back</button>
-                    </div>
-                </form>
+                </Card>
             </div>
 
-            {/* Footer section */}
-            <div className="titlemanagement">
-                <div> Supplier Management - View Supplier Detail </div>
-            </div>
             <div className="copyright">
                 <div>© {new Date().getFullYear()}</div>
-                <div>Cabybook Management System</div>
+                <div>Capybook Management System</div>
                 <div>All Rights Reserved</div>
             </div>
         </div>
     );
-}
+};
 
 export default ViewSupplierDetail;

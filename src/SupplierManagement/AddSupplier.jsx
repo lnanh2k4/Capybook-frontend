@@ -1,128 +1,105 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Sử dụng useNavigate để điều hướng
-import { addSupplier } from '../config'; // Import API addSupplier
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import { Form, Input, Button, message } from "antd"; // Import Ant Design components
+import { addSupplier } from '../config'; // API to add supplier
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 
 const AddSupplier = () => {
-    const [formData, setFormData] = useState({
-        supName: "",
-        supEmail: "",
-        supPhone: "",
-        supAddress: "",
-    });
+    const [form] = Form.useForm(); // Initialize Ant Design form
+    const navigate = useNavigate(); // Initialize useNavigate for routing
 
-    // Khởi tạo useNavigate để điều hướng
-    const navigate = useNavigate();
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault(); // Ngăn hành vi mặc định của form
-
+    const handleSubmit = async (values) => {
         try {
-            // Tạo đối tượng dữ liệu nhà cung cấp
+            // Prepare supplier data
             const supplierData = {
-                supName: formData.supName,
-                supEmail: formData.supEmail,
-                supPhone: formData.supPhone,
-                supAddress: formData.supAddress,
-                supStatus: 1, // Có thể thêm trạng thái nếu cần thiết
+                supName: values.supplierName,
+                supEmail: values.supplierEmail,
+                supPhone: values.supplierPhone,
+                supAddress: values.supplierAddress,
+                supStatus: 1, // Default status
             };
 
-            // In log để kiểm tra dữ liệu supplierData
             console.log("Supplier data to be sent:", supplierData);
 
-            // Gửi dữ liệu JSON trực tiếp
-            await addSupplier(supplierData);
-            console.log("Supplier added successfully!");
-
-            // Điều hướng về trang Supplier Management sau khi thêm thành công
-            navigate("/dashboard/suppliers");
+            await addSupplier(supplierData); // API call to add supplier
+            message.success("Supplier added successfully");
+            navigate("/dashboard/suppliers"); // Navigate to Supplier Management
         } catch (error) {
             console.error("Error adding supplier:", error);
+            message.error("Failed to add supplier");
         }
     };
 
     const handleReset = () => {
-        setFormData({
-            supName: "",
-            supEmail: "",
-            supPhone: "",
-            supAddress: "",
-        });
+        form.resetFields(); // Reset the form fields
     };
 
     return (
         <div className="main-container">
-            <DashboardContainer />
-            <div className="add-supplier-container">
-                <form className="add-supplier-form">
-                    <div className="form-left">
-                        <div className="form-group">
-                            <label>Supplier Name</label>
-                            <input
-                                type="text"
-                                name="supName"
-                                value={formData.supName}
-                                onChange={handleChange}
-                                placeholder="Enter Supplier Name"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Supplier Phone</label>
-                            <input
-                                type="text"
-                                name="supPhone"
-                                value={formData.supPhone}
-                                onChange={handleChange}
-                                placeholder="Enter Supplier Phone"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Supplier Email</label>
-                            <input
-                                type="text"
-                                name="supEmail"
-                                value={formData.supEmail}
-                                onChange={handleChange}
-                                placeholder="Enter Supplier Email"
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Supplier Address</label>
-                            <input
-                                type="text"
-                                name="supAddress"
-                                value={formData.supAddress}
-                                onChange={handleChange}
-                                placeholder="Enter Supplier Address"
-                            />
-                        </div>
-                    </div>
+            <div className="dashboard-container">
+                <DashboardContainer />
+            </div>
 
-                    <div className="form-buttons">
-                        <button type="submit" onClick={handleSubmit}>
+            <div className="dashboard-content">
+                <div className="titlemanagement">
+                    <div>Supplier Management - Add Supplier</div>
+                </div>
+
+                <Form
+                    form={form}
+                    onFinish={handleSubmit}
+                    layout="vertical"
+                    style={{ maxWidth: '600px', margin: 'auto' }}
+                >
+                    <Form.Item
+                        label="Supplier Name"
+                        name="supplierName"
+                        rules={[{ required: true, message: "Please enter the supplier name" }]}
+                    >
+                        <Input placeholder="Enter supplier name" />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Supplier Email"
+                        name="supplierEmail"
+                        rules={[
+                            { required: true, message: "Please enter the supplier email" },
+                            { type: "email", message: "Please enter a valid email address" },
+                        ]}
+                    >
+                        <Input placeholder="Enter supplier email" />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Supplier Phone"
+                        name="supplierPhone"
+                        rules={[{ required: true, message: "Please enter the supplier phone" }]}
+                    >
+                        <Input placeholder="Enter supplier phone" />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Supplier Address"
+                        name="supplierAddress"
+                        rules={[{ required: true, message: "Please enter the supplier address" }]}
+                    >
+                        <Input placeholder="Enter supplier address" />
+                    </Form.Item>
+
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit">
                             Submit
-                        </button>
-                        <button type="button" onClick={handleReset}>
+                        </Button>
+                        <Button htmlType="button" onClick={handleReset} style={{ marginLeft: '20px' }}>
                             Reset
-                        </button>
-                    </div>
-                </form>
+                        </Button>
+                    </Form.Item>
+                </Form>
             </div>
 
-            <div className="titlemanagement">
-                <div>Supplier Management - Add Supplier</div>
-            </div>
             <div className="copyright">
                 <div>© {new Date().getFullYear()}</div>
-                <div>Cabybook Management System</div>
+                <div>Capybook Management System</div>
                 <div>All Rights Reserved</div>
             </div>
         </div>
