@@ -24,6 +24,8 @@ function EditBook() {
                     });
                     if (bookData.image && bookData.image.startsWith(`/uploads/book_`)) {
                         setImagePreview(`http://localhost:6789${bookData.image}`);
+                    } else {
+                        setImagePreview(bookData.image);
                     }
                 })
                 .catch(error => {
@@ -42,7 +44,9 @@ function EditBook() {
             setImagePreview(null);
         }
     };
-
+    const handleImagePreview = file => {
+        setImagePreview(file.url || file.thumbUrl);
+    };
     const handleSubmit = async (values) => {
         try {
             const formDataToSend = new FormData();
@@ -97,8 +101,7 @@ function EditBook() {
                         label="Publication Year"
                         name="publicationYear"
                         rules={[
-                            { required: true, message: 'Please enter the publication year' },
-                            { pattern: /^[0-9]{4}$/, message: 'Publication year must be a 4-digit number' }
+                            { required: true, message: 'Please enter the publication year' }
                         ]}
                     >
                         <Input placeholder="Publication year" />
@@ -163,8 +166,7 @@ function EditBook() {
                         label="Weight"
                         name="weight"
                         rules={[
-                            { required: true, message: 'Please enter the weight' },
-                            { type: 'float', message: 'Weight must be a number' }
+                            { required: true, message: 'Please enter the weight' }
                         ]}
                     >
                         <InputNumber style={{ width: '100%' }} placeholder="Weight of the book" />
@@ -174,8 +176,7 @@ function EditBook() {
                         label="ISBN"
                         name="isbn"
                         rules={[
-                            { required: true, message: 'Please enter the ISBN' },
-                            { type: 'number', message: 'ISBN must be a number' }
+                            { required: true, message: 'Please enter the ISBN' }
                         ]}
                     >
                         <Input placeholder="International Standard Book Number" />
@@ -197,6 +198,7 @@ function EditBook() {
                             listType="picture"
                             fileList={fileList}
                             onChange={handleImageChange}
+                            onPreview={handleImagePreview}
                             maxCount={1}
                             beforeUpload={() => false} // Prevent auto-upload
                         >

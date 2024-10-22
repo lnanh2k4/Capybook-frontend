@@ -30,12 +30,13 @@ import CategoryDetail from "./CategoryManagement/CategoryDetail";
 import EditCategory from "./CategoryManagement/EditCategory";
 
 import Homepage from "./Homepage/homepage";
-
+import BookDetails from "./Homepage/BookDetails";
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Homepage />} />
+        <Route path="/:bookId" element={<BookDetails />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/dashboard/books/add/" element={<AddBook />} />
         <Route path="/dashboard/books/edit/:bookId" element={<EditBook />} />

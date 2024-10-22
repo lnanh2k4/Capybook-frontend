@@ -59,7 +59,9 @@ const Homepage = () => {
     const handleDashboardClick = () => {
         navigate('/dashboard');
     };
-
+    const handleBookClick = (bookId) => {
+        navigate(`/${bookId}`); // Đường dẫn này phụ thuộc vào cấu hình router của bạn
+    };
     const userMenu = (
         <Menu
             items={[
@@ -78,14 +80,11 @@ const Homepage = () => {
 
     return (
         <Layout>
-            {/* Header */}
             <Header style={headerStyle}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <img src="/logo-capybook.png" alt="Capybook Logo" style={{ height: '40px', marginRight: '20px' }} />
                     <div className="logo" style={{ fontSize: '20px', fontWeight: 'bold' }}>Capybook</div>
                 </div>
-
-                {/* Search Bar */}
                 <Search
                     placeholder="Search for books or orders"
                     onSearch={handleSearch}
@@ -93,7 +92,6 @@ const Homepage = () => {
                     style={{ maxWidth: '500px' }}
                 />
 
-                {/* Icons for Notifications and Shopping Cart with click events */}
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <div className="icon-container" onClick={() => alert('Notification clicked!')}>
                         <BellOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
@@ -101,7 +99,7 @@ const Homepage = () => {
                     <div className="icon-container" onClick={() => alert('Shopping cart clicked!')}>
                         <ShoppingCartOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
                     </div>
-                    <Dropdown overlay={userMenu} trigger={['click']} placement="bottomRight">
+                    <Dropdown menu={userMenu} trigger={['click']} placement="bottomRight">
                         <Button
                             type="text"
                             icon={<UserOutlined />}
@@ -119,6 +117,7 @@ const Homepage = () => {
                         <Col key={book.id || index} xs={24} sm={12} md={8} lg={6}>
                             <Card
                                 hoverable
+                                onClick={() => handleBookClick(book.bookID)}
                                 style={{ width: 300, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
                                 cover={<img alt={book.bookTitle} src={book.image || 'https://via.placeholder.com/150'} style={{ height: '250px', objectFit: 'cover' }} />}
                             >
@@ -133,7 +132,6 @@ const Homepage = () => {
                 </Row>
             </Content>
 
-            {/* Footer */}
             <Footer style={footerStyle}>
                 <div>© {new Date().getFullYear()} Capybook Management System</div>
                 <div>All Rights Reserved</div>

@@ -4,7 +4,10 @@ import './BookManagement.css'; // Import CSS for styling
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import { fetchBooks, updateBook, fetchBookById } from '../config'; // Import functions from the API
 import { Space, Table, Tag, Button, Input, message } from 'antd';
-
+import {
+    DeleteOutlined,
+    EditOutlined, InfoCircleOutlined
+} from '@ant-design/icons';
 const { Search } = Input;
 
 function BookManagement() {
@@ -115,11 +118,11 @@ function BookManagement() {
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <Button type="link" onClick={() => goToBookDetail(record.bookID)}>Detail</Button>
+                    <Button type="link" onClick={() => goToBookDetail(record.bookID)}><InfoCircleOutlined title='Detail' /></Button>
                     {record.bookStatus === 1 && (
                         <>
-                            <Button type="link" onClick={() => goToEditBook(record.bookID)}>Edit</Button>
-                            <Button type="link" danger onClick={() => handleDelete(record.bookID)}>Delete</Button>
+                            <Button type="link" onClick={() => goToEditBook(record.bookID)}><EditOutlined title='Edit' /></Button>
+                            <Button type="link" danger onClick={() => handleDelete(record.bookID)}><DeleteOutlined title='Delete' /></Button>
                         </>
                     )}
                 </Space>
