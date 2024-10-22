@@ -56,8 +56,10 @@ function SupplierManagement() {
 
     const filteredSuppliers = suppliers.filter(supplier =>
         supplier.supStatus === 1 &&
-        (supplier.supName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            supplier.supEmail.toLowerCase().includes(searchTerm.toLowerCase()))
+        (
+            (supplier.supName && supplier.supName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (supplier.supEmail && supplier.supEmail.toLowerCase().includes(searchTerm.toLowerCase()))
+        )
     );
 
     const handleSearchChange = (event) => {
