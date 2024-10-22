@@ -63,6 +63,7 @@ function SupplierManagement() {
         )
     );
 
+
     const handleSearchChange = (event) => {
         setSearchTerm(event.target.value);
     };
