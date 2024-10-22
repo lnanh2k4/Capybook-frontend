@@ -4,19 +4,23 @@ import { Form, Input, Button, DatePicker, InputNumber, message } from "antd"; //
 import { addPromotion } from "../config"; // API to add promotion
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 
+const { RangePicker } = DatePicker;
+
 const AddPromotion = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
+  const [isFormEmpty, setIsFormEmpty] = useState(true);
 
   const handleSubmit = async (values) => {
     try {
+      const [startDate, endDate] = values.dateRange; // Lấy ra startDate và endDate từ RangePicker
       const promotionData = {
         proName: values.promotionName,
         proCode: values.promotionCode,
         quantity: values.quantity,
         discount: values.discountQuantity,
-        startDate: values.startDate.format('YYYY-MM-DD'), // Formatting date
-        endDate: values.endDate.format('YYYY-MM-DD'),
+        startDate: startDate.format('YYYY-MM-DD'), // Formatting date
+        endDate: endDate.format('YYYY-MM-DD'),
         proStatus: 1, // Default status
       };
 
@@ -31,17 +35,19 @@ const AddPromotion = () => {
     }
   };
 
-  const handleReset = () => {
-    form.resetFields(); // Reset form fields
+  const handleFormChange = () => {
+    const values = form.getFieldsValue();
+    const isEmpty = !values.promotionName || values.promotionName.trim() === '';
+    setIsFormEmpty(isEmpty);
   };
 
-  // Custom validator to check if endDate is after startDate
-  const validateEndDate = (_, value) => {
-    const startDate = form.getFieldValue('startDate');
-    if (value && startDate && value.isBefore(startDate, 'day')) {
-      return Promise.reject(new Error('End date cannot be before start date'));
+  const handleResetOrBack = () => {
+    if (isFormEmpty) {
+      navigate("/dashboard/promotion-management"); // Navigate back to promotion management page
+    } else {
+      form.resetFields(); // Reset form fields
+      setIsFormEmpty(true); // Cập nhật trạng thái form về trống
     }
-    return Promise.resolve();
   };
 
   return (
@@ -59,6 +65,7 @@ const AddPromotion = () => {
           form={form}
           onFinish={handleSubmit}
           layout="vertical"
+          onFieldsChange={handleFormChange} // Kiểm tra khi form thay đổi
           style={{ maxWidth: '600px', margin: 'auto' }}
         >
           <Form.Item
@@ -94,30 +101,19 @@ const AddPromotion = () => {
           </Form.Item>
 
           <Form.Item
-            label="Start Date"
-            name="startDate"
-            rules={[{ required: true, message: "Please select the start date" }]}
+            label="Date Range"
+            name="dateRange"
+            rules={[{ required: true, message: "Please select the date range" }]}
           >
-            <DatePicker placeholder="Select start date" style={{ width: '100%' }} />
-          </Form.Item>
-
-          <Form.Item
-            label="End Date"
-            name="endDate"
-            rules={[
-              { required: true, message: "Please select the end date" },
-              { validator: validateEndDate } // Custom validator for date
-            ]}
-          >
-            <DatePicker placeholder="Select end date" style={{ width: '100%' }} />
+            <RangePicker placeholder={["Start date", "End date"]} style={{ width: '100%' }} />
           </Form.Item>
 
           <Form.Item>
             <Button type="primary" htmlType="submit">
               Submit
             </Button>
-            <Button htmlType="button" onClick={handleReset} style={{ marginLeft: '20px' }}>
-              Reset
+            <Button htmlType="button" onClick={handleResetOrBack} style={{ marginLeft: '20px' }}>
+              {isFormEmpty ? 'Back' : 'Reset'}
             </Button>
           </Form.Item>
         </Form>
