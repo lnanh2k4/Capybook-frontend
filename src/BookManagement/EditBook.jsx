@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchBookById, updateBook } from '../config';
+import { fetchBookById, updateBook, fetchCategories } from '../config'; // Ensure fetchCategories is imported
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
-import { Form, Input, Button, InputNumber, DatePicker, Upload, message } from 'antd';
+import { Form, Input, Button, InputNumber, Upload, message, Select } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs'; // Ensure you're using a compatible date library
+
+const { Option } = Select;
 
 function EditBook() {
     const { bookId } = useParams();
@@ -12,6 +14,7 @@ function EditBook() {
     const [form] = Form.useForm(); // Ant Design form instance
     const [imagePreview, setImagePreview] = useState(null);
     const [fileList, setFileList] = useState([]);
+    const [categories, setCategories] = useState([]); // Add state for categories
 
     useEffect(() => {
         if (bookId) {
@@ -21,6 +24,7 @@ function EditBook() {
                     form.setFieldsValue({
                         ...bookData,
                         publicationYear: dayjs(bookData.publicationYear), // Ensure this is a valid Day.js object
+                        catID: bookData.catID, // Set the category field with the book's current category
                     });
                     if (bookData.image && bookData.image.startsWith(`/uploads/book_`)) {
                         setImagePreview(`http://localhost:6789${bookData.image}`);
@@ -35,6 +39,20 @@ function EditBook() {
         }
     }, [bookId, form]);
 
+    useEffect(() => {
+        // Fetch categories when the component mounts
+        fetchCategories()
+            .then(response => {
+                if (Array.isArray(response.data)) {
+                    setCategories(response.data.filter(category => category.catStatus === 1)); // Only active categories
+                }
+            })
+            .catch(error => {
+                console.error("Error fetching categories:", error);
+                message.error("Failed to fetch categories");
+            });
+    }, []);
+
     const handleImageChange = ({ fileList: newFileList }) => {
         setFileList(newFileList);
         if (newFileList.length > 0) {
@@ -44,19 +62,22 @@ function EditBook() {
             setImagePreview(null);
         }
     };
+
     const handleImagePreview = file => {
         setImagePreview(file.url || file.thumbUrl);
     };
+
     const handleSubmit = async (values) => {
         try {
             const formDataToSend = new FormData();
 
-            // Create the book data object, explicitly setting bookStatus to 1
             const updatedBookData = {
                 ...values,
-                publicationYear: values.publicationYear.format('YYYY'), // Format the year correctly
-                bookStatus: 1, // Ensure bookStatus is always 1 when updating
+                publicationYear: values.publicationYear.format('YYYY'),
+                bookStatus: 1,
             };
+
+            console.log('Updated Book Data:', updatedBookData); // Check if catID is present here
 
             formDataToSend.append('book', JSON.stringify(updatedBookData));
 
@@ -72,6 +93,7 @@ function EditBook() {
             message.error('Failed to update book.');
         }
     };
+
 
     return (
         <div className="main-container">
@@ -89,6 +111,21 @@ function EditBook() {
                     onFinish={handleSubmit}
                     style={{ maxWidth: '700px', margin: 'auto' }}
                 >
+                    {/* Category Selection */}
+                    <Form.Item
+                        label="Category"
+                        name="catID"
+                        rules={[{ required: true, message: 'Please select a category' }]}
+                    >
+                        <Select placeholder="Select a category">
+                            {categories.map((category) => (
+                                <Option key={category.catID} value={category.catID}>
+                                    {category.catName}
+                                </Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+
                     <Form.Item
                         label="Title"
                         name="bookTitle"
@@ -100,9 +137,7 @@ function EditBook() {
                     <Form.Item
                         label="Publication Year"
                         name="publicationYear"
-                        rules={[
-                            { required: true, message: 'Please enter the publication year' }
-                        ]}
+                        rules={[{ required: true, message: 'Please enter the publication year' }]}
                     >
                         <Input placeholder="Publication year" />
                     </Form.Item>
@@ -129,10 +164,7 @@ function EditBook() {
                     <Form.Item
                         label="Price"
                         name="bookPrice"
-                        rules={[
-                            { required: true, message: 'Please enter the price' },
-                            { type: 'number', message: 'Price must be a number' }
-                        ]}
+                        rules={[{ required: true, message: 'Please enter the price' }]}
                     >
                         <InputNumber style={{ width: '100%' }} placeholder="Price of the book" />
                     </Form.Item>
@@ -147,11 +179,9 @@ function EditBook() {
                     <Form.Item
                         label="Hardcover"
                         name="hardcover"
-                        rules={[
-                            { required: true, message: 'Please enter the hardcover details' },
-                            { type: 'number', message: 'Hardcover must be a number' }]}
+                        rules={[{ required: true, message: 'Please enter the hardcover details' }]}
                     >
-                        <Input placeholder="Hardcover of the book" />
+                        <InputNumber style={{ width: '100%' }} placeholder="Hardcover of the book" />
                     </Form.Item>
 
                     <Form.Item
@@ -165,9 +195,7 @@ function EditBook() {
                     <Form.Item
                         label="Weight"
                         name="weight"
-                        rules={[
-                            { required: true, message: 'Please enter the weight' }
-                        ]}
+                        rules={[{ required: true, message: 'Please enter the weight' }]}
                     >
                         <InputNumber style={{ width: '100%' }} placeholder="Weight of the book" />
                     </Form.Item>
@@ -175,9 +203,7 @@ function EditBook() {
                     <Form.Item
                         label="ISBN"
                         name="isbn"
-                        rules={[
-                            { required: true, message: 'Please enter the ISBN' }
-                        ]}
+                        rules={[{ required: true, message: 'Please enter the ISBN' }]}
                     >
                         <Input placeholder="International Standard Book Number" />
                     </Form.Item>

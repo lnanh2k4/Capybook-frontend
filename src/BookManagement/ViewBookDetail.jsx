@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Descriptions, Button, Image } from 'antd'; // Import các component cần thiết từ Ant Design
-import { fetchBookById } from '../config'; // Import API để lấy chi tiết sách
+import { Card, Descriptions, Button, Image, message } from 'antd'; // Import các component cần thiết từ Ant Design
+import { fetchBookById, fetchCategoryDetail } from '../config'; // Import API để lấy chi tiết sách và category
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 
 function ViewBookDetail() {
@@ -20,16 +20,34 @@ function ViewBookDetail() {
         bookDescription: '',
         image: null,
         bookPrice: '',
-        isbn: ''
+        isbn: '',
+        catID: null // Add catID here to fetch the category name later
     });
 
+    const [categoryName, setCategoryName] = useState(''); // State to store category name
     const [imagePreview, setImagePreview] = useState(null);
 
     useEffect(() => {
+        // Fetch book details by ID
         fetchBookById(bookId)
             .then(response => {
-                setBookData(response.data);
-                const imageFromDB = response.data.image;
+                const book = response.data;
+                setBookData(book);
+
+                // If the book contains a valid category ID, fetch the category name
+                if (book.catID) {
+                    fetchCategoryDetail(book.catID)
+                        .then(categoryResponse => {
+                            setCategoryName(categoryResponse.data.catName);
+                        })
+                        .catch(error => {
+                            console.error("Error fetching category details:", error);
+                            message.error("Failed to fetch category details");
+                        });
+                }
+
+                // Handle the book image preview
+                const imageFromDB = book.image;
                 if (imageFromDB && imageFromDB.startsWith(`/uploads/book_`)) {
                     const fullImagePath = `http://localhost:6789${imageFromDB}`;
                     setImagePreview(fullImagePath);
@@ -39,6 +57,7 @@ function ViewBookDetail() {
             })
             .catch(error => {
                 console.error('Error fetching book details:', error);
+                message.error('Failed to fetch book details');
             });
     }, [bookId]);
 
@@ -79,6 +98,7 @@ function ViewBookDetail() {
                                 contentStyle={{ fontSize: '14px', paddingBottom: '10px', textAlign: 'right' }} // Tăng kích thước font chữ cho nội dung và canh phải
                             >
                                 <Descriptions.Item label="Title" contentStyle={{ textAlign: 'left' }}>{bookData.bookTitle}</Descriptions.Item>
+                                <Descriptions.Item label="Category" contentStyle={{ textAlign: 'left' }}>{categoryName || "No category"}</Descriptions.Item>
                                 <Descriptions.Item label="Publication Year" contentStyle={{ textAlign: 'left' }}>{bookData.publicationYear}</Descriptions.Item>
                                 <Descriptions.Item label="Author" contentStyle={{ textAlign: 'left' }}>{bookData.author}</Descriptions.Item>
                                 <Descriptions.Item label="Dimensions" contentStyle={{ textAlign: 'left' }}>{bookData.dimension}</Descriptions.Item>
