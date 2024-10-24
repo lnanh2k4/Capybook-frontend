@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Space, Table, Button, Input, message } from 'antd'; // Ant Design components
 import { fetchSuppliers, updateSupplier, fetchSupplierById } from '../config'; // Adjusted import path
 import DashboardContainer from '../DashBoard/DashBoardContainer.jsx';
+import { DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons'; // Import Ant Design icons
 
 const { Search } = Input;
 
@@ -54,7 +55,6 @@ function SupplierManagement() {
         }
     };
 
-
     const filteredSuppliers = suppliers.filter(supplier =>
         supplier.supStatus === 1 &&
         (
@@ -62,7 +62,6 @@ function SupplierManagement() {
             (supplier.supEmail && supplier.supEmail.toLowerCase().includes(searchTerm.toLowerCase()))
         )
     );
-
 
     const handleSearchChange = (event) => {
         setSearchTerm(event.target.value);
@@ -111,9 +110,19 @@ function SupplierManagement() {
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <Button type="link" onClick={() => gotoViewSupplierDetail(record.supID)}>Detail</Button>
-                    <Button type="link" onClick={() => goToEditSupplier(record.supID)}>Edit</Button>
-                    <Button type="link" danger onClick={() => handleDelete(record.supID)}>Delete</Button>
+                    <Button type="link" onClick={() => gotoViewSupplierDetail(record.supID)}>
+                        <InfoCircleOutlined title="Detail" />
+                    </Button>
+                    {record.supStatus === 1 && (
+                        <>
+                            <Button type="link" onClick={() => goToEditSupplier(record.supID)} className="yellow-button">
+                                <EditOutlined title="Edit" />
+                            </Button>
+                            <Button type="link" danger onClick={() => handleDelete(record.supID)}>
+                                <DeleteOutlined title="Delete" />
+                            </Button>
+                        </>
+                    )}
                 </Space>
             ),
         },
