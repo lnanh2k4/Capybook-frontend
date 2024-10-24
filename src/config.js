@@ -20,6 +20,13 @@ const updateAccount = (username, formDataToSend) => {
 const searchAccount = (keyword) => client.get(`v1/accounts/search?keyword=${keyword}`);
 
 const fetchNotifications = () => client.get('v1/notifications/');
+const addNotification = (notification) => {
+    return client.post('v1/notifications/', notification, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        }
+    });
+};
 
 const fetchBooks = () => client.get('v1/books/');
 const fetchBookDetail = (id) => client.get(`/v1/books/${id}`); // Hàm lấy chi tiết sách
@@ -57,7 +64,7 @@ const updateSupplier = (supID, supplierData) => {
 }
 // Fetch supplier by ID (Duplicate method - either remove or keep as an alias to fetchSupplierDetail)
 const fetchSupplierById = (supID) => client.get(`/v1/suppliers/${supID}`);
-export { fetchAccounts, fetchBooks, fetchBookDetail, addBook, updateBook, deleteBook, fetchBookById, fetchSuppliers, fetchSupplierDetail, addSupplier, updateSupplier, deleteSupplier, fetchSupplierById }
+
 const fetchPromotions = () => client.get('v1/promotions/');
 const fetchPromotionDetail = (proID) => {
     console.log("Fetching promotion detail for ID:", proID);
@@ -111,6 +118,20 @@ const deleteOrder = (orderID) => {
 };
 
 export {
+    fetchSupplierById,
+    updateSupplier,
+    fetchSupplierDetail,
+    deleteSupplier,
+    addSupplier,
+    fetchSuppliers,
+    fetchBookById,
+    deleteBook,
+    updateBook,
+    addBook,
+    fetchBookDetail,
+    fetchBooks,
+    addNotification,
+    fetchAccounts,
     deleteOrder,
     searchOrders,
     fetchOrders,
