@@ -22,8 +22,12 @@ const EditCategory = () => {
                 });
 
                 const allCategoriesResponse = await fetchCategories();
-                // Lọc các danh mục chỉ có catStatus = 1 và không phải là chính nó
-                const validCategories = allCategoriesResponse.data.filter(cat => cat.catID !== category.catID && cat.catStatus === 1);
+                // Lọc các danh mục có catStatus = 1, không phải là chính nó, và không phải là danh mục con
+                const validCategories = allCategoriesResponse.data.filter(cat => 
+                    cat.catID !== category.catID && 
+                    cat.catStatus === 1 && 
+                    cat.parentCatID === null // Chỉ lấy các danh mục không phải là danh mục con
+                );
                 setCategories(validCategories);
 
             } catch (error) {
@@ -96,7 +100,7 @@ const EditCategory = () => {
                                 No Parent
                             </Select.Option>
 
-                            {categories.filter(category => category.catStatus === 1).map(category => (
+                            {categories.map(category => (
                                 <Select.Option key={category.catID} value={category.catID}>
                                     {category.catName}
                                 </Select.Option>
