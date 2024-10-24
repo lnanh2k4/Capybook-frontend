@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Layout, Menu, Card, Input, Row, Col, Tag, Typography, Dropdown, Button, Select } from 'antd';
+import { Layout, Menu, Card, Input, Row, Col, Tag, Typography, Dropdown, Button, Select, Divider } from 'antd';
 import { UserOutlined, AppstoreOutlined, SettingOutlined, ShoppingCartOutlined, BellOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import './Homepage.css';
@@ -108,6 +108,12 @@ const Homepage = () => {
         </Menu>
     );
 
+    // Group books by category
+    const booksByCategory = categories.map(category => {
+        const booksInCategory = sortedBooks.filter(book => book.catID === category.catID);
+        return { category, books: booksInCategory };
+    });
+
     return (
         <Layout>
             <Header style={headerStyle}>
@@ -176,6 +182,36 @@ const Homepage = () => {
                         </Row>
                     </Col>
                 </Row>
+
+                {/* Render books by category */}
+                {booksByCategory.map(({ category, books }) => (
+                    books.length > 0 && (
+                        <div key={category.catID}>
+                            <Divider orientation="left" style={{ fontSize: '24px' }}>{category.catName}</Divider>
+                            <Row gutter={[16, 16]}>
+                                {books.map((book) => (
+                                    <Col key={book.bookID} xs={24} sm={12} md={8} lg={6}>
+                                        <Card
+                                            hoverable
+                                            onClick={() => handleBookClick(book.bookID)}
+                                            style={{ width: 300, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+                                            cover={<img alt={book.bookTitle} src={book.image || 'https://via.placeholder.com/150'} style={{ height: '250px', objectFit: 'cover' }} />}
+                                        >
+                                            <div style={{ padding: '0px 0px 0 0px' }}>
+                                                <Title level={5} style={{ marginBottom: '10px' }}>{book.bookTitle}</Title>
+                                                <Title level={4} type="danger">{`${book.bookPrice} đ`}</Title>
+                                                {book.discount && <Tag color="volcano">{`${book.discount}% off`}</Tag>}
+                                            </div>
+                                        </Card>
+                                    </Col>
+                                ))}
+                            </Row>
+                        </div>
+                    )
+                ))}
+
+                {/* Render all books section */}
+                <Divider orientation="left" style={{ fontSize: '24px' }}>All Books</Divider>
                 <Row gutter={[16, 16]}>
                     {sortedBooks.map((book, index) => (
                         <Col key={book.bookID || index} xs={24} sm={12} md={8} lg={6}>

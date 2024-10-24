@@ -208,3 +208,7 @@ button.ant-btn-primary:hover {
     transform: scale(0.95);
     transition: transform 0.1s ease;
 }
+
+.yellow-button {
+    color: rgb(226, 158, 12);
+}

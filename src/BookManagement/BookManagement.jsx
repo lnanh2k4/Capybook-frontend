@@ -121,7 +121,14 @@ function BookManagement() {
                     <Button type="link" onClick={() => goToBookDetail(record.bookID)}><InfoCircleOutlined title='Detail' /></Button>
                     {record.bookStatus === 1 && (
                         <>
-                            <Button type="link" onClick={() => goToEditBook(record.bookID)}><EditOutlined title='Edit' /></Button>
+                            <Button
+                                type="link"
+                                onClick={() => goToEditBook(record.bookID)}
+                                className="yellow-button"
+                            >
+                                <EditOutlined title='Edit' />
+                            </Button>
+
                             <Button type="link" danger onClick={() => handleDelete(record.bookID)}><DeleteOutlined title='Delete' /></Button>
                         </>
                     )}
