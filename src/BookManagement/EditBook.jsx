@@ -1,20 +1,19 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchBookById, updateBook, fetchCategories } from '../config'; // Ensure fetchCategories is imported
+import { fetchBookById, updateBook, fetchCategories } from '../config';
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import { Form, Input, Button, InputNumber, Upload, message, Select } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
-import dayjs from 'dayjs'; // Ensure you're using a compatible date library
 
 const { Option } = Select;
 
 function EditBook() {
     const { bookId } = useParams();
     const navigate = useNavigate();
-    const [form] = Form.useForm(); // Ant Design form instance
+    const [form] = Form.useForm();
     const [imagePreview, setImagePreview] = useState(null);
     const [fileList, setFileList] = useState([]);
-    const [categories, setCategories] = useState([]); // Add state for categories
+    const [categories, setCategories] = useState([]);
 
     useEffect(() => {
         if (bookId) {
@@ -23,8 +22,8 @@ function EditBook() {
                     const bookData = response.data;
                     form.setFieldsValue({
                         ...bookData,
-                        publicationYear: dayjs(bookData.publicationYear), // Ensure this is a valid Day.js object
-                        catID: bookData.catID, // Set the category field with the book's current category
+                        publicationYear: bookData.publicationYear.toString(), // Ensure this is treated as a string
+                        catID: bookData.catID,
                     });
                     if (bookData.image && bookData.image.startsWith(`/uploads/book_`)) {
                         setImagePreview(`http://localhost:6789${bookData.image}`);
@@ -40,11 +39,10 @@ function EditBook() {
     }, [bookId, form]);
 
     useEffect(() => {
-        // Fetch categories when the component mounts
         fetchCategories()
             .then(response => {
                 if (Array.isArray(response.data)) {
-                    setCategories(response.data.filter(category => category.catStatus === 1)); // Only active categories
+                    setCategories(response.data.filter(category => category.catStatus === 1));
                 }
             })
             .catch(error => {
@@ -63,21 +61,15 @@ function EditBook() {
         }
     };
 
-    const handleImagePreview = file => {
-        setImagePreview(file.url || file.thumbUrl);
-    };
-
     const handleSubmit = async (values) => {
         try {
             const formDataToSend = new FormData();
 
             const updatedBookData = {
                 ...values,
-                publicationYear: values.publicationYear.format('YYYY'),
+                publicationYear: values.publicationYear, // Keep publication year as a string
                 bookStatus: 1,
             };
-
-            console.log('Updated Book Data:', updatedBookData); // Check if catID is present here
 
             formDataToSend.append('book', JSON.stringify(updatedBookData));
 
@@ -93,7 +85,6 @@ function EditBook() {
             message.error('Failed to update book.');
         }
     };
-
 
     return (
         <div className="main-container">
@@ -111,7 +102,6 @@ function EditBook() {
                     onFinish={handleSubmit}
                     style={{ maxWidth: '700px', margin: 'auto' }}
                 >
-                    {/* Category Selection */}
                     <Form.Item
                         label="Category"
                         name="catID"
@@ -224,9 +214,8 @@ function EditBook() {
                             listType="picture"
                             fileList={fileList}
                             onChange={handleImageChange}
-                            onPreview={handleImagePreview}
                             maxCount={1}
-                            beforeUpload={() => false} // Prevent auto-upload
+                            beforeUpload={() => false}
                         >
                             <Button icon={<UploadOutlined />}>Upload Image</Button>
                         </Upload>
@@ -252,7 +241,6 @@ function EditBook() {
                         </Button>
                     </Form.Item>
                 </Form>
-
             </div>
         </div>
     );
