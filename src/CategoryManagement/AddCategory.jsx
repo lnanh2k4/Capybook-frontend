@@ -19,9 +19,9 @@ function AddCategory() {
         fetchCategories()
             .then((response) => {
                 if (Array.isArray(response.data)) {
-                    // Lọc ra các category có parentCatID === null và catStatus === 1 (active)
+                    // Thay đổi: không lọc parentCatID === null, hiển thị tất cả các category
                     const filteredCategories = response.data.filter(
-                        (category) => category.parentCatID === null && category.catStatus === 1
+                        (category) => category.catStatus === 1
                     );
                     setParentCategories(filteredCategories);
                 } else {
@@ -37,7 +37,6 @@ function AddCategory() {
             });
     }, []);
 
-    // Kiểm tra xem form có trống hay không
     const handleFormChange = () => {
         const values = form.getFieldsValue();
         const isEmpty = !values.catName || values.catName.trim() === '';
@@ -48,13 +47,13 @@ function AddCategory() {
         try {
             const categoryData = {
                 catName: values.catName,
-                parentCatID: values.parentCatID || null, // Can be null if no parent category is selected
-                catStatus: 1, // Default status
+                parentCatID: values.parentCatID || null, 
+                catStatus: 1, 
             };
 
-            await addCategory(categoryData); // API call to add category
+            await addCategory(categoryData); 
             message.success('Category added successfully');
-            navigate("/dashboard/category"); // Navigate back to category management page
+            navigate("/dashboard/category"); 
         } catch (error) {
             console.error('Error adding category:', error);
             message.error('Failed to add category');
@@ -63,10 +62,10 @@ function AddCategory() {
 
     const handleResetOrBack = () => {
         if (isFormEmpty) {
-            navigate("/dashboard/category"); // Navigate back to category management page
+            navigate("/dashboard/category"); 
         } else {
-            form.resetFields(); // Reset form fields
-            setIsFormEmpty(true); // Cập nhật trạng thái form về trống
+            form.resetFields(); 
+            setIsFormEmpty(true); 
         }
     };
 
@@ -85,7 +84,7 @@ function AddCategory() {
                     form={form}
                     onFinish={handleSubmit}
                     layout="vertical"
-                    onFieldsChange={handleFormChange} // Trigger when form changes
+                    onFieldsChange={handleFormChange} 
                     style={{ maxWidth: '600px', margin: 'auto' }}
                 >
                     <Form.Item
