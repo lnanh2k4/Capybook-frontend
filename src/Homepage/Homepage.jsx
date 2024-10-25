@@ -14,7 +14,7 @@ const headerStyle = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#4096ff',
+    backgroundColor: '#343a40', // Dark gray background
     padding: '0 20px',
     height: '64px',
     color: '#fff',
@@ -23,14 +23,23 @@ const headerStyle = {
 const contentStyle = {
     minHeight: '600px',
     padding: '20px',
-    backgroundColor: '#f0f2f5',
+    backgroundColor: '#8e9a9e', // Darker gray background to align with header
 };
 
 const footerStyle = {
     textAlign: 'center',
     color: '#fff',
-    backgroundColor: '#4096ff',
+    backgroundColor: '#343a40', // Dark gray background for footer
     padding: '10px 0',
+};
+
+// Card Section background
+const categorySectionStyle = {
+    border: '1px solid #e8e8e8',
+    borderRadius: '8px',
+    padding: '20px',
+    marginBottom: '30px',
+    backgroundColor: '#ffffff', // White background for each category section
 };
 
 const Homepage = () => {
@@ -114,7 +123,7 @@ const Homepage = () => {
         return { category, books: booksInCategory };
     });
 
-      const buildCategoryTree = (categories, parentId = null) => {
+    const buildCategoryTree = (categories, parentId = null) => {
         return categories
             .filter(category => category.parentCatID === parentId) // Lọc các category theo parentCatID
             .map(category => ({
@@ -127,7 +136,6 @@ const Homepage = () => {
 
     // Dữ liệu tree cho TreeSelect
     const categoryTreeData = buildCategoryTree(categories.filter(cat => cat.catStatus === 1));
-
 
     return (
         <Layout>
@@ -182,14 +190,14 @@ const Homepage = () => {
                             </Col>
                             <Col>
                                 {/* TreeSelect for Category Filter */}
-                               <TreeSelect
+                                <TreeSelect
                                     placeholder="Filter by Category"
                                     onChange={handleCategoryChange}
                                     treeData={categoryTreeData}
                                     style={{ width: 200 }}
                                     allowClear
-                                    showSearch={false}  // Ngăn tìm kiếm, chỉ cho mở nhánh khi nhấn vào
-                                    treeDefaultExpandAll={false}  // Không mở sẵn các nhánh, người dùng phải click vào để mở
+                                    showSearch={false}
+                                    treeDefaultExpandAll={false}
                                 />
 
                             </Col>
@@ -200,53 +208,72 @@ const Homepage = () => {
                 {/* Render books by category */}
                 {booksByCategory.map(({ category, books }) => (
                     books.length > 0 && (
-                        <div key={category.catID}>
-                            <Divider orientation="left" style={{ fontSize: '24px' }}>{category.catName}</Divider>
+                        <div key={category.catID} style={{ border: '1px solid #e8e8e8', borderRadius: '8px', padding: '20px', marginBottom: '30px', backgroundColor: '#fff' }}>
+                            <Divider orientation="center" style={{ fontSize: '24px', color: '#FF4500', borderColor: '#FF4500', marginBottom: '20px' }}>
+                                {category.catName}
+                            </Divider>
                             <Row gutter={[16, 16]}>
                                 {books.map((book) => (
-                                    <Col key={book.bookID} xs={24} sm={12} md={8} lg={6}>
+                                    <Col key={book.bookID || index} xs={12} sm={8} md={6} lg={4} xl={3}>
                                         <Card
                                             hoverable
                                             onClick={() => handleBookClick(book.bookID)}
-                                            style={{ width: 300, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
-                                            cover={<img alt={book.bookTitle} src={book.image || 'https://via.placeholder.com/150'} style={{ height: '250px', objectFit: 'cover' }} />}
+                                            className="book-card"
+                                            cover={
+                                                <div className="image-container">
+                                                    <img alt={book.bookTitle} src={book.image || 'https://via.placeholder.com/150'} className="book-image" />
+                                                </div>
+                                            }
                                         >
-                                            <div style={{ padding: '0px 0px 0 0px' }}>
-                                                <Title level={5} style={{ marginBottom: '10px' }}>{book.bookTitle}</Title>
-                                                <Title level={4} type="danger">{`${book.bookPrice} đ`}</Title>
-                                                {book.discount && <Tag color="volcano">{`${book.discount}% off`}</Tag>}
+                                            <div className="card-content">
+                                                <Title level={5} className="book-title">{book.bookTitle}</Title>
+                                                <Title level={4} type="danger" className="book-price">{`${book.bookPrice} đ`}</Title>
+                                                {book.discount && <Tag color="volcano" className="book-discount">{`${book.discount}% off`}</Tag>}
                                             </div>
                                         </Card>
                                     </Col>
                                 ))}
                             </Row>
+                            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                                <Button type="primary" onClick={() => alert('View more')}>Xem Thêm</Button>
+                            </div>
                         </div>
                     )
                 ))}
 
-                {/* Render all books section */}
-                <Divider orientation="left" style={{ fontSize: '24px' }}>All Books</Divider>
-                <Row gutter={[16, 16]}>
-                    {sortedBooks.map((book, index) => (
-                        <Col key={book.bookID || index} xs={24} sm={12} md={8} lg={6}>
-                            <Card
-                                hoverable
-                                onClick={() => handleBookClick(book.bookID)}
-                                style={{ width: 300, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
-                                cover={<img alt={book.bookTitle} src={book.image || 'https://via.placeholder.com/150'} style={{ height: '250px', objectFit: 'cover' }} />}
-                            >
-                                <div style={{ padding: '0px 0px 0 0px' }}>
-                                    <Title level={5} style={{ marginBottom: '10px' }}>{book.bookTitle}</Title>
-                                    <Title level={4} type="danger">{`${book.bookPrice} đ`}</Title>
-                                    {book.discount && <Tag color="volcano">{`${book.discount}% off`}</Tag>}
-                                </div>
-                            </Card>
-                        </Col>
-                    ))}
-                </Row>
-            </Content>
 
-            <Footer style={footerStyle}>
+                {/* Render all books section only if no category is selected */}
+                {!selectedCategory && (
+                    <>
+                        <Divider orientation="left" style={{ fontSize: '24px', color: '#080203', borderColor: '#c72a4c', marginBottom: '20px' }}>
+                            All Books
+                        </Divider>
+                        <Row gutter={[16, 16]}>
+                            {sortedBooks.map((book, index) => (
+                                <Col key={book.bookID || index} xs={24} sm={12} md={8} lg={4} xl={4}>
+                                    <Card
+                                        hoverable
+                                        onClick={() => handleBookClick(book.bookID)}
+                                        className="book-card"
+                                        cover={
+                                            <div className="image-container">
+                                                <img alt={book.bookTitle} src={book.image || 'https://via.placeholder.com/150'} className="book-image" />
+                                            </div>
+                                        }
+                                    >
+                                        <div className="card-content">
+                                            <Title level={5} className="book-title">{book.bookTitle}</Title>
+                                            <Title level={4} type="danger" className="book-price">{`${book.bookPrice} đ`}</Title>
+                                            {book.discount && <Tag color="volcano" className="book-discount">{`${book.discount}% off`}</Tag>}
+                                        </div>
+                                    </Card>
+                                </Col>
+                            ))}
+                        </Row>
+                    </>
+                )}
+            </Content>
+            <Footer style={{ textAlign: 'center', color: '#fff', backgroundColor: '#343a40', padding: '10px 0', flexShrink: 0 }}>
                 <div>© {new Date().getFullYear()} Capybook Management System</div>
                 <div>All Rights Reserved</div>
             </Footer>
