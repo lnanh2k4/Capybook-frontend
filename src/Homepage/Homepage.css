@@ -1,65 +1,159 @@
-.footer {
-    background-color: #4096ff;
-    color: #fff;
-    text-align: center;
-    padding: 10px 0;
-    font-size: 0.9rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.icon-container {
-    cursor: pointer;
-    transition: transform 0.3s ease;
-}
-
-.icon-container:hover {
-    transform: scale(1.1);
-}
-
-.book-card {
+.book-card,
+.category-book-card {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     height: 100%;
-}
-
-.book-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    /* Ensure the image covers the container without being distorted */
-}
-
-.image-container {
-    height: 150px;
-    /* Reduce height to make the cards more compact */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background-color: #f7f9fc;
+    border-radius: 10px;
     overflow: hidden;
+    opacity: 1;
+    /* Ensure full opacity */
+    transform: translateX(0);
+    /* Start in default position */
+    transition: transform 0.4s ease, opacity 0.4s ease;
+    /* Transition for smooth effect */
 }
 
-.card-content {
+.category-book-card-2 {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 5px 0;
+    height: 100%;
+    background-color: #f7f9fc;
+    border-radius: 10px;
+    overflow: hidden;
+    opacity: 1;
+    transform: translateX(0);
+    /* Ensure start position */
+    transition: transform 0.4s ease, opacity 0.4s ease;
+}
+
+.book-card:hover,
+.category-book-card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.book-image,
+.category-book-image {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.card-content,
+.category-card-content {
+    padding: 15px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 150px;
+}
+
+.category-card-content-2 {
+    padding: 10px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
 }
 
 .book-title {
-    margin-bottom: 5px;
-    font-size: 0.9rem;
-    /* Adjust font size to fit more compactly */
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-align: left;
+    margin: 0;
+    padding: 0;
+    white-space: normal;
+    word-wrap: break-word;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    width: 100%;
+    -webkit-line-clamp: 3;
+}
+
+.book-title-2 {
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-align: left;
+    margin: 0;
+    padding: 0;
+    white-space: normal;
+    word-wrap: break-word;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    -webkit-line-clamp: 2;
+    height: auto;
 }
 
 .book-price {
-    margin-bottom: 5px;
-    font-size: 1rem;
-    /* Adjust font size */
+    font-size: 1.2rem;
+    color: #ff4500;
+    text-align: left;
+    margin-top: auto;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .book-discount {
+    font-size: 1rem;
+    color: #ff4500;
     margin-top: 5px;
-    font-size: 0.8rem;
-    /* Adjust font size */
+    background-color: rgba(255, 69, 0, 0.1);
+    padding: 2px 6px;
+    border-radius: 5px;
+}
+
+.image-container {
+    height: 240px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #e8e8e8;
+    opacity: 1;
+}
+
+.hidden {
+    opacity: 0;
+    transform: translateX(100%);
+    /* Move off-screen */
+    pointer-events: none;
+    /* Prevent interaction while hidden */
+}
+
+.visible {
+    opacity: 1;
+    transform: translateX(0);
+    /* Reset to visible position */
+    pointer-events: all;
+}
+
+.transition-enter {
+    opacity: 0;
+    transform: translateX(100%);
+}
+
+.transition-enter-active {
+    opacity: 1;
+    transform: translateX(0);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.transition-exit {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.transition-exit-active {
+    opacity: 0;
+    transform: translateX(-100%);
+    transition: opacity 0.4s ease, transform 0.4s ease;
 }
