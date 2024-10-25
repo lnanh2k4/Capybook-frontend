@@ -24,15 +24,15 @@ function CategoryDetail() {
                 // Set category data
                 setCategoryData(category);
 
-                // If category is a parent (parentCatID is null), fetch child categories
-                if (category.parentCatID === null) {
-                    // Fetch all categories and filter to get only children of the current category
-                    const allCategoriesResponse = await fetchCategories();
-                    const allCategories = allCategoriesResponse.data;
-                    const children = allCategories.filter(cat => cat.parentCatID === category.catID);
-                    setChildCategories(children);
-                } else {
-                    // If it's a child category, fetch the parent category details
+                // Fetch all categories and filter to get only children of the current category
+                const allCategoriesResponse = await fetchCategories();
+                const allCategories = allCategoriesResponse.data;
+                
+                const children = allCategories.filter(cat => cat.parentCatID === category.catID);
+                setChildCategories(children);
+
+                // If it's a child category, fetch the parent category details
+                if (category.parentCatID !== null) {
                     const parentResponse = await fetchCategoryDetail(category.parentCatID);
                     setParentCategory(parentResponse.data.catName || "");
                 }
@@ -77,19 +77,28 @@ function CategoryDetail() {
                         <Input value={categoryData.catName} disabled />
                     </Form.Item>
 
-                    <Form.Item label={categoryData.parentCatID === null ? "Children Categories" : "Parent Category"}>
-                        {categoryData.parentCatID === null ? (
+                    {/* Show both Parent and Child info if available */}
+                    {categoryData.parentCatID !== null && (
+                        <Form.Item label="Parent Category">
+                            <Input value={`Child of: ${parentCategory}`} disabled />
+                        </Form.Item>
+                    )}
+
+                    {childCategories.length > 0 && (
+                        <Form.Item label="Children Categories">
                             <Input.TextArea
                                 rows={4}
-                                value={childCategories.length > 0
-                                    ? childCategories.map(child => child.catName).join(", ")
-                                    : "No Child Categories"}
+                                value={childCategories.map(child => child.catName).join(", ")}
                                 disabled
                             />
-                        ) : (
-                            <Input value={`Child of: ${parentCategory}`} disabled />
-                        )}
-                    </Form.Item>
+                        </Form.Item>
+                    )}
+
+                    {childCategories.length === 0 && categoryData.parentCatID === null && (
+                        <Form.Item label="Children Categories">
+                            <Input value="No Child Categories" disabled />
+                        </Form.Item>
+                    )}
 
                     <Form.Item>
                         <Button

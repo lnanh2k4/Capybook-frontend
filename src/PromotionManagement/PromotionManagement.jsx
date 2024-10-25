@@ -4,6 +4,11 @@ import { Space, Table, Button, Input, message, Tag } from "antd"; // Import Ant 
 import { fetchPromotions, searchPromotions, deletePromotion } from "../config"; // Import searchPromotions từ API
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import moment from 'moment'; // Import moment for date comparison
+import {
+  DeleteOutlined,
+  EditOutlined,
+  InfoCircleOutlined
+} from '@ant-design/icons';
 
 const { Search } = Input;
 
@@ -36,8 +41,9 @@ const PromotionManagement = () => {
       });
   }, []);
 
-  // Hàm thực hiện khi nhấn nút search
+  // Hàm thực hiện khi nhập vào ô search
   const handleSearch = (value) => {
+    setSearchTerm(value);
     if (!value) {
       // Nếu không có giá trị tìm kiếm, fetch lại tất cả các promotions
       fetchPromotions()
@@ -163,13 +169,13 @@ const PromotionManagement = () => {
       render: (_, record) => (
         <Space size="middle">
           <Button type="link" onClick={() => goToPromotionDetail(record.proID)}>
-            Detail
+            <InfoCircleOutlined />
           </Button>
           <Button type="link" onClick={() => goToEditPromotion(record.proID)}>
-            Edit
+            <EditOutlined style={{ color: 'orange' }} />
           </Button>
           <Button type="link" danger onClick={() => handleDelete(record.proID)}>
-            Delete
+            <DeleteOutlined />
           </Button>
         </Space>
       ),
@@ -198,11 +204,10 @@ const PromotionManagement = () => {
           <Button type="primary" onClick={goToAddPromotion}>
             Add Promotion
           </Button>
-          <Search
+          <Input
             placeholder="Search by promotion name or code"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)} // Lưu giá trị nhập vào searchTerm
-            onSearch={handleSearch} // Thực hiện tìm kiếm khi nhấn vào icon search
+            onChange={(e) => handleSearch(e.target.value)} // Trigger search on input change
             style={{ width: 300 }}
           />
         </div>
