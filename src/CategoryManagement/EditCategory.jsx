@@ -7,6 +7,7 @@ import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 const EditCategory = () => {
     const [form] = Form.useForm(); // Ant Design form instance
     const [categories, setCategories] = useState([]); // To store all categories for parent selection
+
     const navigate = useNavigate();
     const { catID } = useParams(); // Get the category ID from the route
 
@@ -22,13 +23,11 @@ const EditCategory = () => {
                 });
 
                 const allCategoriesResponse = await fetchCategories();
-                // Lọc các danh mục có catStatus = 1, không phải là chính nó, và không phải là danh mục con
-                const validCategories = allCategoriesResponse.data.filter(cat => 
-                    cat.catID !== category.catID && 
-                    cat.catStatus === 1 && 
-                    cat.parentCatID === null // Chỉ lấy các danh mục không phải là danh mục con
+                // Lọc các danh mục có catStatus = 1, không phải là chính nó
+                const activeCategories = allCategoriesResponse.data.filter(cat => 
+                    cat.catStatus === 1 && cat.catID !== parseInt(catID) // Exclude the current category
                 );
-                setCategories(validCategories);
+                setCategories(activeCategories);
 
             } catch (error) {
                 console.error("Error fetching category detail:", error);
@@ -122,7 +121,6 @@ const EditCategory = () => {
                     </Form.Item>
                 </Form>
             </div>
-                            {/* root */}
             <div className="copyright">
                 <div>© {new Date().getFullYear()}</div>
                 <div>Capybook Management System</div>

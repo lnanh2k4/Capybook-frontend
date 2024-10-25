@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Form, Input, Button, DatePicker, InputNumber, message } from "antd"; // Import Ant Design components
 import { addPromotion } from "../config"; // API to add promotion
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
+import moment from 'moment'; // Import moment for date handling
 
 const { RangePicker } = DatePicker;
 
@@ -47,6 +48,30 @@ const AddPromotion = () => {
     } else {
       form.resetFields(); // Reset form fields
       setIsFormEmpty(true); // Cập nhật trạng thái form về trống
+    }
+  };
+
+  const handleDateChange = (dates) => {
+    if (dates && dates.length === 2) {
+      const [startDate, endDate] = dates;
+      if (startDate.isAfter(endDate)) {
+        // Hiển thị lỗi và yêu cầu nhập lại nếu start date sau end date
+        message.error("Start date cannot be after end date. Please select valid dates.");
+        form.setFields([
+          {
+            name: "dateRange",
+            errors: ["Start date cannot be after end date"],
+          },
+        ]);
+      } else {
+        // Xóa lỗi nếu ngày hợp lệ
+        form.setFields([
+          {
+            name: "dateRange",
+            errors: [],
+          },
+        ]);
+      }
     }
   };
 
@@ -101,12 +126,17 @@ const AddPromotion = () => {
           </Form.Item>
 
           <Form.Item
-            label="Date Range"
-            name="dateRange"
-            rules={[{ required: true, message: "Please select the date range" }]}
-          >
-            <RangePicker placeholder={["Start date", "End date"]} style={{ width: '100%' }} />
-          </Form.Item>
+              label="Date Range"
+              name="dateRange"
+              rules={[{ required: true, message: "Please select the date range" }]}
+            >
+              <RangePicker 
+                placeholder={["Start date", "End date"]} 
+                style={{ width: '100%' }} 
+                inputReadOnly
+                onChange={handleDateChange} 
+              />
+            </Form.Item>
 
           <Form.Item>
             <Button type="primary" htmlType="submit">
