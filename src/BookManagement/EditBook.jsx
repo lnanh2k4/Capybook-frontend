@@ -39,18 +39,18 @@ function EditBook() {
     }, [bookId, form]);
 
     useEffect(() => {
-        fetchCategories()
-            .then(response => {
-                if (Array.isArray(response.data)) {
-                    setCategories(response.data.filter(category => category.catStatus === 1));
-                }
-            })
-            .catch(error => {
-                console.error("Error fetching categories:", error);
-                message.error("Failed to fetch categories");
-            });
-    }, []);
-
+    fetchCategories()
+        .then((response) => {
+            if (Array.isArray(response.data)) {
+                const rootCategories = response.data.filter(category => category.catStatus === 1 && !response.data.some(cat => cat.parentCatID === category.catID));
+                setCategories(rootCategories);
+            }
+        })
+        .catch((error) => {
+            console.error("Error fetching categories:", error);
+            message.error("Failed to fetch categories");
+        });
+}, []);
     const handleImageChange = ({ fileList: newFileList }) => {
         setFileList(newFileList);
         if (newFileList.length > 0) {

@@ -16,18 +16,21 @@ function AddBook() {
     const navigate = useNavigate();
 
     // Fetch categories when the component mounts
-    useEffect(() => {
-        fetchCategories()
-            .then((response) => {
-                if (Array.isArray(response.data)) {
-                    setCategories(response.data.filter(category => category.catStatus === 1)); // Only active categories
-                }
-            })
-            .catch((error) => {
-                console.error("Error fetching categories:", error);
-                message.error("Failed to fetch categories");
-            });
-    }, []);
+   useEffect(() => {
+    fetchCategories()
+        .then((response) => {
+            if (Array.isArray(response.data)) {
+                // Lọc các danh mục chỉ bao gồm những danh mục không có parentCatID
+                const rootCategories = response.data.filter(category => category.catStatus === 1 && !response.data.some(cat => cat.parentCatID === category.catID));
+                setCategories(rootCategories);
+            }
+        })
+        .catch((error) => {
+            console.error("Error fetching categories:", error);
+            message.error("Failed to fetch categories");
+        });
+}, []);
+
 
     const handleImageChange = ({ fileList: newFileList }) => {
         const file = newFileList[0]?.originFileObj;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Layout, Menu, Card, Input, Row, Col, Tag, Typography, Dropdown, Button, Select, Divider } from 'antd';
+import { Layout, Menu, Card, Input, Row, Col, Tag, Typography, Dropdown, Button, Select, Divider, TreeSelect } from 'antd';
 import { UserOutlined, AppstoreOutlined, SettingOutlined, ShoppingCartOutlined, BellOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import './Homepage.css';
@@ -114,6 +114,21 @@ const Homepage = () => {
         return { category, books: booksInCategory };
     });
 
+      const buildCategoryTree = (categories, parentId = null) => {
+        return categories
+            .filter(category => category.parentCatID === parentId) // Lọc các category theo parentCatID
+            .map(category => ({
+                title: category.catName, // Tên category
+                value: category.catID,   // Giá trị để truyền cho TreeSelect
+                key: category.catID,     // Key cần thiết cho việc expand/collapse
+                children: buildCategoryTree(categories, category.catID), // Đệ quy để lấy các danh mục con
+            }));
+    };
+
+    // Dữ liệu tree cho TreeSelect
+    const categoryTreeData = buildCategoryTree(categories.filter(cat => cat.catStatus === 1));
+
+
     return (
         <Layout>
             <Header style={headerStyle}>
@@ -166,18 +181,17 @@ const Homepage = () => {
                                 </Select>
                             </Col>
                             <Col>
-                                <Select
+                                {/* TreeSelect for Category Filter */}
+                               <TreeSelect
                                     placeholder="Filter by Category"
                                     onChange={handleCategoryChange}
+                                    treeData={categoryTreeData}
                                     style={{ width: 200 }}
                                     allowClear
-                                >
-                                    {categories.map(category => (
-                                        <Option key={category.catID} value={category.catID}>
-                                            {category.catName}
-                                        </Option>
-                                    ))}
-                                </Select>
+                                    showSearch={false}  // Ngăn tìm kiếm, chỉ cho mở nhánh khi nhấn vào
+                                    treeDefaultExpandAll={false}  // Không mở sẵn các nhánh, người dùng phải click vào để mở
+                                />
+
                             </Col>
                         </Row>
                     </Col>
