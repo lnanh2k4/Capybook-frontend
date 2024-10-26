@@ -117,7 +117,33 @@ const deleteOrder = (orderID) => {
     return client.put(`/v1/orders/${orderID}/soft-delete`); // Sử dụng PUT thay vì DELETE
 };
 
+const fetchImportStocks = async () => {
+    return await axios.get('/api/Inventory');
+};
+
+const fetchImportStockById = async (id) => {
+    return await axios.get(`/api/Inventory/${id}`);
+};
+
+const updateImportStock = async (id, data) => {
+    return await axios.put(`/api/Inventory/${id}`, data);
+};
+
+const createImportStock = async (data) => {
+    return await axios.post('/api/Inventory', data);
+};
+
+const deleteImportStock = async (id) => {
+    return await axios.delete(`/api/Inventory/${id}`);
+};
+
+
 export {
+    fetchImportStocks,
+    fetchImportStockById,
+    updateImportStock,
+    createImportStock,
+    deleteImportStock,
     fetchSupplierById,
     updateSupplier,
     fetchSupplierDetail,

@@ -159,7 +159,7 @@ const Homepage = () => {
                     <div className="icon-container" onClick={() => alert('Shopping cart clicked!')}>
                         <ShoppingCartOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
                     </div>
-                    <Dropdown menu={userMenu} trigger={['click']} placement="bottomRight">
+                    <Dropdown overlay={userMenu} trigger={['click']} placement="bottomRight">
                         <Button
                             type="text"
                             icon={<UserOutlined />}

@@ -32,7 +32,7 @@ const DashboardContainer = () => {
       case '/dashboard/category':
         setCurrent('6');
         break;
-      case '/dashboard/inventory-management':
+      case '/dashboard/InventoryManagement':
         setCurrent('7');
         break;
       case '/dashboard/notifications/':
@@ -64,8 +64,8 @@ const DashboardContainer = () => {
       case '6':
         navigate("/dashboard/category");
         break;
-      case '7':
-        navigate("/dashboard/inventory-management");
+      case '7':  // Update this path
+        navigate("/dashboard/inventory");  // Use lowercase "inventory"
         break;
       case '8':
         navigate("/dashboard/notifications/");
@@ -74,6 +74,7 @@ const DashboardContainer = () => {
         break;
     }
   };
+
 
   const items = [
     {
