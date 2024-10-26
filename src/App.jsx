@@ -34,11 +34,14 @@ import EditCategory from "./CategoryManagement/EditCategory";
 import Homepage from "./Homepage/Homepage";
 import BookDetails from "./Homepage/BookDetails";
 
+import ErrorPage from "./ErrorPage/Error404"
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Homepage />} />
+        <Route path="/PageNotFound" element={<ErrorPage />} />
+
         <Route path="/:bookId" element={<BookDetails />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/dashboard/books/add/" element={<AddBook />} />

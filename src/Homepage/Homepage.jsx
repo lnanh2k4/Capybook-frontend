@@ -141,17 +141,23 @@ const Homepage = () => {
 
     return (
         <Layout>
-            <Header style={{ display: 'flex', justifyContent: 'space-between', backgroundColor: '#343a40', padding: '0 20px', height: '64px', color: '#fff' }}>
+            <Header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#343a40', padding: '0 20px', height: '64px', color: '#fff' }}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <img src="/logo-capybook.png" alt="Capybook Logo" style={{ height: '40px', marginRight: '20px' }} />
                     <div className="logo" style={{ fontSize: '20px', fontWeight: 'bold' }}>Capybook</div>
                 </div>
-                <Search
-                    placeholder="Search for books or orders"
-                    onSearch={handleSearch}
-                    enterButton
-                    style={{ maxWidth: '500px' }}
-                />
+
+                {/* Center Search */}
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+                    <Search
+                        placeholder="Search for books or orders"
+                        onSearch={handleSearch}
+                        enterButton
+                        style={{ maxWidth: '500px' }}
+                    />
+                </div>
+
+                {/* Icons and User Dropdown */}
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <div className="icon-container" onClick={() => alert('Notification clicked!')}>
                         <BellOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
