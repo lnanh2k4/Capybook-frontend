@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Space, Table, Button, Input, message, Tag } from "antd"; // Import Ant Design components
-import { fetchOrders, searchOrders, deleteOrder } from "../config"; // Import các hàm API
+import { fetchOrders, searchOrders, deleteOrder, fetchOrderDetail   } from "../config"; // Import các hàm API
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 
 const { Search } = Input;
@@ -13,27 +13,25 @@ const OrderManagement = () => {
   const [loading, setLoading] = useState(false);
 
   // Fetch tất cả các đơn hàng khi lần đầu vào trang
-  useEffect(() => {
-    setLoading(true);
-    fetchOrders()
-      .then((response) => {
-        if (Array.isArray(response.data)) {
-          const activeOrders = response.data.filter(
-            (order) => order.orderStatus === 1
-          );
-          setOrders(activeOrders);
-        } else {
-          console.error("Expected an array but got", response.data);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching orders:", error);
-        message.error("Failed to fetch orders");
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, []);
+ useEffect(() => {
+  setLoading(true);
+  fetchOrders()
+    .then((response) => {
+      if (Array.isArray(response.data)) {
+        setOrders(response.data);
+      } else {
+        console.error("Expected an array but got", response.data);
+      }
+    })
+    .catch((error) => {
+      console.error("Error fetching orders:", error);
+      message.error("Failed to fetch orders");
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+}, []);
+
 
   // Hàm thực hiện khi nhấn nút search
   const handleSearch = (value) => {
@@ -94,16 +92,26 @@ const OrderManagement = () => {
   };
 
   const goToAddOrder = () => {
-    navigate("/dashboard/add-order");
+    navigate("/dashboard/orders/add");
   };
 
   const goToEditOrder = (orderID) => {
-    navigate(`/dashboard/edit-order/${orderID}`);
+    navigate(`/dashboard/orders/edit${orderID}`);
   };
 
   const goToOrderDetail = (orderID) => {
-    navigate(`/dashboard/order-detail/${orderID}`);
-  };
+  fetchOrderDetail(orderID)
+    .then(response => {
+      console.log("Order detail:", response.data);
+      navigate(`/dashboard/orders/detail/${orderID}`);
+    })
+    .catch(error => {
+      console.error("Error fetching order detail:", error);
+      message.error("Failed to fetch order detail");
+    });
+};
+
+
 
   const columns = [
     {

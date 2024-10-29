@@ -108,6 +108,14 @@ const fetchCategoryById = (catID) => client.get(`/v1/categories/${catID}`);
 
 const fetchOrders = () => client.get('v1/orders/');
 
+const fetchOrderDetail = (orderID) => {
+    return client.get(`/v1/orders/${orderID}`);
+};
+
+const fetchOrderDetailsByOrderID = (id) => {
+    return axios.get(`/api/v1/orders/details/${id}`);
+};
+
 const searchOrders = (searchTerm) => {
     return client.get(`/v1/orders/search?term=${searchTerm}`);
 };
@@ -116,6 +124,14 @@ const deleteOrder = (orderID) => {
     console.log("Soft deleting order with ID:", orderID);
     return client.put(`/v1/orders/${orderID}/soft-delete`); // Sử dụng PUT thay vì DELETE
 };
+
+
+const addOrder = (orderData) => {
+    return client.post('/v1/orders/', orderData, {
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    });
 
 const fetchImportStocks = async () => {
     return await axios.get('/api/Inventory');
@@ -135,10 +151,14 @@ const createImportStock = async (data) => {
 
 const deleteImportStock = async (id) => {
     return await axios.delete(`/api/Inventory/${id}`);
+
 };
 
 
 export {
+    fetchOrderDetailsByOrderID,
+    fetchOrderDetail,
+    addOrder,
     fetchImportStocks,
     fetchImportStockById,
     updateImportStock,
