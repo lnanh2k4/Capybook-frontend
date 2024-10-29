@@ -53,27 +53,28 @@ const DashboardContainer = () => {
         navigate("/dashboard/books");
         break;
       case '3':
-        navigate("/dashboard/order-management");
+        navigate("/dashboard/orders");
         break;
       case '4':
-        navigate("/dashboard/promotion-management");
+        navigate("/dashboard/promotions");
         break;
       case '5':
         navigate("/dashboard/suppliers");
         break;
       case '6':
-        navigate("/dashboard/category");
+        navigate("/dashboard/categories");
         break;
       case '7':
-        navigate("/dashboard/inventory-management");
+        navigate("/dashboard/inventory-management"); // Adjust if you have this route
         break;
       case '8':
-        navigate("/dashboard/notifications/");
+        navigate("/dashboard/notifications");
         break;
       default:
         break;
     }
   };
+
 
   const items = [
     {
