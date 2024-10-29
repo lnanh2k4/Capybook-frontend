@@ -1,5 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Dashboard from "./DashBoard/DashBoard";
+
+import Dashboard from "./DashBoard/DashBoard"; // Adjust this path if necessary
+
 import AddBook from "./BookManagement/AddBook";
 import BookManagement from "./BookManagement/BookManagement";
 import ViewBookDetail from "./BookManagement/ViewBookDetail";
@@ -12,6 +14,8 @@ import AddOrder from "./OrderManagement/AddOrder";
 import PromotionDetail from "./PromotionManagement/PromotionDetail";
 import EditPromotion from "./PromotionManagement/EditPromotion";
 import AccountManagement from "./AccountManagement/AccountManagement";
+
+import InventoryManagement from "./InventoryManagement/InventoryManagement"; // Ensure this import is added
 
 import AddSupplier from "./SupplierManagement/AddSupplier";
 import SupplierManagement from "./SupplierManagement/SupplierManagement";
@@ -30,28 +34,36 @@ import AddCategory from "./CategoryManagement/AddCategory";
 import CategoryDetail from "./CategoryManagement/CategoryDetail";
 import EditCategory from "./CategoryManagement/EditCategory";
 
-import Homepage from "./Homepage/homepage";
+import Homepage from "./Homepage/Homepage";
 import BookDetails from "./Homepage/BookDetails";
+
+import ErrorPage from "./ErrorPage/Error404"
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Homepage />} />
+        <Route path="/PageNotFound" element={<ErrorPage />} />
+
         <Route path="/:bookId" element={<BookDetails />} />
         <Route path="/dashboard" element={<Dashboard />} />
         
         {/* Book Management */}
         <Route path="/dashboard/books" element={<BookManagement />} />
-        <Route path="/dashboard/books/add" element={<AddBook />} />
-        <Route path="/dashboard/books/edit/:bookId" element={<EditBook />} />
-        <Route path="/dashboard/books/detail/:bookId" element={<ViewBookDetail />} />
+
 
         {/* Account Management */}
         <Route path="/dashboard/accounts" element={<AccountManagement />} />
         <Route path="/dashboard/accounts/add" element={<AddAccount />} />
         <Route path="/dashboard/accounts/detail/:username" element={<AccountDetail />} />
         <Route path="/dashboard/accounts/edit/:username" element={<EditAccount />} />
+
+        <Route path="/dashboard/books/detail" element={<ViewBookDetail />} />
+        <Route path="/dashboard/books/edit" element={<EditBook />} />
+        <Route path="/dashboard/books/detail/:bookId" element={<ViewBookDetail />} />
+
+        <Route path="/dashboard/inventory" element={<InventoryManagement />} /> {/* This should now work */}
 
         {/* Promotion Management */}
         <Route path="/dashboard/promotions" element={<PromotionManagement />} />
