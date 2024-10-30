@@ -59,15 +59,20 @@ const BookDetails = () => {
     return (
         <Layout style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
             <Header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#0fa4d6', padding: '0 20px', height: '64px', color: '#fff' }}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div
+                    style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+                    onClick={() => navigate('/')} // Navigate to homepage when clicked
+                >
                     <img src="/logo-capybook.png" alt="Capybook Logo" style={{ height: '40px', marginRight: '20px' }} />
                     <div style={{ fontSize: '20px', fontWeight: 'bold' }}>Capybook</div>
                 </div>
+
                 <Search
                     placeholder="Search for books or orders"
                     enterButton
                     style={{ maxWidth: '500px' }}
                 />
+
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <BellOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
                     <ShoppingCartOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
