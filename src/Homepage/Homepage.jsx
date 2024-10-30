@@ -141,7 +141,7 @@ const Homepage = () => {
 
     return (
         <Layout>
-            <Header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#343a40', padding: '0 20px', height: '64px', color: '#fff' }}>
+            <Header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#0fa4d6', padding: '0 20px', height: '64px', color: '#fff' }}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <img src="/logo-capybook.png" alt="Capybook Logo" style={{ height: '40px', marginRight: '20px' }} />
                     <div className="logo" style={{ fontSize: '20px', fontWeight: 'bold' }}>Capybook</div>

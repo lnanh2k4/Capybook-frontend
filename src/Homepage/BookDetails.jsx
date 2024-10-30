@@ -58,7 +58,7 @@ const BookDetails = () => {
 
     return (
         <Layout style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-            <Header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#343a40', padding: '0 20px', height: '64px', color: '#fff' }}>
+            <Header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#0fa4d6', padding: '0 20px', height: '64px', color: '#fff' }}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <img src="/logo-capybook.png" alt="Capybook Logo" style={{ height: '40px', marginRight: '20px' }} />
                     <div style={{ fontSize: '20px', fontWeight: 'bold' }}>Capybook</div>
@@ -71,8 +71,14 @@ const BookDetails = () => {
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <BellOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
                     <ShoppingCartOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
-                    <Dropdown overlay={userMenu} trigger={['click']}>
-                        <Button icon={<UserOutlined />} style={{ color: '#fff' }}>User</Button>
+                    <Dropdown overlay={userMenu} trigger={['click']} placement="bottomRight">
+                        <Button
+                            type="text"
+                            icon={<UserOutlined />}
+                            style={{ color: '#fff' }}
+                        >
+                            Khanh đẹp trai
+                        </Button>
                     </Dropdown>
                 </div>
             </Header>
@@ -96,10 +102,13 @@ const BookDetails = () => {
                                 />
                             </div>
                             {/* Buttons moved below image */}
-                            <div style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
-                                <Button type="primary" style={{ width: '150px', height: '45px' }}>Buy Now</Button>
-                                <Button style={{ width: '150px', height: '45px', borderColor: '#FF4500', color: '#FF4500' }}>Add to Cart</Button>
+                            <div style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'flex-start' }}>
+                                <Button type="primary" style={{ width: '150px', height: '45px', backgroundColor: '#FF4500', borderColor: '#FF4500' }}>Buy now</Button>
+                                <Button style={{ width: '150px', height: '45px', borderColor: '#FF4500', color: '#FF4500' }} icon={<ShoppingCartOutlined />}>
+                                    Add to cart
+                                </Button>
                             </div>
+
                         </div>
 
                         {/* Right section: Book details inside a box */}

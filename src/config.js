@@ -132,6 +132,7 @@ const addOrder = (orderData) => {
             'Content-Type': 'application/json',
         }
     });
+};
 
 const fetchImportStocks = async () => {
     return await axios.get('/api/Inventory');
