@@ -65,7 +65,7 @@ const DashboardContainer = () => {
         navigate("/dashboard/category");
         break;
       case '7':
-        navigate("/dashboard/inventory-management");
+        navigate("/dashboard/inventory");
         break;
       case '8':
         navigate("/dashboard/notifications/");
