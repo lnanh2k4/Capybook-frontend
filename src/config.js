@@ -106,7 +106,15 @@ const searchCategories = (searchTerm) => {
 
 const fetchCategoryById = (catID) => client.get(`/v1/categories/${catID}`);
 
-const fetchOrders = () => client.get('v1/orders/');
+const fetchOrders = () => {
+    return client.get('v1/orders/')
+        .then((response) => response)
+        .catch((error) => {
+            console.error("Error fetching orders:", error);
+            throw error;
+        });
+};
+
 
 const fetchOrderDetail = (orderID) => {
     return client.get(`/v1/orders/${orderID}`);
@@ -116,8 +124,8 @@ const fetchOrderDetailsByOrderID = (id) => {
     return axios.get(`/api/v1/orders/details/${id}`);
 };
 
-const searchOrders = (searchTerm) => {
-    return client.get(`/v1/orders/search?term=${searchTerm}`);
+const searchOrders = (orderID) => {
+    return client.get(`/v1/orders/search?term=${orderID}`);
 };
 
 const deleteOrder = (orderID) => {
@@ -125,6 +133,15 @@ const deleteOrder = (orderID) => {
     return client.put(`/v1/orders/${orderID}/soft-delete`); // Sử dụng PUT thay vì DELETE
 };
 
+const updateOrder = (orderID, orderData) => {
+    console.log("Order ID:", orderID);
+    console.log("Order Data:", orderData);
+    return client.put(`/v1/orders/${orderID}`, orderData, {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    });
+};
 
 const addOrder = (orderData) => {
     return client.post('/v1/orders/', orderData, {
@@ -157,6 +174,7 @@ const deleteImportStock = async (id) => {
 
 
 export {
+    updateOrder,
     fetchOrderDetailsByOrderID,
     fetchOrderDetail,
     addOrder,
