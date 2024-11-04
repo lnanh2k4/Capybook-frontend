@@ -12,6 +12,7 @@ import PromotionDetail from "./PromotionManagement/PromotionDetail";
 import EditPromotion from "./PromotionManagement/EditPromotion";
 import AccountManagement from "./AccountManagement/AccountManagement";
 
+import InventoryManagement from "./InventoryManagement/InventoryManagement"; // Ensure this import is added
 
 import AddSupplier from "./SupplierManagement/AddSupplier";
 import SupplierManagement from "./SupplierManagement/SupplierManagement";
@@ -30,7 +31,7 @@ import AddCategory from "./CategoryManagement/AddCategory"
 import CategoryDetail from "./CategoryManagement/CategoryDetail";
 import EditCategory from "./CategoryManagement/EditCategory";
 
-import Homepage from "./Homepage/homepage";
+import Homepage from "./Homepage/Homepage"
 import BookDetails from "./Homepage/BookDetails";
 function App() {
   return (
