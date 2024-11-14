@@ -1,152 +1,158 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Button, Input, message, Tabs } from 'antd';
-import { fetchImportStocks } from '../config'; // Import the API function for Import Stocks
-import DashboardContainer from '../DashBoard/DashBoardContainer'; // Correct path for DashboardContainer
-import './InventoryManagement.css'; // Assuming there's a CSS file for styling
+import { fetchImportStocks, fetchSupplierById, fetchStaffById, fetchImportStockDetailsByStockId } from '../config';
+import DashboardContainer from '../DashBoard/DashBoardContainer';
 
 const { Search } = Input;
-const { TabPane } = Tabs;
 
 function InventoryManagement() {
-    const [activeTab, setActiveTab] = useState('import'); // Manage active tab (import or export)
+    const [activeTab, setActiveTab] = useState('import');
     const [importStocks, setImportStocks] = useState([]);
-    const [importLoaded, setImportLoaded] = useState(false); // Track if Import data has been loaded
+    const [importLoaded, setImportLoaded] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [searchTerm, setSearchTerm] = useState(''); // Add state for search term
+    const [searchTerm, setSearchTerm] = useState('');
+    const [suppliers, setSuppliers] = useState({});
+    const [staffs, setStaffs] = useState({});
 
     useEffect(() => {
         if (activeTab === 'import' && !importLoaded) {
-            loadImportStocks(); // Only load Import stocks if not already loaded
+            loadImportStocks();
         }
-    }, [activeTab, importLoaded]); // Dependency on activeTab and importLoaded
+    }, [activeTab, importLoaded]);
 
     const loadImportStocks = async () => {
         setLoading(true);
         try {
             const response = await fetchImportStocks();
-            console.log(response.data); // Xem dữ liệu thực tế
+            console.log('Import Stocks API Response:', response.data);
 
-            // Kiểm tra xem dữ liệu có đúng là mảng không
-            if (Array.isArray(response.data.importStocks)) {
-                setImportStocks(response.data.importStocks);  // Gán dữ liệu đúng
-                setImportLoaded(true); // Mark data as loaded
+            if (Array.isArray(response.data)) {
+                const importStocksData = response.data;
+
+                // Fetch unique supplier and staff data
+                const uniqueSupIDs = [...new Set(importStocksData.map(stock => stock.supID?.supID))].filter(id => id);
+                const uniqueStaffIDs = [...new Set(importStocksData.map(stock => stock.staffID?.staffID))].filter(id => id);
+
+                // Fetch suppliers
+                const supplierPromises = uniqueSupIDs.map(id => fetchSupplierById(id).then(res => ({ id, data: res.data })));
+                const supplierData = await Promise.all(supplierPromises);
+                const suppliersMap = supplierData.reduce((map, item) => {
+                    map[item.id] = item.data;
+                    return map;
+                }, {});
+                setSuppliers(suppliersMap);
+                console.log("Suppliers Map:", suppliersMap);
+
+                // Fetch staffs
+                const staffPromises = uniqueStaffIDs.map(id => fetchStaffById(id).then(res => ({ id, data: res.data })));
+                const staffData = await Promise.all(staffPromises);
+                const staffsMap = staffData.reduce((map, item) => {
+                    map[item.id] = item.data;
+                    return map;
+                }, {});
+                setStaffs(staffsMap);
+                console.log("Staffs Map:", staffsMap);
+
+                // Calculate Total Price for each ImportStock
+                const stockWithDetailsPromises = importStocksData.map(async (stock) => {
+                    try {
+                        const detailsResponse = await fetchImportStockDetailsByStockId(stock.isid);
+                        const details = detailsResponse.data;
+
+                        // Log each detail object to verify structure
+                        console.log(`Details for stock ID ${stock.isid}:`, details);
+
+                        const totalPrice = details.reduce((sum, detail) => {
+                            const quantity = detail.ISDQuantity || detail.isdquantity || 0;
+                            const price = parseFloat(detail.importPrice) || 0;
+
+                            console.log("Full detail object:", detail);
+                            console.log(`Calculating Total Price - Quantity: ${quantity}, Import Price: ${price}`);
+
+                            return sum + (quantity * price);
+                        }, 0);
+
+                        console.log(`Total Price for stock ID ${stock.isid}:`, totalPrice);
+                        return { ...stock, totalPrice };
+                    } catch (detailError) {
+                        console.error(`Error fetching details for stock ID ${stock.isid}:`, detailError);
+                        return { ...stock, totalPrice: 0 };
+                    }
+                });
+
+                const stocksWithTotalPrice = await Promise.all(stockWithDetailsPromises);
+                setImportStocks(stocksWithTotalPrice);
+                setImportLoaded(true);
             } else {
-                setImportStocks([]);  // Nếu không phải mảng, đặt thành mảng rỗng
-                message.error('Dữ liệu nhận được từ API không hợp lệ.');
+                setImportStocks([]);
+                message.error('Invalid data from API');
             }
             setError('');
         } catch (error) {
             console.error('Error fetching import stocks:', error);
             setError('Error fetching import stocks');
-            message.error('Không thể tải dữ liệu từ API');
+            message.error('Could not load data from API');
         }
         setLoading(false);
     };
 
-    const goToAddStock = () => {
-        if (activeTab === 'import') {
-            console.log('Navigate to Add Import Stock');
-        } else if (activeTab === 'export') {
-            console.log('Navigate to Add Export Stock');
-        }
-    };
-
-    const exportColumns = [
+    const importColumns = [
+        { title: 'Stock ID', dataIndex: 'isid', key: 'isid' },
         {
-            title: 'Export ID',
-            dataIndex: 'esid',
-            key: 'esid',
+            title: 'Supplier',
+            dataIndex: 'supID',
+            key: 'supID',
+            render: (supID) => {
+                const supplierName = supID ? suppliers[supID.supID]?.supName : 'Loading...';
+                console.log("Rendering Supplier:", supID, supplierName);
+                return supplierName || 'N/A';
+            }
         },
         {
-            title: 'Staff Name',
-            dataIndex: ['staffID', 'name'], // Assuming "name" is a field in StaffDTO
+            title: 'Staff',
+            dataIndex: 'staffID',
             key: 'staffID',
-            render: (text, record) => record.staffID?.name || 'N/A',
+            render: (staffID) => {
+                if (staffID && staffID.staffID) {
+                    const staffUsername = staffs[staffID.staffID]?.username || 'N/A';
+                    console.log("Rendering Staff with ID:", staffID.staffID, "Username:", staffUsername);
+                    return staffUsername;
+                } else {
+                    return 'Loading...';
+                }
+            }
         },
-        {
-            title: 'Export Date',
-            dataIndex: 'exportDate',
-            key: 'exportDate',
-        },
-        {
-            title: 'Start Date',
-            dataIndex: 'startDate',
-            key: 'startDate',
-        },
-        {
-            title: 'End Date',
-            dataIndex: 'endDate',
-            key: 'endDate',
-        },
+
+        { title: 'Import Date', dataIndex: 'importDate', key: 'importDate' },
         {
             title: 'Total Price',
             dataIndex: 'totalPrice',
             key: 'totalPrice',
-            render: (price) => `${price} VND`, // You can format this accordingly
-        },
-        {
-            title: 'Status',
-            dataIndex: 'esStatus',
-            key: 'esStatus',
-            render: (status) => (status === 1 ? 'Completed' : 'Pending'),
-        },
-        {
-            title: 'Action',
-            key: 'action',
-            render: (_, record) => (
-                <div>
-                    <Button type="link" onClick={() => console.log('Edit', record.esid)}>Edit</Button>
-                    <Button type="link" danger onClick={() => console.log('Delete', record.esid)}>Delete</Button>
-                </div>
-            ),
-        },
-    ];
-
-    const importColumns = [
-        {
-            title: 'Import ID',
-            dataIndex: 'isid',
-            key: 'isid',
-        },
-        {
-            title: 'Import Date',
-            dataIndex: 'importDate',
-            key: 'importDate',
-        },
-        {
-            title: 'Staff',
-            dataIndex: ['staffID', 'name'], // Assuming "name" is a field in StaffDTO
-            key: 'staffID',
-            render: (text, record) => record.staffID?.name || 'N/A', // Safely access the nested data
-        },
-        {
-            title: 'Supplier',
-            dataIndex: ['supID', 'name'], // Assuming "name" is a field in SupplierDTO
-            key: 'supID',
-            render: (text, record) => record.supID?.name || 'N/A', // Safely access the nested data
+            render: (price) => {
+                console.log("Rendering Total Price:", price);
+                const formattedPrice = !isNaN(price) ? `${price.toFixed(2)} VND` : 'N/A';
+                return formattedPrice;
+            },
         },
         {
             title: 'Status',
             dataIndex: 'iSStatus',
             key: 'iSStatus',
-            render: (status) => (status === 1 ? 'Active' : 'Inactive'),
+            render: (status) => (status === 1 ? 'Inactive' : 'Active'),
         },
         {
             title: 'Action',
             key: 'action',
             render: (_, record) => (
                 <div>
-                    <Button type="link" onClick={() => console.log('Edit', record.isid)}>Edit</Button>
-                    <Button type="link" danger onClick={() => console.log('Delete', record.isid)}>Delete</Button>
+                    <Button type="link" onClick={() => console.log('Detail', record.isid)}>Detail</Button>
                 </div>
             ),
         },
     ];
 
-    const filteredImportStocks = importStocks.filter(stock =>
-        stock.isid.toString().includes(searchTerm.toLowerCase())
-    );
+
 
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Error: {error}</p>;
@@ -156,53 +162,42 @@ function InventoryManagement() {
             <div className="dashboard-container">
                 <DashboardContainer />
             </div>
-
             <div className="dashboard-content">
-                <div className="titlemanagement">
-                    <div>Inventory Management</div>
-                </div>
-                <Tabs activeKey={activeTab} onChange={setActiveTab}>
-                    <TabPane tab="Import" key="import">
-                        <div className="action-container">
-                            <Button type="primary" onClick={goToAddStock}>Import+</Button>
-                            <Search
-                                placeholder="Search by ISID"
-                                className="search-input"
-                                value={searchTerm}
-                                onChange={e => setSearchTerm(e.target.value)}
-                                style={{ width: 300, marginLeft: '20px' }}
-                            />
-                        </div>
-                        <Table
-                            columns={importColumns}
-                            dataSource={filteredImportStocks} // Use filtered data
-                            rowKey={record => record.isid}
-                        />
-                    </TabPane>
-
-                    <TabPane tab="Export" key="export">
-                        <div className="action-container">
-                            <Button type="primary" onClick={goToAddStock}>Export+</Button>
-                            <Search
-                                placeholder="Search by ESID"
-                                className="search-input"
-                                value={searchTerm}
-                                onChange={e => setSearchTerm(e.target.value)}
-                                style={{ width: 300, marginLeft: '20px' }}
-                            />
-                        </div>
-                        <Table
-                            columns={exportColumns} // Placeholder empty table for now
-                            dataSource={[]} // No data for Export yet
-                            rowKey="esid"
-                        />
-                    </TabPane>
-                </Tabs>
-            </div>
-            <div className="copyright">
-                <div>© Copyright {new Date().getFullYear()}</div>
-                <div>Cabybook Management System</div>
-                <div>All Rights Reserved</div>
+                <h2>Inventory Management</h2>
+                <Tabs
+                    activeKey={activeTab}
+                    onChange={setActiveTab}
+                    items={[
+                        {
+                            key: 'import',
+                            label: 'Import',
+                            children: (
+                                <div>
+                                    <div className="action-container">
+                                        <Search
+                                            placeholder="Search by ISID"
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                            style={{ width: 300, marginLeft: '20px' }}
+                                        />
+                                    </div>
+                                    <Table
+                                        columns={importColumns}
+                                        dataSource={importStocks.filter(stock =>
+                                            stock.isid.toString().includes(searchTerm)
+                                        )}
+                                        rowKey="isid"
+                                    />
+                                </div>
+                            ),
+                        },
+                        {
+                            key: 'export',
+                            label: 'Export',
+                            children: <div>Export Table Placeholder</div>,
+                        },
+                    ]}
+                />
             </div>
         </div>
     );

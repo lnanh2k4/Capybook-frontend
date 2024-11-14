@@ -12,7 +12,7 @@ import PromotionDetail from "./PromotionManagement/PromotionDetail";
 import EditPromotion from "./PromotionManagement/EditPromotion";
 import AccountManagement from "./AccountManagement/AccountManagement";
 
-import InventoryManagement from "./InventoryManagement/InventoryManagement"; // Ensure this import is added
+import InventoryManagement from "./InventoryManagement/InventoryManagement";
 
 import AddSupplier from "./SupplierManagement/AddSupplier";
 import SupplierManagement from "./SupplierManagement/SupplierManagement";
@@ -47,6 +47,8 @@ function App() {
         <Route path="/dashboard/books/detail" element={<ViewBookDetail />} />
         <Route path="/dashboard/books/edit" element={<EditBook />} />
         <Route path="/dashboard/books/detail/:bookId" element={<ViewBookDetail />} />
+
+        <Route path="/dashboard/inventory-management" element={<InventoryManagement />} />
 
         <Route path="/dashboard/promotion-detail/:proID" element={<PromotionDetail />} />
         <Route path="/dashboard/promotion-management" element={<PromotionManagement />} />

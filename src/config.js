@@ -4,6 +4,14 @@ const client = axios.create({
     baseURL: URLString, // Địa chỉ API của bạn
 });
 
+export const fetchStaffById = (id) => {
+    return client.get(`v1/staff/${id}`).then((response) => {
+        console.log("Fetched Staff Data:", response.data); // Log full data
+        return response;
+    });
+};
+
+
 const addAccount = (account) => {
     return client.post('v1/accounts/', account, {
         headers: {
@@ -118,25 +126,41 @@ const deleteOrder = (orderID) => {
 };
 
 const fetchImportStocks = async () => {
-    return await axios.get('/api/Inventory');
+    try {
+        const response = await client.get('/v1/importStock/'); // Corrected path to match backend
+        console.log('fetchImportStocks response:', response);
+        return response;
+    } catch (error) {
+        console.error('Error in fetchImportStocks:', error);
+        throw error;
+    }
 };
 
+
+
+
 const fetchImportStockById = async (id) => {
-    return await axios.get(`/api/Inventory/${id}`);
+    return await client.get(`/Inventory/${id}`);
 };
 
 const updateImportStock = async (id, data) => {
-    return await axios.put(`/api/Inventory/${id}`, data);
+    return await client.put(`/Inventory/${id}`, data);
 };
 
 const createImportStock = async (data) => {
-    return await axios.post('/api/Inventory', data);
+    return await client.post('/Inventory', data);
 };
 
 const deleteImportStock = async (id) => {
-    return await axios.delete(`/api/Inventory/${id}`);
-
+    return await client.delete(`/Inventory/${id}`);
 };
+
+export const fetchImportStockDetailsByStockId = (id) => {
+    return client.get(`/v1/importStock/${id}/details`);
+};
+
+
+
 
 
 export {
