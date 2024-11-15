@@ -5,11 +5,12 @@ const client = axios.create({
 });
 
 export const fetchStaffById = (id) => {
-    return client.get(`v1/staff/${id}`).then((response) => {
-        console.log("Fetched Staff Data:", response.data); // Log full data
+    return client.get(`/v1/staff/${id}`).then((response) => {
+        console.log("Fetched Staff Data:", response.data);
         return response;
     });
 };
+
 
 
 const addAccount = (account) => {
