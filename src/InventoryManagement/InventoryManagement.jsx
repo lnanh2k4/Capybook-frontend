@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Table, Button, Input, message, Tabs } from 'antd';
+import React, { useEffect, useState, useMemo } from 'react';
+import { Table, Button, Input, message, Tabs, Spin } from 'antd';
 import { fetchImportStocks, fetchSupplierById, fetchStaffById, fetchImportStockDetailsByStockId } from '../config';
 import DashboardContainer from '../DashBoard/DashBoardContainer';
 
@@ -30,11 +30,11 @@ function InventoryManagement() {
             if (Array.isArray(response.data)) {
                 const importStocksData = response.data;
 
-                // Fetch unique supplier and staff data
+                // Lấy danh sách unique `staffID` và `supID`
                 const uniqueSupIDs = [...new Set(importStocksData.map(stock => stock.supID?.supID))].filter(id => id);
-                const uniqueStaffIDs = [...new Set(importStocksData.map(stock => stock.staffID?.staffID))].filter(id => id);
+                const uniqueStaffIDs = [...new Set(importStocksData.map(stock => typeof stock.staffID === 'object' ? stock.staffID.staffID : stock.staffID))].filter(id => id);
 
-                // Fetch suppliers
+                // Fetch dữ liệu suppliers
                 const supplierPromises = uniqueSupIDs.map(id => fetchSupplierById(id).then(res => ({ id, data: res.data })));
                 const supplierData = await Promise.all(supplierPromises);
                 const suppliersMap = supplierData.reduce((map, item) => {
@@ -42,41 +42,42 @@ function InventoryManagement() {
                     return map;
                 }, {});
                 setSuppliers(suppliersMap);
-                console.log("Suppliers Map:", suppliersMap);
 
-                // Fetch staffs
-                const staffPromises = uniqueStaffIDs.map(id => fetchStaffById(id).then(res => ({ id, data: res.data })));
+                // Fetch dữ liệu staffs
+                const staffPromises = uniqueStaffIDs.map(async (id) => {
+                    try {
+                        const res = await fetchStaffById(id);
+                        return { id, data: res.data };
+                    } catch (error) {
+                        console.error(`Failed to fetch staff with ID ${id}:`, error);
+                        return { id, data: null };
+                    }
+                });
+
                 const staffData = await Promise.all(staffPromises);
                 const staffsMap = staffData.reduce((map, item) => {
-                    map[item.id] = item.data;
+                    if (item.data) {
+                        map[item.id] = item.data;
+                    }
                     return map;
                 }, {});
+                console.log("Final Staffs Map:", staffsMap);
                 setStaffs(staffsMap);
-                console.log("Staffs Map:", staffsMap);
 
-                // Calculate Total Price for each ImportStock
+
                 const stockWithDetailsPromises = importStocksData.map(async (stock) => {
                     try {
                         const detailsResponse = await fetchImportStockDetailsByStockId(stock.isid);
                         const details = detailsResponse.data;
-
-                        // Log each detail object to verify structure
-                        console.log(`Details for stock ID ${stock.isid}:`, details);
-
                         const totalPrice = details.reduce((sum, detail) => {
                             const quantity = detail.ISDQuantity || detail.isdquantity || 0;
                             const price = parseFloat(detail.importPrice) || 0;
-
-                            console.log("Full detail object:", detail);
-                            console.log(`Calculating Total Price - Quantity: ${quantity}, Import Price: ${price}`);
-
                             return sum + (quantity * price);
                         }, 0);
 
-                        console.log(`Total Price for stock ID ${stock.isid}:`, totalPrice);
                         return { ...stock, totalPrice };
-                    } catch (detailError) {
-                        console.error(`Error fetching details for stock ID ${stock.isid}:`, detailError);
+                    } catch (error) {
+                        console.error(`Error fetching details for stock ID ${stock.isid}:`, error);
                         return { ...stock, totalPrice: 0 };
                     }
                 });
@@ -88,7 +89,6 @@ function InventoryManagement() {
                 setImportStocks([]);
                 message.error('Invalid data from API');
             }
-            setError('');
         } catch (error) {
             console.error('Error fetching import stocks:', error);
             setError('Error fetching import stocks');
@@ -97,31 +97,29 @@ function InventoryManagement() {
         setLoading(false);
     };
 
-    const importColumns = [
+    const importColumns = useMemo(() => [
         { title: 'Stock ID', dataIndex: 'isid', key: 'isid' },
         {
             title: 'Supplier',
             dataIndex: 'supID',
             key: 'supID',
-            render: (supID) => {
-                const supplierName = supID ? suppliers[supID.supID]?.supName : 'Loading...';
-                console.log("Rendering Supplier:", supID, supplierName);
-                return supplierName || 'N/A';
-            }
+            render: (supID) => suppliers[supID?.supID]?.supName || 'N/A',
         },
         {
             title: 'Staff',
             dataIndex: 'staffID',
             key: 'staffID',
             render: (staffID) => {
-                if (staffID && staffID.staffID) {
-                    const staffUsername = staffs[staffID.staffID]?.username || 'N/A';
-                    console.log("Rendering Staff with ID:", staffID.staffID, "Username:", staffUsername);
-                    return staffUsername;
+                console.log("Rendering Staff ID:", staffID);
+                if (typeof staffID === 'object' && staffID.username) {
+                    console.log("Staff Object:", staffID);
+                    return staffID.username.username || 'N/A';
                 } else {
-                    return 'Loading...';
+                    const staffData = staffs[staffID];
+                    console.log("Staff Data from Map:", staffData);
+                    return staffData?.username?.username || 'N/A';
                 }
-            }
+            },
         },
 
         { title: 'Import Date', dataIndex: 'importDate', key: 'importDate' },
@@ -129,11 +127,7 @@ function InventoryManagement() {
             title: 'Total Price',
             dataIndex: 'totalPrice',
             key: 'totalPrice',
-            render: (price) => {
-                console.log("Rendering Total Price:", price);
-                const formattedPrice = !isNaN(price) ? `${price.toFixed(2)} VND` : 'N/A';
-                return formattedPrice;
-            },
+            render: (price) => (!isNaN(price) ? `${price.toFixed(2)} VND` : 'N/A'),
         },
         {
             title: 'Status',
@@ -145,23 +139,25 @@ function InventoryManagement() {
             title: 'Action',
             key: 'action',
             render: (_, record) => (
-                <div>
-                    <Button type="link" onClick={() => console.log('Detail', record.isid)}>Detail</Button>
-                </div>
+                <Button type="link" onClick={() => console.log('Detail', record.isid)}>Detail</Button>
             ),
         },
-    ];
+    ], [suppliers, staffs]);
+
+    if (loading || !importLoaded) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+                <Spin size="large" />
+            </div>
+        );
+    }
 
 
-
-    if (loading) return <p>Loading...</p>;
     if (error) return <p>Error: {error}</p>;
 
     return (
         <div className="main-container">
-            <div className="dashboard-container">
-                <DashboardContainer />
-            </div>
+            <DashboardContainer />
             <div className="dashboard-content">
                 <h2>Inventory Management</h2>
                 <Tabs
@@ -173,28 +169,19 @@ function InventoryManagement() {
                             label: 'Import',
                             children: (
                                 <div>
-                                    <div className="action-container">
-                                        <Search
-                                            placeholder="Search by ISID"
-                                            value={searchTerm}
-                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                            style={{ width: 300, marginLeft: '20px' }}
-                                        />
-                                    </div>
+                                    <Search
+                                        placeholder="Search by ISID"
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        style={{ width: 300 }}
+                                    />
                                     <Table
                                         columns={importColumns}
-                                        dataSource={importStocks.filter(stock =>
-                                            stock.isid.toString().includes(searchTerm)
-                                        )}
+                                        dataSource={importStocks.filter(stock => stock.isid.toString().includes(searchTerm))}
                                         rowKey="isid"
                                     />
                                 </div>
                             ),
-                        },
-                        {
-                            key: 'export',
-                            label: 'Export',
-                            children: <div>Export Table Placeholder</div>,
                         },
                     ]}
                 />
