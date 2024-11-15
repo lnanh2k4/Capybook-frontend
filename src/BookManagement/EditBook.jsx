@@ -22,7 +22,7 @@ function EditBook() {
                     const bookData = response.data;
                     form.setFieldsValue({
                         ...bookData,
-                        publicationYear: bookData.publicationYear.toString(), // Ensure this is treated as a string
+                        publicationYear: bookData.publicationYear.toString(),
                         catID: bookData.catID,
                     });
                     if (bookData.image && bookData.image.startsWith(`/uploads/book_`)) {
@@ -51,6 +51,7 @@ function EditBook() {
                 message.error("Failed to fetch categories");
             });
     }, []);
+
     const handleImageChange = ({ fileList: newFileList }) => {
         setFileList(newFileList);
         if (newFileList.length > 0) {
@@ -65,14 +66,27 @@ function EditBook() {
         try {
             const formDataToSend = new FormData();
 
-            const updatedBookData = {
-                ...values,
-                publicationYear: values.publicationYear, // Keep publication year as a string
-                bookStatus: 1,
+            // Prepare book data in a similar way as in AddBook
+            const bookData = {
+                catID: values.catID,
+                bookTitle: values.bookTitle,
+                publicationYear: values.publicationYear,
+                author: values.author,
+                dimension: values.dimension,
+                translator: values.translator,
+                hardcover: values.hardcover,
+                publisher: values.publisher,
+                weight: values.weight,
+                bookDescription: values.bookDescription,
+                bookPrice: values.bookPrice,
+                isbn: values.isbn,
+                bookQuantity: values.bookQuantity,
+                bookStatus: 1
             };
 
-            formDataToSend.append('book', JSON.stringify(updatedBookData));
+            formDataToSend.append('book', JSON.stringify(bookData));
 
+            // Attach the image file if it exists
             if (fileList.length > 0) {
                 formDataToSend.append('image', fileList[0].originFileObj);
             }
@@ -84,6 +98,11 @@ function EditBook() {
             console.error('Error updating book:', error);
             message.error('Failed to update book.');
         }
+    };
+
+    const handleRemove = () => {
+        setImagePreview(null);
+        setFileList([]);
     };
 
     return (
@@ -135,10 +154,7 @@ function EditBook() {
                     <Form.Item
                         label="Author"
                         name="author"
-                        rules={[
-                            { required: true, message: 'Please enter the author' },
-                            { pattern: /^[a-zA-Z\s]+$/, message: 'Author name should only contain letters and spaces' }
-                        ]}
+                        rules={[{ required: true, message: 'Please enter the author' }]}
                     >
                         <Input placeholder="Author of the book" />
                     </Form.Item>
@@ -199,17 +215,14 @@ function EditBook() {
                     </Form.Item>
 
                     <Form.Item
-                        label="Description"
-                        name="bookDescription"
-                        rules={[{ required: true, message: 'Please enter a description' }]}
+                        label="Quantity"
+                        name="bookQuantity"
+                        rules={[{ required: true, message: 'Please enter the quantity' }]}
                     >
-                        <Input.TextArea rows={4} placeholder="Description of the book" />
+                        <InputNumber min={1} step={1} placeholder="Quantity" style={{ width: '20%' }} />
                     </Form.Item>
 
-                    <Form.Item
-                        label="Image"
-                        name="image"
-                    >
+                    <Form.Item label="Image" name="image">
                         <Upload
                             listType="picture"
                             fileList={fileList}
@@ -226,6 +239,14 @@ function EditBook() {
                                 style={{ width: '100px', marginTop: '10px' }}
                             />
                         )}
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Description"
+                        name="bookDescription"
+                        rules={[{ required: true, message: 'Please enter a description' }]}
+                    >
+                        <Input.TextArea rows={4} placeholder="Description of the book" />
                     </Form.Item>
 
                     <Form.Item>
