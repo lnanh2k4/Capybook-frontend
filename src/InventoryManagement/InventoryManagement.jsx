@@ -2,10 +2,12 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { Table, Button, Input, message, Tabs, Spin } from 'antd';
 import { fetchImportStocks, fetchSupplierById, fetchStaffById, fetchImportStockDetailsByStockId } from '../config';
 import DashboardContainer from '../DashBoard/DashBoardContainer';
+import { useNavigate } from 'react-router-dom';
 
 const { Search } = Input;
 
 function InventoryManagement() {
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('import');
     const [importStocks, setImportStocks] = useState([]);
     const [importLoaded, setImportLoaded] = useState(false);
@@ -61,7 +63,6 @@ function InventoryManagement() {
                     }
                     return map;
                 }, {});
-                console.log("Final Staffs Map:", staffsMap);
                 setStaffs(staffsMap);
 
 
@@ -97,6 +98,10 @@ function InventoryManagement() {
         setLoading(false);
     };
 
+    const goToStockDetail = (isid) => {
+        navigate(`/dashboard/inventory/stock/${isid}`);
+    };
+
     const importColumns = useMemo(() => [
         { title: 'Stock ID', dataIndex: 'isid', key: 'isid' },
         {
@@ -127,20 +132,24 @@ function InventoryManagement() {
             title: 'Total Price',
             dataIndex: 'totalPrice',
             key: 'totalPrice',
-            render: (price) => (!isNaN(price) ? `${price.toFixed(2)} VND` : 'N/A'),
+            render: (price) => (!isNaN(price) ? `${new Intl.NumberFormat('en-US').format(price)} VND` : 'N/A'),
         },
-        {
-            title: 'Status',
-            dataIndex: 'iSStatus',
-            key: 'iSStatus',
-            render: (status) => (status === 1 ? 'Inactive' : 'Active'),
-        },
+
         {
             title: 'Action',
             key: 'action',
             render: (_, record) => (
-                <Button type="link" onClick={() => console.log('Detail', record.isid)}>Detail</Button>
+                <Button
+                    type="link"
+                    onClick={() => {
+                        console.log(`Navigating to: /dashboard/inventory/stock/${record.isid}`);
+                        goToStockDetail(record.isid);
+                    }}
+                >
+                    Detail
+                </Button>
             ),
+
         },
     ], [suppliers, staffs]);
 

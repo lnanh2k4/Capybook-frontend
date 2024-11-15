@@ -8,12 +8,14 @@ import PromotionManagement from "./PromotionManagement/PromotionManagement";
 import AddPromotion from "./PromotionManagement/AddPromotion";
 import OrderManagement from "./OrderManagement/OrderManagement";
 import OrderDetail from "./OrderManagement/OrderDetail";
-import AddOrder from "./OrderManagement/AddOrder";
 import PromotionDetail from "./PromotionManagement/PromotionDetail";
 import EditPromotion from "./PromotionManagement/EditPromotion";
 import AccountManagement from "./AccountManagement/AccountManagement";
 
 import InventoryManagement from "./InventoryManagement/InventoryManagement";
+import ViewStockDetail from "./InventoryManagement/ViewStockDetail";
+
+
 
 import AddSupplier from "./SupplierManagement/AddSupplier";
 import SupplierManagement from "./SupplierManagement/SupplierManagement";
@@ -50,6 +52,11 @@ function App() {
         <Route path="/dashboard/books/detail/:bookId" element={<ViewBookDetail />} />
 
         <Route path="/dashboard/inventory" element={<InventoryManagement />} />
+        <Route path="/dashboard/inventory/stock/:stockId" element={<ViewStockDetail />} />
+
+
+
+
 
         <Route path="/dashboard/promotion-detail/:proID" element={<PromotionDetail />} />
         <Route path="/dashboard/promotion-management" element={<PromotionManagement />} />
@@ -57,8 +64,7 @@ function App() {
         <Route path="/dashboard/edit-promotion/:proID" element={<EditPromotion />} />
 
         <Route path="/dashboard/order-management" element={<OrderManagement />} />
-        <Route path="/dashboard/orders/detail/:id" element={<OrderDetail />} />
-        <Route path="/dashboard/orders/add" element={<AddOrder />} />
+        <Route path="/dashboard/order-detail/:id" element={<OrderDetail />} />
 
         <Route path="/dashboard/suppliers" element={<SupplierManagement />} />
         <Route path="/dashboard/suppliers/add" element={<AddSupplier />} />
