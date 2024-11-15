@@ -1,131 +1,163 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom"; // Import useParams để lấy id từ URL
+import { useNavigate, useParams } from "react-router-dom";
+import { Descriptions, Button, Table, message, Card } from "antd";
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
+import { fetchOrderDetail, fetchOrderDetailsByOrderID, fetchAccountDetail, fetchBookDetail } from "../config";
+
 const OrderDetail = () => {
   const navigate = useNavigate();
-  const { id } = useParams(); // Lấy id từ URL
+  const { id } = useParams();
   const [order, setOrder] = useState(null);
+  const [orderDetails, setOrderDetails] = useState([]);
+  const [user, setUser] = useState(null);
 
-  // Hàm để fetch dữ liệu đơn hàng dựa trên id
-  const fetchOrderDetail = async (orderId) => {
-    // Thay bằng API thực để lấy dữ liệu từ server
-    const fetchedOrder = {
-      id: orderId,
-      customerName: "John Doe",
-      address: "123 Main Street, City, Country",
-      phoneNumber: "123-456-7890",
-      books: [
-        {
-          bookNo: 1,
-          image: "https://via.placeholder.com/50",
-          title: "Book 1",
-          quantity: 2,
-          unitPrice: 10,
-          finalPrice: 20,
-        },
-        {
-          bookNo: 2,
-          image: "https://via.placeholder.com/50",
-          title: "Book 2",
-          quantity: 1,
-          unitPrice: 15,
-          finalPrice: 15,
-        },
-      ],
-      discount: 5,
-    };
+useEffect(() => {
+  const fetchData = async () => {
+    if (id) {
+      try {
+        // Gọi API lấy thông tin đơn hàng
+        const orderData = await fetchOrderDetail(id);
+        console.log("Order Data:", orderData.data);
+        setOrder(orderData.data);
 
-    return fetchedOrder;
+        const username = orderData?.data?.order?.username;
+        if (username) {
+          const userData = await fetchAccountDetail(username);
+          console.log("User Data:", userData.data);
+          setUser(userData.data);
+        }
+
+        // Gọi API lấy chi tiết đơn hàng
+        const orderDetailsData = orderData.data.orderDetails;
+        console.log("Order Details Data:", orderDetailsData);
+
+        // Lấy thông tin sách dựa trên bookID
+        const bookIDs = orderDetailsData.map((item) => item.bookID);
+        const bookPromises = bookIDs.map((bookID) => fetchBookDetail(bookID));
+
+        const bookResponses = await Promise.all(bookPromises);
+        const books = bookResponses.map((res) => res.data);
+        console.log("Fetched Book Data:", books);
+
+        // Gắn thông tin sách vào orderDetails
+        const updatedOrderDetails = orderDetailsData.map((item) => {
+          const book = books.find((book) => book.bookID === item.bookID);
+          return {
+            ...item,
+            book: book || {},
+          };
+        });
+
+        console.log("Updated Order Details:", updatedOrderDetails);
+        setOrderDetails(updatedOrderDetails);
+      } catch (error) {
+        message.error("Failed to fetch data");
+        console.error("Error fetching data:", error);
+      }
+    }
   };
 
-  // useEffect để fetch dữ liệu đơn hàng khi component được render
-  useEffect(() => {
-    if (id) {
-      fetchOrderDetail(id).then((data) => {
-        setOrder(data);
-      });
-    }
-  }, [id]);
+  fetchData();
+}, [id]);
 
-  // Nếu dữ liệu chưa được tải về, hiển thị loading
-  if (!order) {
+
+  if (!order || !user) {
     return <div>Loading...</div>;
   }
 
-  const totalBooksPrice = order.books.reduce(
-    (acc, book) => acc + book.finalPrice,
-    0
-  );
-  const totalPrice = totalBooksPrice - order.discount;
-
-  // Hàm xử lý khi nhấn nút Back
-  const handleBack = () => {
-    navigate(-1); // Quay lại trang trước
-  };
+  const columns = [
+    {
+      title: "Book ID",
+      dataIndex: ["book", "bookID"],
+      key: "bookID",
+      render: (text, record) => (record.book ? record.book.bookID : "N/A"),
+    },
+    {
+      title: "Title",
+      dataIndex: ["book", "bookTitle"],
+      key: "bookTitle",
+      render: (text, record) => (record.book ? record.book.bookTitle : "N/A"),
+    },
+    {
+      title: "Author",
+      dataIndex: ["book", "author"],
+      key: "author",
+      render: (text, record) => (record.book ? record.book.author : "N/A"),
+    },
+    {
+      title: "Publisher",
+      dataIndex: ["book", "publisher"],
+      key: "publisher",
+      render: (text, record) => (record.book ? record.book.publisher : "N/A"),
+    },
+    {
+      title: "Year",
+      dataIndex: ["book", "publicationYear"],
+      key: "publicationYear",
+      render: (text, record) => (record.book ? record.book.publicationYear : "N/A"),
+    },
+    {
+      title: "ISBN",
+      dataIndex: ["book", "isbn"],
+      key: "isbn",
+      render: (text, record) => (record.book ? record.book.isbn : "N/A"),
+    },
+    {
+      title: "Unit Price",
+      dataIndex: ["book", "bookPrice"],
+      key: "bookPrice",
+      render: (price) => `$${price || 0}`,
+    },
+    {
+      title: "Quantity",
+      dataIndex: "quantity",
+      key: "quantity",
+    },
+    {
+      title: "Final Price",
+      key: "finalPrice",
+      render: (_, record) => `$${record.quantity * (record.book?.bookPrice || 0)}`,
+    },
+  ];
 
   return (
-    <div className="order-detail-container">
-      <DashboardContainer />
-
-      {/* Nút Back */}
-      <button className="back-button" onClick={handleBack}>
-        &#8592; Back
-      </button>
-
-      <h1>Order Detail for ID: {id}</h1>
-
-      {/* Thông tin người đặt hàng */}
-      <div className="customer-info">
-        <p>
-          <strong>Full Name:</strong> {order.customerName}
-        </p>
-        <p>
-          <strong>Address:</strong> {order.address}
-        </p>
-        <p>
-          <strong>Phone Number:</strong> {order.phoneNumber}
-        </p>
+    <div className="main-container">
+      <div className="dashboard-container">
+        <DashboardContainer />
       </div>
 
-      {/* Bảng danh sách các cuốn sách */}
-      <table className="book-table">
-        <thead>
-          <tr>
-            <th>Book No</th>
-            <th>Image</th>
-            <th>Book Title</th>
-            <th>Quantity</th>
-            <th>Unit Price</th>
-            <th>Final Price</th>
-          </tr>
-        </thead>
-        <tbody>
-          {order.books.map((book) => (
-            <tr key={book.bookNo}>
-              <td>{book.bookNo}</td>
-              <td>
-                <img src={book.image} alt={book.title} />
-              </td>
-              <td>{book.title}</td>
-              <td>{book.quantity}</td>
-              <td>${book.unitPrice}</td>
-              <td>${book.finalPrice}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="dashboard-content" style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
+        <Card title="Order Management - View Order Detail" style={{ marginBottom: "30px", padding: "20px" }}>
+          <Descriptions bordered column={1} style={{ marginBottom: "20px" }}>
+            <Descriptions.Item label="Customer Name">{user.firstName} {user.lastName}</Descriptions.Item>
+            <Descriptions.Item label="Phone">{user.phone}</Descriptions.Item>
+            <Descriptions.Item label="Address">{user.address}</Descriptions.Item>
+          </Descriptions>
 
-      {/* Tổng cộng và giảm giá */}
-      <div className="summary">
-        <p>
-          <strong>Total Books Price:</strong> ${totalBooksPrice}
-        </p>
-        <p>
-          <strong>Discount:</strong> ${order.discount}
-        </p>
-        <p>
-          <strong>Total Price:</strong> ${totalPrice}
-        </p>
+          <Table
+            columns={columns}
+            dataSource={orderDetails}
+            rowKey={(record) => record.book?.bookID || record.ODID}
+            pagination={false}
+            style={{ marginTop: "20px" }}
+          />
+
+          <Descriptions title="Summary" bordered style={{ marginTop: "20px" }}>
+            <Descriptions.Item label="Total Books Price" span={3}>
+              ${orderDetails.reduce((acc, item) => acc + item.quantity * (item.book?.bookPrice || 0), 0)}
+            </Descriptions.Item>
+            <Descriptions.Item label="Discount" span={3}>
+              - ${order.discount || 0}
+            </Descriptions.Item>
+            <Descriptions.Item label="Total Price" span={3}>
+              ${orderDetails.reduce((acc, item) => acc + item.quantity * (item.book?.bookPrice || 0), 0) - (order.discount || 0)}
+            </Descriptions.Item>
+          </Descriptions>
+
+          <div style={{ marginTop: "30px", textAlign: "center" }}>
+            <Button type="primary" onClick={() => navigate(-1)}>Back to Order Management</Button>
+          </div>
+        </Card>
       </div>
     </div>
   );

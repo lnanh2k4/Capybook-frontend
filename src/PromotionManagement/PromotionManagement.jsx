@@ -1,19 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Space, Table, Button, Input, message, Tag } from "antd"; // Import Ant Design components
-import { fetchPromotions, searchPromotions, deletePromotion } from "../config"; // Import searchPromotions từ API
+import { fetchPromotions, searchPromotions, deletePromotion } from "../config"; // Import API functions
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
-import moment from 'moment'; // Import moment for date comparison
+import moment from "moment"; // Import moment for date comparison
+import {
+  DeleteOutlined,
+  EditOutlined,
+  InfoCircleOutlined,
+} from "@ant-design/icons";
 
 const { Search } = Input;
 
 const PromotionManagement = () => {
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState(""); // Sử dụng để lưu giá trị tìm kiếm
+  const [searchTerm, setSearchTerm] = useState(""); // State to store search term
   const [promotions, setPromotions] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Fetch tất cả khuyến mãi khi lần đầu vào trang
+  // Fetch all promotions on first render
   useEffect(() => {
     setLoading(true);
     fetchPromotions()
@@ -36,10 +41,11 @@ const PromotionManagement = () => {
       });
   }, []);
 
-  // Hàm thực hiện khi nhấn nút search
+  // Handle search function
   const handleSearch = (value) => {
+    setSearchTerm(value);
     if (!value) {
-      // Nếu không có giá trị tìm kiếm, fetch lại tất cả các promotions
+      // Fetch all promotions if search term is empty
       fetchPromotions()
         .then((response) => {
           if (Array.isArray(response.data)) {
@@ -57,9 +63,9 @@ const PromotionManagement = () => {
         })
         .finally(() => setLoading(false));
     } else {
-      // Thực hiện tìm kiếm với searchTerm
+      // Perform search with the search term
       setLoading(true);
-      searchPromotions(value) // Gọi API tìm kiếm với giá trị searchTerm
+      searchPromotions(value)
         .then((response) => {
           if (Array.isArray(response.data)) {
             const activePromotions = response.data.filter(
@@ -111,7 +117,7 @@ const PromotionManagement = () => {
     const today = moment();
     const start = moment(startDate);
     const end = moment(endDate);
-    return today.isBetween(start, end, 'day', '[]');
+    return today.isBetween(start, end, "day", "[]");
   };
 
   const columns = [
@@ -146,7 +152,7 @@ const PromotionManagement = () => {
       key: "endDate",
     },
     {
-      title: "Status", // New column for active/inactive status
+      title: "Status",
       key: "status",
       render: (_, record) => {
         const active = isPromotionActive(record.startDate, record.endDate);
@@ -162,14 +168,17 @@ const PromotionManagement = () => {
       key: "action",
       render: (_, record) => (
         <Space size="middle">
-          <Button type="link" onClick={() => goToPromotionDetail(record.proID)}>
-            Detail
+          <Button
+            type="link"
+            onClick={() => goToPromotionDetail(record.proID)}
+          >
+            <InfoCircleOutlined />
           </Button>
           <Button type="link" onClick={() => goToEditPromotion(record.proID)}>
-            Edit
+            <EditOutlined style={{ color: "orange" }} />
           </Button>
           <Button type="link" danger onClick={() => handleDelete(record.proID)}>
-            Delete
+            <DeleteOutlined />
           </Button>
         </Space>
       ),
@@ -201,8 +210,8 @@ const PromotionManagement = () => {
           <Search
             placeholder="Search by promotion name or code"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)} // Lưu giá trị nhập vào searchTerm
-            onSearch={handleSearch} // Thực hiện tìm kiếm khi nhấn vào icon search
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onSearch={handleSearch}
             style={{ width: 300 }}
           />
         </div>

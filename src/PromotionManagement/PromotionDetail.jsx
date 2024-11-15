@@ -1,29 +1,28 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Card, Button, Descriptions, message } from "antd"; // Import Ant Design components
-import { fetchPromotionDetail } from "../config"; // Import API để lấy chi tiết khuyến mãi
+import { Card, Button, Input, message } from "antd";
+import { fetchPromotionDetail } from "../config";
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 
 const PromotionDetail = () => {
-  const { proID } = useParams(); // Lấy proID từ URL
-  const navigate = useNavigate(); // Điều hướng giữa các trang
+  const { proID } = useParams();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({});
 
   useEffect(() => {
-    // Gọi API để lấy dữ liệu khuyến mãi theo proID
     fetchPromotionDetail(proID)
       .then((response) => {
-        console.log("Fetched promotion data:", response.data); // In ra dữ liệu nhận được từ API
-        setFormData(response.data); // Cập nhật dữ liệu vào form
+        console.log("Fetched promotion data:", response.data);
+        setFormData(response.data);
       })
       .catch((error) => {
         console.error("Error fetching promotion details:", error);
         message.error("Failed to fetch promotion details");
       });
-  }, [proID]); // Chỉ chạy lại khi proID thay đổi
+  }, [proID]);
 
   const goToPromotionManagement = () => {
-    navigate("/dashboard/promotion-management"); // Điều hướng về trang Promotion Management
+    navigate("/dashboard/promotion-management");
   };
 
   return (
@@ -35,17 +34,42 @@ const PromotionDetail = () => {
           bordered={false}
           style={{ width: '100%', margin: 'auto', maxWidth: '800px' }}
         >
-          <Descriptions column={1} bordered>
-            <Descriptions.Item label="Promotion ID">{formData.proID || "N/A"}</Descriptions.Item>
-            <Descriptions.Item label="Promotion Name">{formData.proName || "N/A"}</Descriptions.Item>
-            <Descriptions.Item label="Promotion Code">{formData.proCode || "N/A"}</Descriptions.Item>
-            <Descriptions.Item label="Start Date">{formData.startDate || "N/A"}</Descriptions.Item>
-            <Descriptions.Item label="End Date">{formData.endDate || "N/A"}</Descriptions.Item>
-            <Descriptions.Item label="Discount">{formData.discount || "N/A"}</Descriptions.Item>
-            <Descriptions.Item label="Quantity">{formData.quantity || "N/A"}</Descriptions.Item>
-            <Descriptions.Item label="Created By">{formData.createdBy?.username || "N/A"}</Descriptions.Item>
-            <Descriptions.Item label="Approved By">{formData.approvedBy?.username || "N/A"}</Descriptions.Item>
-          </Descriptions>
+          <div style={{ marginBottom: '15px' }}>
+            <label>Promotion ID</label>
+            <Input value={formData.proID || "N/A"} disabled />
+          </div>
+          <div style={{ marginBottom: '15px' }}>
+            <label>Promotion Name</label>
+            <Input value={formData.proName || "N/A"} disabled />
+          </div>
+          <div style={{ marginBottom: '15px' }}>
+            <label>Promotion Code</label>
+            <Input value={formData.proCode || "N/A"} disabled />
+          </div>
+          <div style={{ marginBottom: '15px' }}>
+            <label>Start Date</label>
+            <Input value={formData.startDate || "N/A"} disabled />
+          </div>
+          <div style={{ marginBottom: '15px' }}>
+            <label>End Date</label>
+            <Input value={formData.endDate || "N/A"} disabled />
+          </div>
+          <div style={{ marginBottom: '15px' }}>
+            <label>Discount</label>
+            <Input value={formData.discount || "N/A"} disabled />
+          </div>
+          <div style={{ marginBottom: '15px' }}>
+            <label>Quantity</label>
+            <Input value={formData.quantity || "N/A"} disabled />
+          </div>
+          <div style={{ marginBottom: '15px' }}>
+            <label>Created By</label>
+            <Input value={formData.createdBy?.username || "N/A"} disabled />
+          </div>
+          <div style={{ marginBottom: '15px' }}>
+            <label>Approved By</label>
+            <Input value={formData.approvedBy?.username || "N/A"} disabled />
+          </div>
 
           <div style={{ textAlign: 'center', marginTop: '20px' }}>
             <Button type="primary" onClick={goToPromotionManagement}>

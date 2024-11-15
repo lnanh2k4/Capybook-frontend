@@ -8,6 +8,7 @@ import PromotionManagement from "./PromotionManagement/PromotionManagement";
 import AddPromotion from "./PromotionManagement/AddPromotion";
 import OrderManagement from "./OrderManagement/OrderManagement";
 import OrderDetail from "./OrderManagement/OrderDetail";
+import AddOrder from "./OrderManagement/AddOrder";
 import PromotionDetail from "./PromotionManagement/PromotionDetail";
 import EditPromotion from "./PromotionManagement/EditPromotion";
 import AccountManagement from "./AccountManagement/AccountManagement";
@@ -56,7 +57,8 @@ function App() {
         <Route path="/dashboard/edit-promotion/:proID" element={<EditPromotion />} />
 
         <Route path="/dashboard/order-management" element={<OrderManagement />} />
-        <Route path="/dashboard/order-detail/:id" element={<OrderDetail />} />
+        <Route path="/dashboard/orders/detail/:id" element={<OrderDetail />} />
+        <Route path="/dashboard/orders/add" element={<AddOrder />} />
 
         <Route path="/dashboard/suppliers" element={<SupplierManagement />} />
         <Route path="/dashboard/suppliers/add" element={<AddSupplier />} />

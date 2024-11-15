@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Form, Input, message } from 'antd';
-import { fetchCategoryDetail, fetchCategories } from '../config'; // Fetch categories function added to get child categories
+import { fetchCategoryDetail, fetchCategories } from '../config';
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 
 function CategoryDetail() {
@@ -12,27 +12,22 @@ function CategoryDetail() {
     const { catID } = useParams();  // Get the category ID from the route
 
     useEffect(() => {
-        // Fetch category details by ID
         const loadCategoryDetail = async () => {
             try {
                 // Fetch the current category details
                 const response = await fetchCategoryDetail(catID);
                 const category = response.data;
-
-                console.log("API response:", category);
-
-                // Set category data
                 setCategoryData(category);
 
-                // If category is a parent (parentCatID is null), fetch child categories
-                if (category.parentCatID === null) {
-                    // Fetch all categories and filter to get only children of the current category
-                    const allCategoriesResponse = await fetchCategories();
-                    const allCategories = allCategoriesResponse.data;
-                    const children = allCategories.filter(cat => cat.parentCatID === category.catID);
-                    setChildCategories(children);
-                } else {
-                    // If it's a child category, fetch the parent category details
+                const allCategoriesResponse = await fetchCategories();
+                const allCategories = allCategoriesResponse.data;
+
+                // Fetch child categories if they exist
+                const children = allCategories.filter(cat => cat.parentCatID === category.catID);
+                setChildCategories(children);
+
+                // Fetch parent category if it exists
+                if (category.parentCatID !== null) {
                     const parentResponse = await fetchCategoryDetail(category.parentCatID);
                     setParentCategory(parentResponse.data.catName || "");
                 }
@@ -47,7 +42,7 @@ function CategoryDetail() {
     }, [catID]);
 
     const handleBack = () => {
-        navigate("/dashboard/category");  // Go back to category management page
+        navigate("/dashboard/category");
     };
 
     if (!categoryData) {
@@ -77,18 +72,20 @@ function CategoryDetail() {
                         <Input value={categoryData.catName} disabled />
                     </Form.Item>
 
-                    <Form.Item label={categoryData.parentCatID === null ? "Children Categories" : "Parent Category"}>
-                        {categoryData.parentCatID === null ? (
-                            <Input.TextArea
-                                rows={4}
-                                value={childCategories.length > 0
-                                    ? childCategories.map(child => child.catName).join(", ")
-                                    : "No Child Categories"}
-                                disabled
-                            />
-                        ) : (
-                            <Input value={`Child of: ${parentCategory}`} disabled />
-                        )}
+                    {parentCategory && (
+                        <Form.Item label="Parent Category">
+                            <Input value={parentCategory} disabled />
+                        </Form.Item>
+                    )}
+
+                    <Form.Item label="Child Categories">
+                        <Input.TextArea
+                            rows={4}
+                            value={childCategories.length > 0
+                                ? childCategories.map(child => child.catName).join(", ")
+                                : "No Child Categories"}
+                            disabled
+                        />
                     </Form.Item>
 
                     <Form.Item>
@@ -104,7 +101,7 @@ function CategoryDetail() {
             </div>
 
             <div className="copyright">
-                <div>© Copyright {new Date().getFullYear()}</div>
+                <div>© {new Date().getFullYear()}</div>
                 <div>Capybook Management System</div>
                 <div>All Rights Reserved</div>
             </div>

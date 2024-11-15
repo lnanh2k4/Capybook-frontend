@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Button, Form, Input, Select, message } from 'antd';
-import { fetchCategoryDetail, fetchCategories, updateCategory } from '../config'; // Fetch and update category functions
+import { Button, Form, Input, TreeSelect, message } from 'antd';
+import { fetchCategoryDetail, fetchCategories, updateCategory } from '../config';
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 
 const EditCategory = () => {
-    const [form] = Form.useForm(); // Ant Design form instance
-    const [categories, setCategories] = useState([]); // To store all categories for parent selection
+    const [form] = Form.useForm(); 
+    const [treeData, setTreeData] = useState([]);
     const navigate = useNavigate();
-    const { catID } = useParams(); // Get the category ID from the route
+    const { catID } = useParams(); 
 
     useEffect(() => {
         const loadCategoryDetail = async () => {
@@ -18,17 +18,14 @@ const EditCategory = () => {
 
                 form.setFieldsValue({
                     catName: category.catName,
-                    parentCatID: category.parentCatID ? category.parentCatID : "None",
+                    parentCatID: category.parentCatID || null,
                 });
 
                 const allCategoriesResponse = await fetchCategories();
-                // Lọc các danh mục có catStatus = 1, không phải là chính nó, và không phải là danh mục con
-                const validCategories = allCategoriesResponse.data.filter(cat => 
-                    cat.catID !== category.catID && 
-                    cat.catStatus === 1 && 
-                    cat.parentCatID === null // Chỉ lấy các danh mục không phải là danh mục con
+                const validCategories = allCategoriesResponse.data.filter(
+                    (cat) => cat.catStatus === 1
                 );
-                setCategories(validCategories);
+                setTreeData(buildTreeData(validCategories, category.catID)); // Truyền catID để làm mờ danh mục hiện tại
 
             } catch (error) {
                 console.error("Error fetching category detail:", error);
@@ -39,15 +36,38 @@ const EditCategory = () => {
         loadCategoryDetail();
     }, [catID, form]);
 
+    const buildTreeData = (categories, currentCategoryId) => {
+        const map = {};
+        const roots = [];
+
+        categories.forEach((category) => {
+            map[category.catID] = {
+                title: category.catName,
+                value: category.catID,
+                key: category.catID,
+                disabled: category.catID === currentCategoryId, // Làm mờ nếu là chính nó
+                children: [],
+            };
+        });
+
+        categories.forEach((category) => {
+            if (category.parentCatID && map[category.parentCatID]) {
+                map[category.parentCatID].children.push(map[category.catID]);
+            } else if (!category.parentCatID) {
+                roots.push(map[category.catID]);
+            }
+        });
+
+        return roots;
+    };
+
     const handleSubmit = (values) => {
         const updatedCategory = {
             ...values,
-            // Nếu chọn "None", đặt parentCatID thành null, nếu không thì giữ nguyên giá trị
-            parentCatID: values.parentCatID === "None" ? null : values.parentCatID,
-            catStatus: values.catStatus || 1, // Đặt giá trị mặc định nếu catStatus không được nhập
+            parentCatID: values.parentCatID === null ? null : values.parentCatID,
+            catStatus: values.catStatus || 1,
         };
 
-        // Gửi request PUT với catID
         updateCategory(catID, updatedCategory)
             .then(() => {
                 message.success("Category updated successfully");
@@ -60,7 +80,7 @@ const EditCategory = () => {
     };
 
     const handleCancel = () => {
-        navigate("/dashboard/category"); // Navigate back to category management
+        navigate("/dashboard/category"); 
     };
 
     return (
@@ -92,24 +112,20 @@ const EditCategory = () => {
                         label="Parent Category"
                         name="parentCatID"
                     >
-                        <Select
+                        <TreeSelect
                             placeholder="Select Parent Category"
                             allowClear
-                        >
-                            <Select.Option key="None" value="None">
-                                No Parent
-                            </Select.Option>
-
-                            {categories.map(category => (
-                                <Select.Option key={category.catID} value={category.catID}>
-                                    {category.catName}
-                                </Select.Option>
-                            ))}
-                        </Select>
+                            treeData={[
+                                { title: "No Parent", value: null, key: "no-parent" },
+                                ...treeData,
+                            ]}
+                            treeDefaultExpandAll={false}
+                            dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+                        />
                     </Form.Item>
 
                     <Form.Item>
-                        <Button type="primary" htmlType="submit" >
+                        <Button type="primary" htmlType="submit">
                             Save
                         </Button>
                         <Button
@@ -122,7 +138,7 @@ const EditCategory = () => {
                     </Form.Item>
                 </Form>
             </div>
-                            {/* root */}
+
             <div className="copyright">
                 <div>© {new Date().getFullYear()}</div>
                 <div>Capybook Management System</div>

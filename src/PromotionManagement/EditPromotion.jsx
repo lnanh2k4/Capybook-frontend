@@ -1,34 +1,33 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Form, Input, Button, DatePicker, message, InputNumber } from "antd"; // Import Ant Design components
-import { updatePromotion, fetchPromotionDetail } from "../config"; // Import API
+import { Form, Input, Button, DatePicker, message, InputNumber } from "antd";
+import { updatePromotion, fetchPromotionDetail } from "../config";
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import moment from "moment";
 
-const { RangePicker } = DatePicker; // Sử dụng RangePicker
+const { RangePicker } = DatePicker;
 
 const EditPromotion = () => {
-  const { proID } = useParams(); // Lấy proID từ URL
-  const navigate = useNavigate(); // Sử dụng để điều hướng
-  const [form] = Form.useForm(); // Ant Design form
+  const { proID } = useParams();
+  const navigate = useNavigate();
+  const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-  fetchPromotionDetail(proID)
-    .then((response) => {
-      const promotion = response.data;
-      form.setFieldsValue({
-        ...promotion,
-        dateRange: [moment(promotion.startDate), moment(promotion.endDate)],
-        proStatus: promotion.proStatus, // Giữ nguyên trạng thái khuyến mãi hiện tại
+    fetchPromotionDetail(proID)
+      .then((response) => {
+        const promotion = response.data;
+        form.setFieldsValue({
+          ...promotion,
+          dateRange: [moment(promotion.startDate), moment(promotion.endDate)],
+          proStatus: promotion.proStatus,
+        });
+      })
+      .catch((error) => {
+        console.error("Error fetching promotion details:", error);
+        message.error("Failed to fetch promotion details");
       });
-    })
-    .catch((error) => {
-      console.error("Error fetching promotion details:", error);
-      message.error("Failed to fetch promotion details");
-    });
-}, [proID, form]);
-
+  }, [proID, form]);
 
   const handleSubmit = (values) => {
     const { dateRange, ...rest } = values;
@@ -47,7 +46,7 @@ const EditPromotion = () => {
     updatePromotion(proID, updatedPromotion)
       .then(() => {
         message.success("Promotion updated successfully");
-        navigate("/dashboard/promotion-management"); // Điều hướng về Promotion Management sau khi cập nhật
+        navigate("/dashboard/promotion-management");
       })
       .catch((error) => {
         console.error("Error updating promotion:", error);
@@ -56,7 +55,7 @@ const EditPromotion = () => {
   };
 
   const handleCancel = () => {
-    navigate("/dashboard/promotion-management"); // Điều hướng về Promotion Management khi cancel
+    navigate("/dashboard/promotion-management");
   };
 
   return (
@@ -78,7 +77,7 @@ const EditPromotion = () => {
             name="proName"
             rules={[{ required: true, message: "Please enter the promotion name" }]}
           >
-            <Input placeholder="Promotion Name" />
+            <Input placeholder="Promotion Name" disabled />
           </Form.Item>
 
           <Form.Item
@@ -86,7 +85,7 @@ const EditPromotion = () => {
             name="proCode"
             rules={[{ required: true, message: "Please enter the promotion code" }]}
           >
-            <Input placeholder="Promotion Code" />
+            <Input placeholder="Promotion Code" disabled />
           </Form.Item>
 
           <Form.Item
@@ -94,7 +93,7 @@ const EditPromotion = () => {
             name="discount"
             rules={[{ required: true, message: "Please enter the discount" }]}
           >
-            <InputNumber min={0} placeholder="Discount" style={{ width: "100%" }} />
+            <InputNumber min={0} placeholder="Discount" style={{ width: "100%" }} disabled />
           </Form.Item>
 
           <Form.Item
@@ -105,7 +104,6 @@ const EditPromotion = () => {
             <InputNumber min={1} placeholder="Quantity" style={{ width: "100%" }} />
           </Form.Item>
 
-          {/* Sử dụng RangePicker để chọn ngày bắt đầu và kết thúc */}
           <Form.Item
             label="Date Range"
             name="dateRange"

@@ -1,29 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Form, Input, Button, Select, message } from 'antd'; // Import Ant Design components
-import { fetchCategories, addCategory } from '../config'; // Add necessary API calls
+import { Form, Input, Button, TreeSelect, message } from 'antd';
+import { fetchCategories, addCategory } from '../config';
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
-
-const { Option } = Select;
 
 function AddCategory() {
     const [form] = Form.useForm();
     const navigate = useNavigate();
-    const [parentCategories, setParentCategories] = useState([]);
+    const [treeData, setTreeData] = useState([]);
     const [loading, setLoading] = useState(false);
     const [isFormEmpty, setIsFormEmpty] = useState(true);
 
-    // Fetch existing categories to populate the parent category dropdown
     useEffect(() => {
         setLoading(true);
         fetchCategories()
             .then((response) => {
                 if (Array.isArray(response.data)) {
-                    // Thay đổi: không lọc parentCatID === null, hiển thị tất cả các category
-                    const filteredCategories = response.data.filter(
+                    const activeCategories = response.data.filter(
                         (category) => category.catStatus === 1
                     );
-                    setParentCategories(filteredCategories);
+                    setTreeData(buildTreeData(activeCategories));
                 } else {
                     console.error("Expected an array but got", response.data);
                 }
@@ -37,6 +33,30 @@ function AddCategory() {
             });
     }, []);
 
+    const buildTreeData = (categories) => {
+        const map = {};
+        const roots = [];
+
+        categories.forEach((category) => {
+            map[category.catID] = {
+                title: category.catName,
+                value: category.catID,
+                key: category.catID,
+                children: []
+            };
+        });
+
+        categories.forEach((category) => {
+            if (category.parentCatID) {
+                map[category.parentCatID].children.push(map[category.catID]);
+            } else {
+                roots.push(map[category.catID]);
+            }
+        });
+
+        return roots;
+    };
+
     const handleFormChange = () => {
         const values = form.getFieldsValue();
         const isEmpty = !values.catName || values.catName.trim() === '';
@@ -48,12 +68,12 @@ function AddCategory() {
             const categoryData = {
                 catName: values.catName,
                 parentCatID: values.parentCatID || null, 
-                catStatus: 1, 
+                catStatus: 1,
             };
 
-            await addCategory(categoryData); 
+            await addCategory(categoryData);
             message.success('Category added successfully');
-            navigate("/dashboard/category"); 
+            navigate("/dashboard/category");
         } catch (error) {
             console.error('Error adding category:', error);
             message.error('Failed to add category');
@@ -84,7 +104,7 @@ function AddCategory() {
                     form={form}
                     onFinish={handleSubmit}
                     layout="vertical"
-                    onFieldsChange={handleFormChange} 
+                    onFieldsChange={handleFormChange}
                     style={{ maxWidth: '600px', margin: 'auto' }}
                 >
                     <Form.Item
@@ -100,17 +120,17 @@ function AddCategory() {
                         name="parentCatID"
                         rules={[{ required: false }]}
                     >
-                        <Select
+                        <TreeSelect
                             placeholder="Select parent category (optional)"
                             loading={loading}
                             allowClear
-                        >
-                            {parentCategories.map((category) => (
-                                <Option key={category.catID} value={category.catID}>
-                                    {category.catName}
-                                </Option>
-                            ))}
-                        </Select>
+                            treeData={[
+                                { title: "No parent category", value: null, key: "no-parent" },
+                                ...treeData,
+                            ]}
+                            treeDefaultExpandAll={false}
+                            dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+                        />
                     </Form.Item>
 
                     <Form.Item>
@@ -126,7 +146,7 @@ function AddCategory() {
 
             <div className="copyright">
                 <div>© Copyright {new Date().getFullYear()}</div>
-                <div>Cabybook Management System</div>
+                <div>Capybook Management System</div>
                 <div>All Rights Reserved</div>
             </div>
         </div>
