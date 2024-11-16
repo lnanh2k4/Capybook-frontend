@@ -12,9 +12,11 @@ import PromotionDetail from "./PromotionManagement/PromotionDetail";
 import EditPromotion from "./PromotionManagement/EditPromotion";
 import AccountManagement from "./AccountManagement/AccountManagement";
 
+import AddOrder from "./OrderManagement/AddOrder";
+
 import InventoryManagement from "./InventoryManagement/InventoryManagement";
 import ViewStockDetail from "./InventoryManagement/ViewStockDetail";
-
+import AddStock from "./InventoryManagement/AddStock";
 
 
 import AddSupplier from "./SupplierManagement/AddSupplier";
@@ -53,9 +55,7 @@ function App() {
 
         <Route path="/dashboard/inventory" element={<InventoryManagement />} />
         <Route path="/dashboard/inventory/stock/:stockId" element={<ViewStockDetail />} />
-
-
-
+        <Route path="/dashboard/inventory/addstock" element={<AddStock />} />
 
 
         <Route path="/dashboard/promotion-detail/:proID" element={<PromotionDetail />} />
@@ -64,7 +64,8 @@ function App() {
         <Route path="/dashboard/edit-promotion/:proID" element={<EditPromotion />} />
 
         <Route path="/dashboard/order-management" element={<OrderManagement />} />
-        <Route path="/dashboard/order-detail/:id" element={<OrderDetail />} />
+        <Route path="/dashboard/orders/detail/:id" element={<OrderDetail />} />
+        <Route path="/dashboard/orders/add" element={<AddOrder />}></Route>
 
         <Route path="/dashboard/suppliers" element={<SupplierManagement />} />
         <Route path="/dashboard/suppliers/add" element={<AddSupplier />} />
