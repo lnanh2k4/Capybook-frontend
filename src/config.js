@@ -11,7 +11,7 @@ export const fetchStaffById = (id) => {
     });
 };
 
-
+export const fetchStaffs = () => client.get('v1/staff/');
 
 const addAccount = (account) => {
     return client.post('v1/accounts/', account, {
@@ -152,7 +152,7 @@ export const fetchOrderDetail = (orderID) => client.get(`/v1/orders/${orderID}`)
 
 const fetchImportStocks = async () => {
     try {
-        const response = await client.get('/v1/importStock/'); // Corrected path to match backend
+        const response = await client.get('/v1/importStock/'); // Đảm bảo đây là GET yêu cầu
         console.log('fetchImportStocks response:', response);
         return response;
     } catch (error) {
@@ -160,6 +160,7 @@ const fetchImportStocks = async () => {
         throw error;
     }
 };
+
 
 const fetchImportStockById = async (id) => {
     return await client.get(`/Inventory/${id}`);
@@ -169,9 +170,13 @@ const updateImportStock = async (id, data) => {
     return await client.put(`/Inventory/${id}`, data);
 };
 
-const createImportStock = async (data) => {
-    return await client.post('/Inventory', data);
+const createImportStock = async (importStockData) => {
+    return client.post(`/v1/importStock/`, importStockData); // Sửa lại endpoint cho đúng
 };
+
+
+
+
 
 const deleteImportStock = async (id) => {
     return await client.delete(`/Inventory/${id}`);

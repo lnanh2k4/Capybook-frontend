@@ -32,11 +32,9 @@ function InventoryManagement() {
             if (Array.isArray(response.data)) {
                 const importStocksData = response.data;
 
-                // Lấy danh sách unique `staffID` và `supID`
                 const uniqueSupIDs = [...new Set(importStocksData.map(stock => stock.supID?.supID))].filter(id => id);
                 const uniqueStaffIDs = [...new Set(importStocksData.map(stock => typeof stock.staffID === 'object' ? stock.staffID.staffID : stock.staffID))].filter(id => id);
 
-                // Fetch dữ liệu suppliers
                 const supplierPromises = uniqueSupIDs.map(id => fetchSupplierById(id).then(res => ({ id, data: res.data })));
                 const supplierData = await Promise.all(supplierPromises);
                 const suppliersMap = supplierData.reduce((map, item) => {
@@ -45,7 +43,6 @@ function InventoryManagement() {
                 }, {});
                 setSuppliers(suppliersMap);
 
-                // Fetch dữ liệu staffs
                 const staffPromises = uniqueStaffIDs.map(async (id) => {
                     try {
                         const res = await fetchStaffById(id);
@@ -64,7 +61,6 @@ function InventoryManagement() {
                     return map;
                 }, {});
                 setStaffs(staffsMap);
-
 
                 const stockWithDetailsPromises = importStocksData.map(async (stock) => {
                     try {
@@ -102,6 +98,10 @@ function InventoryManagement() {
         navigate(`/dashboard/inventory/stock/${isid}`);
     };
 
+    const goToAddStock = () => {
+        navigate(`/dashboard/inventory/addstock`);
+    };
+
     const importColumns = useMemo(() => [
         { title: 'Stock ID', dataIndex: 'isid', key: 'isid' },
         {
@@ -116,14 +116,25 @@ function InventoryManagement() {
             key: 'staffID',
             render: (staffID) => {
                 console.log("Rendering Staff ID:", staffID);
-                if (typeof staffID === 'object' && staffID.username) {
-                    console.log("Staff Object:", staffID);
-                    return staffID.username.username || 'N/A';
-                } else {
-                    const staffData = staffs[staffID];
-                    console.log("Staff Data from Map:", staffData);
-                    return staffData?.username?.username || 'N/A';
+
+                // Case 1: `staffID` is an object with `username`
+                if (staffID && typeof staffID === 'object' && staffID.username) {
+                    console.log("Staff Object with Username:", staffID);
+                    const { firstName, lastName } = staffID.username;
+                    return `${firstName || ''} ${lastName || ''}`.trim() || 'N/A';
                 }
+                // Case 2: `staffID` is an ID
+                else if (typeof staffID === 'number') {
+                    const staffData = staffs[staffID];
+                    console.log(`Staff Data from Map for ID ${staffID}:`, staffData);
+
+                    if (staffData && staffData.username) {
+                        const { firstName, lastName } = staffData.username;
+                        return `${firstName || ''} ${lastName || ''}`.trim() || 'N/A';
+                    }
+                }
+
+                return 'N/A'; // Default if no valid data found
             },
         },
 
@@ -149,9 +160,11 @@ function InventoryManagement() {
                     Detail
                 </Button>
             ),
-
         },
     ], [suppliers, staffs]);
+
+
+
 
     if (loading || !importLoaded) {
         return (
@@ -160,7 +173,6 @@ function InventoryManagement() {
             </div>
         );
     }
-
 
     if (error) return <p>Error: {error}</p>;
 
@@ -178,11 +190,18 @@ function InventoryManagement() {
                             label: 'Import',
                             children: (
                                 <div>
+                                    <Button
+                                        type="primary"
+                                        style={{ marginBottom: 16 }}
+                                        onClick={goToAddStock}
+                                    >
+                                        Import Stock
+                                    </Button>
                                     <Search
                                         placeholder="Search by ISID"
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                        style={{ width: 300 }}
+                                        style={{ width: 300, marginLeft: 16 }}
                                     />
                                     <Table
                                         columns={importColumns}

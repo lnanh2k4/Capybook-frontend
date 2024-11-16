@@ -18,24 +18,19 @@ function ViewStockDetail() {
     }, [stockId]);
 
     const loadStockDetails = async () => {
-        setLoading(true);
         try {
             const response = await fetchImportStockDetailsByStockId(stockId);
-            console.log(`Details for stock ID ${stockId}:`, response.data);
-
-            if (Array.isArray(response.data)) {
-                setStockDetails(response.data);
-            } else {
-                setStockDetails([]);
-                message.error('Invalid data from API');
-            }
+            setStockDetails(response.data);
         } catch (error) {
-            console.error(`Error fetching stock details for ID ${stockId}:`, error);
-            setError('Could not load stock details from API');
-            message.error('Could not load data from API');
+            if (error.response && error.response.status === 404) {
+                message.error(`No details found for import stock ID: ${stockId}`);
+            } else {
+                message.error("An error occurred while fetching stock details");
+            }
+            console.error('Error fetching stock details:', error);
         }
-        setLoading(false);
     };
+
 
     const showBookDetail = (book, quantity) => {
         setSelectedBook(book);
@@ -137,24 +132,25 @@ function ViewStockDetail() {
                     ]}
                 >
                     {selectedBook && (
-                        <div>
-                            <p><strong>Book ID:</strong> {selectedBook.bookID}</p>
-                            <p><strong>Title:</strong> {selectedBook.bookTitle}</p>
-                            <p><strong>Author:</strong> {selectedBook.author || 'N/A'}</p>
-                            <p><strong>Translator:</strong> {selectedBook.translator || 'N/A'}</p>
-                            <p><strong>Publisher:</strong> {selectedBook.publisher || 'N/A'}</p>
-                            <p><strong>Publication Year:</strong> {selectedBook.publicationYear || 'N/A'}</p>
-                            <p><strong>ISBN:</strong> {selectedBook.isbn || 'N/A'}</p>
-                            <p><strong>Description:</strong> {selectedBook.bookDescription || 'N/A'}</p>
-                            <p><strong>Quantity:</strong> {selectedQuantity}</p>
-                            <p><strong>Price:</strong> {`${new Intl.NumberFormat('en-US').format(selectedBook.bookPrice || 0)} VND`}</p>
-                            {/* Hiển thị hình ảnh nếu có */}
+                        <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+                            <div style={{ flex: 1 }}>
+                                <p><strong>Book ID:</strong> {selectedBook.bookID}</p>
+                                <p><strong>Title:</strong> {selectedBook.bookTitle}</p>
+                                <p><strong>Author:</strong> {selectedBook.author || 'N/A'}</p>
+                                <p><strong>Translator:</strong> {selectedBook.translator || 'N/A'}</p>
+                                <p><strong>Publisher:</strong> {selectedBook.publisher || 'N/A'}</p>
+                                <p><strong>Publication Year:</strong> {selectedBook.publicationYear || 'N/A'}</p>
+                                <p><strong>ISBN:</strong> {selectedBook.isbn || 'N/A'}</p>
+                                <p><strong>Description:</strong> {selectedBook.bookDescription || 'N/A'}</p>
+                                <p><strong>Quantity:</strong> {selectedQuantity}</p>
+                                <p><strong>Price:</strong> {`${new Intl.NumberFormat('en-US').format(selectedBook.bookPrice || 0)} VND`}</p>
+                            </div>
                             {selectedBook.image && (
-                                <div style={{ marginTop: '15px' }}>
+                                <div style={{ marginLeft: '20px', maxWidth: '200px' }}>
                                     <img
                                         src={`http://localhost:6789${selectedBook.image}`}
                                         alt="Book Cover"
-                                        style={{ width: '100%', maxWidth: '200px', borderRadius: '5px' }}
+                                        style={{ width: '100%', borderRadius: '5px' }}
                                     />
                                 </div>
                             )}
