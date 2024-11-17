@@ -20,8 +20,15 @@ const addAccount = (account) => {
         }
     });
 };
+const registerAccount = (account) => {
+    return client.post('v1/accounts/register', account, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        }
+    });
+};
 const fetchAccounts = () => client.get('v1/accounts/');
-const fetchAccountDetail = (username) => client.get(`v1/accounts/detail/${username}`);
+const fetchAccountDetail = (username) => client.get(`v1/accounts/${username}`);
 const deleteAccount = (username) => client.delete(`v1/accounts/${username}`);
 const updateAccount = (username, formDataToSend) => {
     return axios.put(`${URLString}v1/accounts/${username}`, formDataToSend);
@@ -235,6 +242,7 @@ export {
     deleteCategory,
     fetchCategoryById,
     fetchNotifications,
-    searchAccount
+    searchAccount,
+    registerAccount
 };
 
