@@ -32,6 +32,7 @@ const AccountManagement = () => {
     const [searchKey, setSearchKey] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [username, setUsername] = useState();
 
     // Fetch accounts from the API
     useEffect(() => {
@@ -54,10 +55,11 @@ const AccountManagement = () => {
 
     //Handle Modal Delete
     const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
-    const showModal = () => {
+    const showModal = (username) => {
         setIsModalDeleteOpen(true);
+        setUsername(username)
     };
-    const handleOk = (username) => {
+    const handleOk = () => {
         setIsModalDeleteOpen(false);
         deleteAccount(username)
             .then(() => {
@@ -163,14 +165,15 @@ const AccountManagement = () => {
                     <Button type="link" onClick={() => goToAccountDetail(record.username)}><InfoCircleOutlined title='Detail' /></Button>
                     <Button type="link" style={{ color: 'orange' }} onClick={() => goToEditAccount(record.username)}><EditOutlined title='Edit' /></Button>
                     {
+
                         (record.role !== 0) && (
-                            <Button type="link" danger onClick={() => showModal()}><DeleteOutlined title='Disable' /></Button>
+                            <Button type="link" danger onClick={() => showModal(record.username)}><DeleteOutlined title='Disable' /></Button>
                         )
                     }
 
                     <Modal title="Delete Account Confirmation" open={isModalDeleteOpen} onOk={() => handleOk(record.username)}
                         onCancel={handleCancel} maskClosable={false} closable={false} okButtonProps={{ danger: true }}  >
-                        <p>Do you want to delete {record.username} account?</p>
+                        <p>Do you want to delete {username} account?</p>
                     </Modal>
                 </Space>
             ),

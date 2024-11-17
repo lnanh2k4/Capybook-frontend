@@ -38,6 +38,10 @@ import EditCategory from "./CategoryManagement/EditCategory";
 
 import Homepage from "./Homepage/Homepage"
 import BookDetails from "./Homepage/BookDetails";
+
+import Login from "./Login/Login/"
+import Register from "./Register/Register";
+
 function App() {
   return (
     <Router>
@@ -86,6 +90,9 @@ function App() {
         <Route path="/dashboard/category/detail/:catID" element={<CategoryDetail />} />
         <Route path="/dashboard/category/add" element={<AddCategory />} />
         <Route path="/dashboard/category/:catID" element={<EditCategory />} />
+
+        <Route path="/auth/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
     </Router>
   );
