@@ -27,7 +27,7 @@ const Register = () => {
 
             await registerAccount(formDataToSend);
             message.success('Account has been registered successfully');
-            navigate("/dashboard/accounts");
+            navigate("/auth/login");
         } catch (error) {
             if (error.response) {
                 console.error('Server responded with status code:', error.response.status);

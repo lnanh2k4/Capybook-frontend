@@ -4,6 +4,7 @@ import { UserOutlined, AppstoreOutlined, SettingOutlined, ShoppingCartOutlined, 
 import { useNavigate } from 'react-router-dom';
 import './Homepage.css';
 import { fetchBooks, fetchCategories, logout } from '../config'; // Fetch books and categories from API
+import decodeJWT from '../jwtConfig'
 
 
 const { Header, Footer, Content } = Layout;
@@ -114,20 +115,31 @@ const Homepage = () => {
         navigate(`/${bookId}`); // Adjust this route based on your router configuration
     };
     const handleLogout = () => {
-        console.log("Zo day")
         logout()
         navigate("/");
     }
-    const userMenu = (
-        <Menu>
-            <Menu.Item key="dashboard" icon={<AppstoreOutlined />} onClick={handleDashboardClick}>
-                Dashboard
-            </Menu.Item>
-            <Menu.Item key="signout" icon={<SettingOutlined />} onClick={handleLogout}>
-                Logout
-            </Menu.Item>
-        </Menu>
-    )
+    const userMenu = () => {
+        if (localStorage.getItem("jwtToken")) {
+            return (
+
+                <Menu>
+                    {
+                        decodeJWT(localStorage.getItem("jwtToken")).scope != "CUSTOMER" ? (<Menu.Item key="dashboard" icon={<AppstoreOutlined />} onClick={handleDashboardClick}>
+                            Dashboard
+                        </Menu.Item>) : (<Menu.Item key="profile" icon={<AppstoreOutlined />} onClick={() => { navigate("/profile") }}>
+                            Profile
+                        </Menu.Item>)
+                    }
+
+                    <Menu.Item key="signout" icon={<SettingOutlined />} onClick={handleLogout}>
+                        Logout
+                    </Menu.Item>
+                </Menu>
+            )
+        } else navigate("/auth/login");
+    }
+
+
 
 
 
@@ -190,10 +202,7 @@ const Homepage = () => {
                             icon={<UserOutlined />}
                             style={{ color: '#fff' }}
                         >
-                            {
-
-
-                            }
+                            {localStorage.getItem("jwtToken") ? decodeJWT(localStorage.getItem("jwtToken")).sub : "Login"}
                         </Button>
                     </Dropdown>
                 </div>
