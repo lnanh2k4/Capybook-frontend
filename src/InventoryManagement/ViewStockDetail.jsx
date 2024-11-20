@@ -59,12 +59,9 @@ function ViewStockDetail() {
         },
         {
             title: 'Quantity',
-            dataIndex: 'iSDQuantity',
+            dataIndex: 'iSDQuantity', // Đúng trường từ dữ liệu trả về
             key: 'quantity',
-            render: (_, record) => {
-                console.log("Quantity record:", record);
-                return record.isdquantity || 'N/A';
-            },
+            render: (quantity) => quantity || 'N/A',
         },
         {
             title: 'Import Price',
@@ -76,7 +73,7 @@ function ViewStockDetail() {
             title: 'Total',
             key: 'total',
             render: (_, record) => {
-                const quantity = record.isdquantity || 0;
+                const quantity = record.iSDQuantity || 0; // Sửa thành đúng trường
                 const price = parseFloat(record.importPrice) || 0;
                 return `${new Intl.NumberFormat('en-US').format(quantity * price)} VND`;
             },
@@ -91,6 +88,7 @@ function ViewStockDetail() {
             ),
         },
     ];
+
 
     if (loading) {
         return (
