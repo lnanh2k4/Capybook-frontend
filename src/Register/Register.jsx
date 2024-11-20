@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, Form, Input, Radio, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { registerAccount } from '../config';
 import './Register.css'; // Import file CSS
 
 const Register = () => {
@@ -26,7 +27,7 @@ const Register = () => {
 
             await registerAccount(formDataToSend);
             message.success('Account has been registered successfully');
-            navigate("/dashboard/accounts");
+            navigate("/auth/login");
         } catch (error) {
             if (error.response) {
                 console.error('Server responded with status code:', error.response.status);

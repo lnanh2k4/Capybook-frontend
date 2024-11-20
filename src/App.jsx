@@ -42,6 +42,8 @@ import BookDetails from "./Homepage/BookDetails";
 import Login from "./Login/Login/"
 import Register from "./Register/Register";
 
+import Profile from "./Profile/ProfileManagement"
+
 function App() {
   return (
     <Router>
@@ -92,6 +94,8 @@ function App() {
 
         <Route path="/auth/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </Router>
   );

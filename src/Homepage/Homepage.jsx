@@ -3,7 +3,11 @@ import { Layout, Menu, Card, Input, Row, Col, Tag, Typography, Dropdown, Button,
 import { UserOutlined, AppstoreOutlined, SettingOutlined, ShoppingCartOutlined, BellOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import './Homepage.css';
-import { fetchBooks, fetchCategories } from '../config'; // Fetch books and categories from API
+
+import { fetchBooks, fetchCategories, logout } from '../config'; // Fetch books and categories from API
+import decodeJWT from '../jwtConfig'
+
+
 
 const { Header, Footer, Content } = Layout;
 const { Search } = Input;
@@ -90,32 +94,35 @@ const Homepage = () => {
         navigate(`/detail/${bookId}`); // Adjust this route based on your router configuration
     };
 
-    const showModal = (category, books) => {
-        console.log('Opening modal with:', category, books); // Log modal state
-        if (!books || books.length === 0) {
-            console.error('No books to show in modal');
-            return;
-        }
-        setModalCategory(category);
-        setModalBooks(books);
-        setIsModalVisible(true);  // This should trigger modal to show
-    };
+    const handleLogout = () => {
+        logout()
+        navigate("/");
+    }
+    const userMenu = () => {
+        if (localStorage.getItem("jwtToken")) {
+            return (
+
+                <Menu>
+                    {
+                        decodeJWT(localStorage.getItem("jwtToken")).scope != "CUSTOMER" ? (<Menu.Item key="dashboard" icon={<AppstoreOutlined />} onClick={handleDashboardClick}>
+                            Dashboard
+                        </Menu.Item>) : (<Menu.Item key="profile" icon={<AppstoreOutlined />} onClick={() => { navigate("/profile") }}>
+                            Profile
+                        </Menu.Item>)
+                    }
+
+                    <Menu.Item key="signout" icon={<SettingOutlined />} onClick={handleLogout}>
+                        Logout
+                    </Menu.Item>
+                </Menu>
+            )
+        } else navigate("/auth/login");
+    }
 
 
-    const closeModal = () => {
-        setIsModalVisible(false); // Close modal
-    };
 
-    const userMenu = (
-        <Menu>
-            <Menu.Item key="dashboard" icon={<AppstoreOutlined />} onClick={handleDashboardClick}>
-                Dashboard
-            </Menu.Item>
-            <Menu.Item key="signout" icon={<SettingOutlined />}>
-                Sign out
-            </Menu.Item>
-        </Menu>
-    );
+
+
 
     // Group books by category and paginate them
     const booksByCategory = categories?.map(category => {
@@ -166,7 +173,9 @@ const Homepage = () => {
                             icon={<UserOutlined />}
                             style={{ color: '#fff' }}
                         >
-                            Khanh đẹp trai
+
+                            {localStorage.getItem("jwtToken") ? decodeJWT(localStorage.getItem("jwtToken")).sub : "Login"}
+
                         </Button>
                     </Dropdown>
                 </div>

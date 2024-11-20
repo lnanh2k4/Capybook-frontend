@@ -1,19 +1,40 @@
 import React from 'react';
-import { Button, Form, Input } from 'antd';
+import { Button, Form, Input, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import './Login.css'; // Đường dẫn tới file CSS
-
-const onFinish = (values) => {
-    console.log('Success:', values);
-};
-
-const onFinishFailed = (errorInfo) => {
-    console.log('Failed:', errorInfo);
-};
+import { login } from '../config.js';
 
 const Login = () => {
     const navigate = useNavigate();
+    const onFinish = async (values) => {
+        try {
+            const loginData = {
+                username: values.username,
+                password: values.password
+            }
 
+            const formDataToSend = new FormData()
+            formDataToSend.append('login', JSON.stringify(loginData))
+            console.log(values)
+            const response = await login(formDataToSend)
+            if (!response.data) {
+                message.error('Username or password is incorrect! Please enter again')
+            } else if (response.data.accountDTO) {
+                message.success('Login successfully')
+                if (response.data.accountDTO.role === 0) {
+                    navigate("/dashboard/accounts");
+                } else {
+                    navigate("/");
+                }
+            }
+            console.log(response)
+            localStorage.setItem("jwtToken", response.data.token)
+        } catch (error) {
+            console.log(error)
+            message.error('Login failed')
+        }
+
+    };
     return (
         <div className="login-container">
             <Form
@@ -29,7 +50,6 @@ const Login = () => {
                     remember: true,
                 }}
                 onFinish={onFinish}
-                onFinishFailed={onFinishFailed}
                 autoComplete="off"
             >
                 {/* Logo được thêm ở đây */}
