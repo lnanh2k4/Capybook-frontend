@@ -61,7 +61,6 @@ function App() {
         <Route path="/dashboard/inventory/stock/:stockId" element={<ViewStockDetail />} />
         <Route path="/dashboard/inventory/addstock" element={<AddStock />} />
 
-
         <Route path="/dashboard/promotion-detail/:proID" element={<PromotionDetail />} />
         <Route path="/dashboard/promotion-management" element={<PromotionManagement />} />
         <Route path="/dashboard/add-promotion" element={<AddPromotion />} />

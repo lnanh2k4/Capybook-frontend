@@ -6,12 +6,26 @@ const client = axios.create({
 
 export const fetchStaffById = (id) => {
     return client.get(`/v1/staff/${id}`).then((response) => {
-        console.log("Fetched Staff Data:", response.data);
         return response;
     });
 };
 
 export const fetchStaffs = () => client.get('v1/staff/');
+
+export const addImportStockDetail = (savedStockId, details) => {
+    return client.post(`/v1/importStock/${savedStockId}/details`, details, {
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    }).then((response) => {
+        console.log("ImportStockDetail added successfully:", response.data);
+        return response.data;
+    }).catch((error) => {
+        console.error("Error adding ImportStockDetail:", error.response || error.message);
+        throw error;
+    });
+};
+
 
 const addAccount = (account) => {
     return client.post('v1/accounts/', account, {
@@ -44,6 +58,8 @@ const addNotification = (notification) => {
     });
 };
 
+
+
 const fetchBooks = () => client.get('v1/books/');
 const fetchBookDetail = (id) => client.get(`/v1/books/${id}`); // Hàm lấy chi tiết sách
 const addBook = (formData) => {
@@ -53,6 +69,7 @@ const addBook = (formData) => {
         }
     });
 };
+
 const updateBook = (bookId, formDataToSend) => {
     return axios.put(`${URLString}v1/books/${bookId}`, formDataToSend);
 };
