@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Layout, Menu, Card, Input, Row, Col, Tag, Typography, Dropdown, Button, Select, Divider, TreeSelect, Modal } from 'antd';
-import { UserOutlined, AppstoreOutlined, SettingOutlined, ShoppingCartOutlined, BellOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
+import { UserOutlined, AppstoreOutlined, SettingOutlined, ShoppingCartOutlined, BellOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import './Homepage.css';
 import { fetchBooks, fetchCategories } from '../config'; // Fetch books and categories from API
@@ -323,7 +323,6 @@ const Homepage = () => {
                     ))}
                 </Row>
             </Modal>
-
 
             <Footer style={{ textAlign: 'center', color: '#fff', backgroundColor: '#343a40', padding: '10px 0' }}>
                 <div>© {new Date().getFullYear()} Capybook Management System</div>

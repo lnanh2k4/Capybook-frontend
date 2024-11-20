@@ -11,7 +11,6 @@ export const fetchStaffById = (id) => {
 };
 
 export const fetchStaffs = () => client.get('v1/staff/');
-
 export const addImportStockDetail = (savedStockId, details) => {
     return client.post(`/v1/importStock/${savedStockId}/details`, details, {
         headers: {

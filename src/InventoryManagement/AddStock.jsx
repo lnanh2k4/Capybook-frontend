@@ -288,11 +288,12 @@ function AddStock() {
             <Modal title="Select a Book" visible={isModalVisible} onCancel={() => setIsModalVisible(false)} footer={null}>
                 <Table
                     columns={bookColumns}
-                    dataSource={[...books, { bookID: "", bookTitle: "+ Add a new book" }]}
+                    dataSource={[{ bookID: "", bookTitle: "+ Add a new book" }, ...books]}  // Đưa "Add a new book" vào đầu
                     rowKey="bookID"
                     pagination={{ pageSize: 5 }}
                 />
             </Modal>
+
 
             <Modal
                 title="Add a New Book"
