@@ -142,22 +142,33 @@ const Homepage = () => {
 
     return (
         <Layout>
-            <Header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#0fa4d6', padding: '0 20px', height: '64px', color: '#fff' }}>
+            <Header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#0fa4d6', padding: '0 20px', height: '64px', color: '#fff' }}>
                 <div
                     style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
-                    onClick={() => navigate('/')} // Navigate to homepage on click
+                    onClick={() => navigate('/')} // Navigate to homepage when clicked
                 >
                     <img src="/logo-capybook.png" alt="Capybook Logo" style={{ height: '40px', marginRight: '20px' }} />
-                    <div className="logo" style={{ fontSize: '20px', fontWeight: 'bold' }}>Capybook</div>
+                    <div style={{ fontSize: '20px', fontWeight: 'bold' }}>Capybook</div>
                 </div>
 
-                <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                    <Search
-                        placeholder="Search for books or orders"
-                        onSearch={handleSearch}
-                        enterButton
-                        style={{ maxWidth: '500px' }}
-                    />
+                <Search
+                    placeholder="Search for books or orders"
+                    enterButton
+                    style={{ maxWidth: '500px' }}
+                />
+
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <BellOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
+                    <ShoppingCartOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
+                    <Dropdown overlay={userMenu} trigger={['click']} placement="bottomRight">
+                        <Button
+                            type="text"
+                            icon={<UserOutlined />}
+                            style={{ color: '#fff' }}
+                        >
+                            Khanh đẹp trai
+                        </Button>
+                    </Dropdown>
                 </div>
             </Header>
 
