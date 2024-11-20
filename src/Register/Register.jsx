@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, Form, Input, Radio, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
+import { registerAccount } from '../config';
 import './Register.css'; // Import file CSS
 
 const Register = () => {
