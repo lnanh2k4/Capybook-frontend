@@ -4,6 +4,69 @@ const client = axios.create({
     baseURL: URLString, // Địa chỉ API của bạn
 });
 
+let isRefreshing = false
+let refreshSubscribers = []
+
+const onRefreshed = (newToken) => {
+    refreshSubscribers.forEach((callback) => callback(newToken))
+    refreshSubscribers = []
+}
+
+client.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('jwtToken'); // Lấy token từ localStorage
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`; // Gắn token vào header Authorization
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+client.interceptors.response.use(
+    (response) => {
+        console.log(`Status Code: ${response.status}`)
+        return response
+    }, async (error) => {
+        const request = error.config
+        if (error.response && error.response.status === 401 && !request._retry) {
+            request._retry = true
+
+            if (!isRefreshing) {
+                isRefreshing = true
+                try {
+                    const refreshResponse = await login.post('auth/refresh', {
+                        token: localStorage.getItem('jwtToken')
+                    })
+                    const newToken = refreshResponse.data.token
+                    localStorage.setItem('jwtToken', newToken)
+
+                    isRefreshing = false
+                    onRefreshed(newToken)
+
+                    request.headers["Authorization"] = `Bearer ${newToken}`
+                    return client(request)
+                } catch (refreshError) {
+                    isRefreshing = false
+                    refreshSubscribers = []
+                    localStorage.removeItem("jwtToken")
+                    return Promise.reject(refreshError);
+                }
+            }
+            return new Promise((resolve) => {
+                refreshSubscribers.push((newToken) => {
+                    request.headers["Authorization"] = `Bearer ${newToken}`;
+                    resolve(client(request));
+                })
+            })
+        }
+        return Promise.reject(error)
+    }
+)
+
+
 export const fetchStaffById = (id) => {
     return client.get(`/v1/staff/${id}`).then((response) => {
         return response;
@@ -41,6 +104,25 @@ const registerAccount = (account) => {
         }
     });
 };
+
+const loginInstance = axios.create({
+    baseURL: 'http://localhost:6789/api/', // Địa chỉ API
+});
+
+const login = async (login) => {
+    return loginInstance.post('auth/token', login, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        }
+    })
+}
+
+const logout = () => {
+    const token = localStorage.getItem("jwtToken")
+    localStorage.removeItem("jwtToken")
+    return loginInstance.post('auth/logout', token)
+}
+
 const fetchAccounts = () => client.get('v1/accounts/');
 const fetchAccountDetail = (username) => client.get(`v1/accounts/${username}`);
 const deleteAccount = (username) => client.delete(`v1/accounts/${username}`);
@@ -260,6 +342,8 @@ export {
     fetchCategoryById,
     fetchNotifications,
     searchAccount,
-    registerAccount
+    registerAccount,
+    login,
+    logout
 };
 

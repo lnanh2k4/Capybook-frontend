@@ -256,9 +256,6 @@ const Homepage = () => {
                                 </div>
                             ))}
 
-
-
-
                             <Divider orientation="left" style={{ fontSize: '24px', color: '#080203', borderColor: '#c72a4c', marginBottom: '20px' }}>
                                 All Books
                             </Divider>
