@@ -139,14 +139,6 @@ const Homepage = () => {
         setCurrentPage(initialPages);
     }, [booksByCategory]);
 
-
-    const normalizeImageUrl = (imageUrl) => {
-        if (imageUrl && imageUrl.startsWith('/uploads/book_')) {
-            return `http://localhost:6789${imageUrl}`; // Thêm base URL nếu cần
-        }
-        return imageUrl || 'https://via.placeholder.com/150'; // Hình ảnh mặc định nếu không có
-    };
-
     return (
         <Layout>
             <Header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#0fa4d6', padding: '0 20px', height: '64px', color: '#fff' }}>
@@ -173,7 +165,7 @@ const Homepage = () => {
                     <div className="icon-container" onClick={() => alert('Notification clicked!')}>
                         <BellOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
                     </div>
-                    <div className="icon-container" onClick={() => alert('Shopping cart clicked!')}>
+                    <div className="icon-container" onClick={() => navigate('/cart/ViewDetail')}>
                         <ShoppingCartOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
                     </div>
                     <Dropdown overlay={userMenu} trigger={['click']} placement="bottomRight">
@@ -249,11 +241,9 @@ const Homepage = () => {
                                             onClick={() => handleBookClick(book.bookID)}
                                             className="category-book-card-2"
                                             cover={
-                                                <img
-                                                    alt={book.bookTitle}
-                                                    src={normalizeImageUrl(book.image)}
-                                                    style={{ height: '150px', objectFit: 'cover' }}
-                                                />
+                                                <div className="image-container">
+                                                    <img alt={book.bookTitle} src={book.image || 'https://via.placeholder.com/150'} className="category-book-image" />
+                                                </div>
                                             }
                                         >
                                             <Title level={4} className="book-title-2">{book.bookTitle}</Title>
@@ -288,7 +278,7 @@ const Homepage = () => {
                                 className="book-card"
                                 cover={
                                     <div className="image-container">
-                                        <img alt={book.bookTitle} src={normalizeImageUrl(book.image)} className="book-image" />
+                                        <img alt={book.bookTitle} src={book.image || 'https://via.placeholder.com/150'} className="book-image" />
                                     </div>
                                 }
                             >

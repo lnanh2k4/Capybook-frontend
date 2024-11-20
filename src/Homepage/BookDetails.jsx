@@ -3,7 +3,7 @@ import { fetchBookById } from '../config';
 import { ShoppingCartOutlined, BellOutlined, UserOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-
+import AddBookToCart from './AddBookToCart';
 const { Header, Content, Footer } = Layout;
 const { Search } = Input; // Correct Search import
 
@@ -108,10 +108,9 @@ const BookDetails = () => {
                             </div>
                             {/* Buttons moved below image */}
                             <div style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'flex-start' }}>
-                                <Button type="primary" style={{ width: '150px', height: '45px', backgroundColor: '#FF4500', borderColor: '#FF4500' }}>Buy now</Button>
-                                <Button style={{ width: '150px', height: '45px', borderColor: '#FF4500', color: '#FF4500' }} icon={<ShoppingCartOutlined />}>
-                                    Add to cart
-                                </Button>
+
+                                <AddBookToCart username="khanh_dep_trai" bookId={bookId} bookData={bookData} />
+
                             </div>
 
                         </div>
@@ -133,10 +132,7 @@ const BookDetails = () => {
                                 <div>Estimated delivery: Oct 26</div>
                             </div>
 
-                            <div style={{ marginBottom: '20px' }}>
-                                <h3 style={{ fontWeight: 'bold', marginBottom: '10px' }}>Quantity</h3>
-                                <InputNumber min={1} max={10} defaultValue={1} />
-                            </div>
+
                         </div>
                     </div>
 

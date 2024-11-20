@@ -110,9 +110,13 @@ const deletePromotion = (proID) => {
     return client.delete(`/v1/promotions/${proID}`);
 };
 
-const searchPromotions = (searchTerm) => {
-    return client.get(`/v1/promotions/search?term=${searchTerm}`);
+const searchPromotions = (id, term) => {
+    const params = new URLSearchParams();
+    if (id) params.append("id", id);
+    if (term) params.append("term", term);
+    return client.get(`/v1/promotions/search?${params.toString()}`);
 };
+
 
 const fetchPromotionById = (proID) => client.get(`/v1/promotions/${proID}`);
 
@@ -131,11 +135,13 @@ const deleteCategory = (catID) => {
     return client.put(`/v1/categories/${catID}/soft-delete`);
 };
 
-
-
-const searchCategories = (searchTerm) => {
-    return client.get(`/v1/categories/search?term=${searchTerm}`);
+const searchCategories = (id, name) => {
+    const params = new URLSearchParams();
+    if (id) params.append("id", id);
+    if (name) params.append("name", name);
+    return client.get(`/v1/categories/search?${params.toString()}`);
 };
+
 
 const fetchCategoryById = (catID) => client.get(`/v1/categories/${catID}`);
 
@@ -167,7 +173,6 @@ const addOrder = (orderData) => {
         }
     });
 };
-
 const fetchOrderDetailsByOrderID = (id) => {
     return axios.get(`/api/v1/orders/details/${id}`);
 };
@@ -210,8 +215,46 @@ export const fetchImportStockDetailsByStockId = (id) => {
     return client.get(`/v1/importStock/${id}/details`);
 };
 
+// Cart APIs
+
+// Thêm sách vào giỏ hàng
+const addBookToCart = (username, bookID, quantity) => {
+    return client.post('v1/cart/add', null, {
+        params: {
+            username: username,
+            bookID: bookID,
+            quantity: quantity,
+        },
+    });
+};
+
+// Hàm tạo URL thanh toán
+const createPayment = (totalAmount) => {
+    return client.post('v1/payment/create', null, {
+        params: {
+            totalAmount: totalAmount,
+        },
+    });
+};
 
 
+
+// Hàm xử lý kết quả trả về từ VNPay
+const handlePaymentReturn = () => {
+    return client.get('v1/payment/return');
+};
+
+const viewCart = (username) => {
+    return client.get('v1/cart/view', {
+        params: {
+            username: username,
+        },
+    }).then(response => response.data)
+        .catch(error => {
+            console.error('Error fetching cart:', error.response || error.message);
+            throw error;
+        });
+};
 
 
 export {
@@ -260,6 +303,10 @@ export {
     fetchCategoryById,
     fetchNotifications,
     searchAccount,
-    registerAccount
-};
+    registerAccount,
+    addBookToCart,
+    createPayment, // Thêm hàm createPayment
+    handlePaymentReturn,
+    viewCart
 
+};
