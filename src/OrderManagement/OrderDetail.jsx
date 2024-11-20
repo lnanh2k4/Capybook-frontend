@@ -15,7 +15,6 @@ useEffect(() => {
   const fetchData = async () => {
     if (id) {
       try {
-        // Gọi API lấy thông tin đơn hàng
         const orderData = await fetchOrderDetail(id);
         console.log("Order Data:", orderData.data);
         setOrder(orderData.data);
@@ -27,18 +26,15 @@ useEffect(() => {
           setUser(userData.data);
         }
 
-        // Gọi API lấy chi tiết đơn hàng
         const orderDetailsData = orderData.data.orderDetails;
         console.log("Order Details Data:", orderDetailsData);
 
-        // Lấy thông tin sách dựa trên bookID
         const bookIDs = orderDetailsData.map((item) => item.bookID);
         const bookPromises = bookIDs.map((bookID) => fetchBookDetail(bookID));
         const bookResponses = await Promise.all(bookPromises);
         const books = bookResponses.map((res) => res.data);
         console.log("Fetched Book Data:", books);
 
-        // Gắn thông tin sách vào orderDetails
         const updatedOrderDetails = orderDetailsData.map((item) => {
           const book = books.find((book) => book.bookID === item.bookID);
           return {
@@ -50,7 +46,6 @@ useEffect(() => {
         console.log("Updated Order Details:", updatedOrderDetails);
         setOrderDetails(updatedOrderDetails);
 
-        // Gọi API lấy thông tin khuyến mãi nếu có proID
         const proID = orderData.data.order?.proID;
         if (proID) {
           const promotionData = await fetchPromotionDetail(proID);

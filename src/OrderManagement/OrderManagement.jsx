@@ -80,7 +80,7 @@ const OrderManagement = () => {
         if (dates) {
             applyDateRangeFilter(orders, dates);
         } else {
-            loadOrders(); // If no date range is selected, load all orders
+            loadOrders();
         }
     };
 
