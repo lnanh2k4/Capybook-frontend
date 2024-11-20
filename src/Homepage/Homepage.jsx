@@ -3,7 +3,8 @@ import { Layout, Menu, Card, Input, Row, Col, Tag, Typography, Dropdown, Button,
 import { UserOutlined, AppstoreOutlined, SettingOutlined, ShoppingCartOutlined, BellOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import './Homepage.css';
-import { fetchBooks, fetchCategories } from '../config'; // Fetch books and categories from API
+import { fetchBooks, fetchCategories, logout } from '../config'; // Fetch books and categories from API
+
 
 const { Header, Footer, Content } = Layout;
 const { Search } = Input;
@@ -40,6 +41,7 @@ const Homepage = () => {
     const handleSearch = useCallback((value) => {
         setSearchTerm(value.toLowerCase());
     }, []);
+
 
     // Handle sorting
     const handleSortChange = (value) => {
@@ -111,17 +113,23 @@ const Homepage = () => {
     const handleBookClick = (bookId) => {
         navigate(`/${bookId}`); // Adjust this route based on your router configuration
     };
-
+    const handleLogout = () => {
+        console.log("Zo day")
+        logout()
+        navigate("/");
+    }
     const userMenu = (
         <Menu>
             <Menu.Item key="dashboard" icon={<AppstoreOutlined />} onClick={handleDashboardClick}>
                 Dashboard
             </Menu.Item>
-            <Menu.Item key="signout" icon={<SettingOutlined />}>
-                Sign out
+            <Menu.Item key="signout" icon={<SettingOutlined />} onClick={handleLogout}>
+                Logout
             </Menu.Item>
         </Menu>
-    );
+    )
+
+
 
     // Group books by category and paginate them
     const booksByCategory = categories?.map(category => {
@@ -174,7 +182,10 @@ const Homepage = () => {
                             icon={<UserOutlined />}
                             style={{ color: '#fff' }}
                         >
-                            Khanh đẹp trai
+                            {
+
+
+                            }
                         </Button>
                     </Dropdown>
                 </div>

@@ -1,5 +1,5 @@
 import { Layout, Descriptions, Button, Image, Menu, Dropdown, Input, Tag, InputNumber } from 'antd'; // Added Tag here
-import { fetchBookById } from '../config';
+import { fetchBookById, logout } from '../config';
 import { ShoppingCartOutlined, BellOutlined, UserOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -48,11 +48,15 @@ const BookDetails = () => {
                 console.error('Error fetching book details:', error);
             });
     }, [bookId]);
-
+    const handleLogout = () => {
+        console.log("Zo day")
+        logout()
+        navigate("/");
+    }
     const userMenu = (
         <Menu>
             <Menu.Item key="dashboard">Dashboard</Menu.Item>
-            <Menu.Item key="signout">Sign Out</Menu.Item>
+            <Menu.Item key="signout" onClick={handleLogout}>Logout</Menu.Item>
         </Menu>
     );
 
