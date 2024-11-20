@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Layout, Menu, Card, Input, Row, Col, Tag, Typography, Dropdown, Button, Select, Divider, TreeSelect } from 'antd';
+import { Layout, Menu, Card, Input, Row, Col, Tag, Typography, Dropdown, Button, Select, Divider, TreeSelect, Modal } from 'antd';
 import { UserOutlined, AppstoreOutlined, SettingOutlined, ShoppingCartOutlined, BellOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import './Homepage.css';
+
 import { fetchBooks, fetchCategories, logout } from '../config'; // Fetch books and categories from API
+import decodeJWT from '../jwtConfig'
+
 
 
 const { Header, Footer, Content } = Layout;
@@ -19,6 +22,10 @@ const Homepage = () => {
     const [sortOrder, setSortOrder] = useState('default'); // State for sorting
     const [currentPage, setCurrentPage] = useState({}); // Track the current page for each category
     const [isTransitioning, setIsTransitioning] = useState(false); // Track animation state
+    const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
+    const [modalBooks, setModalBooks] = useState([]); // Books to display in the modal
+    const [modalCategory, setModalCategory] = useState(null); // The selected category for the modal
+
 
     const navigate = useNavigate(); // Initialize navigate for routing
 
@@ -42,7 +49,6 @@ const Homepage = () => {
         setSearchTerm(value.toLowerCase());
     }, []);
 
-
     // Handle sorting
     const handleSortChange = (value) => {
         setSortOrder(value);
@@ -62,32 +68,6 @@ const Homepage = () => {
         return pages;
     };
 
-    // Handle moving to the next or previous set of books
-    const handleNextPage = (categoryId) => {
-        if (!isTransitioning) {
-            setIsTransitioning(true); // Start animation
-            setTimeout(() => {
-                setCurrentPage(prev => ({
-                    ...prev,
-                    [categoryId]: (prev[categoryId] + 1) % (booksByCategory.find(c => c.category.catID === categoryId)?.pages?.length || 1),
-                }));
-                setIsTransitioning(false); // End animation after transition
-            }, 400); // Duration matches CSS transition time
-        }
-    };
-
-    const handlePrevPage = (categoryId) => {
-        if (!isTransitioning) {
-            setIsTransitioning(true); // Start animation
-            setTimeout(() => {
-                setCurrentPage(prev => ({
-                    ...prev,
-                    [categoryId]: (prev[categoryId] - 1 + (booksByCategory.find(c => c.category.catID === categoryId)?.pages?.length || 1)) % (booksByCategory.find(c => c.category.catID === categoryId)?.pages?.length || 1),
-                }));
-                setIsTransitioning(false); // End animation after transition
-            }, 400); // Duration matches CSS transition time
-        }
-    };
 
     // Filter books based on the search term, category, and only include those with bookStatus = 1
     const filteredBooks = books
@@ -111,30 +91,43 @@ const Homepage = () => {
     };
 
     const handleBookClick = (bookId) => {
-        navigate(`/${bookId}`); // Adjust this route based on your router configuration
+        navigate(`/detail/${bookId}`); // Adjust this route based on your router configuration
     };
+
     const handleLogout = () => {
-        console.log("Zo day")
         logout()
         navigate("/");
     }
-    const userMenu = (
-        <Menu>
-            <Menu.Item key="dashboard" icon={<AppstoreOutlined />} onClick={handleDashboardClick}>
-                Dashboard
-            </Menu.Item>
-            <Menu.Item key="signout" icon={<SettingOutlined />} onClick={handleLogout}>
-                Logout
-            </Menu.Item>
-        </Menu>
-    )
+    const userMenu = () => {
+        if (localStorage.getItem("jwtToken")) {
+            return (
+
+                <Menu>
+                    {
+                        decodeJWT(localStorage.getItem("jwtToken")).scope != "CUSTOMER" ? (<Menu.Item key="dashboard" icon={<AppstoreOutlined />} onClick={handleDashboardClick}>
+                            Dashboard
+                        </Menu.Item>) : (<Menu.Item key="profile" icon={<AppstoreOutlined />} onClick={() => { navigate("/profile") }}>
+                            Profile
+                        </Menu.Item>)
+                    }
+
+                    <Menu.Item key="signout" icon={<SettingOutlined />} onClick={handleLogout}>
+                        Logout
+                    </Menu.Item>
+                </Menu>
+            )
+        } else navigate("/auth/login");
+    }
+
+
+
 
 
 
     // Group books by category and paginate them
     const booksByCategory = categories?.map(category => {
         const booksInCategory = sortedBooks.filter(book => book.catID === category.catID);
-        const pages = paginateBooks(booksInCategory, 6); // Show 6 books per page
+        const pages = paginateBooks(booksInCategory, 6); // 6 books per page
         return { category, pages };
     });
 
@@ -147,53 +140,42 @@ const Homepage = () => {
         setCurrentPage(initialPages);
     }, [booksByCategory]);
 
-
     const normalizeImageUrl = (imageUrl) => {
         if (imageUrl && imageUrl.startsWith('/uploads/book_')) {
-            return `http://localhost:6789${imageUrl}`; // Thêm base URL nếu cần
+            return `http://localhost:6789${imageUrl}`; // Add base URL if needed
         }
-        return imageUrl || 'https://via.placeholder.com/150'; // Hình ảnh mặc định nếu không có
+        return imageUrl || 'https://via.placeholder.com/150'; // Default image
     };
 
     return (
         <Layout>
-            <Header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#0fa4d6', padding: '0 20px', height: '64px', color: '#fff' }}>
+            <Header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#0fa4d6', padding: '0 20px', height: '64px', color: '#fff' }}>
                 <div
                     style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
-                    onClick={() => navigate('/')} // Navigate to homepage on click
+                    onClick={() => navigate('/')} // Navigate to homepage when clicked
                 >
                     <img src="/logo-capybook.png" alt="Capybook Logo" style={{ height: '40px', marginRight: '20px' }} />
-                    <div className="logo" style={{ fontSize: '20px', fontWeight: 'bold' }}>Capybook</div>
+                    <div style={{ fontSize: '20px', fontWeight: 'bold' }}>Capybook</div>
                 </div>
 
-                {/* Center Search */}
-                <div style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-                    <Search
-                        placeholder="Search for books or orders"
-                        onSearch={handleSearch}
-                        enterButton
-                        style={{ maxWidth: '500px' }}
-                    />
-                </div>
+                <Search
+                    placeholder="Search for books or orders"
+                    enterButton
+                    style={{ maxWidth: '500px' }}
+                />
 
-                {/* Icons and User Dropdown */}
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <div className="icon-container" onClick={() => alert('Notification clicked!')}>
-                        <BellOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
-                    </div>
-                    <div className="icon-container" onClick={() => alert('Shopping cart clicked!')}>
-                        <ShoppingCartOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
-                    </div>
+                    <BellOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
+                    <ShoppingCartOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
                     <Dropdown overlay={userMenu} trigger={['click']} placement="bottomRight">
                         <Button
                             type="text"
                             icon={<UserOutlined />}
                             style={{ color: '#fff' }}
                         >
-                            {
 
+                            {localStorage.getItem("jwtToken") ? decodeJWT(localStorage.getItem("jwtToken")).sub : "Login"}
 
-                            }
                         </Button>
                     </Dropdown>
                 </div>
@@ -235,88 +217,130 @@ const Homepage = () => {
                     </Col>
                 </Row>
 
+                {selectedCategory
+                    ? (
+                        <Row gutter={[16, 16]}>
+                            {sortedBooks.map((book) => (
+                                <Col key={book.bookID} xs={24} sm={12} md={8} lg={4} xl={4}>
+                                    <Card
+                                        hoverable
+                                        className="book-card"
+                                        onClick={() => handleBookClick(book.bookID)}
+                                        cover={
+                                            <div className="image-container">
+                                                <img alt={book.bookTitle} src={normalizeImageUrl(book.image)} className="book-image" />
+                                            </div>
+                                        }
+                                    >
+                                        <Title level={5} className="book-title">{book.bookTitle}</Title>
+                                        <Title level={4} type="danger" className="book-price">{`${book.bookPrice.toLocaleString('vi-VN')} đ`}</Title>
+                                    </Card>
+                                </Col>
+                            ))}
+                        </Row>
+                    )
+                    : (
+                        <>
+                            {booksByCategory.map(({ category, pages }) => (
+                                <div key={category.catID} style={{ position: 'relative', padding: '20px', marginBottom: '30px', backgroundColor: '#fff' }}>
+                                    <Divider orientation="center" style={{ fontSize: '24px', color: '#FF4500', borderColor: '#FF4500', marginBottom: '20px' }}>
+                                        {category.catName}
+                                    </Divider>
+                                    <Row gutter={[16, 16]} className={`fade-in`}>
+                                        {pages[currentPage[category.catID]]?.map((book) => (
+                                            <Col key={book.bookID} xs={24} sm={12} md={8} lg={4} xl={4}>
+                                                <Card
+                                                    hoverable
+                                                    onClick={() => handleBookClick(book.bookID)}
+                                                    className="category-book-card-2"
+                                                    cover={
+                                                        <img
+                                                            alt={book.bookTitle}
+                                                            src={normalizeImageUrl(book.image)}
+                                                            style={{ height: '150px', objectFit: 'cover' }}
+                                                        />
+                                                    }
+                                                >
+                                                    <Title level={4} className="book-title-2">{book.bookTitle}</Title>
+                                                    <Title level={5} type="danger" className="book-price">{`${book.bookPrice.toLocaleString('vi-VN')} đ`}</Title>
+                                                    {book.discount && <Tag color="volcano" className="book-discount">{`${book.discount}% off`}</Tag>}
+                                                </Card>
+                                            </Col>
+                                        ))}
+                                    </Row>
+                                    {pages.length > 1 && (
+                                        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+                                            <Button type="primary" onClick={() => showModal(category, pages.flat())}>Xem thêm</Button>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
 
-                {booksByCategory?.length > 0 && booksByCategory.map(({ category, pages }) => (
-                    pages.length > 0 && (
-                        <div key={category.catID} style={{ position: 'relative', padding: '20px', marginBottom: '30px', backgroundColor: '#fff' }}>
-                            <Divider orientation="center" style={{ fontSize: '24px', color: '#FF4500', borderColor: '#FF4500', marginBottom: '20px' }}>
-                                {category.catName}
+                            <Divider orientation="left" style={{ fontSize: '24px', color: '#080203', borderColor: '#c72a4c', marginBottom: '20px' }}>
+                                All Books
                             </Divider>
-
-                            {/* Left Arrow */}
-                            <Button
-                                icon={<LeftOutlined />}
-                                style={{ position: 'absolute', top: '50%', left: '0', zIndex: 1 }}
-                                disabled={isTransitioning || currentPage[category.catID] === 0}
-                                onClick={() => handlePrevPage(category.catID)}
-                            />
-
-                            {/* Books display */}
-                            <Row gutter={[16, 16]} className={`fade-in ${isTransitioning ? 'transition' : ''}`}>
-                                {pages[currentPage[category.catID]]?.map((book) => (
-                                    <Col key={book.bookID} xs={24} sm={12} md={8} lg={4} xl={4}>
+                            <Row gutter={[16, 16]}>
+                                {sortedBooks.map((book, index) => (
+                                    <Col key={book.bookID || index} xs={24} sm={12} md={8} lg={4} xl={4}>
                                         <Card
                                             hoverable
                                             onClick={() => handleBookClick(book.bookID)}
-                                            className="category-book-card-2"
+                                            className="book-card"
                                             cover={
-                                                <img
-                                                    alt={book.bookTitle}
-                                                    src={normalizeImageUrl(book.image)}
-                                                    style={{ height: '150px', objectFit: 'cover' }}
-                                                />
+                                                <div className="image-container">
+                                                    <img alt={book.bookTitle} src={normalizeImageUrl(book.image)} className="book-image" />
+                                                </div>
                                             }
                                         >
-                                            <Title level={4} className="book-title-2">{book.bookTitle}</Title>
-                                            <Title level={5} type="danger" className="book-price">{`${book.bookPrice} đ`}</Title>
+                                            <Title level={5} className="book-title">{book.bookTitle}</Title>
+                                            <Title level={4} type="danger" className="book-price">{`${book.bookPrice.toLocaleString('vi-VN')} đ`}</Title>
                                             {book.discount && <Tag color="volcano" className="book-discount">{`${book.discount}% off`}</Tag>}
                                         </Card>
                                     </Col>
                                 ))}
                             </Row>
-
-                            {/* Right Arrow */}
-                            <Button
-                                icon={<RightOutlined />}
-                                style={{ position: 'absolute', top: '50%', right: '0', zIndex: 1 }}
-                                disabled={isTransitioning || currentPage[category.catID] === pages.length - 1}
-                                onClick={() => handleNextPage(category.catID)}
-                            />
-                        </div>
-                    )
-                ))}
-
-                {/* All Books Section */}
-                <Divider orientation="left" style={{ fontSize: '24px', color: '#080203', borderColor: '#c72a4c', marginBottom: '20px' }}>
-                    All Books
-                </Divider>
+                        </>
+                    )}
+            </Content>
+            <Modal
+                title={modalCategory?.catName || 'Books'}
+                visible={isModalVisible}
+                onCancel={closeModal}
+                footer={null}
+                width={900}
+            >
+                {/* Render các sách từ modalBooks */}
                 <Row gutter={[16, 16]}>
-                    {sortedBooks.map((book, index) => (
-                        <Col key={book.bookID || index} xs={24} sm={12} md={8} lg={4} xl={4}>
+                    {modalBooks.map(book => (
+                        <Col key={book.bookID} xs={24} sm={12} md={8} lg={6} xl={6}>
                             <Card
                                 hoverable
                                 onClick={() => handleBookClick(book.bookID)}
-                                className="book-card"
                                 cover={
-                                    <div className="image-container">
-                                        <img alt={book.bookTitle} src={normalizeImageUrl(book.image)} className="book-image" />
-                                    </div>
+                                    <img
+                                        alt={book.bookTitle}
+                                        src={normalizeImageUrl(book.image)}
+                                        style={{ height: '200px', objectFit: 'cover' }}
+                                    />
                                 }
                             >
-                                <Title level={5} className="book-title">{book.bookTitle}</Title>
-                                <Title level={4} type="danger" className="book-price">{`${book.bookPrice} đ`}</Title>
-                                {book.discount && <Tag color="volcano" className="book-discount">{`${book.discount}% off`}</Tag>}
+                                <Title level={5}>{book.bookTitle}</Title>
+                                <Title level={4} type="danger">{`${book.bookPrice.toLocaleString('vi-VN')} đ`}</Title>
+                                {book.discount && <Tag color="volcano">{`${book.discount}% off`}</Tag>}
                             </Card>
                         </Col>
                     ))}
                 </Row>
-            </Content>
+            </Modal>
+
+
             <Footer style={{ textAlign: 'center', color: '#fff', backgroundColor: '#343a40', padding: '10px 0' }}>
                 <div>© {new Date().getFullYear()} Capybook Management System</div>
                 <div>All Rights Reserved</div>
             </Footer>
         </Layout>
     );
+
 };
 
 export default Homepage;

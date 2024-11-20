@@ -275,11 +275,11 @@ const fetchImportStocks = async () => {
 
 
 const fetchImportStockById = async (id) => {
-    return await client.get(`/Inventory/${id}`);
+    return await client.get(`/importStock/${id}`);
 };
 
 const updateImportStock = async (id, data) => {
-    return await client.put(`/Inventory/${id}`, data);
+    return await client.put(`/importStock/${id}`, data);
 };
 
 const createImportStock = async (importStockData) => {
