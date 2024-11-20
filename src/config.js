@@ -299,6 +299,44 @@ export const fetchImportStockDetailsByStockId = (id) => {
 
 
 
+// Thêm sách vào giỏ hàng
+const addBookToCart = (username, bookID, quantity) => {
+    return client.post('v1/cart/add', null, {
+        params: {
+            username: username,
+            bookID: bookID,
+            quantity: quantity,
+        },
+    });
+};
+
+// Hàm tạo URL thanh toán
+const createPayment = (totalAmount) => {
+    return client.post('v1/payment/create', null, {
+        params: {
+            totalAmount: totalAmount,
+        },
+    });
+};
+
+
+
+// Hàm xử lý kết quả trả về từ VNPay
+const handlePaymentReturn = () => {
+    return client.get('v1/payment/return');
+};
+
+const viewCart = (username) => {
+    return client.get('v1/cart/view', {
+        params: {
+            username: username,
+        },
+    }).then(response => response.data)
+        .catch(error => {
+            console.error('Error fetching cart:', error.response || error.message);
+            throw error;
+        });
+};
 
 
 export {
@@ -349,6 +387,10 @@ export {
     searchAccount,
     registerAccount,
     login,
-    logout
+    logout,
+    addBookToCart,
+    createPayment, // Thêm hàm createPayment
+    handlePaymentReturn,
+    viewCart,
 };
 

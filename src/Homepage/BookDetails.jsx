@@ -2,7 +2,7 @@ import { Layout, Descriptions, Button, Image, Menu, Dropdown, Input, Tag, InputN
 
 import { fetchBookById } from '../config';
 import { AppstoreOutlined, ShoppingCartOutlined, BellOutlined, UserOutlined } from '@ant-design/icons';
-
+import AddBookToCart from './AddBookToCart';
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
@@ -115,10 +115,11 @@ const BookDetails = () => {
                                 />
                             </div>
                             <div style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'flex-start' }}>
-                                <Button type="primary" style={{ width: '150px', height: '45px', backgroundColor: '#FF4500', borderColor: '#FF4500' }}>Buy now</Button>
-                                <Button style={{ width: '150px', height: '45px', borderColor: '#FF4500', color: '#FF4500' }} icon={<ShoppingCartOutlined />}>
-                                    Add to cart
-                                </Button>
+
+                                <div style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'flex-start' }}>
+
+                                    <AddBookToCart username="khanh_dep_trai" bookId={bookId} bookData={bookData} />
+                                </div>
                             </div>
                         </div>
 

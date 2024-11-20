@@ -159,7 +159,9 @@ const Homepage = () => {
 
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <BellOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
-                    <ShoppingCartOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
+                    <div className="icon-container" onClick={() => navigate('/cart/ViewDetail')}>
+                        <ShoppingCartOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
+                    </div>
                     <Dropdown overlay={userMenu} trigger={['click']} placement="bottomRight">
                         <Button
                             type="text"

@@ -41,7 +41,7 @@ import BookDetails from "./Homepage/BookDetails";
 
 import Login from "./Login/Login/"
 import Register from "./Register/Register";
-
+import CartDetails from "./Homepage/CartDetails";
 import Profile from "./Profile/ProfileManagement"
 
 function App() {
@@ -58,7 +58,7 @@ function App() {
         <Route path="/dashboard/books/detail" element={<ViewBookDetail />} />
         <Route path="/dashboard/books/edit" element={<EditBook />} />
         <Route path="/dashboard/books/detail/:bookId" element={<ViewBookDetail />} />
-
+        <Route path="/cart/ViewDetail" element={<CartDetails />} />
         <Route path="/dashboard/inventory" element={<InventoryManagement />} />
         <Route path="/dashboard/inventory/stock/:stockId" element={<ViewStockDetail />} />
         <Route path="/dashboard/inventory/addstock" element={<AddStock />} />
