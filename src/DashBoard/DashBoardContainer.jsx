@@ -130,7 +130,11 @@ const DashboardContainer = () => {
       onMouseLeave={() => setCollapsed(true)}   // Thu gọn menu khi di chuột ra
       style={{ width: collapsed ? '80px' : '250px', transition: 'width 0.3s ease' }}
     >
-      <div className="logo-container">
+      <div
+        className="logo-container"
+        onClick={() => navigate('/')} // Điều hướng về trang chủ "/"
+        style={{ cursor: 'pointer' }} // Con trỏ chỉ định có thể bấm vào
+      >
         <img src="/logo-capybook.png" alt="Cabybook Logo" className="logo-image" />
       </div>
       <div className="username-container" style={{ textAlign: 'center', margin: '10px 0', color: '#333' }}>

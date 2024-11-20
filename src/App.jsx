@@ -49,7 +49,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Homepage />} />
-        <Route path="/:bookId" element={<BookDetails />} />
+        <Route path="/detail/:bookId" element={<BookDetails />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/dashboard/books/add/" element={<AddBook />} />
         <Route path="/dashboard/books/edit/:bookId" element={<EditBook />} />
