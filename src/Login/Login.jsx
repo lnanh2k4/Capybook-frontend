@@ -1,15 +1,21 @@
 import React from 'react';
-import { Button, Checkbox, Form, Input } from 'antd';
+import { Button, Form, Input } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import './Login.css'; // Đường dẫn tới file CSS
+
 const onFinish = (values) => {
     console.log('Success:', values);
 };
+
 const onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo);
 };
 
 const Login = () => {
+    const navigate = useNavigate();
+
     return (
-        <>
+        <div className="login-container">
             <Form
                 name="basic"
                 labelCol={{
@@ -18,9 +24,7 @@ const Login = () => {
                 wrapperCol={{
                     span: 16,
                 }}
-                style={{
-                    maxWidth: 600,
-                }}
+                className="login-form"
                 initialValues={{
                     remember: true,
                 }}
@@ -28,6 +32,12 @@ const Login = () => {
                 onFinishFailed={onFinishFailed}
                 autoComplete="off"
             >
+                {/* Logo được thêm ở đây */}
+                <img
+                    src="/logo-capybook.png"
+                    alt="Capybook Logo"
+                    className="login-logo"
+                />
                 <Form.Item
                     label="Username"
                     name="username"
@@ -54,18 +64,21 @@ const Login = () => {
                     <Input.Password />
                 </Form.Item>
 
-                <Form.Item name="remember" valuePropName="checked" label={null}>
-                    <Checkbox>Remember me</Checkbox>
-                </Form.Item>
-
-                <Form.Item label={null}>
+                <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
                     <Button type="primary" htmlType="submit">
-                        Submit
+                        Login
+                    </Button>
+                    <Button
+                        type="default"
+                        style={{ marginLeft: '10px' }}
+                        onClick={() => navigate('/register')}
+                    >
+                        Register
                     </Button>
                 </Form.Item>
             </Form>
-        </>
-    )
-}
+        </div>
+    );
+};
 
-export default Login
+export default Login;
