@@ -1,24 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Space, Table, Button, Input, Modal, message, Tag, Select } from "antd";
-import { fetchOrders, searchOrders, updateOrder, deleteOrder } from "../config";
+import { Space, Table, Button, Input, Modal, message, Tag, Select, DatePicker } from "antd";
+import { fetchOrders, searchOrders, updateOrder } from "../config";
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import {
-    DeleteOutlined,
     EditOutlined,
-    InfoCircleOutlined
+    InfoCircleOutlined,
 } from '@ant-design/icons';
+import moment from "moment";
 
 const { Search } = Input;
 const { Option } = Select;
+const { RangePicker } = DatePicker;
 
 const OrderManagement = () => {
     const navigate = useNavigate();
     const [orders, setOrders] = useState([]);
     const [searchKey, setSearchKey] = useState("");
+    const [dateRange, setDateRange] = useState(null); // State for selected date range
     const [loading, setLoading] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [selectedStatus, setSelectedStatus] = useState(null);
     const [error, setError] = useState("");
@@ -32,13 +33,14 @@ const OrderManagement = () => {
         fetchOrders()
             .then((response) => {
                 if (Array.isArray(response.data)) {
-                    setOrders(response.data);
+                    const sortedOrders = response.data.sort((a, b) => b.orderID - a.orderID);
+                    setOrders(sortedOrders);
                     setError("");
                 } else {
                     setError("Failed to fetch orders");
                 }
             })
-            .catch((error) => {
+            .catch(() => {
                 setError("Failed to fetch orders");
                 message.error("Failed to fetch orders");
             })
@@ -52,24 +54,45 @@ const OrderManagement = () => {
         setLoading(true);
 
         if (!value) {
-            loadOrders(); 
+            loadOrders();
         } else {
             searchOrders(value)
                 .then((response) => {
                     if (Array.isArray(response.data)) {
-                        setOrders(response.data);
-                        setError("");
+                        const sortedOrders = response.data.sort((a, b) => b.orderID - a.orderID);
+                        applyDateRangeFilter(sortedOrders);
                     } else {
                         setError("Failed to search orders");
                     }
                 })
-                .catch((error) => {
+                .catch(() => {
                     setError("Failed to search orders");
                     message.error("Failed to search orders");
                 })
                 .finally(() => {
                     setLoading(false);
                 });
+        }
+    };
+
+    const handleDateRangeChange = (dates) => {
+        setDateRange(dates);
+        if (dates) {
+            applyDateRangeFilter(orders, dates);
+        } else {
+            loadOrders(); // If no date range is selected, load all orders
+        }
+    };
+
+    const applyDateRangeFilter = (data, dates = dateRange) => {
+        if (dates) {
+            const [start, end] = dates;
+            const filteredOrders = data.filter((order) =>
+                moment(order.orderDate).isBetween(start, end, "day", "[]")
+            );
+            setOrders(filteredOrders);
+        } else {
+            setOrders(data);
         }
     };
 
@@ -85,7 +108,7 @@ const OrderManagement = () => {
 
     const handleUpdate = () => {
         if (selectedOrder) {
-            const updatedOrder = { orderStatus: selectedStatus }; 
+            const updatedOrder = { orderStatus: selectedStatus };
 
             updateOrder(selectedOrder.orderID, updatedOrder)
                 .then(() => {
@@ -95,24 +118,10 @@ const OrderManagement = () => {
                     setIsModalVisible(false);
                     message.success("Order status updated successfully");
                 })
-                .catch((error) => {
+                .catch(() => {
                     message.error("Failed to update order status");
                 });
         }
-    };
-
-    const handleDeleteOrder = () => {
-        deleteOrder(selectedOrder.orderID)
-            .then(() => {
-                setOrders(orders.filter(order => order.orderID !== selectedOrder.orderID));
-                message.success("Order deleted successfully");
-            })
-            .catch(() => {
-                message.error("Failed to delete order");
-            })
-            .finally(() => {
-                setIsDeleteModalVisible(false);
-            });
     };
 
     const goToAddOrder = () => {
@@ -180,9 +189,6 @@ const OrderManagement = () => {
                     <Button type="link" style={{ color: "orange" }} onClick={() => handleEditStatus(record)}>
                         <EditOutlined title="Edit" />
                     </Button>
-                    {/* <Button type="link" danger onClick={() => { setSelectedOrder(record); setIsDeleteModalVisible(true); }}>
-                        <DeleteOutlined title="Delete" />
-                    </Button> */}
                 </Space>
             ),
         },
@@ -197,12 +203,15 @@ const OrderManagement = () => {
                 <h1>Order Management</h1>
                 <div className="action-container" style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px" }}>
                     <Button type="primary" onClick={goToAddOrder}>Add Order</Button>
-                    <Search
-                        placeholder="Search by Order ID"
-                        value={searchKey}
-                        onChange={(e) => handleSearch(e.target.value)}
-                        style={{ width: 300 }}
-                    />
+                    <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                        <RangePicker onChange={handleDateRangeChange} />
+                        <Search
+                            placeholder="Search by Order ID"
+                            value={searchKey}
+                            onChange={(e) => handleSearch(e.target.value)}
+                            style={{ width: 300 }}
+                        />
+                    </div>
                 </div>
                 <Table columns={columns} dataSource={orders} rowKey="orderID" loading={loading} pagination={{ pageSize: 10 }} />
                 {error && <p style={{ color: "red" }}>{error}</p>}
@@ -221,16 +230,6 @@ const OrderManagement = () => {
                         <Option value={3}>Cancelled</Option>
                     </Select>
                 </Modal>
-
-                {/* <Modal
-                    title="Delete Order Confirmation"
-                    open={isDeleteModalVisible}
-                    onOk={handleDeleteOrder}
-                    onCancel={() => setIsDeleteModalVisible(false)}
-                    okButtonProps={{ danger: true }}
-                >
-                    <p>Do you want to delete order #{selectedOrder?.orderID}?</p>
-                </Modal> */}
             </div>
 
             <div className="copyright">

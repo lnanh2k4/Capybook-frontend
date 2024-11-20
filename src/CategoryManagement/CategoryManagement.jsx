@@ -112,45 +112,62 @@ const CategoryManagement = () => {
   };
 
   const handleSearch = (value) => {
-    setSearchTerm(value);
+  setSearchTerm(value);
 
-    // Lọc danh sách dựa trên tìm kiếm
-    const filtered = allCategories.filter((category) =>
-      category.catName.toLowerCase().includes(value.toLowerCase())
-    );
+  if (!value.trim()) {
+    setFilteredCategories(allCategories);
+    return;
+  }
 
-    // Nếu có danh mục được chọn trong TreeSelect, áp dụng lọc thêm
-    if (selectedCategory) {
-      const descendantIds = findAllDescendants(selectedCategory, allCategories);
-      const filteredBySelection = filtered.filter(
-        (category) =>
-          category.catID === selectedCategory || descendantIds.includes(category.catID)
-      );
-      setFilteredCategories(filteredBySelection);
-    } else {
-      setFilteredCategories(filtered);
-    }
-  };
+  const isNumber = !isNaN(value);
+  const id = isNumber ? parseInt(value, 10) : null;
+  const name = isNumber ? "" : value;
+
+  setLoading(true);
+  searchCategories(id, name)
+    .then((response) => {
+      if (response.data) {
+        setFilteredCategories(response.data);
+      } else {
+        setFilteredCategories([]);
+      }
+    })
+    .catch((error) => {
+      console.error("Error searching categories:", error);
+      message.error("Failed to search categories");
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
+
 
   const handleEditCategory = (category) => {
     navigate(`/dashboard/category/${category.catID}`);
   };
 
-  const handleDelete = async (catID) => {
-    const categoryToDelete = allCategories.find((category) => category.catID === catID);
-    const childCategories = allCategories.filter(
-      (category) => category.parentCatID === catID
-    );
+  const handleDelete = (catID) => {
+  const categoryToDelete = allCategories.find((category) => category.catID === catID);
+  const childCategories = allCategories.filter(
+    (category) => category.parentCatID === catID
+  );
 
-    if (childCategories.length > 0) {
-      Modal.warning({
-        title: "Cannot delete parent category",
-        content: `Category "${categoryToDelete.catName}" has child categories and cannot be deleted.`,
-      });
-      return;
-    }
+  if (childCategories.length > 0) {
+    Modal.warning({
+      title: "Cannot delete parent category",
+      content: `Category "${categoryToDelete.catName}" has child categories and cannot be deleted.`,
+    });
+    return;
+  }
 
-    if (window.confirm("Are you sure you want to delete this category?")) {
+  Modal.confirm({
+    title: "Confirm Deletion",
+    content: `Are you sure you want to delete category "${categoryToDelete.catName}"?`,
+    okText: "Yes",
+    okType: "danger",
+    cancelText: "No",
+    onOk: async () => {
       try {
         await deleteCategory(catID);
         message.success("Category marked as deleted (status set to 0) successfully");
@@ -170,7 +187,7 @@ const CategoryManagement = () => {
               });
 
               setAllCategories(updatedCategories);
-              // Áp dụng lọc lại sau khi xóa
+
               if (selectedCategory) {
                 const descendantIds = findAllDescendants(selectedCategory, updatedCategories);
                 const filtered = updatedCategories.filter(
@@ -199,8 +216,10 @@ const CategoryManagement = () => {
         console.error("Error soft deleting category:", error);
         message.error("Failed to soft delete category");
       }
-    }
-  };
+    },
+  });
+};
+
 
   const goToAddCategory = () => {
     navigate("/dashboard/category/add");
@@ -277,12 +296,12 @@ const CategoryManagement = () => {
             allowClear
           />
 
-          <Input
-            placeholder="Search by category name"
-            value={searchTerm}
-            onChange={(e) => handleSearch(e.target.value)}
-            style={{ width: 300 }}
-          />
+          <Search
+  placeholder="Search by category ID or name"
+  value={searchTerm}
+  onChange={(e) => handleSearch(e.target.value)} // Gọi `handleSearch` khi người dùng nhập
+  style={{ width: 300 }}
+/>
         </div>
 
         <Table

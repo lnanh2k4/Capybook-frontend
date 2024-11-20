@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Descriptions, Button, Table, message, Card } from "antd";
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
-import { fetchOrderDetail, fetchOrderDetailsByOrderID, fetchAccountDetail, fetchBookDetail } from "../config";
+import { fetchOrderDetail, fetchAccountDetail, fetchBookDetail, fetchPromotionDetail } from "../config";
 
 const OrderDetail = () => {
   const navigate = useNavigate();
@@ -34,7 +34,6 @@ useEffect(() => {
         // Lấy thông tin sách dựa trên bookID
         const bookIDs = orderDetailsData.map((item) => item.bookID);
         const bookPromises = bookIDs.map((bookID) => fetchBookDetail(bookID));
-
         const bookResponses = await Promise.all(bookPromises);
         const books = bookResponses.map((res) => res.data);
         console.log("Fetched Book Data:", books);
@@ -50,6 +49,17 @@ useEffect(() => {
 
         console.log("Updated Order Details:", updatedOrderDetails);
         setOrderDetails(updatedOrderDetails);
+
+        // Gọi API lấy thông tin khuyến mãi nếu có proID
+        const proID = orderData.data.order?.proID;
+        if (proID) {
+          const promotionData = await fetchPromotionDetail(proID);
+          console.log("Promotion Data:", promotionData.data);
+          setOrder((prevOrder) => ({
+            ...prevOrder,
+            discount: promotionData.data.discount,
+          }));
+        }
       } catch (error) {
         message.error("Failed to fetch data");
         console.error("Error fetching data:", error);
@@ -59,6 +69,7 @@ useEffect(() => {
 
   fetchData();
 }, [id]);
+
 
 
   if (!order || !user) {
@@ -143,16 +154,19 @@ useEffect(() => {
           />
 
           <Descriptions title="Summary" bordered style={{ marginTop: "20px" }}>
-            <Descriptions.Item label="Total Books Price" span={3}>
-              ${orderDetails.reduce((acc, item) => acc + item.quantity * (item.book?.bookPrice || 0), 0)}
-            </Descriptions.Item>
-            <Descriptions.Item label="Discount" span={3}>
-              - ${order.discount || 0}
-            </Descriptions.Item>
-            <Descriptions.Item label="Total Price" span={3}>
-              ${orderDetails.reduce((acc, item) => acc + item.quantity * (item.book?.bookPrice || 0), 0) - (order.discount || 0)}
-            </Descriptions.Item>
-          </Descriptions>
+  <Descriptions.Item label="Total Books Price" span={3}>
+    ${orderDetails.reduce((acc, item) => acc + item.quantity * (item.book?.bookPrice || 0), 0).toFixed(2)}
+  </Descriptions.Item>
+  <Descriptions.Item label="Discount (%)" span={3}>
+    {order.discount || 0}%
+  </Descriptions.Item>
+  <Descriptions.Item label="Total Price" span={3}>
+    ${(
+      orderDetails.reduce((acc, item) => acc + item.quantity * (item.book?.bookPrice || 0), 0) *
+      (1 - (order.discount || 0) / 100)
+    ).toFixed(2)}
+  </Descriptions.Item>
+</Descriptions>
 
           <div style={{ marginTop: "30px", textAlign: "center" }}>
             <Button type="primary" onClick={() => navigate(-1)}>Back to Order Management</Button>
