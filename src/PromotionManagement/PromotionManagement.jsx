@@ -157,7 +157,7 @@ const handleSearch = (value) => {
     title: "Quantity",
     dataIndex: "quantity",
     key: "quantity",
-    render: (quantity) => quantity || 0, // Hiển thị số lượng, nếu null thì hiển thị 0
+    render: (quantity) => quantity || 0,
   },
   {
     title: "Start Date",
