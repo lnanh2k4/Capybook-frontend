@@ -11,7 +11,8 @@ import OrderDetail from "./OrderManagement/OrderDetail";
 import PromotionDetail from "./PromotionManagement/PromotionDetail";
 import EditPromotion from "./PromotionManagement/EditPromotion";
 import AccountManagement from "./AccountManagement/AccountManagement";
-
+import ProfileDashboard from './AccountManagement/Profile'
+import ChangePasswordDashboard from './AccountManagement/ChangePassword'
 import AddOrder from "./OrderManagement/AddOrder";
 
 import InventoryManagement from "./InventoryManagement/InventoryManagement";
@@ -96,7 +97,10 @@ function App() {
         <Route path="/register" element={<Register />} />
 
         <Route path="/profile" element={<Profile />} />
+        <Route path="/dashboard/profile" element={<ProfileDashboard />} />
+        <Route path="/dashboard/profile/changepassword" element={<ChangePasswordDashboard />} />
       </Routes>
+
     </Router>
   );
 }

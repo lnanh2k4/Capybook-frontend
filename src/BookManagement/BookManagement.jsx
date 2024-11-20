@@ -141,10 +141,12 @@ function BookManagement() {
             ),
         },
     ];
-    const filteredBooks = books.filter(book =>
-    (book.bookTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        book.author.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+    const filteredBooks = books
+        .filter(book => book.bookStatus === 1) // Lọc chỉ những sách có bookStatus = 1
+        .filter(book =>
+            book.bookTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            book.author.toLowerCase().includes(searchTerm.toLowerCase())
+        );
 
     if (loading) return <p>Loading books...</p>;
     if (error) return <p>Error: {error}</p>;

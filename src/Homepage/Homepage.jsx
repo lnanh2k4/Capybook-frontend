@@ -3,7 +3,10 @@ import { Layout, Menu, Card, Input, Row, Col, Tag, Typography, Dropdown, Button,
 import { UserOutlined, AppstoreOutlined, SettingOutlined, ShoppingCartOutlined, BellOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import './Homepage.css';
-import { fetchBooks, fetchCategories } from '../config'; // Fetch books and categories from API
+import { fetchBooks, fetchCategories, logout } from '../config'; // Fetch books and categories from API
+import decodeJWT from '../jwtConfig'
+
+
 
 const { Header, Footer, Content } = Layout;
 const { Search } = Input;
@@ -90,6 +93,10 @@ const Homepage = () => {
         navigate(`/detail/${bookId}`); // Adjust this route based on your router configuration
     };
 
+    const handleLogout = () => {
+        logout()
+        navigate("/");
+    }
     const showModal = (category, books) => {
         console.log('Opening modal with:', category, books); // Log modal state
         if (!books || books.length === 0) {
@@ -101,21 +108,30 @@ const Homepage = () => {
         setIsModalVisible(true);  // This should trigger modal to show
     };
 
-
     const closeModal = () => {
         setIsModalVisible(false); // Close modal
     };
 
-    const userMenu = (
-        <Menu>
-            <Menu.Item key="dashboard" icon={<AppstoreOutlined />} onClick={handleDashboardClick}>
-                Dashboard
-            </Menu.Item>
-            <Menu.Item key="signout" icon={<SettingOutlined />}>
-                Sign out
-            </Menu.Item>
-        </Menu>
-    );
+    const userMenu = () => {
+        if (localStorage.getItem("jwtToken")) {
+            return (
+
+                <Menu>
+                    {
+                        decodeJWT(localStorage.getItem("jwtToken")).scope != "CUSTOMER" ? (<Menu.Item key="dashboard" icon={<AppstoreOutlined />} onClick={handleDashboardClick}>
+                            Dashboard
+                        </Menu.Item>) : (<Menu.Item key="profile" icon={<AppstoreOutlined />} onClick={() => { navigate("/profile") }}>
+                            Profile
+                        </Menu.Item>)
+                    }
+
+                    <Menu.Item key="signout" icon={<SettingOutlined />} onClick={handleLogout}>
+                        Logout
+                    </Menu.Item>
+                </Menu>
+            )
+        } else navigate("/auth/login");
+    }
 
     // Group books by category and paginate them
     const booksByCategory = categories?.map(category => {
@@ -159,16 +175,16 @@ const Homepage = () => {
 
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <BellOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
-                    <div className="icon-container" onClick={() => navigate('/cart/ViewDetail')}>
-                        <ShoppingCartOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
-                    </div>
+                    <ShoppingCartOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
                     <Dropdown overlay={userMenu} trigger={['click']} placement="bottomRight">
                         <Button
                             type="text"
                             icon={<UserOutlined />}
                             style={{ color: '#fff' }}
                         >
-                            Khanh đẹp trai
+
+                            {localStorage.getItem("jwtToken") ? decodeJWT(localStorage.getItem("jwtToken")).sub : "Login"}
+
                         </Button>
                     </Dropdown>
                 </div>
@@ -263,14 +279,11 @@ const Homepage = () => {
                                     </Row>
                                     {pages.length > 1 && (
                                         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
-                                            <Button type="primary" onClick={() => showModal(category, pages.flat())}>Xem thêm</Button>
+                                            <Button type="primary" onClick={() => showModal(category, pages.flat())}>Show more</Button>
                                         </div>
                                     )}
                                 </div>
                             ))}
-
-
-
 
                             <Divider orientation="left" style={{ fontSize: '24px', color: '#080203', borderColor: '#c72a4c', marginBottom: '20px' }}>
                                 All Books
