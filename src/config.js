@@ -69,6 +69,7 @@ const addBook = (formData) => {
         }
     });
 };
+
 const updateBook = (bookId, formDataToSend) => {
     return axios.put(`${URLString}v1/books/${bookId}`, formDataToSend);
 };
