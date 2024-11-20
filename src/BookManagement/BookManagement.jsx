@@ -99,6 +99,11 @@ function BookManagement() {
             key: 'translator',
         },
         {
+            title: 'Quantity',
+            dataIndex: 'bookQuantity',
+            key: 'bookQuantity',
+        },
+        {
             title: 'Price',
             dataIndex: 'bookPrice',
             key: 'bookPrice',
