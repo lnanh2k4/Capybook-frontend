@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { AppstoreOutlined, BookOutlined, UserOutlined, TagsOutlined, BellOutlined, TruckOutlined, NotificationOutlined, BarsOutlined } from '@ant-design/icons';
-import { Menu } from 'antd';
+import { Button, Menu } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './DashboardContainer.css'; // Import CSS for the component
+import decodeJWT from '../jwtConfig';
+import { logout } from '../config';
 
 const DashboardContainer = () => {
   const navigate = useNavigate();
   const location = useLocation();  // Sử dụng useLocation để lấy URL hiện tại
   const [collapsed, setCollapsed] = useState(true); // Trạng thái cho việc thu gọn
   const [current, setCurrent] = useState('1');
-
+  const handleLogout = () => {
+    logout()
+    navigate("/");
+  }
   useEffect(() => {
     // Cập nhật mục được chọn dựa trên URL
     const path = location.pathname;
@@ -132,8 +137,8 @@ const DashboardContainer = () => {
       >
         <img src="/logo-capybook.png" alt="Cabybook Logo" className="logo-image" />
       </div>
-      <div className="username-container" style={{ textAlign: 'center', margin: '10px 0', color: '#333' }}>
-        <strong>Guest</strong> {/* Hiển thị tên người dùng */}
+      <div className="username-container" style={{ textAlign: 'center', margin: '10px 0', color: '#333', cursor: 'pointer' }} onClick={() => navigate('/dashboard/profile')}>
+        <strong>{decodeJWT(localStorage.getItem("jwtToken")).sub}</strong> {/* Hiển thị tên người dùng */}
       </div>
       <Menu
         theme="light"
@@ -146,8 +151,8 @@ const DashboardContainer = () => {
         mode="inline"
         items={items}
       />
-      <div className="back-logo-container" style={{ position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)' }}>
-        <img src="/back_icon.png" alt="Back Logo" style={{ height: '50px' }} /> {/* Thay đổi kích thước tùy ý */}
+      <div className="back-logo-container" style={{ position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)' }} onClick={handleLogout}>
+        <img src="/back_icon.png" alt="Back Logo" style={{ height: '50px', cursor: 'pointer' }} /> {/* Thay đổi kích thước tùy ý */}
       </div>
     </div>
   );

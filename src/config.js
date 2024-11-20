@@ -96,6 +96,12 @@ const addAccount = (account) => {
         }
     });
 };
+
+const changePassword = (account) => client.put('v1/accounts/change', account, {
+    headers: {
+        'Content-Type': 'multipart/form-data',
+    }
+});
 const registerAccount = (account) => {
     return client.post('v1/accounts/register', account, {
         headers: {
@@ -123,6 +129,7 @@ const logout = () => {
 }
 
 const fetchAccounts = () => client.get('v1/accounts/');
+
 const fetchAccountDetail = (username) => client.get(`v1/accounts/${username}`);
 const deleteAccount = (username) => client.delete(`v1/accounts/${username}`);
 const updateAccount = (username, formDataToSend) => {
@@ -392,5 +399,6 @@ export {
     createPayment, // Thêm hàm createPayment
     handlePaymentReturn,
     viewCart,
+    changePassword
 };
 

@@ -1,21 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Layout, Menu, Card, Input, Row, Col, Tag, Typography, Dropdown, Button, Select, Modal, Radio, Form, message } from 'antd';
-import { UserOutlined, AppstoreOutlined, SettingOutlined, ShoppingCartOutlined, BellOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
-import '../Homepage/Homepage.css';
-import { fetchAccountDetail, fetchBooks, fetchCategories, logout, updateAccount } from '../config'; // Fetch books and categories from API
-import decodeJWT from '../jwtConfig'
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate, Navigate } from 'react-router-dom';
+import { fetchBookById, updateBook, fetchCategories, fetchAccountDetail, updateAccount, logout } from '../config';
+import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
+import { Form, Input, Button, InputNumber, Upload, message, Select, Menu, Radio } from 'antd';
+import decodeJWT from '../jwtConfig.jsx';
 
-
-
-const { Header, Footer, Content } = Layout;
-const { Title } = Typography;
-
-const ProfileManagement = () => {
+function Profile() {
     const [form] = Form.useForm(); // Ant Design form instance
     const [isEditing, setIsEditing] = useState(false);
     const username = decodeJWT(localStorage.getItem("jwtToken")).sub
-
+    const navigate = useNavigate();
     useEffect(() => {
         if (username) {
             fetchAccountDetail(username)
@@ -50,73 +44,20 @@ const ProfileManagement = () => {
             message.error('Failed to update account.');
         }
     };
-    const navigate = useNavigate(); // Initialize navigate for routing
-
-    const handleDashboardClick = () => {
-        navigate('/dashboard');
-    };
-
-    const handleLogout = () => {
-        logout()
-        navigate("/");
-    }
 
     const handleSave = () => {
         setIsEditing(false);
     };
 
-    const userMenu = () => {
-        if (localStorage.getItem("jwtToken")) {
-            return (
-
-                <Menu>
-                    {
-                        decodeJWT(localStorage.getItem("jwtToken")).scope != "CUSTOMER" ? (<Menu.Item key="dashboard" icon={<AppstoreOutlined />} onClick={handleDashboardClick}>
-                            Dashboard
-                        </Menu.Item>) : (<Menu.Item key="profile" icon={<AppstoreOutlined />} onClick={() => { navigate("/profile") }}>
-                            Profile
-                        </Menu.Item>)
-                    }
-
-                    <Menu.Item key="signout" icon={<SettingOutlined />} onClick={handleLogout}>
-                        Logout
-                    </Menu.Item>
-                </Menu>
-            )
-        } else navigate("/auth/login");
-    }
-
     return (
-        <Layout>
-            <Header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#0fa4d6', padding: '0 20px', height: '64px', color: '#fff' }}>
-                <div
-                    style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
-                    onClick={() => navigate('/')} // Navigate to homepage when clicked
-                >
-                    <img src="/logo-capybook.png" alt="Capybook Logo" style={{ height: '40px', marginRight: '20px' }} />
-                    <div style={{ fontSize: '20px', fontWeight: 'bold' }}>Capybook</div>
+        <div className="main-container">
+            <div className="dashboard-container">
+                <DashboardContainer />
+            </div>
+            <div className="dashboard-content">
+                <div className="titlemanagement">
+                    <div>Profile</div>
                 </div>
-
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <BellOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
-                    <ShoppingCartOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
-                    <Dropdown overlay={userMenu} trigger={['click']} placement="bottomRight">
-                        <Button
-                            type="text"
-                            icon={<UserOutlined />}
-                            style={{ color: '#fff' }}
-                        >
-
-                            {localStorage.getItem("jwtToken") ? decodeJWT(localStorage.getItem("jwtToken")).sub : "Login"}
-
-                        </Button>
-                    </Dropdown>
-                </div>
-            </Header>
-
-            <Content style={{ padding: '20px', backgroundColor: '#f0f2f5', flex: '1 0 auto' }}>
-
-                <h1 style={{ textAlign: 'center' }}>Profile</h1>
                 <Form
                     form={form}
                     layout="vertical"
@@ -209,19 +150,15 @@ const ProfileManagement = () => {
                                 Edit
                             </Button>
                         )}
+                        <Button onClick={() => navigate('/dashboard/profile/changepassword')} >
+                            Change password
+                        </Button>
                     </Form.Item>
-
                 </Form>
-            </Content>
 
-
-            <Footer style={{ textAlign: 'center', color: '#fff', backgroundColor: '#343a40', padding: '10px 0' }}>
-                <div>© {new Date().getFullYear()} Capybook Management System</div>
-                <div>All Rights Reserved</div>
-            </Footer>
-        </Layout>
+            </div>
+        </div >
     );
+}
 
-};
-
-export default ProfileManagement;
+export default Profile;

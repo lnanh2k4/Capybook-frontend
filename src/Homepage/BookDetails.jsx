@@ -1,10 +1,11 @@
 import { Layout, Descriptions, Button, Image, Menu, Dropdown, Input, Tag, InputNumber } from 'antd'; // Added Tag here
 
-import { fetchBookById } from '../config';
-import { AppstoreOutlined, ShoppingCartOutlined, BellOutlined, UserOutlined } from '@ant-design/icons';
+import { fetchBookById, logout } from '../config';
+import { AppstoreOutlined, ShoppingCartOutlined, BellOutlined, UserOutlined, SettingOutlined } from '@ant-design/icons';
 import AddBookToCart from './AddBookToCart';
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import decodeJWT from '../jwtConfig';
 
 const { Header, Content, Footer } = Layout;
 const { Search } = Input; // Correct Search import
@@ -50,19 +51,33 @@ const BookDetails = () => {
                 console.error('Error fetching book details:', error);
             });
     }, [bookId]);
-
+    const handleLogout = () => {
+        logout()
+        navigate("/");
+    }
     const handleDashboardClick = () => {
         navigate('/dashboard');
     };
-    const userMenu = (
-        <Menu>
-            <Menu.Item key="dashboard" icon={<AppstoreOutlined />} onClick={handleDashboardClick}>
-                Dashboard
-            </Menu.Item>
-            <Menu.Item key="signout">Sign Out</Menu.Item>
+    const userMenu = () => {
+        if (localStorage.getItem("jwtToken")) {
+            return (
 
-        </Menu>
-    );
+                <Menu>
+                    {
+                        decodeJWT(localStorage.getItem("jwtToken")).scope != "CUSTOMER" ? (<Menu.Item key="dashboard" icon={<AppstoreOutlined />} onClick={handleDashboardClick}>
+                            Dashboard
+                        </Menu.Item>) : (<Menu.Item key="profile" icon={<AppstoreOutlined />} onClick={() => { navigate("/profile") }}>
+                            Profile
+                        </Menu.Item>)
+                    }
+
+                    <Menu.Item key="signout" icon={<SettingOutlined />} onClick={handleLogout}>
+                        Logout
+                    </Menu.Item>
+                </Menu>
+            )
+        } else navigate("/auth/login");
+    }
 
     return (
         <Layout style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -90,7 +105,9 @@ const BookDetails = () => {
                             icon={<UserOutlined />}
                             style={{ color: '#fff' }}
                         >
-                            Khanh đẹp trai
+
+                            {localStorage.getItem("jwtToken") ? decodeJWT(localStorage.getItem("jwtToken")).sub : "Login"}
+
                         </Button>
                     </Dropdown>
                 </div>
