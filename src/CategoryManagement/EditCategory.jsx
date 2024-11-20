@@ -25,7 +25,7 @@ const EditCategory = () => {
                 const validCategories = allCategoriesResponse.data.filter(
                     (cat) => cat.catStatus === 1
                 );
-                setTreeData(buildTreeData(validCategories, category.catID)); // Truyền catID để làm mờ danh mục hiện tại
+                setTreeData(buildTreeData(validCategories, category.catID));
 
             } catch (error) {
                 console.error("Error fetching category detail:", error);
@@ -45,7 +45,7 @@ const EditCategory = () => {
                 title: category.catName,
                 value: category.catID,
                 key: category.catID,
-                disabled: category.catID === currentCategoryId, // Làm mờ nếu là chính nó
+                disabled: category.catID === currentCategoryId,
                 children: [],
             };
         });

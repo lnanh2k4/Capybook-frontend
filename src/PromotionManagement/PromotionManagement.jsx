@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Space, Table, Button, Input, message, Tag } from "antd"; // Import Ant Design components
+import { Space, Table, Button, Input, Select, message, Tag, Modal } from "antd"; // Import Ant Design components
 import { fetchPromotions, searchPromotions, deletePromotion } from "../config"; // Import API functions
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import moment from "moment"; // Import moment for date comparison
@@ -11,179 +11,207 @@ import {
 } from "@ant-design/icons";
 
 const { Search } = Input;
+const { Option } = Select;
 
 const PromotionManagement = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState(""); // State to store search term
   const [promotions, setPromotions] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [filterStatus, setFilterStatus] = useState("all"); // Default filter status is 'all'
 
-  // Fetch all promotions on first render
+  // Fetch all promotions on first render or when filterStatus changes
   useEffect(() => {
+    fetchPromotionsData();
+  }, [filterStatus]);
+const fetchPromotionsData = () => {
+  setLoading(true);
+  fetchPromotions()
+    .then((response) => {
+      if (Array.isArray(response.data)) {
+        // Lọc chỉ các promotion có proStatus = 1
+        const activePromotions = response.data.filter((promo) => promo.proStatus === 1);
+
+        const today = moment();
+        const filteredPromotions = activePromotions.filter((promo) => {
+          const startDate = moment(promo.startDate);
+          const endDate = moment(promo.endDate);
+
+          if (filterStatus === "active") {
+            return today.isBetween(startDate, endDate, "day", "[]");
+          }
+          if (filterStatus === "inactive") {
+            return !today.isBetween(startDate, endDate, "day", "[]");
+          }
+          return true; // 'all' filter
+        });
+        setPromotions(filteredPromotions);
+      } else {
+        console.error("Expected an array but got", response.data);
+      }
+    })
+    .catch((error) => {
+      console.error("Error fetching promotions:", error);
+      message.error("Failed to fetch promotions");
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+};
+
+const handleSearch = (value) => {
+  setSearchTerm(value);
+
+  if (!value.trim()) {
+    fetchPromotionsData(); // Nếu không có từ khóa, tải lại toàn bộ
+  } else {
+    const isNumber = !isNaN(value);
+    const id = isNumber ? parseInt(value, 10) : null;
+    const term = isNumber ? "" : value;
+
     setLoading(true);
-    fetchPromotions()
+    searchPromotions(id, term)
       .then((response) => {
         if (Array.isArray(response.data)) {
-          const activePromotions = response.data.filter(
-            (promo) => promo.proStatus === 1
-          );
-          setPromotions(activePromotions);
+          // Lọc chỉ promotion có proStatus = 1
+          const activePromotions = response.data.filter((promo) => promo.proStatus === 1);
+
+          const today = moment();
+          const filteredPromotions = activePromotions.filter((promo) => {
+            const startDate = moment(promo.startDate);
+            const endDate = moment(promo.endDate);
+
+            if (filterStatus === "active") {
+              return today.isBetween(startDate, endDate, "day", "[]");
+            }
+            if (filterStatus === "inactive") {
+              return !today.isBetween(startDate, endDate, "day", "[]");
+            }
+            return true; // 'all' filter
+          });
+          setPromotions(filteredPromotions);
         } else {
           console.error("Expected an array but got", response.data);
         }
       })
       .catch((error) => {
-        console.error("Error fetching promotions:", error);
-        message.error("Failed to fetch promotions");
+        console.error("Error searching promotions:", error);
+        message.error("Failed to search promotions");
       })
       .finally(() => {
         setLoading(false);
       });
-  }, []);
+  }
+};
 
-  // Handle search function
-  const handleSearch = (value) => {
-    setSearchTerm(value);
-    if (!value) {
-      // Fetch all promotions if search term is empty
-      fetchPromotions()
-        .then((response) => {
-          if (Array.isArray(response.data)) {
-            const activePromotions = response.data.filter(
-              (promo) => promo.proStatus === 1
-            );
-            setPromotions(activePromotions);
-          } else {
-            console.error("Expected an array but got", response.data);
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching promotions:", error);
-          message.error("Failed to fetch promotions");
-        })
-        .finally(() => setLoading(false));
-    } else {
-      // Perform search with the search term
-      setLoading(true);
-      searchPromotions(value)
-        .then((response) => {
-          if (Array.isArray(response.data)) {
-            const activePromotions = response.data.filter(
-              (promo) => promo.proStatus === 1
-            );
-            setPromotions(activePromotions);
-          } else {
-            console.error("Expected an array but got", response.data);
-          }
-        })
-        .catch((error) => {
-          console.error("Error searching promotions:", error);
-          message.error("Failed to search promotions");
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }
-  };
+  const handleDelete = (proID) => {
+  const promotionToDelete = promotions.find((promo) => promo.proID === proID);
+  const isActive = moment().isBetween(
+    moment(promotionToDelete.startDate),
+    moment(promotionToDelete.endDate),
+    "day",
+    "[]"
+  );
 
-  const handleDelete = async (proID) => {
-    if (window.confirm("Are you sure you want to delete this promotion?")) {
+  if (isActive) {
+    message.warning(`Cannot delete active promotion "${promotionToDelete.proName}"`);
+    return;
+  }
+
+  Modal.confirm({
+    title: "Confirm Deletion",
+    content: `Are you sure you want to delete promotion "${promotionToDelete.proName}"?`,
+    okText: "Yes",
+    okType: "danger",
+    cancelText: "No",
+    onOk: async () => {
       try {
-        // Soft delete by setting proStatus to 0
         await deletePromotion(proID);
-        setPromotions(promotions.filter((promo) => promo.proID !== proID));
         message.success("Promotion deleted successfully");
+        fetchPromotionsData(); // Refresh the promotion list after deletion
       } catch (error) {
         console.error("Error deleting promotion:", error);
         message.error("Failed to delete promotion");
       }
-    }
-  };
+    },
+  });
+};
 
-  const goToAddPromotion = () => {
-    navigate("/dashboard/add-promotion");
-  };
 
-  const goToEditPromotion = (proID) => {
-    navigate(`/dashboard/edit-promotion/${proID}`);
-  };
-
-  const goToPromotionDetail = (proID) => {
-    navigate(`/dashboard/promotion-detail/${proID}`);
-  };
-
-  // Function to check if promotion is active based on startDate and endDate
-  const isPromotionActive = (startDate, endDate) => {
-    const today = moment();
-    const start = moment(startDate);
-    const end = moment(endDate);
-    return today.isBetween(start, end, "day", "[]");
+  const handleFilterChange = (value) => {
+    setFilterStatus(value);
   };
 
   const columns = [
-    {
-      title: "Promotion ID",
-      dataIndex: "proID",
-      key: "proID",
-    },
-    {
-      title: "Promotion Name",
-      dataIndex: "proName",
-      key: "proName",
-    },
-    {
-      title: "Promotion Code",
-      dataIndex: "proCode",
-      key: "proCode",
-    },
-    {
-      title: "Discount",
-      dataIndex: "discount",
-      key: "discount",
-    },
-    {
-      title: "Start Date",
-      dataIndex: "startDate",
-      key: "startDate",
-    },
-    {
-      title: "End Date",
-      dataIndex: "endDate",
-      key: "endDate",
-    },
-    {
-      title: "Status",
-      key: "status",
-      render: (_, record) => {
-        const active = isPromotionActive(record.startDate, record.endDate);
-        return (
-          <Tag color={active ? "green" : "red"}>
-            {active ? "Active" : "Inactive"}
-          </Tag>
+  {
+    title: "Promotion ID",
+    dataIndex: "proID",
+    key: "proID",
+  },
+  {
+    title: "Promotion Name",
+    dataIndex: "proName",
+    key: "proName",
+  },
+  {
+    title: "Quantity",
+    dataIndex: "quantity",
+    key: "quantity",
+    render: (quantity) => quantity || 0,
+  },
+  {
+    title: "Start Date",
+    dataIndex: "startDate",
+    key: "startDate",
+  },
+  {
+    title: "End Date",
+    dataIndex: "endDate",
+    key: "endDate",
+  },
+  {
+    title: "Status",
+    key: "status",
+    render: (_, record) => {
+      const active =
+        record.quantity > 0 &&
+        moment().isBetween(
+          moment(record.startDate),
+          moment(record.endDate),
+          "day",
+          "[]"
         );
-      },
+      return (
+        <Tag color={active ? "green" : "red"}>
+          {active ? "Active" : "Inactive"}
+        </Tag>
+      );
     },
-    {
-      title: "Action",
-      key: "action",
-      render: (_, record) => (
-        <Space size="middle">
-          <Button
-            type="link"
-            onClick={() => goToPromotionDetail(record.proID)}
-          >
-            <InfoCircleOutlined />
-          </Button>
-          <Button type="link" onClick={() => goToEditPromotion(record.proID)}>
-            <EditOutlined style={{ color: "orange" }} />
-          </Button>
-          <Button type="link" danger onClick={() => handleDelete(record.proID)}>
-            <DeleteOutlined />
-          </Button>
-        </Space>
-      ),
-    },
-  ];
+  },
+  {
+    title: "Action",
+    key: "action",
+    render: (_, record) => (
+      <Space size="middle">
+        <Button
+          type="link"
+          onClick={() => navigate(`/dashboard/promotion-detail/${record.proID}`)}
+        >
+          <InfoCircleOutlined />
+        </Button>
+        <Button
+          type="link"
+          onClick={() => navigate(`/dashboard/edit-promotion/${record.proID}`)}
+        >
+          <EditOutlined style={{ color: "orange" }} />
+        </Button>
+        <Button type="link" danger onClick={() => handleDelete(record.proID)}>
+          <DeleteOutlined />
+        </Button>
+      </Space>
+    ),
+  },
+];
 
   return (
     <div className="main-container">
@@ -204,16 +232,29 @@ const PromotionManagement = () => {
             marginBottom: "20px",
           }}
         >
-          <Button type="primary" onClick={goToAddPromotion}>
+          <Button type="primary" onClick={() => navigate("/dashboard/add-promotion")}>
             Add Promotion
           </Button>
-          <Search
-            placeholder="Search by promotion name or code"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onSearch={handleSearch}
-            style={{ width: 300 }}
-          />
+
+          <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+            <Select
+              defaultValue="all"
+              value={filterStatus}
+              onChange={handleFilterChange}
+              style={{ width: 150 }}
+            >
+              <Option value="all">All</Option>
+              <Option value="active">Active</Option>
+              <Option value="inactive">Inactive</Option>
+            </Select>
+
+            <Search
+              placeholder="Search by promotion ID, name, or code"
+              value={searchTerm}
+              onChange={(e) => handleSearch(e.target.value)}
+              style={{ width: 300 }}
+            />
+          </div>
         </div>
 
         <Table

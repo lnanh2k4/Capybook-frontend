@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import { Modal, Button, InputNumber, Table, Typography, Tag } from 'antd';
 import { ShoppingCartOutlined, CloseOutlined, CheckCircleOutlined } from '@ant-design/icons';
-import { addBookToCart, createPayment } from '../config'; // Import API thanh toán
+import { addBookToCart, createPayment } from '../config';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 
 const AddBookToCart = ({ username, bookId, bookData }) => {
-    const [quantity, setQuantity] = useState(1); // Số lượng mặc định là 1
-    const [isModalVisible, setIsModalVisible] = useState(false); // Trạng thái hiển thị modal
-    const [cartItems, setCartItems] = useState([]); // Dữ liệu giỏ hàng
+    const [quantity, setQuantity] = useState(1);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [cartItems, setCartItems] = useState([]);
+    const navigate = useNavigate(); // Sử dụng useNavigate
 
-    // Mở modal
+    // Hàm mở modal hoặc chuyển hướng đến trang chi tiết giỏ hàng
     const handleShowCart = () => {
-        setIsModalVisible(true);
+        setIsModalVisible(false); // Đóng modal
+        navigate('/cart/ViewDetail'); // Chuyển hướng đến trang CartDetails
     };
 
     // Đóng modal
@@ -21,9 +24,8 @@ const AddBookToCart = ({ username, bookId, bookData }) => {
     // Hàm thêm sách vào giỏ hàng
     const handleAddToCart = async () => {
         try {
-            await addBookToCart(username, bookId, quantity); // Gọi API
+            await addBookToCart(username, bookId, quantity);
 
-            // Cập nhật giỏ hàng
             const newCartItem = {
                 key: bookId,
                 name: bookData.bookTitle,
@@ -38,19 +40,17 @@ const AddBookToCart = ({ username, bookId, bookData }) => {
             setCartItems((prevItems) => {
                 const existingItemIndex = prevItems.findIndex((item) => item.key === bookId);
                 if (existingItemIndex >= 0) {
-                    // Nếu sách đã tồn tại, cập nhật số lượng
                     const updatedItems = [...prevItems];
                     updatedItems[existingItemIndex].quantity += quantity;
                     updatedItems[existingItemIndex].total =
                         updatedItems[existingItemIndex].quantity * updatedItems[existingItemIndex].price;
                     return updatedItems;
                 } else {
-                    // Thêm sách mới
                     return [...prevItems, newCartItem];
                 }
             });
 
-            handleShowCart(); // Hiển thị modal sau khi thêm
+            setIsModalVisible(true);
         } catch (error) {
             Modal.error({
                 content: 'Failed to add book to cart. Please try again.',
@@ -61,10 +61,10 @@ const AddBookToCart = ({ username, bookId, bookData }) => {
     // Hàm xử lý thanh toán
     const handleCheckout = async () => {
         try {
-            const totalAmount = cartItems.reduce((acc, item) => acc + item.total, 0); // Tính tổng số tiền
-            const response = await createPayment(totalAmount); // Gọi API tạo thanh toán
-            const paymentUrl = response.data; // Lấy URL thanh toán từ backend
-            window.location.href = paymentUrl; // Chuyển hướng tới VNPay
+            const totalAmount = cartItems.reduce((acc, item) => acc + item.total, 0);
+            const response = await createPayment(totalAmount);
+            const paymentUrl = response.data;
+            window.location.href = paymentUrl;
         } catch (error) {
             Modal.error({
                 content: 'Failed to initiate payment. Please try again.',
@@ -115,7 +115,6 @@ const AddBookToCart = ({ username, bookId, bookData }) => {
 
     return (
         <div>
-            {/* Giao diện số lượng và nút */}
             <div style={{ marginTop: '20px', display: 'flex', gap: '10px', alignItems: 'center' }}>
                 <Button
                     type="primary"
@@ -126,7 +125,7 @@ const AddBookToCart = ({ username, bookId, bookData }) => {
                         borderColor: '#FF4500',
                         fontWeight: 'bold',
                     }}
-                    onClick={handleCheckout} // Chuyển hướng thanh toán
+                    onClick={handleCheckout}
                 >
                     Buy now
                 </Button>
@@ -137,7 +136,7 @@ const AddBookToCart = ({ username, bookId, bookData }) => {
                         max={10}
                         defaultValue={1}
                         style={{ width: '60px' }}
-                        onChange={(value) => setQuantity(value)} // Cập nhật số lượng
+                        onChange={(value) => setQuantity(value)}
                     />
                 </div>
                 <Button
@@ -149,13 +148,12 @@ const AddBookToCart = ({ username, bookId, bookData }) => {
                         fontWeight: 'bold',
                     }}
                     icon={<ShoppingCartOutlined />}
-                    onClick={handleAddToCart} // Thêm vào giỏ hàng
+                    onClick={handleAddToCart}
                 >
                     Add to cart
                 </Button>
             </div>
 
-            {/* Modal hiển thị giỏ hàng */}
             <Modal
                 title={
                     <Typography.Text strong style={{ fontSize: '16px' }}>
@@ -167,7 +165,6 @@ const AddBookToCart = ({ username, bookId, bookData }) => {
                 footer={null}
                 width={800}
             >
-                {/* Dòng thông báo với dấu tích xanh */}
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
                     <CheckCircleOutlined style={{ color: 'green', fontSize: '20px', marginRight: '10px' }} />
                     <Typography.Text style={{ fontSize: '14px', color: '#666' }}>
@@ -210,11 +207,11 @@ const AddBookToCart = ({ username, bookId, bookData }) => {
                         <Button
                             type="primary"
                             style={{ backgroundColor: '#FFD814', borderColor: '#FFD814', color: '#111' }}
-                            onClick={handleCheckout} // Chuyển hướng thanh toán
+                            onClick={handleCheckout}
                         >
                             Proceed to checkout
                         </Button>
-                        <Button onClick={handleCancel}>Go to Cart</Button>
+                        <Button onClick={handleShowCart}>Go to Cart</Button>
                     </div>
                 </div>
             </Modal>

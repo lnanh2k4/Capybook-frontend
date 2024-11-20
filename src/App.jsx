@@ -42,12 +42,17 @@ import BookDetails from "./Homepage/BookDetails";
 import Login from "./Login/Login/"
 import Register from "./Register/Register";
 import CartDetails from "./Homepage/CartDetails";
+
+
+import Profile from "./Profile/ProfileManagement"
+
+
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Homepage />} />
-        <Route path="/:bookId" element={<BookDetails />} />
+        <Route path="/detail/:bookId" element={<BookDetails />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/dashboard/books/add/" element={<AddBook />} />
         <Route path="/dashboard/books/edit/:bookId" element={<EditBook />} />
@@ -92,6 +97,8 @@ function App() {
 
         <Route path="/auth/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </Router>
   );
