@@ -1,6 +1,6 @@
 import { Layout, Descriptions, Button, Image, Menu, Dropdown, Input, Tag, InputNumber } from 'antd'; // Added Tag here
 import { fetchBookById } from '../config';
-import { ShoppingCartOutlined, BellOutlined, UserOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, ShoppingCartOutlined, BellOutlined, UserOutlined } from '@ant-design/icons';
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 
@@ -48,10 +48,14 @@ const BookDetails = () => {
                 console.error('Error fetching book details:', error);
             });
     }, [bookId]);
-
+    const handleDashboardClick = () => {
+        navigate('/dashboard');
+    };
     const userMenu = (
         <Menu>
-            <Menu.Item key="dashboard">Dashboard</Menu.Item>
+            <Menu.Item key="dashboard" icon={<AppstoreOutlined />} onClick={handleDashboardClick}>
+                Dashboard
+            </Menu.Item>
             <Menu.Item key="signout">Sign Out</Menu.Item>
         </Menu>
     );
