@@ -106,14 +106,12 @@ const BookDetails = () => {
                                     style={{ cursor: 'pointer' }}
                                 />
                             </div>
-                            {/* Buttons moved below image */}
                             <div style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'flex-start' }}>
                                 <Button type="primary" style={{ width: '150px', height: '45px', backgroundColor: '#FF4500', borderColor: '#FF4500' }}>Buy now</Button>
                                 <Button style={{ width: '150px', height: '45px', borderColor: '#FF4500', color: '#FF4500' }} icon={<ShoppingCartOutlined />}>
                                     Add to cart
                                 </Button>
                             </div>
-
                         </div>
 
                         {/* Right section: Book details inside a box */}
@@ -121,7 +119,7 @@ const BookDetails = () => {
                             <div style={{ marginBottom: '20px' }}>
                                 <h1 style={{ fontSize: '24px', fontWeight: 'bold' }}>{bookData.bookTitle}</h1>
                                 <div style={{ fontSize: '20px', color: '#FF4500', marginBottom: '10px' }}>
-                                    {bookData.bookPrice} đ <span style={{ textDecoration: 'line-through', fontSize: '16px', color: '#999' }}>{bookData.originalPrice} đ</span>
+                                    {`${bookData.bookPrice.toLocaleString('vi-VN')}`} đ <span style={{ textDecoration: 'line-through', fontSize: '16px', color: '#999' }}>{bookData.originalPrice} đ</span>
                                     <Tag color="volcano" style={{ marginLeft: '10px' }}>{`${bookData.discount}% off`}</Tag>
                                 </div>
                                 <div style={{ fontSize: '14px', color: '#999' }}>Sold: 52</div>
@@ -135,14 +133,18 @@ const BookDetails = () => {
 
                             <div style={{ marginBottom: '20px' }}>
                                 <h3 style={{ fontWeight: 'bold', marginBottom: '10px' }}>Quantity</h3>
-                                <InputNumber min={1} max={10} defaultValue={1} />
+                                <InputNumber min={1} max={999} defaultValue={1} />
+                            </div>
+                            <div>
+                                <h4>Description</h4>
+                                <Descriptions.Item label="Description" span={2}>{bookData.bookDescription}</Descriptions.Item>
                             </div>
                         </div>
                     </div>
 
                     {/* Additional Book Info */}
-                    <div style={{ marginTop: '40px', backgroundColor: '#fff', padding: '20px', borderRadius: '8px' }}>
-                        <h2 style={{ fontSize: '18px', fontWeight: 'bold' }}>Product Details</h2>
+                    <div style={{ marginTop: '20px', backgroundColor: '#fff', padding: '20px', borderRadius: '8px', border: '1px solid #e8e8e8' }}>
+                        <h2 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '20px' }}>Product Details</h2>
                         <Descriptions bordered column={2} labelStyle={{ fontWeight: 'bold' }} contentStyle={{ textAlign: 'left' }}>
                             <Descriptions.Item label="Author">{bookData.author}</Descriptions.Item>
                             <Descriptions.Item label="Publication Year">{bookData.publicationYear}</Descriptions.Item>
@@ -150,11 +152,11 @@ const BookDetails = () => {
                             <Descriptions.Item label="Publisher">{bookData.publisher}</Descriptions.Item>
                             <Descriptions.Item label="ISBN">{bookData.isbn}</Descriptions.Item>
                             <Descriptions.Item label="Weight">{bookData.weight} g</Descriptions.Item>
-                            <Descriptions.Item label="Description" span={2}>{bookData.bookDescription}</Descriptions.Item>
                         </Descriptions>
                     </div>
                 </div>
             </Content>
+
 
             <Footer style={{ textAlign: 'center', color: '#fff', backgroundColor: '#343a40', padding: '10px 0', flexShrink: 0 }}>
                 <div>© {new Date().getFullYear()} Capybook Management System</div>
