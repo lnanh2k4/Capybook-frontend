@@ -14,7 +14,8 @@ const Homepage = () => {
     const [books, setBooks] = useState([]); // State for books
     const [categories, setCategories] = useState([]); // State for categories
     const [searchTerm, setSearchTerm] = useState(''); // State for search term
-    const [selectedCategory, setSelectedCategory] = useState(null); // State for selected category
+    const [treeData, setTreeData] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState(null);
     const [sortOrder, setSortOrder] = useState('default'); // State for sorting
     const [currentPage, setCurrentPage] = useState({}); // Track the current page for each category
     const [isTransitioning, setIsTransitioning] = useState(false); // Track animation state
@@ -33,12 +34,39 @@ const Homepage = () => {
             console.error('Failed to fetch books:', error);
         });
 
-        fetchCategories().then(response => {
-            setCategories(response.data);
-        }).catch(error => {
-            console.error('Failed to fetch categories:', error);
+        fetchCategories()
+        .then((response) => {
+            if (Array.isArray(response.data)) {
+                const activeCategories = response.data.filter(cat => cat.catStatus === 1);
+                setTreeData(buildTreeData(activeCategories));
+            }
+        })
+        .catch(error => {
+            console.error("Failed to fetch categories:", error);
         });
     }, []);
+
+    const buildTreeData = (categories) => {
+    const map = {};
+    const roots = [];
+    categories.forEach((category) => {
+        map[category.catID] = {
+            title: category.catName,
+            value: category.catID,
+            key: category.catID,
+            children: [],
+        };
+    });
+
+    categories.forEach((category) => {
+        if (category.parentCatID && map[category.parentCatID]) {
+            map[category.parentCatID].children.push(map[category.catID]);
+        } else if (!category.parentCatID) {
+            roots.push(map[category.catID]);
+        }
+    });
+    return roots;
+};
 
     // Handle search input
     const handleSearch = useCallback((value) => {

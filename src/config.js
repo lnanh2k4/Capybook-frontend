@@ -192,9 +192,13 @@ const deletePromotion = (proID) => {
     return client.delete(`/v1/promotions/${proID}`);
 };
 
-const searchPromotions = (searchTerm) => {
-    return client.get(`/v1/promotions/search?term=${searchTerm}`);
+const searchPromotions = (id, term) => {
+    const params = new URLSearchParams();
+    if (id) params.append("id", id);
+    if (term) params.append("term", term);
+    return client.get(`/v1/promotions/search?${params.toString()}`);
 };
+
 
 const fetchPromotionById = (proID) => client.get(`/v1/promotions/${proID}`);
 
@@ -213,11 +217,13 @@ const deleteCategory = (catID) => {
     return client.put(`/v1/categories/${catID}/soft-delete`);
 };
 
-
-
-const searchCategories = (searchTerm) => {
-    return client.get(`/v1/categories/search?term=${searchTerm}`);
+const searchCategories = (id, name) => {
+    const params = new URLSearchParams();
+    if (id) params.append("id", id);
+    if (name) params.append("name", name);
+    return client.get(`/v1/categories/search?${params.toString()}`);
 };
+
 
 const fetchCategoryById = (catID) => client.get(`/v1/categories/${catID}`);
 

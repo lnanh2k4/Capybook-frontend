@@ -110,14 +110,14 @@ const AddPromotion = () => {
               {
                 type: "number",
                 min: 1,
-                max: 100,
-                message: "Discount percentage must be between 1 and 100%",
+                max: 50,
+                message: "Discount percentage must be between 1 and 50%",
               },
             ]}
           >
             <InputNumber
               min={1}
-              max={100}
+              max={50}
               placeholder="Enter discount percentage"
               style={{ width: "100%" }}
               addonAfter="%"
@@ -144,7 +144,7 @@ const AddPromotion = () => {
             <RangePicker
               placeholder={["Start date", "End date"]}
               style={{ width: "100%" }}
-              disabledDate={disabledDate} // Sử dụng disabledDate để vô hiệu hóa các ngày trong quá khứ
+              disabledDate={disabledDate}
             />
           </Form.Item>
 
