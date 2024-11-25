@@ -64,9 +64,6 @@ function CategoryDetail() {
                     layout="vertical"
                     style={{ maxWidth: '800px', margin: 'auto' }}
                 >
-                    <Form.Item label="Category ID">
-                        <Input value={categoryData.catID} disabled />
-                    </Form.Item>
 
                     <Form.Item label="Category Name">
                         <Input value={categoryData.catName} disabled />
