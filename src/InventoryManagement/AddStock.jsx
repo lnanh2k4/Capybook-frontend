@@ -25,6 +25,7 @@ function AddStock() {
     const [modalKey, setModalKey] = useState(0);
     const navigate = useNavigate();
 
+    const [editModalVisible, setEditModalVisible] = useState(false);
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -53,8 +54,20 @@ function AddStock() {
     const handleItemChange = (index, field, value) => {
         const newItems = [...items];
         newItems[index][field] = value;
+
+        // Đồng bộ với `temporaryBooks` nếu `bookID` là null (tức là sách vừa thêm)
+        if (field === "quantity" && !newItems[index].bookID) {
+            const tempBookIndex = temporaryBooks.findIndex((book) => book.bookTitle === newItems[index].bookTitle);
+            if (tempBookIndex !== -1) {
+                const updatedTemporaryBooks = [...temporaryBooks];
+                updatedTemporaryBooks[tempBookIndex].bookQuantity = value; // Cập nhật bookQuantity
+                setTemporaryBooks(updatedTemporaryBooks);
+            }
+        }
+
         setItems(newItems);
     };
+
 
     const removeItemRow = (index) => setItems(items.filter((_, i) => i !== index));
 
@@ -74,14 +87,16 @@ function AddStock() {
                 ...newItems[selectedRowIndex],
                 bookID: record.bookID,
                 bookTitle: record.bookTitle,
-                price: record.bookPrice,
+                // Chỉ lấy thông tin bookTitle và bookID, không gán giá import price
             };
             setItems(newItems);
             setIsModalVisible(false);
         }
     };
 
+
     const handleImageChange = ({ fileList: newFileList }) => {
+        console.log("New File List:", newFileList);
         const file = newFileList[0]?.originFileObj;
         if (file) {
             const reader = new FileReader();
@@ -91,62 +106,42 @@ function AddStock() {
         setFileList(newFileList);
     };
 
+
     const handleAddBookSubmit = (values) => {
         console.log("Form values:", values);
 
-        // Kiểm tra trùng ISBN trong danh sách temporaryBooks và items
-        const duplicateBookInTemp = temporaryBooks.find((book) => book.isbn === values.isbn);
-        const duplicateBookInItems = items.find((item) => books.find((book) => book.bookID === item.bookID)?.isbn === values.isbn);
-
-        if (duplicateBookInTemp || duplicateBookInItems) {
-            message.error(`Book with ISBN "${values.isbn}" already exists! Quantity will be updated.`);
-            const newItems = [...items];
-            const index = newItems.findIndex((item) => books.find((book) => book.bookID === item.bookID)?.isbn === values.isbn);
-            if (index !== -1) {
-                newItems[index].quantity += values.bookQuantity || 1;
-                setItems(newItems);
-            }
-            setIsAddBookModalVisible(false);
-            return;
-        }
-
-        // Lưu hình ảnh (nếu có) vào đường dẫn static
-        let staticImagePath = null;
-        if (fileList.length > 0) {
-            const file = fileList[0].originFileObj;
-            if (!file.type.startsWith("image/")) {
-                message.error("Only image files are allowed!");
-                return;
-            }
-            const timestamp = new Date().getTime();
-            const uniqueFileName = `book_${timestamp}.jpg`;
-            staticImagePath = `/uploads/${uniqueFileName}`;
-        }
-
-        // Thêm sách vào danh sách tạm
         const newBook = {
             ...values,
-            bookID: null, // Chưa có ID từ backend
+            bookID: null, // Sẽ được backend cập nhật sau
             bookStatus: 1,
-            image: staticImagePath,
+            image: fileList[0]?.originFileObj || null,
         };
 
-        const newItems = [...items];
-        newItems[selectedRowIndex] = {
-            ...newItems[selectedRowIndex],
-            bookID: null, // Sẽ được cập nhật sau khi lưu
+        const newItem = {
+            bookID: null,
             bookTitle: values.bookTitle,
-            price: values.bookPrice,
-            quantity: values.bookQuantity || 1, // Giá trị từ modal
+            quantity: values.bookQuantity || 1, // Lấy quantity từ modal
+            price: 0, // Giá nhập kho mặc định ban đầu
         };
 
         setTemporaryBooks([...temporaryBooks, newBook]);
-        setItems(newItems);
+        setItems((prevItems) => {
+            const updatedItems = [...prevItems];
+            if (selectedRowIndex !== null) {
+                updatedItems[selectedRowIndex] = newItem;
+            } else {
+                updatedItems.push(newItem);
+            }
+            return updatedItems;
+        });
+
         setFileList([]);
         setIsAddBookModalVisible(false);
 
         message.success(`Book "${values.bookTitle}" added temporarily.`);
     };
+
+
 
     const handleSubmit = async (values) => {
         console.log("Submitting stock with items:", items);
@@ -175,13 +170,13 @@ function AddStock() {
                         isbn: book.isbn,
                         bookQuantity: book.bookQuantity,
                         bookStatus: 1,
-                        image: book.image,
                     };
                     formData.append("book", JSON.stringify(bookData));
 
                     // Gửi hình ảnh (nếu có)
-                    if (fileList.length > 0 && fileList[0]?.originFileObj) {
-                        formData.append("image", fileList[0].originFileObj);
+                    if (book.image) {
+                        formData.append("image", book.image);
+                        console.log("Sending image:", book.image);
                     }
 
                     const response = await addBook(formData);
@@ -189,18 +184,18 @@ function AddStock() {
                 })
             );
 
-            // Cập nhật `bookID` trong danh sách `items` với các sách vừa tạo
+            // Cập nhật `bookID` và `quantity` trong danh sách `items` với các sách vừa tạo
             const updatedItems = items.map((item) => {
                 if (!item.bookID) {
                     const createdBook = createdBooks.find((book) => book.bookTitle === item.bookTitle);
                     if (createdBook) {
-                        return { ...item, bookID: createdBook.bookID };
+                        return { ...item, bookID: createdBook.bookID, quantity: item.quantity };
                     }
                 }
                 return item;
             });
 
-            // Tạo thông tin nhập kho
+            // Gửi thông tin nhập kho
             const stockData = {
                 supID: { supID: values.supID },
                 importDate: values.importDate.format("YYYY-MM-DD"),
@@ -210,7 +205,7 @@ function AddStock() {
             const stockResponse = await createImportStock(stockData);
             const savedStockId = stockResponse.data.isid;
 
-            // Chuẩn bị dữ liệu chi tiết nhập kho
+            // Gửi chi tiết nhập kho
             const detailsData = updatedItems.map((item) => ({
                 bookID: { bookID: item.bookID },
                 iSDQuantity: item.quantity,
@@ -234,6 +229,7 @@ function AddStock() {
 
             message.success("Stock added successfully.");
             setTemporaryBooks([]);
+            setItems([]); // Reset items sau khi submit thành công
             navigate("/dashboard/inventory");
         } catch (error) {
             console.error("Error during stock submission:", error);
@@ -244,6 +240,7 @@ function AddStock() {
     };
 
 
+    const calculateTotalPrice = (quantity, price) => quantity * price;
 
     const bookColumns = [
         { title: "Book ID", dataIndex: "bookID", key: "bookID" },
@@ -301,20 +298,27 @@ function AddStock() {
                                 readOnly
                                 onClick={() => showBookModal(index)}
                             />
-                            <InputNumber
-                                min={1}
-                                placeholder="Quantity"
-                                value={item.quantity}
-                                onChange={(value) => handleItemChange(index, "quantity", value)}
-                            />
+                            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                <span>Quantity: </span>
+                                <InputNumber
+                                    min={1}
+                                    placeholder="Quantity"
+                                    value={item.quantity}
+                                    onChange={(value) => handleItemChange(index, "quantity", value)}
+                                />
+                            </div>
 
-                            <InputNumber
-                                min={0}
-                                step={0.01}
-                                placeholder="Price"
-                                value={item.price}
-                                onChange={(value) => handleItemChange(index, "price", value)}
-                            />
+                            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                <span>Import Price: </span>
+                                <InputNumber
+                                    min={0}
+                                    step={0.01}
+                                    placeholder="Import Price"
+                                    value={item.price}
+                                    onChange={(value) => handleItemChange(index, "price", value)}
+                                />
+                            </div>
+
                             {items.length > 1 && (
                                 <Button type="link" danger onClick={() => removeItemRow(index)}>
                                     Remove
@@ -344,7 +348,6 @@ function AddStock() {
                     pagination={{ pageSize: 5 }}
                 />
             </Modal>
-
             <Modal
                 title="Add a New Book"
                 visible={isAddBookModalVisible}
