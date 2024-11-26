@@ -2,6 +2,10 @@
 export const decodeJWT = () => {
     try {
         let token = localStorage.getItem("jwtToken")
+        if (token == null) {
+            window.location.href = '/auth/login'
+            return
+        }
         const base64Url = token.split('.')[1]; // Lấy phần payload
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/'); // Chuyển từ base64url sang base64
         const jsonPayload = decodeURIComponent(
