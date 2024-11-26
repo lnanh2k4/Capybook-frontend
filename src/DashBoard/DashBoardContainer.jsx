@@ -3,10 +3,13 @@ import { AppstoreOutlined, BookOutlined, UserOutlined, TagsOutlined, BellOutline
 import { Button, Menu } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './DashboardContainer.css'; // Import CSS for the component
-import decodeJWT from '../jwtConfig';
+import { decodeJWT, checkAdminRole, checkSellerStaffRole, checkWarehouseStaffRole } from '../jwtConfig';
 import { logout } from '../config';
 
 const DashboardContainer = () => {
+  if (!checkAdminRole() && !checkSellerStaffRole() && !checkWarehouseStaffRole()) {
+    window.location.href = '/'
+  }
   const navigate = useNavigate();
   const location = useLocation();  // Sử dụng useLocation để lấy URL hiện tại
   const [collapsed, setCollapsed] = useState(true); // Trạng thái cho việc thu gọn

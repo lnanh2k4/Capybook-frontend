@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { checkAdminRole } from './jwtConfig'
 const URLString = 'http://localhost:6789/api/'
 const client = axios.create({
     baseURL: URLString, // Địa chỉ API của bạn
@@ -66,7 +67,6 @@ client.interceptors.response.use(
     }
 )
 
-
 export const fetchStaffById = (id) => {
     return client.get(`/v1/staff/${id}`).then((response) => {
         return response;
@@ -96,6 +96,7 @@ const addAccount = (account) => {
         }
     });
 };
+
 
 const changePassword = (account) => client.put('v1/accounts/change', account, {
     headers: {
@@ -128,9 +129,23 @@ const logout = () => {
     return loginInstance.post('auth/logout', token)
 }
 
-const fetchAccounts = () => client.get('v1/accounts/');
+const fetchAccounts = () => {
+    if (checkAdminRole()) {
+        return client.get('v1/accounts/')
+    } else {
+        window.location.href = '/dashboard'
+    }
 
-const fetchAccountDetail = (username) => client.get(`v1/accounts/${username}`);
+}
+
+const fetchAccountDetail = (username) => {
+    if (checkAdminRole()) {
+        return client.get(`v1/accounts/${username}`)
+    } else {
+        window.location.href = '/dashboard'
+    }
+
+}
 const deleteAccount = (username) => client.delete(`v1/accounts/${username}`);
 const updateAccount = (username, formDataToSend) => {
     return axios.put(`${URLString}v1/accounts/${username}`, formDataToSend);
