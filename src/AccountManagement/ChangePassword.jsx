@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { changePassword } from '../config.js';
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import { Form, Input, Button, message } from 'antd';
-import decodeJWT from '../jwtConfig.jsx';
+import { decodeJWT } from '../jwtConfig.jsx';
 import { useNavigate } from 'react-router-dom';
 
 function ChangePassword() {

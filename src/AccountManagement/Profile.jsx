@@ -3,7 +3,7 @@ import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { fetchBookById, updateBook, fetchCategories, fetchAccountDetail, updateAccount, logout } from '../config';
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import { Form, Input, Button, InputNumber, Upload, message, Select, Menu, Radio } from 'antd';
-import decodeJWT from '../jwtConfig.jsx';
+import { decodeJWT } from '../jwtConfig.jsx';
 
 function Profile() {
     const [form] = Form.useForm(); // Ant Design form instance

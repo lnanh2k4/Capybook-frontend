@@ -5,7 +5,7 @@ import { AppstoreOutlined, ShoppingCartOutlined, BellOutlined, UserOutlined, Set
 import AddBookToCart from './AddBookToCart';
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import decodeJWT from '../jwtConfig';
+import { decodeJWT } from '../jwtConfig';
 
 const { Header, Content, Footer } = Layout;
 const { Search } = Input; // Correct Search import
@@ -64,7 +64,7 @@ const BookDetails = () => {
 
                 <Menu>
                     {
-                        decodeJWT(localStorage.getItem("jwtToken")).scope != "CUSTOMER" ? (<Menu.Item key="dashboard" icon={<AppstoreOutlined />} onClick={handleDashboardClick}>
+                        decodeJWT().scope != "CUSTOMER" ? (<Menu.Item key="dashboard" icon={<AppstoreOutlined />} onClick={handleDashboardClick}>
                             Dashboard
                         </Menu.Item>) : (<Menu.Item key="profile" icon={<AppstoreOutlined />} onClick={() => { navigate("/profile") }}>
                             Profile
