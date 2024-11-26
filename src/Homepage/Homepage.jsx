@@ -148,12 +148,12 @@ const Homepage = () => {
     };
 
     const userMenu = () => {
-        if (localStorage.getItem("jwtToken")) {
+        if (decodeJWT()) {
             return (
 
                 <Menu>
                     {
-                        decodeJWT(localStorage.getItem("jwtToken")).scope != "CUSTOMER" ? (<Menu.Item key="dashboard" icon={<AppstoreOutlined />} onClick={handleDashboardClick}>
+                        decodeJWT().scope != "CUSTOMER" ? (<Menu.Item key="dashboard" icon={<AppstoreOutlined />} onClick={handleDashboardClick}>
                             Dashboard
                         </Menu.Item>) : (<Menu.Item key="profile" icon={<AppstoreOutlined />} onClick={() => { navigate("/profile") }}>
                             Profile

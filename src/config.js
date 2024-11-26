@@ -139,11 +139,8 @@ const fetchAccounts = () => {
 }
 
 const fetchAccountDetail = (username) => {
-    if (checkAdminRole()) {
-        return client.get(`v1/accounts/${username}`)
-    } else {
-        window.location.href = '/dashboard'
-    }
+
+    return client.get(`v1/accounts/${username}`)
 
 }
 const deleteAccount = (username) => client.delete(`v1/accounts/${username}`);
