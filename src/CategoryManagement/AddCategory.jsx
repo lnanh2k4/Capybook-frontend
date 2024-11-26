@@ -36,7 +36,6 @@ function AddCategory() {
     const buildTreeData = (categories) => {
         const map = {};
         const roots = [];
-
         categories.forEach((category) => {
             map[category.catID] = {
                 title: category.catName,
@@ -67,7 +66,7 @@ function AddCategory() {
         try {
             const categoryData = {
                 catName: values.catName,
-                parentCatID: values.parentCatID || null, 
+                parentCatID: values.parentCatID || null,
                 catStatus: 1,
             };
 
@@ -82,10 +81,10 @@ function AddCategory() {
 
     const handleResetOrBack = () => {
         if (isFormEmpty) {
-            navigate("/dashboard/category"); 
+            navigate("/dashboard/category");
         } else {
-            form.resetFields(); 
-            setIsFormEmpty(true); 
+            form.resetFields();
+            setIsFormEmpty(true);
         }
     };
 
@@ -123,9 +122,9 @@ function AddCategory() {
                         <TreeSelect
                             placeholder="Select parent category (optional)"
                             loading={loading}
-                            allowClear
+                            defaultValue={0}
                             treeData={[
-                                { title: "No parent category", value: null, key: "no-parent" },
+                                { title: "No parent", value: 0 },
                                 ...treeData,
                             ]}
                             treeDefaultExpandAll={false}

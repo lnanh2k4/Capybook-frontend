@@ -24,6 +24,7 @@ const Homepage = () => {
     const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
     const [modalBooks, setModalBooks] = useState([]); // Books to display in the modal
     const [modalCategory, setModalCategory] = useState(null); // The selected category for the modal
+    const [treeData, setTreeData] = useState([]); // Dữ liệu cho TreeSelect
 
 
     const navigate = useNavigate(); // Initialize navigate for routing
@@ -37,12 +38,46 @@ const Homepage = () => {
         });
 
         fetchCategories().then(response => {
+            const activeCategories = response.data.filter(
+                (category) => category.catStatus === 1
+            );
+            const updatedCategories = activeCategories.map((category) => {
+                const parent = category.parentCatID
+                    ? response.data.find((cat) => cat.catID === category.parentCatID)?.catName
+                    : "Parent";
+                return { ...category, parent };
+            });
             setCategories(response.data);
+            setSelectedCategory("All")
+            setTreeData(buildTreeData(response.data));
         }).catch(error => {
             console.error('Failed to fetch categories:', error);
         });
     }, []);
+    // Hàm xây dựng cấu trúc treeData cho TreeSelect
+    const buildTreeData = (categories) => {
+        const map = {};
+        const roots = [];
 
+        categories.forEach((category) => {
+            map[category.catID] = {
+                title: category.catName,
+                value: category.catID,
+                key: category.catID,
+                children: [],
+            };
+        });
+
+        categories.forEach((category) => {
+            if (category.parentCatID && map[category.parentCatID]) {
+                map[category.parentCatID].children.push(map[category.catID]);
+            } else if (!category.parentCatID) {
+                roots.push(map[category.catID]);
+            }
+        });
+
+        return roots;
+    };
     // Handle search input
     const handleSearch = useCallback((value) => {
         setSearchTerm(value.toLowerCase());
@@ -212,14 +247,8 @@ const Homepage = () => {
                                 <TreeSelect
                                     placeholder="Filter by Category"
                                     onChange={handleCategoryChange}
-                                    treeData={categories.map(category => ({
-                                        title: category.catName,
-                                        value: category.catID,
-                                        key: category.catID,
-                                        children: []
-                                    }))}
+                                    treeData={treeData}
                                     style={{ width: 200 }}
-                                    allowClear
                                 />
                             </Col>
                         </Row>

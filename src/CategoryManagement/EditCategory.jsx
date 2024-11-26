@@ -5,10 +5,10 @@ import { fetchCategoryDetail, fetchCategories, updateCategory } from '../config'
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 
 const EditCategory = () => {
-    const [form] = Form.useForm(); 
+    const [form] = Form.useForm();
     const [treeData, setTreeData] = useState([]);
     const navigate = useNavigate();
-    const { catID } = useParams(); 
+    const { catID } = useParams();
 
     useEffect(() => {
         const loadCategoryDetail = async () => {
@@ -80,7 +80,7 @@ const EditCategory = () => {
     };
 
     const handleCancel = () => {
-        navigate("/dashboard/category"); 
+        navigate("/dashboard/category");
     };
 
     return (
@@ -114,9 +114,8 @@ const EditCategory = () => {
                     >
                         <TreeSelect
                             placeholder="Select Parent Category"
-                            allowClear
                             treeData={[
-                                { title: "No Parent", value: null, key: "no-parent" },
+                                { title: "No Parent", value: 0, key: "no-parent" },
                                 ...treeData,
                             ]}
                             treeDefaultExpandAll={false}

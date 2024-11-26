@@ -66,12 +66,12 @@ function CategoryDetail() {
                 >
 
                     <Form.Item label="Category Name">
-                        <Input value={categoryData.catName} disabled />
+                        <Input value={categoryData.catName} readOnly />
                     </Form.Item>
 
                     {parentCategory && (
                         <Form.Item label="Parent Category">
-                            <Input value={parentCategory} disabled />
+                            <Input value={parentCategory} readOnly />
                         </Form.Item>
                     )}
 
@@ -81,7 +81,7 @@ function CategoryDetail() {
                             value={childCategories.length > 0
                                 ? childCategories.map(child => child.catName).join(", ")
                                 : "No Child Categories"}
-                            disabled
+                            readOnly
                         />
                     </Form.Item>
 
