@@ -14,7 +14,7 @@ const { Title } = Typography;
 const ProfileManagement = () => {
     const [form] = Form.useForm(); // Ant Design form instance
     const [isEditing, setIsEditing] = useState(false);
-    const username = decodeJWT(localStorage.getItem("jwtToken")).sub
+    const username = decodeJWT().sub
 
     useEffect(() => {
         if (username) {

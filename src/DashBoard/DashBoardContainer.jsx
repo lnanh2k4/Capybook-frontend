@@ -80,48 +80,63 @@ const DashboardContainer = () => {
     }
   };
 
+  let isAccountVisible, isBookVisible, isOrderVisible, isPromotionVisible, isSupplierVisible, isCategoryVisible, isInventoryVisible, isNotificationVisible, isStaffVisible = false;
+  let scope = decodeJWT().scope
+  if (scope.includes("ADMIN")) {
+    isAccountVisible = isBookVisible = isOrderVisible = isPromotionVisible = isSupplierVisible = isCategoryVisible = isInventoryVisible = isNotificationVisible = isStaffVisible = true
+  }
+  if (scope.includes("SELLER_STAFF")) {
+    isPromotionVisible = isOrderVisible = isCategoryVisible = true
+  }
+  if (scope.includes("WAREHOUSE_STAFF")) {
+    isSupplierVisible = true
+    isInventoryVisible = true
+    isBookVisible = true
+  }
+
+
   const items = [
-    {
+    isAccountVisible && {
       key: '1',
       label: 'Account Management',
       icon: <UserOutlined />,
     },
-    {
+    isBookVisible && {
       key: '2',
       label: 'Book Management',
       icon: <BookOutlined />,
     },
-    {
+    isOrderVisible && {
       key: '3',
       label: 'Order Management',
       icon: <TagsOutlined />,
     },
-    {
+    isPromotionVisible && {
       key: '4',
       label: 'Promotion Management',
       icon: <BellOutlined />,
     },
-    {
+    isSupplierVisible && {
       key: '5',
       label: 'Supplier Management',
       icon: <TruckOutlined />,
     },
-    {
+    isCategoryVisible && {
       key: '6',
       label: 'Category Management',
       icon: <BarsOutlined />,
     },
-    {
+    isInventoryVisible && {
       key: '7',
       label: 'Inventory Management',
       icon: <AppstoreOutlined />,
     },
-    {
+    isNotificationVisible && {
       key: '8',
       label: 'Notification Management',
       icon: <NotificationOutlined />,
     },
-  ];
+  ].filter(Boolean);
 
   return (
     <div
@@ -138,7 +153,7 @@ const DashboardContainer = () => {
         <img src="/logo-capybook.png" alt="Cabybook Logo" className="logo-image" />
       </div>
       <div className="username-container" style={{ textAlign: 'center', margin: '10px 0', color: '#333', cursor: 'pointer' }} onClick={() => navigate('/dashboard/profile')}>
-        <strong>{decodeJWT(localStorage.getItem("jwtToken")).sub}</strong> {/* Hiển thị tên người dùng */}
+        <strong>{decodeJWT().sub}</strong> {/* Hiển thị tên người dùng */}
       </div>
       <Menu
         theme="light"
