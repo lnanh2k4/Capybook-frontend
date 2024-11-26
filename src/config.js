@@ -229,7 +229,11 @@ const searchCategories = (id, name) => {
     if (name) params.append("name", name);
     return client.get(`/v1/categories/search?${params.toString()}`);
 };
-
+const searchCategoriesByParent = (parent) => {
+    const params = new URLSearchParams();
+    if (parent) params.append("parent", parent);
+    return client.get(`/v1/categories/searchParent?${params.toString()}`);
+};
 
 const fetchCategoryById = (catID) => client.get(`/v1/categories/${catID}`);
 
@@ -399,6 +403,7 @@ export {
     createPayment, // Thêm hàm createPayment
     handlePaymentReturn,
     viewCart,
-    changePassword
+    changePassword,
+    searchCategoriesByParent
 };
 
