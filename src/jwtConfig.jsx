@@ -1,4 +1,5 @@
-const decodeJWT = () => {
+
+export const decodeJWT = () => {
     try {
         let token = localStorage.getItem("jwtToken")
         const base64Url = token.split('.')[1]; // Lấy phần payload
@@ -16,5 +17,19 @@ const decodeJWT = () => {
     }
 };
 
-export default decodeJWT
+export const checkAdminRole = () => {
+    let scope = decodeJWT().scope
+    return scope.includes("ADMIN") ? true : false
+}
+
+export const checkSellerStaffRole = () => {
+    let scope = decodeJWT().scope
+    return scope.includes("ADMIN") ? true : false
+}
+
+export const checkWarehouseStaffRole = () => {
+    let scope = decodeJWT().scope
+    return scope.includes("ADMIN") ? true : false
+}
+
 

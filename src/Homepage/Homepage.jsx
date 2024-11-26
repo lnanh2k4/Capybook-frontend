@@ -4,7 +4,7 @@ import { UserOutlined, AppstoreOutlined, SettingOutlined, ShoppingCartOutlined, 
 import { useNavigate } from 'react-router-dom';
 import './Homepage.css';
 import { fetchBooks, fetchCategories, logout } from '../config'; // Fetch books and categories from API
-import decodeJWT from '../jwtConfig'
+import { decodeJWT } from '../jwtConfig'
 
 
 
