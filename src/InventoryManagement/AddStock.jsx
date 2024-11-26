@@ -76,6 +76,20 @@ function AddStock() {
         setIsModalVisible(true);
     };
 
+
+    const checkISBNExists = async (isbn) => {
+        try {
+            const response = await fetchBooks();
+            return response.ok && response.data.exists; // `exists` trả về true/false từ backend
+        } catch (error) {
+            console.error("Error checking ISBN:", error);
+            return false; // Nếu có lỗi, coi như ISBN chưa tồn tại
+        }
+    };
+
+
+
+
     const handleSelectBook = (record) => {
         if (record.bookTitle === "+ Add a new book") {
             setModalKey((prevKey) => prevKey + 1);
@@ -109,6 +123,50 @@ function AddStock() {
 
     const handleAddBookSubmit = (values) => {
         console.log("Form values:", values);
+
+        const isISBNInDatabase = checkISBNExists(values.isbn);
+        if (isISBNInDatabase) {
+            message.error(`Book with ISBN "${values.isbn}" already exists in the database!`);
+            return; // Dừng xử lý nếu ISBN đã tồn tại
+        }
+        const duplicateBookInTemp = temporaryBooks.find((book) => book.isbn === values.isbn);
+
+        // Kiểm tra trùng ISBN trong items (so sánh với books đã chọn hoặc đã có sẵn)
+        const duplicateBookInItems = items.find((item) => {
+            const book = books.find((book) => book.bookID === item.bookID); // Tìm sách tương ứng với item
+            return book?.isbn === values.isbn; // So sánh ISBN nếu tìm thấy
+        });
+
+        if (duplicateBookInTemp || duplicateBookInItems) {
+            message.error(`Book with ISBN "${values.isbn}" already exists! Quantity will be updated.`);
+
+            // Nếu sách đã tồn tại, cập nhật số lượng
+            const newItems = [...items];
+            const index = newItems.findIndex((item) => {
+                const book = books.find((book) => book.bookID === item.bookID);
+                return book?.isbn === values.isbn;
+            });
+
+            if (index !== -1) {
+                newItems[index].quantity += values.bookQuantity || 1; // Tăng số lượng
+                setItems(newItems);
+            }
+
+            setIsAddBookModalVisible(false);
+            return;
+        }
+        // Lưu hình ảnh (nếu có) vào đường dẫn static
+        let staticImagePath = null;
+        if (fileList.length > 0) {
+            const file = fileList[0].originFileObj;
+            if (!file.type.startsWith("image/")) {
+                message.error("Only image files are allowed!");
+                return;
+            }
+            const timestamp = new Date().getTime();
+            const uniqueFileName = `book_${timestamp}.jpg`;
+            staticImagePath = `/uploads/${uniqueFileName}`;
+        }
 
         const newBook = {
             ...values,
