@@ -203,7 +203,12 @@ const fetchPromotionDetail = (proID) => {
     console.log("Fetching promotion detail for ID:", proID);
     return client.get(`/v1/promotions/${proID}`);
 };
-const addPromotion = (promotion) => client.post('/v1/promotions/', promotion);
+const addPromotion = (promotion, username) => {
+  return client.post(`/v1/promotions/`, promotion, {
+    params: { username: username }, // Gửi username trong params
+  });
+};
+
 const updatePromotion = (id, promotion) => client.put(`/v1/promotions/${id}`, promotion);
 const deletePromotion = (proID) => {
     console.log("Marking promotion as deleted with ID:", proID);
