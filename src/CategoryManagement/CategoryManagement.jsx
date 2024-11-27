@@ -26,18 +26,8 @@ const CategoryManagement = () => {
           const activeCategories = response.data.filter(
             (category) => category.catStatus === 1
           );
-          const updatedCategories = activeCategories.map((category) => {
-            const parent = category.parentCatID
-              ? response.data.find((cat) => cat.catID === category.parentCatID)?.catName
-              : "Parent";
-            return { ...category, parent };
-          });
-
-          setAllCategories(updatedCategories);
-          setFilteredCategories(updatedCategories); // Ban đầu hiển thị tất cả các danh mục
-
-          // Tạo cấu trúc treeData từ dữ liệu category
-          setTreeData(buildTreeData(updatedCategories));
+          setAllCategories(activeCategories);
+          setFilteredCategories(activeCategories); // Ban đầu hiển thị tất cả các danh mục        
         } else {
           console.error("Expected an array but got", response.data);
         }
@@ -50,102 +40,6 @@ const CategoryManagement = () => {
         setLoading(false);
       });
   }, []);
-
-  // Hàm xây dựng cấu trúc treeData cho TreeSelect
-  const buildTreeData = (categories) => {
-    const map = {};
-    const roots = [];
-
-    categories.forEach((category) => {
-      map[category.catID] = {
-        title: category.catName,
-        value: category.catID,
-        key: category.catID,
-        children: [],
-      };
-    });
-
-    categories.forEach((category) => {
-      if (category.parentCatID && map[category.parentCatID]) {
-        map[category.parentCatID].children.push(map[category.catID]);
-      } else if (!category.parentCatID) {
-        roots.push(map[category.catID]);
-      }
-    });
-
-    return roots;
-  };
-
-  // Hàm tìm tất cả các danh mục con của một danh mục
-  const findAllDescendants = (categoryId, categories) => {
-    const descendants = [];
-    const findChildren = (parentId) => {
-      categories.forEach((cat) => {
-        if (cat.parentCatID === parentId) {
-          descendants.push(cat.catID);
-          findChildren(cat.catID);
-        }
-      });
-    };
-    findChildren(categoryId);
-    return descendants;
-  };
-
-  const handleTreeSelectChange = (value) => {
-    setSelectedCategory(value);
-
-    if (value && value.data != 0) {
-      searchCategoriesByParent(value).then((response) => {
-        if (Array.isArray(response.data)) {
-          const activeCategories = response.data.filter(
-            (category) => category.catStatus === 1
-          );
-          const updatedCategories = activeCategories.map((category) => {
-            const parent = category.parentCatID
-              ? response.data.find((cat) => cat.catID === category.parentCatID)?.catName
-              : "Parent";
-            return { ...category, parent };
-          });
-
-
-          setFilteredCategories(updatedCategories);
-        } else {
-          console.error("Expected an array but got", response.data);
-        }
-      })
-        .catch((error) => {
-          console.error("Error fetching categories:", error);
-          message.error("Failed to fetch categories");
-        })
-
-    } else {
-      fetchCategories().then((response) => {
-        if (Array.isArray(response.data)) {
-          const activeCategories = response.data.filter(
-            (category) => category.catStatus === 1
-          );
-          const updatedCategories = activeCategories.map((category) => {
-            const parent = category.parentCatID
-              ? response.data.find((cat) => cat.catID === category.parentCatID)?.catName
-              : "Parent";
-            return { ...category, parent };
-          });
-          setFilteredCategories(updatedCategories);
-        } else {
-          console.error("Expected an array but got", response.data);
-        }
-      })
-        .catch((error) => {
-          console.error("Error fetching categories:", error);
-          message.error("Failed to fetch categories");
-        })
-    }
-  };
-
-  const handleTreeExpand = (keys) => {
-    setExpandedKeys(keys);
-  };
-
   const handleSearch = (value) => {
     setSearchTerm(value);
 
@@ -162,7 +56,10 @@ const CategoryManagement = () => {
     searchCategories(id, name)
       .then((response) => {
         if (response.data) {
-          setFilteredCategories(response.data);
+          const activeCategories = response.data.filter(
+            (category) => category.catStatus === 1
+          );
+          setFilteredCategories(activeCategories);
         } else {
           setFilteredCategories([]);
         }
@@ -214,28 +111,9 @@ const CategoryManagement = () => {
                 const activeCategories = response.data.filter(
                   (category) => category.catStatus === 1
                 );
-                const updatedCategories = activeCategories.map((category) => {
-                  const parent = category.parentCatID
-                    ? response.data.find((cat) => cat.catID === category.parentCatID)?.catName
-                    : "Parent";
-                  return { ...category, parent };
-                });
+                setAllCategories(activeCategories);
+                setFilteredCategories(activeCategories);
 
-                setAllCategories(updatedCategories);
-
-                if (selectedCategory) {
-                  const descendantIds = findAllDescendants(selectedCategory, updatedCategories);
-                  const filtered = updatedCategories.filter(
-                    (category) =>
-                      category.catID === selectedCategory ||
-                      descendantIds.includes(category.catID)
-                  );
-                  setFilteredCategories(filtered);
-                } else {
-                  setFilteredCategories(updatedCategories);
-                }
-
-                setTreeData(buildTreeData(updatedCategories));
               } else {
                 console.error("Expected an array but got", response.data);
               }
@@ -317,22 +195,6 @@ const CategoryManagement = () => {
           <Button type="primary" onClick={goToAddCategory}>
             Add Category
           </Button>
-
-          <TreeSelect
-            style={{ width: 300 }}
-            value={selectedCategory}
-            dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-            defaultValue={0}
-            treeData={[
-              { title: "All", value: 0 },
-              ...treeData,
-            ]}
-            placeholder="Select a category"
-            treeDefaultExpandAll={false}
-            treeExpandedKeys={expandedKeys}
-            onChange={handleTreeSelectChange}
-            onTreeExpand={handleTreeExpand}
-          />
 
           <Search
             placeholder="Search by category ID or name"

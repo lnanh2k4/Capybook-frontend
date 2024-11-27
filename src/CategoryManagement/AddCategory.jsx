@@ -12,49 +12,7 @@ function AddCategory() {
     const [isFormEmpty, setIsFormEmpty] = useState(true);
 
     useEffect(() => {
-        setLoading(true);
-        fetchCategories()
-            .then((response) => {
-                if (Array.isArray(response.data)) {
-                    const activeCategories = response.data.filter(
-                        (category) => category.catStatus === 1
-                    );
-                    setTreeData(buildTreeData(activeCategories));
-                } else {
-                    console.error("Expected an array but got", response.data);
-                }
-            })
-            .catch((error) => {
-                console.error("Error fetching categories:", error);
-                message.error("Failed to fetch categories");
-            })
-            .finally(() => {
-                setLoading(false);
-            });
     }, []);
-
-    const buildTreeData = (categories) => {
-        const map = {};
-        const roots = [];
-        categories.forEach((category) => {
-            map[category.catID] = {
-                title: category.catName,
-                value: category.catID,
-                key: category.catID,
-                children: []
-            };
-        });
-
-        categories.forEach((category) => {
-            if (category.parentCatID) {
-                map[category.parentCatID].children.push(map[category.catID]);
-            } else {
-                roots.push(map[category.catID]);
-            }
-        });
-
-        return roots;
-    };
 
     const handleFormChange = () => {
         const values = form.getFieldsValue();
@@ -66,7 +24,7 @@ function AddCategory() {
         try {
             const categoryData = {
                 catName: values.catName,
-                parentCatID: values.parentCatID || null,
+                catDescription: values.catDescription,
                 catStatus: 1,
             };
 
@@ -115,21 +73,13 @@ function AddCategory() {
                     </Form.Item>
 
                     <Form.Item
-                        label="Parent Category"
-                        name="parentCatID"
+                        label="Category description"
+                        name="catDescription"
                         rules={[{ required: false }]}
+                        style={{ maxWidth: '600px', margin: 'auto' }}
+
                     >
-                        <TreeSelect
-                            placeholder="Select parent category (optional)"
-                            loading={loading}
-                            defaultValue={0}
-                            treeData={[
-                                { title: "No parent", value: 0 },
-                                ...treeData,
-                            ]}
-                            treeDefaultExpandAll={false}
-                            dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-                        />
+                        <Input htmlType="textarea" style={{ width: '600px', height: '200px', textJustify: 'revert-layer', textWrap: '-moz-initial' }} />
                     </Form.Item>
 
                     <Form.Item>
