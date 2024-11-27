@@ -6,7 +6,6 @@ import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 
 const EditCategory = () => {
     const [form] = Form.useForm();
-    const [treeData, setTreeData] = useState([]);
     const navigate = useNavigate();
     const { catID } = useParams();
 
@@ -18,15 +17,8 @@ const EditCategory = () => {
 
                 form.setFieldsValue({
                     catName: category.catName,
-                    parentCatID: category.parentCatID || null,
+                    catDescription: category.catDescription,
                 });
-
-                const allCategoriesResponse = await fetchCategories();
-                const validCategories = allCategoriesResponse.data.filter(
-                    (cat) => cat.catStatus === 1
-                );
-                setTreeData(buildTreeData(validCategories, category.catID));
-
             } catch (error) {
                 console.error("Error fetching category detail:", error);
                 message.error("Failed to fetch category details");
@@ -36,35 +28,11 @@ const EditCategory = () => {
         loadCategoryDetail();
     }, [catID, form]);
 
-    const buildTreeData = (categories, currentCategoryId) => {
-        const map = {};
-        const roots = [];
-
-        categories.forEach((category) => {
-            map[category.catID] = {
-                title: category.catName,
-                value: category.catID,
-                key: category.catID,
-                disabled: category.catID === currentCategoryId,
-                children: [],
-            };
-        });
-
-        categories.forEach((category) => {
-            if (category.parentCatID && map[category.parentCatID]) {
-                map[category.parentCatID].children.push(map[category.catID]);
-            } else if (!category.parentCatID) {
-                roots.push(map[category.catID]);
-            }
-        });
-
-        return roots;
-    };
-
     const handleSubmit = (values) => {
         const updatedCategory = {
             ...values,
-            parentCatID: values.parentCatID === null ? null : values.parentCatID,
+            catName: values.catName,
+            catDescription: values.catDescription,
             catStatus: values.catStatus || 1,
         };
 
@@ -109,19 +77,13 @@ const EditCategory = () => {
                     </Form.Item>
 
                     <Form.Item
-                        label="Parent Category"
-                        name="parentCatID"
+                        label="Category Description"
+                        name="catDescription"
+                        rules={[{ required: false, message: "Please enter the description" }]}
                     >
-                        <TreeSelect
-                            placeholder="Select Parent Category"
-                            treeData={[
-                                { title: "No Parent", value: 0, key: "no-parent" },
-                                ...treeData,
-                            ]}
-                            treeDefaultExpandAll={false}
-                            dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-                        />
+                        <Input placeholder="Category Description" />
                     </Form.Item>
+
 
                     <Form.Item>
                         <Button type="primary" htmlType="submit">
