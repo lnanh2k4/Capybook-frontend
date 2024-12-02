@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Space, Table, Button, Input, message, Modal, TreeSelect } from "antd";
-import { fetchCategories, searchCategories, deleteCategory } from "../config";
+import { fetchCategories, searchCategories, deleteCategory, searchCategoriesByParent } from "../config";
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import { DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
 
@@ -19,24 +19,15 @@ const CategoryManagement = () => {
 
   useEffect(() => {
     setLoading(true);
+    setSelectedCategory("All");
     fetchCategories()
       .then((response) => {
         if (Array.isArray(response.data)) {
           const activeCategories = response.data.filter(
             (category) => category.catStatus === 1
           );
-          const updatedCategories = activeCategories.map((category) => {
-            const parent = category.parentCatID
-              ? response.data.find((cat) => cat.catID === category.parentCatID)?.catName
-              : "Parent";
-            return { ...category, parent };
-          });
-
-          setAllCategories(updatedCategories);
-          setFilteredCategories(updatedCategories); // Ban đầu hiển thị tất cả các danh mục
-
-          // Tạo cấu trúc treeData từ dữ liệu category
-          setTreeData(buildTreeData(updatedCategories));
+          setAllCategories(activeCategories);
+          setFilteredCategories(activeCategories); // Ban đầu hiển thị tất cả các danh mục        
         } else {
           console.error("Expected an array but got", response.data);
         }
@@ -49,97 +40,38 @@ const CategoryManagement = () => {
         setLoading(false);
       });
   }, []);
-
-  // Hàm xây dựng cấu trúc treeData cho TreeSelect
-  const buildTreeData = (categories) => {
-    const map = {};
-    const roots = [];
-
-    categories.forEach((category) => {
-      map[category.catID] = {
-        title: category.catName,
-        value: category.catID,
-        key: category.catID,
-        children: [],
-      };
-    });
-
-    categories.forEach((category) => {
-      if (category.parentCatID && map[category.parentCatID]) {
-        map[category.parentCatID].children.push(map[category.catID]);
-      } else if (!category.parentCatID) {
-        roots.push(map[category.catID]);
-      }
-    });
-
-    return roots;
-  };
-
-  // Hàm tìm tất cả các danh mục con của một danh mục
-  const findAllDescendants = (categoryId, categories) => {
-    const descendants = [];
-    const findChildren = (parentId) => {
-      categories.forEach((cat) => {
-        if (cat.parentCatID === parentId) {
-          descendants.push(cat.catID);
-          findChildren(cat.catID);
-        }
-      });
-    };
-    findChildren(categoryId);
-    return descendants;
-  };
-
-  const handleTreeSelectChange = (value) => {
-    setSelectedCategory(value);
-
-    if (value) {
-      // Tìm tất cả các danh mục con của danh mục được chọn
-      const descendantIds = findAllDescendants(value, allCategories);
-      const filtered = allCategories.filter(
-        (category) =>
-          category.catID === value || descendantIds.includes(category.catID)
-      );
-      setFilteredCategories(filtered);
-    } else {
-      // Nếu không có danh mục nào được chọn, hiển thị tất cả
-      setFilteredCategories(allCategories);
-    }
-  };
-
-  const handleTreeExpand = (keys) => {
-    setExpandedKeys(keys);
-  };
-
   const handleSearch = (value) => {
-  setSearchTerm(value);
+    setSearchTerm(value);
 
-  if (!value.trim()) {
-    setFilteredCategories(allCategories);
-    return;
-  }
+    if (!value.trim()) {
+      setFilteredCategories(allCategories);
+      return;
+    }
 
-  const isNumber = !isNaN(value);
-  const id = isNumber ? parseInt(value, 10) : null;
-  const name = isNumber ? "" : value;
+    const isNumber = !isNaN(value);
+    const id = isNumber ? parseInt(value, 10) : null;
+    const name = isNumber ? "" : value;
 
-  setLoading(true);
-  searchCategories(id, name)
-    .then((response) => {
-      if (response.data) {
-        setFilteredCategories(response.data);
-      } else {
-        setFilteredCategories([]);
-      }
-    })
-    .catch((error) => {
-      console.error("Error searching categories:", error);
-      message.error("Failed to search categories");
-    })
-    .finally(() => {
-      setLoading(false);
-    });
-};
+    setLoading(true);
+    searchCategories(id, name)
+      .then((response) => {
+        if (response.data) {
+          const activeCategories = response.data.filter(
+            (category) => category.catStatus === 1
+          );
+          setFilteredCategories(activeCategories);
+        } else {
+          setFilteredCategories([]);
+        }
+      })
+      .catch((error) => {
+        console.error("Error searching categories:", error);
+        message.error("Failed to search categories");
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
 
 
 
@@ -148,77 +80,58 @@ const CategoryManagement = () => {
   };
 
   const handleDelete = (catID) => {
-  const categoryToDelete = allCategories.find((category) => category.catID === catID);
-  const childCategories = allCategories.filter(
-    (category) => category.parentCatID === catID
-  );
+    const categoryToDelete = allCategories.find((category) => category.catID === catID);
+    const childCategories = allCategories.filter(
+      (category) => category.parentCatID === catID
+    );
 
-  if (childCategories.length > 0) {
-    Modal.warning({
-      title: "Cannot delete parent category",
-      content: `Category "${categoryToDelete.catName}" has child categories and cannot be deleted.`,
-    });
-    return;
-  }
+    if (childCategories.length > 0) {
+      Modal.warning({
+        title: "Cannot delete parent category",
+        content: `Category "${categoryToDelete.catName}" has child categories and cannot be deleted.`,
+      });
+      return;
+    }
 
-  Modal.confirm({
-    title: "Confirm Deletion",
-    content: `Are you sure you want to delete category "${categoryToDelete.catName}"?`,
-    okText: "Yes",
-    okType: "danger",
-    cancelText: "No",
-    onOk: async () => {
-      try {
-        await deleteCategory(catID);
-        message.success("Category marked as deleted (status set to 0) successfully");
+    Modal.confirm({
+      title: "Confirm Deletion",
+      content: `Are you sure you want to delete category "${categoryToDelete.catName}"?`,
+      okText: "Yes",
+      okType: "danger",
+      cancelText: "No",
+      onOk: async () => {
+        try {
+          await deleteCategory(catID);
+          message.success("Category marked as deleted (status set to 0) successfully");
 
-        setLoading(true);
-        fetchCategories()
-          .then((response) => {
-            if (Array.isArray(response.data)) {
-              const activeCategories = response.data.filter(
-                (category) => category.catStatus === 1
-              );
-              const updatedCategories = activeCategories.map((category) => {
-                const parent = category.parentCatID
-                  ? response.data.find((cat) => cat.catID === category.parentCatID)?.catName
-                  : "Parent";
-                return { ...category, parent };
-              });
-
-              setAllCategories(updatedCategories);
-
-              if (selectedCategory) {
-                const descendantIds = findAllDescendants(selectedCategory, updatedCategories);
-                const filtered = updatedCategories.filter(
-                  (category) =>
-                    category.catID === selectedCategory ||
-                    descendantIds.includes(category.catID)
+          setLoading(true);
+          fetchCategories()
+            .then((response) => {
+              if (Array.isArray(response.data)) {
+                const activeCategories = response.data.filter(
+                  (category) => category.catStatus === 1
                 );
-                setFilteredCategories(filtered);
-              } else {
-                setFilteredCategories(updatedCategories);
-              }
+                setAllCategories(activeCategories);
+                setFilteredCategories(activeCategories);
 
-              setTreeData(buildTreeData(updatedCategories));
-            } else {
-              console.error("Expected an array but got", response.data);
-            }
-          })
-          .catch((error) => {
-            console.error("Error fetching categories:", error);
-            message.error("Failed to fetch categories");
-          })
-          .finally(() => {
-            setLoading(false);
-          });
-      } catch (error) {
-        console.error("Error soft deleting category:", error);
-        message.error("Failed to soft delete category");
-      }
-    },
-  });
-};
+              } else {
+                console.error("Expected an array but got", response.data);
+              }
+            })
+            .catch((error) => {
+              console.error("Error fetching categories:", error);
+              message.error("Failed to fetch categories");
+            })
+            .finally(() => {
+              setLoading(false);
+            });
+        } catch (error) {
+          console.error("Error soft deleting category:", error);
+          message.error("Failed to soft delete category");
+        }
+      },
+    });
+  };
 
 
   const goToAddCategory = () => {
@@ -283,25 +196,12 @@ const CategoryManagement = () => {
             Add Category
           </Button>
 
-          <TreeSelect
-            style={{ width: 300 }}
-            value={selectedCategory}
-            dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-            treeData={treeData}
-            placeholder="Select a category"
-            treeDefaultExpandAll={false}
-            treeExpandedKeys={expandedKeys}
-            onChange={handleTreeSelectChange}
-            onTreeExpand={handleTreeExpand}
-            allowClear
-          />
-
           <Search
-  placeholder="Search by category ID or name"
-  value={searchTerm}
-  onChange={(e) => handleSearch(e.target.value)} // Gọi `handleSearch` khi người dùng nhập
-  style={{ width: 300 }}
-/>
+            placeholder="Search by category ID or name"
+            value={searchTerm}
+            onChange={(e) => handleSearch(e.target.value)} // Gọi `handleSearch` khi người dùng nhập
+            style={{ width: 300 }}
+          />
         </div>
 
         <Table

@@ -8,12 +8,19 @@ const PromotionDetail = () => {
   const { proID } = useParams();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({});
+  const [createdByStaffID, setCreatedByStaffID] = useState("N/A");
+  const [approvedByStaffID, setApprovedByStaffID] = useState("N/A");
 
   useEffect(() => {
+    // Fetch promotion details
     fetchPromotionDetail(proID)
       .then((response) => {
         console.log("Fetched promotion data:", response.data);
         setFormData(response.data);
+
+        // Set staffID directly for createdBy and approvedBy
+        setCreatedByStaffID(response.data.createdBy || "N/A");
+        setApprovedByStaffID(response.data.approvedBy || "N/A");
       })
       .catch((error) => {
         console.error("Error fetching promotion details:", error);
@@ -32,46 +39,46 @@ const PromotionDetail = () => {
         <Card
           title={`Promotion Detail - ${formData.proName || "N/A"}`}
           bordered={false}
-          style={{ width: '100%', margin: 'auto', maxWidth: '800px' }}
+          style={{ width: "100%", margin: "auto", maxWidth: "800px" }}
         >
-          <div style={{ marginBottom: '15px' }}>
+          <div style={{ marginBottom: "15px" }}>
             <label>Promotion ID</label>
             <Input value={formData.proID || "N/A"} disabled />
           </div>
-          <div style={{ marginBottom: '15px' }}>
+          <div style={{ marginBottom: "15px" }}>
             <label>Promotion Name</label>
             <Input value={formData.proName || "N/A"} disabled />
           </div>
-          <div style={{ marginBottom: '15px' }}>
+          <div style={{ marginBottom: "15px" }}>
             <label>Promotion Code</label>
             <Input value={formData.proCode || "N/A"} disabled />
           </div>
-          <div style={{ marginBottom: '15px' }}>
+          <div style={{ marginBottom: "15px" }}>
             <label>Start Date</label>
             <Input value={formData.startDate || "N/A"} disabled />
           </div>
-          <div style={{ marginBottom: '15px' }}>
+          <div style={{ marginBottom: "15px" }}>
             <label>End Date</label>
             <Input value={formData.endDate || "N/A"} disabled />
           </div>
-          <div style={{ marginBottom: '15px' }}>
+          <div style={{ marginBottom: "15px" }}>
             <label>Discount</label>
             <Input value={formData.discount || "N/A"} disabled />
           </div>
-          <div style={{ marginBottom: '15px' }}>
+          <div style={{ marginBottom: "15px" }}>
             <label>Quantity</label>
             <Input value={formData.quantity || "N/A"} disabled />
           </div>
-          <div style={{ marginBottom: '15px' }}>
+          <div style={{ marginBottom: "15px" }}>
             <label>Created By</label>
-            <Input value={formData.createdBy?.username || "N/A"} disabled />
+            <Input value={createdByStaffID} disabled />
           </div>
-          <div style={{ marginBottom: '15px' }}>
+          <div style={{ marginBottom: "15px" }}>
             <label>Approved By</label>
-            <Input value={formData.approvedBy?.username || "N/A"} disabled />
+            <Input value={approvedByStaffID} disabled />
           </div>
 
-          <div style={{ textAlign: 'center', marginTop: '20px' }}>
+          <div style={{ textAlign: "center", marginTop: "20px" }}>
             <Button type="primary" onClick={goToPromotionManagement}>
               Back
             </Button>

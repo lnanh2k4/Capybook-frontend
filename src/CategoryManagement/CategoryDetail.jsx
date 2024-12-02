@@ -6,8 +6,6 @@ import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 
 function CategoryDetail() {
     const [categoryData, setCategoryData] = useState(null);
-    const [childCategories, setChildCategories] = useState([]); // To store child categories
-    const [parentCategory, setParentCategory] = useState("");   // To store parent category
     const navigate = useNavigate();
     const { catID } = useParams();  // Get the category ID from the route
 
@@ -19,18 +17,7 @@ function CategoryDetail() {
                 const category = response.data;
                 setCategoryData(category);
 
-                const allCategoriesResponse = await fetchCategories();
-                const allCategories = allCategoriesResponse.data;
 
-                // Fetch child categories if they exist
-                const children = allCategories.filter(cat => cat.parentCatID === category.catID);
-                setChildCategories(children);
-
-                // Fetch parent category if it exists
-                if (category.parentCatID !== null) {
-                    const parentResponse = await fetchCategoryDetail(category.parentCatID);
-                    setParentCategory(parentResponse.data.catName || "");
-                }
 
             } catch (error) {
                 console.error("Error fetching category detail:", error);
@@ -66,23 +53,11 @@ function CategoryDetail() {
                 >
 
                     <Form.Item label="Category Name">
-                        <Input value={categoryData.catName} disabled />
+                        <Input value={categoryData.catName} readOnly />
                     </Form.Item>
 
-                    {parentCategory && (
-                        <Form.Item label="Parent Category">
-                            <Input value={parentCategory} disabled />
-                        </Form.Item>
-                    )}
-
-                    <Form.Item label="Child Categories">
-                        <Input.TextArea
-                            rows={4}
-                            value={childCategories.length > 0
-                                ? childCategories.map(child => child.catName).join(", ")
-                                : "No Child Categories"}
-                            disabled
-                        />
+                    <Form.Item>
+                        <Input htmlType="textarea" value={categoryData.catDescription} readOnly style={{ width: '800px', height: '200px', textJustify: 'revert-layer', textWrap: '-moz-initial' }} />
                     </Form.Item>
 
                     <Form.Item>

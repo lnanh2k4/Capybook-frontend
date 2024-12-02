@@ -139,11 +139,8 @@ const fetchAccounts = () => {
 }
 
 const fetchAccountDetail = (username) => {
-    if (checkAdminRole()) {
-        return client.get(`v1/accounts/${username}`)
-    } else {
-        window.location.href = '/dashboard'
-    }
+
+    return client.get(`v1/accounts/${username}`)
 
 }
 const deleteAccount = (username) => client.delete(`v1/accounts/${username}`);
@@ -206,7 +203,12 @@ const fetchPromotionDetail = (proID) => {
     console.log("Fetching promotion detail for ID:", proID);
     return client.get(`/v1/promotions/${proID}`);
 };
-const addPromotion = (promotion) => client.post('/v1/promotions/', promotion);
+const addPromotion = (promotion, username) => {
+  return client.post(`/v1/promotions/`, promotion, {
+    params: { username: username }, // Gửi username trong params
+  });
+};
+
 const updatePromotion = (id, promotion) => client.put(`/v1/promotions/${id}`, promotion);
 const deletePromotion = (proID) => {
     console.log("Marking promotion as deleted with ID:", proID);
@@ -244,7 +246,11 @@ const searchCategories = (id, name) => {
     if (name) params.append("name", name);
     return client.get(`/v1/categories/search?${params.toString()}`);
 };
-
+const searchCategoriesByParent = (parent) => {
+    const params = new URLSearchParams();
+    if (parent) params.append("parent", parent);
+    return client.get(`/v1/categories/searchParent?${params.toString()}`);
+};
 
 const fetchCategoryById = (catID) => client.get(`/v1/categories/${catID}`);
 
@@ -415,5 +421,6 @@ export {
     handlePaymentReturn,
     viewCart,
     changePassword,
+    searchCategoriesByParent
 };
 
