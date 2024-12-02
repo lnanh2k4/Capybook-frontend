@@ -7,9 +7,6 @@ import { decodeJWT, checkAdminRole, checkSellerStaffRole, checkWarehouseStaffRol
 import { logout } from '../config';
 
 const DashboardContainer = () => {
-  if (!checkAdminRole() && !checkSellerStaffRole() && !checkWarehouseStaffRole()) {
-    window.location.href = '/'
-  }
   const navigate = useNavigate();
   const location = useLocation();  // Sử dụng useLocation để lấy URL hiện tại
   const [collapsed, setCollapsed] = useState(true); // Trạng thái cho việc thu gọn
