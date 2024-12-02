@@ -3,7 +3,7 @@ import { Table, Button, Input, Tabs, Spin, Modal, Descriptions, message, DatePic
 import {
     fetchImportStocks,
     fetchSupplierById,
-    fetchStaffById,
+    fetchStaffDetail,
     fetchImportStockDetailsByStockId,
     fetchOrders,
     fetchOrderDetail,
@@ -166,7 +166,7 @@ function InventoryManagement() {
 
                 const staffPromises = uniqueStaffIDs.map(async (id) => {
                     try {
-                        const res = await fetchStaffById(id);
+                        const res = await fetchStaffDetail(id);
                         return { id, data: res.data };
                     } catch (error) {
                         console.error(`Failed to fetch staff with ID ${id}:`, error);

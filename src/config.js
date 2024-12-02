@@ -1,10 +1,11 @@
 import axios from 'axios';
 import { checkAdminRole } from './jwtConfig'
+// Handle axios
 const URLString = 'http://localhost:6789/api/'
 const client = axios.create({
     baseURL: URLString, // Địa chỉ API của bạn
 });
-
+// Token config
 let isRefreshing = false
 let refreshSubscribers = []
 
@@ -67,13 +68,20 @@ client.interceptors.response.use(
     }
 )
 
-export const fetchStaffById = (id) => {
-    return client.get(`/v1/staff/${id}`).then((response) => {
+// Staff configuration
+export const fetchStaffDetail = (id) => {
+    return client.get(`/v1/staffs/${id}`).then((response) => {
         return response;
     });
 };
 
-export const fetchStaffs = () => client.get('v1/staff/');
+export const fetchStaffs = () => client.get('v1/staffs/');
+
+export const updateStaff = (staffID, formDataToSend) => {
+    return axios.put(`${URLString}v1/staffs/${staffID}`, formDataToSend);
+};
+
+
 export const addImportStockDetail = (savedStockId, details) => {
     return client.post(`/v1/importStock/${savedStockId}/details`, details, {
         headers: {
@@ -88,7 +96,7 @@ export const addImportStockDetail = (savedStockId, details) => {
     });
 };
 
-
+// Account configuration
 const addAccount = (account) => {
     return client.post('v1/accounts/', account, {
         headers: {
@@ -96,13 +104,33 @@ const addAccount = (account) => {
         }
     });
 };
+const fetchAccounts = () => {
+    if (checkAdminRole()) {
+        return client.get('v1/accounts/')
+    } else {
+        window.location.href = '/dashboard'
+    }
+
+}
+const fetchAccountDetail = (username) => {
+
+    return client.get(`v1/accounts/${username}`)
+
+}
+const deleteAccount = (username) => client.delete(`v1/accounts/${username}`);
+const updateAccount = (username, formDataToSend) => {
+    return axios.put(`${URLString}v1/accounts/${username}`, formDataToSend);
+};
+const searchAccount = (keyword) => client.get(`v1/accounts/search?keyword=${keyword}`);
 
 
+// Profile configuration
 const changePassword = (account) => client.put('v1/accounts/change', account, {
     headers: {
         'Content-Type': 'multipart/form-data',
     }
 });
+
 const registerAccount = (account) => {
     return client.post('v1/accounts/register', account, {
         headers: {
@@ -111,6 +139,7 @@ const registerAccount = (account) => {
     });
 };
 
+// Login configuration
 const loginInstance = axios.create({
     baseURL: 'http://localhost:6789/api/', // Địa chỉ API
 });
@@ -123,31 +152,13 @@ const login = async (login) => {
     })
 }
 
+// Logout
 const logout = () => {
     const token = localStorage.getItem("jwtToken")
     localStorage.removeItem("jwtToken")
     return loginInstance.post('auth/logout', token)
 }
 
-const fetchAccounts = () => {
-    if (checkAdminRole()) {
-        return client.get('v1/accounts/')
-    } else {
-        window.location.href = '/dashboard'
-    }
-
-}
-
-const fetchAccountDetail = (username) => {
-
-    return client.get(`v1/accounts/${username}`)
-
-}
-const deleteAccount = (username) => client.delete(`v1/accounts/${username}`);
-const updateAccount = (username, formDataToSend) => {
-    return axios.put(`${URLString}v1/accounts/${username}`, formDataToSend);
-};
-const searchAccount = (keyword) => client.get(`v1/accounts/search?keyword=${keyword}`);
 
 const fetchNotifications = () => client.get('v1/notifications/');
 const addNotification = (notification) => {
@@ -204,9 +215,9 @@ const fetchPromotionDetail = (proID) => {
     return client.get(`/v1/promotions/${proID}`);
 };
 const addPromotion = (promotion, username) => {
-  return client.post(`/v1/promotions/`, promotion, {
-    params: { username: username }, // Gửi username trong params
-  });
+    return client.post(`/v1/promotions/`, promotion, {
+        params: { username: username }, // Gửi username trong params
+    });
 };
 
 const updatePromotion = (id, promotion) => client.put(`/v1/promotions/${id}`, promotion);

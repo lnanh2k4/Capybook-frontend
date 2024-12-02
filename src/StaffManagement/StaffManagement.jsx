@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Space, Table, Modal, Button, Input, message } from 'antd'; // Ant Design components
-import { fetchAccounts, deleteAccount, searchAccount } from '../config'; // API imports
+import { fetchStaffs } from '../config'; // API imports
+// , deleteStaff, searchStaff
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import {
     DeleteOutlined,
@@ -28,7 +29,7 @@ const StaffManagement = () => {
     };
 
     //user state of accounts, search, loading, error
-    const [accounts, setAccounts] = useState([]);
+    const [staffs, setStaffs] = useState([]);
     const [searchKey, setSearchKey] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -37,9 +38,9 @@ const StaffManagement = () => {
     // Fetch accounts from the API
     useEffect(() => {
         setLoading(true);
-        fetchAccounts()
+        fetchStaffs()
             .then(response => {
-                setAccounts(response.data);
+                setStaffs(response.data);
                 setError('');
             })
             .catch(error => {
@@ -59,76 +60,76 @@ const StaffManagement = () => {
         setIsModalDeleteOpen(true);
         setUsername(username)
     };
-    const handleOk = () => {
-        setIsModalDeleteOpen(false);
-        deleteAccount(username)
-            .then(() => {
-                setAccounts(accounts.filter(account => account.username !== username));
-                message.success('Staff is deleted successfully');
-            })
-            .catch(error => {
-                console.error('Error deleting staff:', error);
-                message.error('Failed to delete staff');
-            });
-    };
+    // const handleOk = () => {
+    //     setIsModalDeleteOpen(false);
+    //     deleteStaff(username)
+    //         .then(() => {
+    //             setStaffs(staffs.filter(staff => staff.username !== username));
+    //             message.success('Staff is deleted successfully');
+    //         })
+    //         .catch(error => {
+    //             console.error('Error deleting staff:', error);
+    //             message.error('Failed to delete staff');
+    //         });
+    // };
     const handleCancel = () => {
         setIsModalDeleteOpen(false);
     };
 
     //Handle Search
-    const handleSearch = (value) => {
-        setSearchKey(value)
-        if (!value) {
-            fetchAccounts()
-                .then(response => {
-                    setAccounts(response.data);
-                    setError('');
-                })
-                .catch(error => {
-                    console.error('Error fetching staff:', error);
-                    setError('Failed to fetch staff');
-                    message.error('Failed to fetch staff');
-                })
-                .finally(() => {
-                    setLoading(false);
-                });
+    // const handleSearch = (value) => {
+    //     setSearchKey(value)
+    //     if (!value) {
+    //         fetchStaffs()
+    //             .then(response => {
+    //                 setStaffs(response.data);
+    //                 setError('');
+    //             })
+    //             .catch(error => {
+    //                 console.error('Error fetching staff:', error);
+    //                 setError('Failed to fetch staff');
+    //                 message.error('Failed to fetch staff');
+    //             })
+    //             .finally(() => {
+    //                 setLoading(false);
+    //             });
 
-        } else {
-            setLoading(true)
-            searchAccount(value).then(response => {
-                setAccounts(response.data);
-                setError('');
-            })
-                .catch(error => {
-                    console.error('Error fetching accounts:', error);
-                    setError('Failed to fetch accounts');
-                    message.error('Failed to fetch accounts');
-                })
-                .finally(() => {
-                    setLoading(false);
-                });
-        }
-    }
+    //     } else {
+    //         setLoading(true)
+    //         searchStaff(value).then(response => {
+    //             setStaffs(response.data);
+    //             setError('');
+    //         })
+    //             .catch(error => {
+    //                 console.error('Error fetching accounts:', error);
+    //                 setError('Failed to fetch accounts');
+    //                 message.error('Failed to fetch accounts');
+    //             })
+    //             .finally(() => {
+    //                 setLoading(false);
+    //             });
+    //     }
+    // }
 
 
     // Define the columns for the Ant Design Table
     const columns = [
         {
             title: 'Staff ID',
-            dataIndex: 'username',
-            key: 'username',
+            dataIndex: 'staffID',
+            key: 'staffID',
         },
         {
             title: 'Full Name',
             key: 'fullName',
-            render: (record) => `${record.lastName} ${record.firstName}`,
+            render: (record) => `${record.username.lastName} ${record.username.firstName}`,
         },
         {
             title: 'Role',
             key: 'role',
             render: (record) => {
                 let roleName = '';
-                switch (record.role) {
+                switch (record.username.role) {
                     case 0:
                         roleName = 'Admin';
                         break;
@@ -152,19 +153,19 @@ const StaffManagement = () => {
             key: 'action',
             render: (record) => (
                 <Space size="middle">
-                    <Button type="link" onClick={() => goToStaffDetail(record.username)}><InfoCircleOutlined title='Detail' /></Button>
-                    <Button type="link" style={{ color: 'orange' }} onClick={() => goToEditStaff(record.username)}><EditOutlined title='Edit' /></Button>
+                    <Button type="link" onClick={() => goToStaffDetail(record.staffID)}><InfoCircleOutlined title='Detail' /></Button>
+                    <Button type="link" style={{ color: 'orange' }} onClick={() => goToEditStaff(record.staffID)}><EditOutlined title='Edit' /></Button>
                     {
 
-                        (record.role !== 0) && (
-                            <Button type="link" danger onClick={() => showModal(record.username)}><DeleteOutlined title='Disable' /></Button>
+                        (record.username.role !== 0) && (
+                            <Button type="link" danger onClick={() => showModal(record.staffID)}><DeleteOutlined title='Disable' /></Button>
                         )
                     }
 
-                    <Modal title="Delete Staff Confirmation" open={isModalDeleteOpen} onOk={() => handleOk(record.username)}
+                    {/* <Modal title="Delete Staff Confirmation" open={isModalDeleteOpen} onOk={() => handleOk(record.username)}
                         onCancel={handleCancel} maskClosable={false} closable={false} okButtonProps={{ danger: true }}  >
                         <p>Do you want to delete {username} account?</p>
-                    </Modal>
+                    </Modal> */}
                 </Space>
             ),
         },
@@ -179,17 +180,17 @@ const StaffManagement = () => {
                 <h1>Staff Management</h1>
                 <div className="action-container" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
                     <Button type="primary" onClick={goToAddStaff}>Add Staff</Button>
-                    <Input
+                    {/* <Input
                         placeholder="Search by username or full name"
                         value={searchKey}
                         onChange={(e) => handleSearch(e.target.value)}
                         style={{ width: 300 }}
-                    />
+                    /> */}
                 </div>
                 <Table
                     columns={columns}
-                    dataSource={accounts}
-                    rowKey="username"
+                    dataSource={staffs}
+                    rowKey="staffID"
                     loading={loading}
                     pagination={{ pageSize: 10 }}
                 />

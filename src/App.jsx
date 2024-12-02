@@ -1,51 +1,74 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+// Import dashboard
 import Dashboard from "./DashBoard/DashBoard"; // Adjust this path if necessary
+
+// Import book
 import AddBook from "./BookManagement/AddBook"; // Assuming this component exists
 import BookManagement from "./BookManagement/BookManagement";
 import ViewBookDetail from "./BookManagement/ViewBookDetail";
 import EditBook from "./BookManagement/EditBook";
+import BookDetails from "./Homepage/BookDetails";
+
+// Import promotion
 import PromotionManagement from "./PromotionManagement/PromotionManagement";
 import AddPromotion from "./PromotionManagement/AddPromotion";
+import EditPromotion from "./PromotionManagement/EditPromotion";
+import PromotionDetail from "./PromotionManagement/PromotionDetail";
+
+// Import order
 import OrderManagement from "./OrderManagement/OrderManagement";
 import OrderDetail from "./OrderManagement/OrderDetail";
-import PromotionDetail from "./PromotionManagement/PromotionDetail";
-import EditPromotion from "./PromotionManagement/EditPromotion";
-import AccountManagement from "./AccountManagement/AccountManagement";
-import ProfileDashboard from './AccountManagement/Profile'
-import ChangePasswordDashboard from './AccountManagement/ChangePassword'
 import AddOrder from "./OrderManagement/AddOrder";
 
+// Import profile
+import ProfileDashboard from './AccountManagement/Profile'
+import ChangePasswordDashboard from './AccountManagement/ChangePassword'
+import Profile from "./Profile/ProfileManagement"
+
+// Import inventory
 import InventoryManagement from "./InventoryManagement/InventoryManagement";
 import ViewStockDetail from "./InventoryManagement/ViewStockDetail";
 import AddStock from "./InventoryManagement/AddStock";
 
-
+// Import supplier
 import AddSupplier from "./SupplierManagement/AddSupplier";
 import SupplierManagement from "./SupplierManagement/SupplierManagement";
 import ViewSupplierDetail from "./SupplierManagement/ViewSupplierDetail";
 import EditSupplier from "./SupplierManagement/EditSupplier";
 
+// Import account
 import AccountDetail from "./AccountManagement/AccountDetail";
 import AddAccount from "./AccountManagement/AddAccount";
 import EditAccount from "./AccountManagement/EditAccount";
+import AccountManagement from "./AccountManagement/AccountManagement";
 
+// Import notification
 import NotificationManagement from "./NotificationManagement/NotificationManagement";
 import AddNotification from "./NotificationManagement/AddNotification";
 
+// Import category
 import CategoryManagement from "./CategoryManagement/CategoryManagement";
 import AddCategory from "./CategoryManagement/AddCategory"
 import CategoryDetail from "./CategoryManagement/CategoryDetail";
 import EditCategory from "./CategoryManagement/EditCategory";
 
+// Import homepage
 import Homepage from "./Homepage/Homepage"
-import BookDetails from "./Homepage/BookDetails";
 
+
+// Import login, logout, register
 import Login from "./Login/Login/"
 import Register from "./Register/Register";
-import CartDetails from "./Homepage/CartDetails";
-import Profile from "./Profile/ProfileManagement"
 
+// Import cart
+import CartDetails from "./Homepage/CartDetails";
+
+
+// Import staff
 import StaffManagement from "./StaffManagement/StaffManagement";
+import StaffDetail from './StaffManagement/StaffDetail'
+import EditStaff from './StaffManagement/EditStaff'
 
 function App() {
   return (
@@ -71,6 +94,7 @@ function App() {
         <Route path="/dashboard/inventory" element={<InventoryManagement />} />
         <Route path="/dashboard/inventory/stock/:stockId" element={<ViewStockDetail />} />
         <Route path="/dashboard/inventory/addstock" element={<AddStock />} />
+
         {/* Manage promotions */}
         <Route path="/dashboard/promotion-detail/:proID" element={<PromotionDetail />} />
         <Route path="/dashboard/promotion-management" element={<PromotionManagement />} />
@@ -99,6 +123,7 @@ function App() {
         <Route path="/dashboard/notifications/detail/:notID" element={<AccountDetail />} />
         <Route path="/dashboard/notifications/add" element={<AddNotification />} />
         <Route path="/dashboard/notifications/:notID" element={<EditAccount />} />
+
         {/* Manage categories */}
         <Route path="/dashboard/category" element={<CategoryManagement />} />
         <Route path="/dashboard/category/detail/:catID" element={<CategoryDetail />} />
@@ -116,6 +141,8 @@ function App() {
 
         {/* Manage staffs */}
         <Route path="/dashboard/staffs" element={<StaffManagement />} />
+        <Route path="/dashboard/staffs/detail/:staffID" element={<StaffDetail />} />
+        <Route path="/dashboard/staffs/:staffID" element={<EditStaff />} />
       </Routes>
     </Router>
   );
