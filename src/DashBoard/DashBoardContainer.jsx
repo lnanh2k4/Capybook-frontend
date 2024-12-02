@@ -25,26 +25,29 @@ const DashboardContainer = () => {
       case '/dashboard/accounts':
         setCurrent('1');
         break;
-      case '/dashboard/books':
+      case '/dashboard/staffs':
         setCurrent('2');
         break;
-      case '/dashboard/order-management':
+      case '/dashboard/books':
         setCurrent('3');
         break;
-      case '/dashboard/promotion-management':
+      case '/dashboard/order-management':
         setCurrent('4');
         break;
-      case '/dashboard/suppliers':
+      case '/dashboard/promotion-management':
         setCurrent('5');
         break;
-      case '/dashboard/category':
+      case '/dashboard/suppliers':
         setCurrent('6');
         break;
-      case '/dashboard/inventory-management':
+      case '/dashboard/category':
         setCurrent('7');
         break;
-      case '/dashboard/notifications/':
+      case '/dashboard/inventory-management':
         setCurrent('8');
+        break;
+      case '/dashboard/notifications/':
+        setCurrent('9');
         break;
       default:
         setCurrent('1'); // Mặc định là accounts nếu không tìm thấy
@@ -58,24 +61,27 @@ const DashboardContainer = () => {
         navigate("/dashboard/accounts");
         break;
       case '2':
-        navigate("/dashboard/books");
+        navigate("/dashboard/staffs");
         break;
       case '3':
-        navigate("/dashboard/order-management");
+        navigate("/dashboard/books");
         break;
       case '4':
-        navigate("/dashboard/promotion-management");
+        navigate("/dashboard/order-management");
         break;
       case '5':
-        navigate("/dashboard/suppliers");
+        navigate("/dashboard/promotion-management");
         break;
       case '6':
-        navigate("/dashboard/category");
+        navigate("/dashboard/suppliers");
         break;
       case '7':
-        navigate("/dashboard/inventory");
+        navigate("/dashboard/category");
         break;
       case '8':
+        navigate("/dashboard/inventory");
+        break;
+      case '9':
         navigate("/dashboard/notifications/");
         break;
       default:
@@ -86,7 +92,11 @@ const DashboardContainer = () => {
   let isAccountVisible, isBookVisible, isOrderVisible, isPromotionVisible, isSupplierVisible, isCategoryVisible, isInventoryVisible, isNotificationVisible, isStaffVisible = false;
   let scope = decodeJWT().scope
   if (scope.includes("ADMIN")) {
-    isAccountVisible = isBookVisible = isOrderVisible = isPromotionVisible = isSupplierVisible = isCategoryVisible = isInventoryVisible = isNotificationVisible = isStaffVisible = true
+    isAccountVisible = isBookVisible
+      = isOrderVisible = isPromotionVisible
+      = isSupplierVisible = isCategoryVisible
+      = isInventoryVisible = isNotificationVisible
+      = isStaffVisible = true
   }
   if (scope.includes("SELLER_STAFF")) {
     isPromotionVisible = isOrderVisible = isCategoryVisible = true
@@ -104,38 +114,43 @@ const DashboardContainer = () => {
       label: 'Account Management',
       icon: <UserOutlined />,
     },
-    isBookVisible && {
+    isStaffVisible && {
       key: '2',
+      label: 'Staff Management',
+      icon: <UserOutlined />,
+    },
+    isBookVisible && {
+      key: '3',
       label: 'Book Management',
       icon: <BookOutlined />,
     },
     isOrderVisible && {
-      key: '3',
+      key: '4',
       label: 'Order Management',
       icon: <TagsOutlined />,
     },
     isPromotionVisible && {
-      key: '4',
+      key: '5',
       label: 'Promotion Management',
       icon: <BellOutlined />,
     },
     isSupplierVisible && {
-      key: '5',
+      key: '6',
       label: 'Supplier Management',
       icon: <TruckOutlined />,
     },
     isCategoryVisible && {
-      key: '6',
+      key: '7',
       label: 'Category Management',
       icon: <BarsOutlined />,
     },
     isInventoryVisible && {
-      key: '7',
+      key: '8',
       label: 'Inventory Management',
       icon: <AppstoreOutlined />,
     },
     isNotificationVisible && {
-      key: '8',
+      key: '9',
       label: 'Notification Management',
       icon: <NotificationOutlined />,
     },
