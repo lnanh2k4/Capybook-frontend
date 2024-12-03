@@ -34,37 +34,9 @@ client.interceptors.response.use(
     }, async (error) => {
         const request = error.config
         if (error.response && error.response.status === 401 && !request._retry) {
-            request._retry = true
-
-            if (!isRefreshing) {
-                isRefreshing = true
-                try {
-                    const refreshResponse = await login.post('auth/refresh', {
-                        token: localStorage.getItem('jwtToken')
-                    })
-                    const newToken = refreshResponse.data.token
-                    localStorage.setItem('jwtToken', newToken)
-
-                    isRefreshing = false
-                    onRefreshed(newToken)
-
-                    request.headers["Authorization"] = `Bearer ${newToken}`
-                    return client(request)
-                } catch (refreshError) {
-                    isRefreshing = false
-                    refreshSubscribers = []
-                    localStorage.removeItem("jwtToken")
-                    return Promise.reject(refreshError);
-                }
-            }
-            return new Promise((resolve) => {
-                refreshSubscribers.push((newToken) => {
-                    request.headers["Authorization"] = `Bearer ${newToken}`;
-                    resolve(client(request));
-                })
-            })
+            window.location.href = '/auth/login'
         }
-        return Promise.reject(error)
+        return
     }
 )
 
@@ -77,8 +49,8 @@ export const fetchStaffDetail = (id) => {
 
 export const fetchStaffs = () => client.get('v1/staffs/');
 
-export const updateStaff = (staffID, formDataToSend) => {
-    return axios.put(`${URLString}v1/staffs/${staffID}`, formDataToSend);
+export const updateStaff = (formDataToSend) => {
+    return client.put(`${URLString}v1/staffs/`, formDataToSend);
 };
 
 
@@ -124,6 +96,16 @@ const updateAccount = (username, formDataToSend) => {
 const searchAccount = (keyword) => client.get(`v1/accounts/search?keyword=${keyword}`);
 
 
+export const sortBooks = (sortBy, sortOrder) => {
+    return client.get(`v1/books/sort`, {
+        params: {
+            sortBy,
+            sortOrder,
+        },
+    });
+};
+
+export const searchBook = (keyword) => client.get(`v1/books/search?keyword=${keyword}`)
 // Profile configuration
 const changePassword = (account) => client.put('v1/accounts/change', account, {
     headers: {

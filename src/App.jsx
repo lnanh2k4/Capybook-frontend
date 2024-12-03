@@ -10,6 +10,8 @@ import ViewBookDetail from "./BookManagement/ViewBookDetail";
 import EditBook from "./BookManagement/EditBook";
 import BookDetails from "./Homepage/BookDetails";
 
+// Income Statistic
+import IncomeStatistic from "./IncomeStatistic/IncomeStatistic";
 // Import promotion
 import PromotionManagement from "./PromotionManagement/PromotionManagement";
 import AddPromotion from "./PromotionManagement/AddPromotion";
@@ -87,6 +89,8 @@ function App() {
         <Route path="/dashboard/books/detail" element={<ViewBookDetail />} />
         <Route path="/dashboard/books/edit" element={<EditBook />} />
         <Route path="/dashboard/books/detail/:bookId" element={<ViewBookDetail />} />
+        {/* IncomeStatistic */}
+        <Route path="/dashboard/income-statistic" element={<IncomeStatistic />} />
 
         {/* Manage cart */}
         <Route path="/cart/ViewDetail" element={<CartDetails />} />

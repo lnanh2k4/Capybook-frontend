@@ -81,10 +81,14 @@ const DashboardContainer = () => {
       case '9':
         navigate("/dashboard/notifications/");
         break;
+      case '10': // Điều hướng tới trang Income Statistic
+        navigate("/dashboard/income-statistic");
+        break;
       default:
         break;
     }
   };
+
 
   let isAccountVisible, isBookVisible, isOrderVisible, isPromotionVisible, isSupplierVisible, isCategoryVisible, isInventoryVisible, isNotificationVisible, isStaffVisible = false;
   let scope = decodeJWT().scope
@@ -151,7 +155,14 @@ const DashboardContainer = () => {
       label: 'Notification Management',
       icon: <NotificationOutlined />,
     },
+    // Mục mới: Income Statistic
+    {
+      key: '10',
+      label: 'Income Statistic',
+      icon: <AppstoreOutlined />, // Thay đổi icon nếu cần
+    },
   ].filter(Boolean);
+
 
   return (
     <div

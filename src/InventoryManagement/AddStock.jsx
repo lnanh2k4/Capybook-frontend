@@ -127,22 +127,32 @@ function AddStock() {
 
     const handleSelectBook = (record) => {
         if (record.bookTitle === "+ Add a new book") {
-            setModalKey((prevKey) => prevKey + 1);
-            setIsModalVisible(false);
-            setIsAddBookModalVisible(true);
+            setModalKey((prevKey) => prevKey + 1); // Tăng modalKey để tạo modal mới
+            setIsModalVisible(false); // Đóng modal chọn sách
+            setIsAddBookModalVisible(true); // Hiển thị modal thêm sách mới
         } else {
             const newItems = [...items];
-            newItems[selectedRowIndex] = {
-                ...newItems[selectedRowIndex],
-                bookID: record.bookID,
-                bookTitle: record.bookTitle,
-                // Chỉ lấy thông tin bookTitle và bookID, không gán giá import price
-            };
+            // Kiểm tra nếu mục hiện tại chưa được điền thông tin
+            if (selectedRowIndex !== null) {
+                newItems[selectedRowIndex] = {
+                    ...newItems[selectedRowIndex],
+                    bookID: record.bookID,
+                    bookTitle: record.bookTitle,
+                };
+            } else {
+                newItems.push({
+                    bookID: record.bookID,
+                    bookTitle: record.bookTitle,
+                    quantity: 1,
+                    price: 0,
+                });
+            }
             setItems(newItems);
             setIsModalVisible(false);
-            console.log(newItems)
         }
     };
+
+
 
 
     const handleImageChange = ({ fileList: newFileList }) => {
@@ -165,15 +175,15 @@ function AddStock() {
                 return;
             }
 
+            // Kiểm tra sách trùng lặp
             const duplicateBookInTemp = temporaryBooks.find((book) => book.isbn === values.isbn);
-
             const duplicateBookInItems = items.find((item) => {
                 const book = books.find((book) => book.bookID === item.bookID);
                 return book?.isbn === values.isbn;
             });
 
             if (duplicateBookInTemp || duplicateBookInItems) {
-                message.error(`Book with ISBN "${values.isbn}" already exists! Quantity will be updated.`);
+                message.warning(`Book with ISBN "${values.isbn}" already exists! Quantity will be updated.`);
                 const newItems = [...items];
                 const index = newItems.findIndex((item) => {
                     const book = books.find((book) => book.bookID === item.bookID);
@@ -184,11 +194,11 @@ function AddStock() {
                     newItems[index].quantity += values.bookQuantity || 1;
                     setItems(newItems);
                 }
-
                 setIsAddBookModalVisible(false);
                 return;
             }
 
+            // Thêm sách mới
             const bookCategories = values.catIDs.map((catID) => ({ catId: { catID } }));
             const newBook = {
                 ...values,
@@ -205,25 +215,32 @@ function AddStock() {
                 price: 0,
             };
 
-            setTemporaryBooks([...temporaryBooks, newBook]);
-            setItems((prevItems) => {
-                const updatedItems = [...prevItems];
-                if (selectedRowIndex !== null) {
-                    updatedItems[selectedRowIndex] = newItem;
-                } else {
-                    updatedItems.push(newItem);
-                }
-                return updatedItems;
-            });
+            // Xóa trường trống trước khi thêm
+            const updatedItems = [...items];
+            if (
+                updatedItems.length > 0 &&
+                !updatedItems[updatedItems.length - 1].bookTitle &&
+                !updatedItems[updatedItems.length - 1].bookID
+            ) {
+                updatedItems.pop();
+            }
+            updatedItems.push(newItem);
 
+            setTemporaryBooks([...temporaryBooks, newBook]);
+            setItems(updatedItems);
+
+            // Reset modal
             setFileList([]);
             setIsAddBookModalVisible(false);
-            message.success(`Book "${values.bookTitle}" added temporarily.`);
+            addBookForm.resetFields();
+            message.success(`Book "${values.bookTitle}" added successfully.`);
         } catch (error) {
             console.error("Error adding book:", error);
             message.error("Failed to add book.");
         }
     };
+
+
 
 
     const handleSubmit = async (values) => {
@@ -298,14 +315,11 @@ function AddStock() {
 
             for (const item of updatedItems) {
                 const existingBook = books.find((book) => book.bookID === item.bookID);
-                console.log("Sách trước đó : ", existingBook.bookQuantity)
                 if (existingBook) {
                     const updatedBookData = {
                         ...existingBook,
                         bookQuantity: existingBook.bookQuantity + item.quantity,
                     };
-                    console.log(updatedBookData)
-                    console.log("Sách đáng ra sau khi update: ", updatedBookData.bookQuantity)
                     const formData = new FormData();
                     formData.append("book", JSON.stringify(updatedBookData));
 
@@ -453,12 +467,13 @@ function AddStock() {
             <Modal
                 title="Add a New Book"
                 visible={isAddBookModalVisible}
-                key={modalKey}
+                key={modalKey} // Tạo modal mới dựa trên modalKey
                 forceRender
                 onCancel={() => {
                     setIsAddBookModalVisible(false);
-                    setFileList([]);
-                    setImagePreview(null);
+                    setFileList([]); // Xóa file list
+                    setImagePreview(null); // Xóa preview
+                    addBookForm.resetFields(); // Xóa các giá trị trong form
                 }}
                 footer={null}
             >

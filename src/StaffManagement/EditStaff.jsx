@@ -18,19 +18,6 @@ const EditStaff = () => {
         navigate("/dashboard/staffs");
     };
 
-    const [formData, setFormData] = useState({
-        username: '',
-        firstName: '',
-        lastName: '',
-        dob: '',
-        email: '',
-        phone: '',
-        role: '',
-        address: '',
-        sex: '',
-        staffID: ''
-    });
-
     const handleSubmit = async (values) => {
         try {
             const formDataToSend = new FormData();
@@ -42,9 +29,9 @@ const EditStaff = () => {
 
             formDataToSend.append('staff', JSON.stringify(updatedStaffData));
 
-            await updateStaff(staffID, formDataToSend);
-            message.success('Account updated successfully');
-            navigate("/dashboard/accounts");
+            await updateStaff(formDataToSend);
+            message.success('Staff updated successfully');
+            navigate("/dashboard/staffs");
         } catch (error) {
             console.error('Error updating account:', error);
             message.error('Failed to update account.');
@@ -54,11 +41,10 @@ const EditStaff = () => {
     useEffect(() => {
         fetchStaffDetail(staffID)
             .then(response => {
-                setFormData(response.data)
                 form.setFieldsValue({
-                    formData,
-                    role: formData.role.toString(),
-                    sex: formData.sex.toString()
+                    ...response.data,
+                    role: response.data.role.toString(),
+                    sex: response.data.sex.toString()
                 })
                 console.log("data", response.data)
             })
@@ -136,6 +122,9 @@ const EditStaff = () => {
                         placeholder="Address of staff" />
                 </Form.Item>
                 <Form.Item>
+                    <Button type="primary" htmlType="submit">
+                        Save
+                    </Button>
                     <Button type='default' onClick={goToStaffManagement}>Cancel</Button>
                 </Form.Item>
             </Form >
