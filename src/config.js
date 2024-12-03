@@ -53,6 +53,10 @@ export const updateStaff = (formDataToSend) => {
     return client.put(`${URLString}v1/staffs/`, formDataToSend);
 };
 
+export const addStaff = (account) => {
+    return client.post(`${URLString}v1/staffs/`, account);
+};
+
 
 export const addImportStockDetail = (savedStockId, details) => {
     return client.post(`/v1/importStock/${savedStockId}/details`, details, {
