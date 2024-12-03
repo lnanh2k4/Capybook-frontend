@@ -14,6 +14,7 @@ import {
   Divider,
   TreeSelect,
   Modal,
+  message
 } from "antd";
 import {
   UserOutlined,
@@ -26,7 +27,7 @@ import {
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import "./Homepage.css";
-import { fetchBooks, fetchCategories, logout } from "../config"; // Fetch books and categories from API
+import { fetchBooks, fetchCategories, logout, sortBooks } from "../config"; // Fetch books and categories from API
 import { decodeJWT } from "../jwtConfig";
 
 const { Header, Footer, Content } = Layout;
@@ -94,9 +95,20 @@ const Homepage = () => {
   }, []);
 
   // Handle sorting
-  const handleSortChange = (value) => {
-    setSortOrder(value);
+  const handleSortChange = async (value) => {
+    try {
+      setSortOrder(value);
+
+      const [sortBy, sortOrder = "asc"] = value.split(/(?=[A-Z])/); // Phân tách `value` thành `sortBy` và `sortOrder`
+      const response = await sortBooks(sortBy.toLowerCase(), sortOrder.toLowerCase()); // Gọi API với đúng tham số
+      setBooks(response.data); // Cập nhật danh sách sách đã được sắp xếp từ backend
+    } catch (error) {
+      console.error("Failed to sort books:", error);
+      message.error("Failed to sort books. Please try again."); // Hiển thị thông báo lỗi
+    }
   };
+
+
 
   // Handle category filter change
   const handleCategoryChange = (value) => {
@@ -125,14 +137,8 @@ const Homepage = () => {
     );
 
   // Sort books based on selected criteria
-  const sortedBooks = [...filteredBooks].sort((a, b) => {
-    if (sortOrder === "priceAsc") return a.bookPrice - b.bookPrice;
-    if (sortOrder === "priceDesc") return b.bookPrice - a.bookPrice;
-    if (sortOrder === "titleAsc") return a.bookTitle.localeCompare(b.bookTitle);
-    if (sortOrder === "titleDesc")
-      return b.bookTitle.localeCompare(a.bookTitle);
-    return 0; // Default no sorting
-  });
+  const sortedBooks = filteredBooks.length > 0 ? [...filteredBooks] : [...books];
+
 
   const handleDashboardClick = () => {
     navigate("/dashboard");
