@@ -48,6 +48,7 @@ import AccountManagement from "./AccountManagement/AccountManagement";
 // Import notification
 import NotificationManagement from "./NotificationManagement/NotificationManagement";
 import AddNotification from "./NotificationManagement/AddNotification";
+import NotificationDetail from "./NotificationManagement/NotificationDetail";
 
 // Import category
 import CategoryManagement from "./CategoryManagement/CategoryManagement";
@@ -126,9 +127,8 @@ function App() {
 
         {/* Manage notifications */}
         <Route path="/dashboard/notifications/" element={<NotificationManagement />} />
-        <Route path="/dashboard/notifications/detail/:notID" element={<AccountDetail />} />
+        <Route path="/dashboard/notifications/detail/:notID" element={<NotificationDetail />} />
         <Route path="/dashboard/notifications/add" element={<AddNotification />} />
-        <Route path="/dashboard/notifications/:notID" element={<EditAccount />} />
 
         {/* Manage categories */}
         <Route path="/dashboard/category" element={<CategoryManagement />} />

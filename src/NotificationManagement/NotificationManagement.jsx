@@ -62,11 +62,6 @@ const NotificationManagement = () => {
     const goToAddNotification = () => {
         navigate('/dashboard/notifications/add');
     };
-
-    const goToEditNotification = (notID) => {
-        navigate(`/dashboard/notifications/${notID}`);
-    };
-
     const goToNotificationDetail = (notID) => {
         navigate(`/dashboard/notifications/detail/${notID}`);
     };
@@ -122,9 +117,6 @@ const NotificationManagement = () => {
                 <Space size="middle">
                     <Button type="link" onClick={() => goToNotificationDetail(record.notID)}>
                         <InfoCircleOutlined />
-                    </Button>
-                    <Button type="link" onClick={() => goToEditNotification(record.notID)}>
-                        <EditOutlined style={{ color: 'orange' }} />
                     </Button>
                     <Button type="link" danger onClick={() => handleDelete(record.notID)}>
                         <DeleteOutlined />
