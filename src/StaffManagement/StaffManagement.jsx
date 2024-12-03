@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Space, Table, Modal, Button, Input, message } from 'antd'; // Ant Design components
-import { fetchStaffs } from '../config'; // API imports
-// , deleteStaff, searchStaff
+import { fetchStaffs, deleteStaff, searchStaff } from '../config'; // API imports
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import {
     DeleteOutlined,
@@ -33,8 +32,8 @@ const StaffManagement = () => {
     const [searchKey, setSearchKey] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [username, setUsername] = useState();
-
+    const [firstName, setFirstName] = useState();
+    const [lastName, setLastName] = useState();
     // Fetch accounts from the API
     useEffect(() => {
         setLoading(true);
@@ -56,13 +55,14 @@ const StaffManagement = () => {
 
     //Handle Modal Delete
     const [isModalDeleteOpen, setIsModalDeleteOpen] = useState(false);
-    const showModal = (username) => {
+    const showModal = (firstName, lastName) => {
         setIsModalDeleteOpen(true);
-        setUsername(username)
+        setFirstName(firstName)
+        setLastName(lastName)
     };
     // const handleOk = () => {
     //     setIsModalDeleteOpen(false);
-    //     deleteStaff(username)
+    //     deleteStaff(staffID)
     //         .then(() => {
     //             setStaffs(staffs.filter(staff => staff.username !== username));
     //             message.success('Staff is deleted successfully');
@@ -76,40 +76,40 @@ const StaffManagement = () => {
         setIsModalDeleteOpen(false);
     };
 
-    //Handle Search
-    // const handleSearch = (value) => {
-    //     setSearchKey(value)
-    //     if (!value) {
-    //         fetchStaffs()
-    //             .then(response => {
-    //                 setStaffs(response.data);
-    //                 setError('');
-    //             })
-    //             .catch(error => {
-    //                 console.error('Error fetching staff:', error);
-    //                 setError('Failed to fetch staff');
-    //                 message.error('Failed to fetch staff');
-    //             })
-    //             .finally(() => {
-    //                 setLoading(false);
-    //             });
+    // Handle Search
+    const handleSearch = (value) => {
+        setSearchKey(value)
+        if (!value) {
+            fetchStaffs()
+                .then(response => {
+                    setStaffs(response.data);
+                    setError('');
+                })
+                .catch(error => {
+                    console.error('Error fetching staff:', error);
+                    setError('Failed to fetch staff');
+                    message.error('Failed to fetch staff');
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
 
-    //     } else {
-    //         setLoading(true)
-    //         searchStaff(value).then(response => {
-    //             setStaffs(response.data);
-    //             setError('');
-    //         })
-    //             .catch(error => {
-    //                 console.error('Error fetching accounts:', error);
-    //                 setError('Failed to fetch accounts');
-    //                 message.error('Failed to fetch accounts');
-    //             })
-    //             .finally(() => {
-    //                 setLoading(false);
-    //             });
-    //     }
-    // }
+        } else {
+            setLoading(true)
+            searchStaff(value).then(response => {
+                setStaffs(response.data);
+                setError('');
+            })
+                .catch(error => {
+                    console.error('Error fetching accounts:', error);
+                    setError('Failed to fetch accounts');
+                    message.error('Failed to fetch accounts');
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+        }
+    }
 
 
     // Define the columns for the Ant Design Table
@@ -158,14 +158,14 @@ const StaffManagement = () => {
                     {
 
                         (record.username.role !== 0) && (
-                            <Button type="link" danger onClick={() => showModal(record.staffID)}><DeleteOutlined title='Disable' /></Button>
+                            <Button type="link" danger onClick={() => showModal(record.username.firstName, record.username.lastName)}><DeleteOutlined title='Disable' /></Button>
                         )
                     }
-
-                    {/* <Modal title="Delete Staff Confirmation" open={isModalDeleteOpen} onOk={() => handleOk(record.username)}
+                    {/* onOk={() => handleOk()} */}
+                    <Modal title="Delete Staff Confirmation" open={isModalDeleteOpen}
                         onCancel={handleCancel} maskClosable={false} closable={false} okButtonProps={{ danger: true }}  >
-                        <p>Do you want to delete {username} account?</p>
-                    </Modal> */}
+                        <p>Do you want to delete {lastName} {firstName} account?</p>
+                    </Modal>
                 </Space>
             ),
         },
@@ -180,12 +180,12 @@ const StaffManagement = () => {
                 <h1>Staff Management</h1>
                 <div className="action-container" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
                     <Button type="primary" onClick={goToAddStaff}>Add Staff</Button>
-                    {/* <Input
-                        placeholder="Search by username or full name"
+                    <Input
+                        placeholder="Search by name of staff"
                         value={searchKey}
                         onChange={(e) => handleSearch(e.target.value)}
                         style={{ width: 300 }}
-                    /> */}
+                    />
                 </div>
                 <Table
                     columns={columns}

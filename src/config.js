@@ -62,6 +62,10 @@ export const addStaff = (account) => {
     return client.post(`${URLString}v1/staffs/`, account);
 };
 
+export const searchStaff = (keyword) => client.get(`v1/staffs/search?keyword=${keyword}`);
+
+export const deleteStaff = (staffID) => client.delete(`v1/staffs/${staffID}`);
+
 
 export const addImportStockDetail = (savedStockId, details) => {
     return client.post(`/v1/importStock/${savedStockId}/details`, details, {
