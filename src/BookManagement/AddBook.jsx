@@ -45,9 +45,12 @@ function AddBook() {
         try {
             const formDataToSend = new FormData();
 
-            // Make sure catID and all necessary fields are included
+            // Chuyển đổi catIDs thành bookCategories
+            const bookCategories = values.catIDs.map((catID) => ({
+                catId: { catID }, // Tạo đối tượng category chỉ chứa `catID`
+            }));
+
             const bookData = {
-                catID: values.catID,
                 bookTitle: values.bookTitle,
                 publicationYear: values.publicationYear,
                 author: values.author,
@@ -60,18 +63,19 @@ function AddBook() {
                 bookPrice: values.bookPrice,
                 isbn: values.isbn,
                 bookQuantity: values.bookQuantity,
-                bookStatus: 1
+                bookStatus: 1,
+                bookCategories, // Thêm danh sách category vào đây
             };
-            console.log('Book Data:', bookData);  // Debugging log to check the form data
+
+            console.log('Book Data:', bookData); // Kiểm tra dữ liệu gửi đi
 
             formDataToSend.append('book', JSON.stringify(bookData));
 
-            // Attach the image if it exists
             if (fileList.length > 0) {
                 formDataToSend.append('image', fileList[0].originFileObj);
             }
 
-            await addBook(formDataToSend);  // Call the API to submit the form
+            await addBook(formDataToSend); // Gọi API thêm sách
             message.success('Book added successfully');
             navigate("/dashboard/books");
         } catch (error) {
@@ -79,6 +83,7 @@ function AddBook() {
             message.error('Failed to add book');
         }
     };
+
 
 
     const handleRemove = () => {
@@ -109,14 +114,16 @@ function AddBook() {
                     layout="vertical"
                     style={{ maxWidth: '800px', margin: 'auto' }}
                 >
-                    {/* Category Selection */}
                     <Form.Item
-                        label="Category"
-                        name="catID"
-                        rules={[{ required: true, message: 'Please select a category' }]}
-                        style={{ width: '20%' }}
+                        label="Categories"
+                        name="catIDs"
+                        rules={[{ required: true, message: 'Please select at least one category' }]} // Yêu cầu chọn ít nhất một category
+                        style={{ width: '100%' }}
                     >
-                        <Select placeholder="Select a category">
+                        <Select
+                            mode="multiple" // Cho phép chọn nhiều category
+                            placeholder="Select categories"
+                        >
                             {categories.map((category) => (
                                 <Option key={category.catID} value={category.catID}>
                                     {category.catName}
@@ -124,6 +131,7 @@ function AddBook() {
                             ))}
                         </Select>
                     </Form.Item>
+
 
                     <Form.Item label="Title" name="bookTitle" rules={[{ required: true, message: 'Please enter the title' }]}>
                         <Input placeholder="Title of the book" />

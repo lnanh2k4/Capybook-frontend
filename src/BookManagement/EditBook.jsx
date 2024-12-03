@@ -39,18 +39,44 @@ function EditBook() {
     }, [bookId, form]);
 
     useEffect(() => {
-        fetchCategories()
-            .then((response) => {
-                if (Array.isArray(response.data)) {
-                    const rootCategories = response.data.filter(category => category.catStatus === 1 && !response.data.some(cat => cat.parentCatID === category.catID));
-                    setCategories(rootCategories);
-                }
-            })
-            .catch((error) => {
-                console.error("Error fetching categories:", error);
-                message.error("Failed to fetch categories");
-            });
-    }, []);
+        if (bookId) {
+            fetchBookById(bookId)
+                .then(response => {
+                    const bookData = response.data;
+
+                    // Map bookCategories to an array of catIDs
+                    const catIDs = bookData.bookCategories?.map(category => category.catId.catID) || [];
+
+                    form.setFieldsValue({
+                        ...bookData,
+                        publicationYear: bookData.publicationYear.toString(),
+                        catIDs, // Set catIDs for multiple select
+                    });
+
+                    if (bookData.image && bookData.image.startsWith(`/uploads/book_`)) {
+                        setImagePreview(`http://localhost:6789${bookData.image}`);
+                    } else {
+                        setImagePreview(bookData.image);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching book details:', error);
+                    message.error('Failed to fetch book details.');
+                });
+            fetchCategories()
+                .then((response) => {
+                    console.log("Categories fetched:", response.data); // Log dữ liệu trả về
+                    if (Array.isArray(response.data)) {
+                        setCategories(response.data.filter(category => category.catStatus === 1)); // Chỉ lấy category có `catStatus` là 1
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error fetching categories:", error);
+                    message.error("Failed to fetch categories");
+                });
+        }
+    }, [bookId, form]);
+
 
     const handleImageChange = ({ fileList: newFileList }) => {
         setFileList(newFileList);
@@ -66,9 +92,12 @@ function EditBook() {
         try {
             const formDataToSend = new FormData();
 
-            // Prepare book data in a similar way as in AddBook
+            // Map catIDs to bookCategories
+            const bookCategories = values.catIDs.map(catID => ({
+                catId: { catID }, // Backend yêu cầu catId là một object chứa catID
+            }));
+
             const bookData = {
-                catID: values.catID,
                 bookTitle: values.bookTitle,
                 publicationYear: values.publicationYear,
                 author: values.author,
@@ -81,16 +110,17 @@ function EditBook() {
                 bookPrice: values.bookPrice,
                 isbn: values.isbn,
                 bookQuantity: values.bookQuantity,
-                bookStatus: 1
+                bookStatus: 1,
+                bookCategories, // Gửi lên danh sách các category
             };
-
+            console.log(bookData)
             formDataToSend.append('book', JSON.stringify(bookData));
 
             // Attach the image file if it exists
             if (fileList.length > 0) {
                 formDataToSend.append('image', fileList[0].originFileObj);
             }
-
+            console.log("formdata form editbook: ", formDataToSend)
             await updateBook(bookId, formDataToSend);
             message.success('Book updated successfully');
             navigate("/dashboard/books");
@@ -99,6 +129,7 @@ function EditBook() {
             message.error('Failed to update book.');
         }
     };
+
 
     const handleRemove = () => {
         setImagePreview(null);
@@ -122,11 +153,14 @@ function EditBook() {
                     style={{ maxWidth: '700px', margin: 'auto' }}
                 >
                     <Form.Item
-                        label="Category"
-                        name="catID"
-                        rules={[{ required: true, message: 'Please select a category' }]}
+                        label="Categories"
+                        name="catIDs"
+                        rules={[{ required: true, message: 'Please select at least one category' }]}
                     >
-                        <Select placeholder="Select a category">
+                        <Select
+                            mode="multiple" // Cho phép chọn nhiều category
+                            placeholder="Select categories"
+                        >
                             {categories.map((category) => (
                                 <Option key={category.catID} value={category.catID}>
                                     {category.catName}
@@ -134,6 +168,7 @@ function EditBook() {
                             ))}
                         </Select>
                     </Form.Item>
+
 
                     <Form.Item
                         label="Title"

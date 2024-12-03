@@ -22,6 +22,7 @@ function BookManagement() {
             setLoading(true);
             try {
                 const response = await fetchBooks();
+                console.log('Fetched books:', response.data); // Log danh sách sách nhận được
                 setBooks(response.data);
                 setError('');
             } catch (error) {
@@ -35,6 +36,7 @@ function BookManagement() {
         loadBooks();
     }, []);
 
+
     const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to deactivate this book?")) {
             try {
@@ -42,28 +44,26 @@ function BookManagement() {
 
                 const updatedBookData = {
                     ...currentBookData.data,
-                    bookStatus: 0
+                    bookStatus: 0, // Chỉ thay đổi trạng thái
+                    bookCategories: [], // Đảm bảo không gửi các danh sách liên kết
                 };
 
                 const formDataToSend = new FormData();
-                formDataToSend.append('book', JSON.stringify(updatedBookData));
+                formDataToSend.append("book", JSON.stringify(updatedBookData));
 
-                if (currentBookData.data.image) {
-                    const imageFile = currentBookData.data.image;
-                    formDataToSend.append('image', imageFile);
-                }
-
+                // Không thêm `image` vào formData
                 await updateBook(id, formDataToSend);
                 setBooks(books.map(book =>
                     book.bookID === id ? { ...book, bookStatus: 0 } : book
                 ));
-                message.success('Book deactivated successfully');
+                message.success("Book deactivated successfully");
             } catch (error) {
-                console.error('Error deactivating book:', error);
-                message.error('Failed to deactivate book');
+                console.error("Error deactivating book:", error);
+                message.error("Failed to deactivate book");
             }
         }
     };
+
 
     const goToAddBook = () => {
         navigate('/dashboard/books/add');
@@ -108,16 +108,7 @@ function BookManagement() {
             dataIndex: 'bookPrice',
             key: 'bookPrice',
         },
-        {
-            title: 'Status',
-            dataIndex: 'bookStatus',
-            key: 'bookStatus',
-            render: (status) => (
-                <Tag color={status === 1 ? 'green' : 'volcano'}>
-                    {status === 1 ? 'Active' : 'Inactive'}
-                </Tag>
-            ),
-        },
+
         {
             title: 'Action',
             key: 'action',

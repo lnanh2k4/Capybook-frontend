@@ -333,6 +333,7 @@ const deleteImportStock = async (id) => {
 };
 
 export const fetchImportStockDetailsByStockId = (id) => {
+    console.log("Fetching details for import stock ID:", id);
     return client.get(`/v1/importStock/${id}/details`);
 };
 

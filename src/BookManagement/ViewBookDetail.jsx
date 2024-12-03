@@ -98,7 +98,17 @@ function ViewBookDetail() {
                                 contentStyle={{ fontSize: '14px', paddingBottom: '10px', textAlign: 'right' }} // Tăng kích thước font chữ cho nội dung và canh phải
                             >
                                 <Descriptions.Item label="Title" contentStyle={{ textAlign: 'left' }}>{bookData.bookTitle}</Descriptions.Item>
-                                <Descriptions.Item label="Category" contentStyle={{ textAlign: 'left' }}>{categoryName || "No category"}</Descriptions.Item>
+                                <Descriptions.Item label="Category" contentStyle={{ textAlign: 'left' }}>
+                                    {bookData.bookCategories && bookData.bookCategories.length > 0
+                                        ? bookData.bookCategories.map((category, index) => (
+                                            <span key={category.bookCateId}>
+                                                {category.catId.catName}
+                                                {index < bookData.bookCategories.length - 1 && ', '}
+                                            </span>
+                                        ))
+                                        : "No category"}
+                                </Descriptions.Item>
+
                                 <Descriptions.Item label="Publication Year" contentStyle={{ textAlign: 'left' }}>{bookData.publicationYear}</Descriptions.Item>
                                 <Descriptions.Item label="Author" contentStyle={{ textAlign: 'left' }}>{bookData.author}</Descriptions.Item>
                                 <Descriptions.Item label="Dimensions" contentStyle={{ textAlign: 'left' }}>{bookData.dimension}</Descriptions.Item>

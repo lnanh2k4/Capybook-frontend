@@ -51,33 +51,18 @@ const Homepage = () => {
 
   // Fetch books and categories when the component mounts
   useEffect(() => {
-    fetchBooks()
-      .then((response) => {
-        setBooks(response.data);
-      })
-      .catch((error) => {
-        console.error("Failed to fetch books:", error);
-      });
+    fetchBooks().then(response => {
+      console.log(response)
+      setBooks(response.data);
+    }).catch(error => {
+      console.error('Failed to fetch books:', error);
+    });
 
-    fetchCategories()
-      .then((response) => {
-        const activeCategories = response.data.filter(
-          (category) => category.catStatus === 1
-        );
-        const updatedCategories = activeCategories.map((category) => {
-          const parent = category.parentCatID
-            ? response.data.find((cat) => cat.catID === category.parentCatID)
-                ?.catName
-            : "Parent";
-          return { ...category, parent };
-        });
-        setCategories(response.data);
-        setSelectedCategory("All");
-        setTreeData(buildTreeData(response.data));
-      })
-      .catch((error) => {
-        console.error("Failed to fetch categories:", error);
-      });
+    fetchCategories().then(response => {
+      setCategories(response.data);
+    }).catch(error => {
+      console.error('Failed to fetch categories:', error);
+    });
   }, []);
   // Hàm xây dựng cấu trúc treeData cho TreeSelect
   const buildTreeData = (categories) => {
@@ -129,12 +114,14 @@ const Homepage = () => {
 
   // Filter books based on the search term, category, and only include those with bookStatus = 1
   const filteredBooks = books
-    .filter((book) => book.bookStatus === 1) // Only include books with bookStatus = 1
-    .filter(
-      (book) =>
-        (book?.bookTitle?.toLowerCase().includes(searchTerm) ||
-          book?.author?.toLowerCase().includes(searchTerm)) &&
-        (!selectedCategory || book.catID === selectedCategory) // Filter by category
+    .filter(book => book.bookStatus === 1) // Chỉ lấy sách có trạng thái hợp lệ
+    .filter(book =>
+      book?.bookTitle?.toLowerCase().includes(searchTerm) ||
+      book?.author?.toLowerCase().includes(searchTerm)
+    )
+    .filter(book =>
+      !selectedCategory || // Nếu không chọn danh mục, hiển thị tất cả sách
+      book.bookCategories?.some(bookCategory => bookCategory.catId?.catID === selectedCategory) // Kiểm tra danh mục
     );
 
   // Sort books based on selected criteria
@@ -217,13 +204,21 @@ const Homepage = () => {
   };
 
   // Group books by category and paginate them
-  const booksByCategory = categories?.map((category) => {
-    const booksInCategory = sortedBooks.filter(
-      (book) => book.catID === category.catID
-    );
-    const pages = paginateBooks(booksInCategory, 6); // 6 books per page
-    return { category, pages };
-  });
+  const booksByCategory = categories
+    ?.map((category) => {
+      const booksInCategory = sortedBooks.filter((book) =>
+        book.bookCategories?.some((bookCategory) => bookCategory.catId?.catID === category.catID)
+      );
+      if (booksInCategory.length === 0) {
+        return null; // Loại bỏ danh mục nếu không có sách
+      }
+      const pages = paginateBooks(booksInCategory, 6); // 6 books per page
+      return { category, pages };
+    })
+    .filter((item) => item !== null); // Loại bỏ các giá trị null
+
+
+
 
   // Initialize current page for each category
   useEffect(() => {
@@ -297,14 +292,8 @@ const Homepage = () => {
         </div>
       </Header>
 
-      <Content
-        style={{
-          minHeight: "600px",
-          padding: "20px",
-          backgroundColor: "#8e9a9e",
-        }}
-      >
-        <Row gutter={[16, 16]} style={{ marginBottom: "20px" }}>
+      <Content style={{ minHeight: '600px', padding: '20px', backgroundColor: '#8e9a9e' }}>
+        <Row gutter={[16, 16]} style={{ marginBottom: '20px' }}>
           <Col>
             <Row gutter={[8, 8]}>
               <Col>
@@ -324,175 +313,105 @@ const Homepage = () => {
               <Col>
                 <TreeSelect
                   placeholder="Filter by Category"
-                  onChange={handleCategoryChange}
-                  treeData={treeData}
+                  onChange={(value) => setSelectedCategory(value)} // Gán `catID` vào `selectedCategory`
+                  treeData={categories.map(category => ({
+                    title: category.catName,
+                    value: category.catID, // `catID` sẽ được sử dụng để lọc
+                    key: category.catID,
+                    children: []
+                  }))}
                   style={{ width: 200 }}
+                  allowClear
                 />
+
               </Col>
             </Row>
           </Col>
         </Row>
 
-        {selectedCategory ? (
-          <Row gutter={[16, 16]}>
-            {sortedBooks.map((book) => (
-              <Col key={book.bookID} xs={24} sm={12} md={8} lg={4} xl={4}>
-                <Card
-                  hoverable
-                  className="book-card"
-                  onClick={() => handleBookClick(book.bookID)}
-                  cover={
-                    <div className="image-container">
-                      <img
-                        alt={book.bookTitle}
-                        src={normalizeImageUrl(book.image)}
-                        className="book-image"
-                      />
-                    </div>
-                  }
-                >
-                  <Title level={5} className="book-title">
-                    {book.bookTitle}
-                  </Title>
-                  <Title
-                    level={4}
-                    type="danger"
-                    className="book-price"
-                  >{`${book.bookPrice.toLocaleString("vi-VN")} đ`}</Title>
-                </Card>
-              </Col>
-            ))}
-          </Row>
-        ) : (
-          <>
-            {booksByCategory.map(({ category, pages }) => (
-              <div
-                key={category.catID}
-                style={{
-                  position: "relative",
-                  padding: "20px",
-                  marginBottom: "30px",
-                  backgroundColor: "#fff",
-                }}
-              >
-                <Divider
-                  orientation="center"
-                  style={{
-                    fontSize: "24px",
-                    color: "#FF4500",
-                    borderColor: "#FF4500",
-                    marginBottom: "20px",
-                  }}
-                >
-                  {category.catName}
-                </Divider>
-                <Row gutter={[16, 16]} className={`fade-in`}>
-                  {pages[currentPage[category.catID]]?.map((book) => (
-                    <Col key={book.bookID} xs={24} sm={12} md={8} lg={4} xl={4}>
-                      <Card
-                        hoverable
-                        onClick={() => handleBookClick(book.bookID)}
-                        className="category-book-card-2"
-                        cover={
-                          <img
-                            alt={book.bookTitle}
-                            src={normalizeImageUrl(book.image)}
-                            style={{ height: "150px", objectFit: "cover" }}
-                          />
-                        }
-                      >
-                        <Title level={4} className="book-title-2">
-                          {book.bookTitle}
-                        </Title>
-                        <Title
-                          level={5}
-                          type="danger"
-                          className="book-price"
-                        >{`${book.bookPrice.toLocaleString("vi-VN")} đ`}</Title>
-                        {book.discount && (
-                          <Tag
-                            color="volcano"
-                            className="book-discount"
-                          >{`${book.discount}% off`}</Tag>
-                        )}
-                      </Card>
-                    </Col>
-                  ))}
-                </Row>
-                {pages.length > 1 && (
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "center",
-                      marginTop: "10px",
-                    }}
-                  >
-                    <Button
-                      type="primary"
-                      onClick={() => showModal(category, pages.flat())}
-                    >
-                      Show more
-                    </Button>
-                  </div>
-                )}
-              </div>
-            ))}
-
-            <Divider
-              orientation="left"
-              style={{
-                fontSize: "24px",
-                color: "#080203",
-                borderColor: "#c72a4c",
-                marginBottom: "20px",
-              }}
-            >
-              All Books
-            </Divider>
+        {selectedCategory
+          ? (
             <Row gutter={[16, 16]}>
-              {sortedBooks.map((book, index) => (
-                <Col
-                  key={book.bookID || index}
-                  xs={24}
-                  sm={12}
-                  md={8}
-                  lg={4}
-                  xl={4}
-                >
+              {sortedBooks.map((book) => (
+                <Col key={book.bookID} xs={24} sm={12} md={8} lg={4} xl={4}>
                   <Card
                     hoverable
-                    onClick={() => handleBookClick(book.bookID)}
                     className="book-card"
+                    onClick={() => handleBookClick(book.bookID)}
                     cover={
                       <div className="image-container">
-                        <img
-                          alt={book.bookTitle}
-                          src={normalizeImageUrl(book.image)}
-                          className="book-image"
-                        />
+                        <img alt={book.bookTitle} src={normalizeImageUrl(book.image)} className="book-image" />
                       </div>
                     }
                   >
-                    <Title level={5} className="book-title">
-                      {book.bookTitle}
-                    </Title>
-                    <Title
-                      level={4}
-                      type="danger"
-                      className="book-price"
-                    >{`${book.bookPrice.toLocaleString("vi-VN")} đ`}</Title>
-                    {book.discount && (
-                      <Tag
-                        color="volcano"
-                        className="book-discount"
-                      >{`${book.discount}% off`}</Tag>
-                    )}
+                    <Title level={5} className="book-title">{book.bookTitle}</Title>
+                    <Title level={4} type="danger" className="book-price">{`${book.bookPrice.toLocaleString('vi-VN')} đ`}</Title>
                   </Card>
                 </Col>
               ))}
             </Row>
-          </>
-        )}
+          )
+          : (
+            <>
+              {booksByCategory.map(({ category, pages }) => (
+                <div key={category.catID} style={{ position: 'relative', padding: '20px', marginBottom: '30px', backgroundColor: '#fff' }}>
+                  <Divider orientation="center" style={{ fontSize: '24px', color: '#FF4500', borderColor: '#FF4500', marginBottom: '20px' }}>
+                    {category.catName}
+                  </Divider>
+                  <Row gutter={[16, 16]} className={`fade-in`}>
+                    {pages[currentPage[category.catID]]?.map((book) => (
+                      <Col key={book.bookID} xs={24} sm={12} md={8} lg={4} xl={4}>
+                        <Card
+                          hoverable
+                          onClick={() => handleBookClick(book.bookID)}
+                          className="category-book-card-2"
+                          cover={
+                            <img
+                              alt={book.bookTitle}
+                              src={normalizeImageUrl(book.image)}
+                              style={{ height: '150px', objectFit: 'cover' }}
+                            />
+                          }
+                        >
+                          <Title level={4} className="book-title-2">{book.bookTitle}</Title>
+                          <Title level={5} type="danger" className="book-price">{`${book.bookPrice.toLocaleString('vi-VN')} đ`}</Title>
+                          {book.discount && <Tag color="volcano" className="book-discount">{`${book.discount}% off`}</Tag>}
+                        </Card>
+                      </Col>
+                    ))}
+                  </Row>
+                  {pages.length > 1 && (
+                    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
+                      <Button type="primary" onClick={() => showModal(category, pages.flat())}>Xem thêm</Button>
+                    </div>
+                  )}
+                </div>
+              ))}
+              <Divider orientation="left" style={{ fontSize: '24px', color: '#080203', borderColor: '#c72a4c', marginBottom: '20px' }}>
+                All Books
+              </Divider>
+              <Row gutter={[16, 16]}>
+                {sortedBooks.map((book, index) => (
+                  <Col key={book.bookID || index} xs={24} sm={12} md={8} lg={4} xl={4}>
+                    <Card
+                      hoverable
+                      onClick={() => handleBookClick(book.bookID)}
+                      className="book-card"
+                      cover={
+                        <div className="image-container">
+                          <img alt={book.bookTitle} src={normalizeImageUrl(book.image)} className="book-image" />
+                        </div>
+                      }
+                    >
+                      <Title level={5} className="book-title">{book.bookTitle}</Title>
+                      <Title level={4} type="danger" className="book-price">{`${book.bookPrice.toLocaleString('vi-VN')} đ`}</Title>
+                      {book.discount && <Tag color="volcano" className="book-discount">{`${book.discount}% off`}</Tag>}
+                    </Card>
+                  </Col>
+                ))}
+              </Row>
+            </>
+          )}
       </Content>
       <Modal
         title={modalCategory?.catName || "Books"}

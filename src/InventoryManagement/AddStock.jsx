@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Form, Input, Select, DatePicker, InputNumber, message, Modal, Table, Upload } from "antd";
+import { Button, Form, Input, Select, DatePicker, InputNumber, message, Modal, Table, Upload, TreeSelect } from "antd";
 import { fetchSuppliers, fetchStaffs, createImportStock, fetchBooks, addImportStockDetail, addBook, fetchCategories, updateBook } from "../config";
 import DashboardContainer from "../DashBoard/DashBoardContainer";
 import { useNavigate } from "react-router-dom";
@@ -9,7 +9,9 @@ const { Option } = Select;
 const { TextArea } = Input;
 
 function AddStock() {
-    const [form] = Form.useForm();
+    const [addStockForm] = Form.useForm();
+    const [addBookForm] = Form.useForm();
+
     const [suppliers, setSuppliers] = useState([]);
     const [staff, setStaff] = useState([]);
     const [books, setBooks] = useState([]);
@@ -24,7 +26,7 @@ function AddStock() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [modalKey, setModalKey] = useState(0);
     const navigate = useNavigate();
-
+    const [categoryTreeData, setCategoryTreeData] = useState([]);
     const [editModalVisible, setEditModalVisible] = useState(false);
     useEffect(() => {
         const fetchData = async () => {
@@ -47,6 +49,39 @@ function AddStock() {
         };
 
         fetchData();
+        fetchCategories()
+            .then((response) => {
+                if (Array.isArray(response.data)) {
+                    const activeCategories = response.data.filter(
+                        (category) => category.catStatus === 1
+                    );
+                    const buildTreeData = (categories) => {
+                        const map = {};
+                        const roots = [];
+                        categories.forEach((cat) => {
+                            map[cat.catID] = {
+                                title: cat.catName,
+                                value: cat.catID,
+                                key: cat.catID,
+                                children: [],
+                            };
+                        });
+                        categories.forEach((cat) => {
+                            if (cat.parentCatID && map[cat.parentCatID]) {
+                                map[cat.parentCatID].children.push(map[cat.catID]);
+                            } else {
+                                roots.push(map[cat.catID]);
+                            }
+                        });
+                        return roots;
+                    };
+                    setCategoryTreeData(buildTreeData(activeCategories));
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching categories:", error);
+                message.error("Failed to fetch categories");
+            });
     }, []);
 
     const addItemRow = () => setItems([...items, { bookID: "", quantity: 1, price: 0 }]);
@@ -105,6 +140,7 @@ function AddStock() {
             };
             setItems(newItems);
             setIsModalVisible(false);
+            console.log(newItems)
         }
     };
 
@@ -121,100 +157,88 @@ function AddStock() {
     };
 
 
-    const handleAddBookSubmit = (values) => {
-        console.log("Form values:", values);
+    const handleAddBookSubmit = async (values) => {
+        try {
+            const isISBNInDatabase = await checkISBNExists(values.isbn);
+            if (isISBNInDatabase) {
+                message.error(`Book with ISBN "${values.isbn}" already exists in the database!`);
+                return;
+            }
 
-        const isISBNInDatabase = checkISBNExists(values.isbn);
-        if (isISBNInDatabase) {
-            message.error(`Book with ISBN "${values.isbn}" already exists in the database!`);
-            return; // Dừng xử lý nếu ISBN đã tồn tại
-        }
-        const duplicateBookInTemp = temporaryBooks.find((book) => book.isbn === values.isbn);
+            const duplicateBookInTemp = temporaryBooks.find((book) => book.isbn === values.isbn);
 
-        // Kiểm tra trùng ISBN trong items (so sánh với books đã chọn hoặc đã có sẵn)
-        const duplicateBookInItems = items.find((item) => {
-            const book = books.find((book) => book.bookID === item.bookID); // Tìm sách tương ứng với item
-            return book?.isbn === values.isbn; // So sánh ISBN nếu tìm thấy
-        });
-
-        if (duplicateBookInTemp || duplicateBookInItems) {
-            message.error(`Book with ISBN "${values.isbn}" already exists! Quantity will be updated.`);
-
-            // Nếu sách đã tồn tại, cập nhật số lượng
-            const newItems = [...items];
-            const index = newItems.findIndex((item) => {
+            const duplicateBookInItems = items.find((item) => {
                 const book = books.find((book) => book.bookID === item.bookID);
                 return book?.isbn === values.isbn;
             });
 
-            if (index !== -1) {
-                newItems[index].quantity += values.bookQuantity || 1; // Tăng số lượng
-                setItems(newItems);
-            }
+            if (duplicateBookInTemp || duplicateBookInItems) {
+                message.error(`Book with ISBN "${values.isbn}" already exists! Quantity will be updated.`);
+                const newItems = [...items];
+                const index = newItems.findIndex((item) => {
+                    const book = books.find((book) => book.bookID === item.bookID);
+                    return book?.isbn === values.isbn;
+                });
 
-            setIsAddBookModalVisible(false);
-            return;
-        }
-        // Lưu hình ảnh (nếu có) vào đường dẫn static
-        let staticImagePath = null;
-        if (fileList.length > 0) {
-            const file = fileList[0].originFileObj;
-            if (!file.type.startsWith("image/")) {
-                message.error("Only image files are allowed!");
+                if (index !== -1) {
+                    newItems[index].quantity += values.bookQuantity || 1;
+                    setItems(newItems);
+                }
+
+                setIsAddBookModalVisible(false);
                 return;
             }
-            const timestamp = new Date().getTime();
-            const uniqueFileName = `book_${timestamp}.jpg`;
-            staticImagePath = `/uploads/${uniqueFileName}`;
+
+            const bookCategories = values.catIDs.map((catID) => ({ catId: { catID } }));
+            const newBook = {
+                ...values,
+                bookID: null,
+                bookStatus: 1,
+                image: fileList[0]?.originFileObj || null,
+                bookCategories,
+            };
+
+            const newItem = {
+                bookID: null,
+                bookTitle: values.bookTitle,
+                quantity: values.bookQuantity || 1,
+                price: 0,
+            };
+
+            setTemporaryBooks([...temporaryBooks, newBook]);
+            setItems((prevItems) => {
+                const updatedItems = [...prevItems];
+                if (selectedRowIndex !== null) {
+                    updatedItems[selectedRowIndex] = newItem;
+                } else {
+                    updatedItems.push(newItem);
+                }
+                return updatedItems;
+            });
+
+            setFileList([]);
+            setIsAddBookModalVisible(false);
+            message.success(`Book "${values.bookTitle}" added temporarily.`);
+        } catch (error) {
+            console.error("Error adding book:", error);
+            message.error("Failed to add book.");
         }
-
-        const newBook = {
-            ...values,
-            bookID: null, // Sẽ được backend cập nhật sau
-            bookStatus: 1,
-            image: fileList[0]?.originFileObj || null,
-        };
-
-        const newItem = {
-            bookID: null,
-            bookTitle: values.bookTitle,
-            quantity: values.bookQuantity || 1, // Lấy quantity từ modal
-            price: 0, // Giá nhập kho mặc định ban đầu
-        };
-
-        setTemporaryBooks([...temporaryBooks, newBook]);
-        setItems((prevItems) => {
-            const updatedItems = [...prevItems];
-            if (selectedRowIndex !== null) {
-                updatedItems[selectedRowIndex] = newItem;
-            } else {
-                updatedItems.push(newItem);
-            }
-            return updatedItems;
-        });
-
-        setFileList([]);
-        setIsAddBookModalVisible(false);
-
-        message.success(`Book "${values.bookTitle}" added temporarily.`);
     };
 
 
-
     const handleSubmit = async (values) => {
+        console.log("Form Values:", values); // Debug dữ liệu từ form
+        console.log("Items to Submit:", items);
         console.log("Submitting stock with items:", items);
         if (isSubmitting) return;
         setIsSubmitting(true);
 
         try {
-            // Gửi các sách mới từ `temporaryBooks` lên backend
             const createdBooks = await Promise.all(
                 temporaryBooks.map(async (book) => {
                     const formData = new FormData();
 
-                    // Chuẩn bị dữ liệu sách
                     const bookData = {
-                        catID: book.catID,
                         bookTitle: book.bookTitle,
                         publicationYear: book.publicationYear,
                         author: book.author,
@@ -228,21 +252,22 @@ function AddStock() {
                         isbn: book.isbn,
                         bookQuantity: book.bookQuantity,
                         bookStatus: 1,
+                        bookCategories: book.bookCategories.map((cat) => ({
+                            catId: { catID: cat.catId.catID }, // Chuyển đổi category giống EditBook
+                        })),
                     };
+
                     formData.append("book", JSON.stringify(bookData));
 
-                    // Gửi hình ảnh (nếu có)
                     if (book.image) {
                         formData.append("image", book.image);
-                        console.log("Sending image:", book.image);
                     }
 
                     const response = await addBook(formData);
-                    return { ...response.data }; // Trả về sách với `bookID` từ backend
+                    return response.data;
                 })
             );
 
-            // Cập nhật `bookID` và `quantity` trong danh sách `items` với các sách vừa tạo
             const updatedItems = items.map((item) => {
                 if (!item.bookID) {
                     const createdBook = createdBooks.find((book) => book.bookTitle === item.bookTitle);
@@ -253,7 +278,6 @@ function AddStock() {
                 return item;
             });
 
-            // Gửi thông tin nhập kho
             const stockData = {
                 supID: { supID: values.supID },
                 importDate: values.importDate.format("YYYY-MM-DD"),
@@ -262,32 +286,45 @@ function AddStock() {
             };
             const stockResponse = await createImportStock(stockData);
             const savedStockId = stockResponse.data.isid;
-
-            // Gửi chi tiết nhập kho
+            console.log("Stock ID Saving: ", savedStockId)
             const detailsData = updatedItems.map((item) => ({
                 bookID: { bookID: item.bookID },
                 iSDQuantity: item.quantity,
                 importPrice: item.price,
             }));
+            console.log("Details Data Sent to addImportStockDetail:", detailsData);
+
             await addImportStockDetail(savedStockId, detailsData);
 
-            // Cập nhật quantity cho sách cũ
             for (const item of updatedItems) {
                 const existingBook = books.find((book) => book.bookID === item.bookID);
+                console.log("Sách trước đó : ", existingBook.bookQuantity)
                 if (existingBook) {
                     const updatedBookData = {
                         ...existingBook,
                         bookQuantity: existingBook.bookQuantity + item.quantity,
                     };
+                    console.log(updatedBookData)
+                    console.log("Sách đáng ra sau khi update: ", updatedBookData.bookQuantity)
                     const formData = new FormData();
                     formData.append("book", JSON.stringify(updatedBookData));
-                    await updateBook(existingBook.bookID, formData);
+
+                    if (fileList.length > 0) {
+                        formData.append("image", fileList[0].originFileObj); // Chỉ thêm hình ảnh nếu có
+                    }
+
+                    try {
+                        await updateBook(existingBook.bookID, formData);
+                    } catch (error) {
+                        console.error(`Failed to update book with ID: ${existingBook.bookID}`, error);
+                    }
+
                 }
             }
 
             message.success("Stock added successfully.");
             setTemporaryBooks([]);
-            setItems([]); // Reset items sau khi submit thành công
+            setItems([]);
             navigate("/dashboard/inventory");
         } catch (error) {
             console.error("Error during stock submission:", error);
@@ -322,7 +359,14 @@ function AddStock() {
             <div className="dashboard-content">
                 <h2>Add Stock</h2>
 
-                <Form form={form} onFinish={handleSubmit} layout="vertical" style={{ maxWidth: "800px", margin: "auto" }}>
+                <Form form={addStockForm} onFinish={(values) => {
+                    console.log("Form submitted:", values);
+                    handleSubmit(values);
+                }} onFinishFailed={(errorInfo) => {
+                    console.log("Im faking here")
+                    console.error("Validation failed:", errorInfo);
+                    message.error("Validation failed. Please check the form.");
+                }} layout="vertical" style={{ maxWidth: "800px", margin: "auto" }}>
                     <Form.Item label="Supplier" name="supID" rules={[{ required: true, message: "Please select a supplier" }]}>
                         <Select placeholder="Select Supplier">
                             {suppliers.map(supplier => (
@@ -413,12 +457,27 @@ function AddStock() {
                 forceRender
                 onCancel={() => {
                     setIsAddBookModalVisible(false);
+                    setFileList([]);
+                    setImagePreview(null);
                 }}
                 footer={null}
             >
-                <Form layout="vertical" onFinish={handleAddBookSubmit}>
-                    <Form.Item label="Category" name="catID" rules={[{ required: true, message: "Please select a category" }]}>
-                        <Select placeholder="Select a category">
+                <Form
+                    form={addBookForm}
+                    layout="vertical"
+                    onFinish={handleAddBookSubmit}
+                    style={{ maxWidth: '800px', margin: 'auto' }}
+                >
+                    <Form.Item
+                        label="Categories"
+                        name="catIDs"
+                        rules={[{ required: true, message: 'Please select at least one category' }]}
+                    >
+                        <Select
+                            mode="multiple"
+                            placeholder="Select categories"
+                            allowClear
+                        >
                             {categories.map(category => (
                                 <Option key={category.catID} value={category.catID}>
                                     {category.catName}
@@ -453,11 +512,9 @@ function AddStock() {
                     <Form.Item label="Quantity" name="bookQuantity" rules={[{ required: true, message: "Please enter the quantity" }]}>
                         <InputNumber min={1} placeholder="Quantity" style={{ width: "100%" }} />
                     </Form.Item>
-
                     <Form.Item label="Translator" name="translator">
                         <Input placeholder="Translator" />
                     </Form.Item>
-
                     <Form.Item label="Dimension" name="dimension" rules={[{ required: true, message: "Please enter the dimension" }]}>
                         <Input placeholder="Dimension (e.g., 8x10x2 cm)" />
                     </Form.Item>
@@ -476,11 +533,9 @@ function AddStock() {
                     <Form.Item label="Publisher" name="publisher" rules={[{ required: true, message: "Please enter the publisher" }]}>
                         <Input placeholder="Publisher" />
                     </Form.Item>
-
                     <Form.Item label="Hardcover" name="hardcover">
                         <InputNumber placeholder="Hardcover" style={{ width: "100%" }} />
                     </Form.Item>
-
                     <Form.Item label="Weight" name="weight" rules={[{ required: true, message: "Please enter the weight" }]}>
                         <InputNumber placeholder="Weight" style={{ width: "100%" }} step={0.01} />
                     </Form.Item>
@@ -505,6 +560,13 @@ function AddStock() {
                                 </>
                             )}
                         </Upload>
+                        {imagePreview && (
+                            <img
+                                src={imagePreview}
+                                alt="Preview"
+                                style={{ width: "100%", maxHeight: "150px", marginTop: "10px" }}
+                            />
+                        )}
                     </Form.Item>
 
                     <div style={{ display: "flex", justifyContent: "space-between" }}>
@@ -512,6 +574,8 @@ function AddStock() {
                             type="default"
                             onClick={() => {
                                 setIsAddBookModalVisible(false);
+                                setFileList([]);
+                                setImagePreview(null);
                             }}
                         >
                             Cancel
@@ -522,6 +586,7 @@ function AddStock() {
                     </div>
                 </Form>
             </Modal>
+
         </div>
     );
 }
