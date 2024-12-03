@@ -38,14 +38,14 @@ const EditPromotion = () => {
     try {
       const [startDate, endDate] = values.dateRange;
       const promotionData = {
-        proName: values.promotionName,
-        proCode: values.promotionCode,
-        quantity: values.quantity,
-        discount: values.discount, // Cập nhật ở đây
-        startDate: startDate.format("YYYY-MM-DD"),
-        endDate: endDate.format("YYYY-MM-DD"),
-        proStatus: 1, // Default status
-      };
+  proName: values.promotionName,
+  proCode: values.promotionCode,
+  quantity: values.quantity,
+  discount: values.discount,
+  startDate: startDate.format("YYYY-MM-DD"),
+  endDate: endDate.format("YYYY-MM-DD"),
+  proStatus: 1,
+};
 
       console.log("Promotion data to be updated:", promotionData);
 
