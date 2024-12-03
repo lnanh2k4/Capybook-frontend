@@ -57,7 +57,7 @@ import EditCategory from "./CategoryManagement/EditCategory";
 
 // Import homepage
 import Homepage from "./Homepage/Homepage"
-
+import OrderHistory from "./Homepage/OrderHistory";
 
 // Import login, logout, register
 import Login from "./Login/Login/"
@@ -79,6 +79,7 @@ function App() {
       <Routes>
         {/* Homepage */}
         <Route path="/" element={<Homepage />} />
+        <Route path="/OrderHistory" element={<OrderHistory />} />
 
         {/* Manage books */}
         <Route path="/detail/:bookId" element={<BookDetails />} />

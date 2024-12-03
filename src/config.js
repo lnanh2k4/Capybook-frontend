@@ -210,8 +210,8 @@ const fetchPromotionDetail = (proID) => {
     return client.get(`/v1/promotions/${proID}`);
 };
 const addPromotion = (promotion, username) => {
-    return client.post(`/v1/promotions/`, promotion, {
-        params: { username: username }, // Gửi username trong params
+    return client.post('/v1/promotions/', promotion, {
+        params: { username },
     });
 };
 
@@ -373,8 +373,15 @@ const viewCart = (username) => {
         });
 };
 
+const fetchPromotionLogs = () => {
+    return client.get(`/v1/promotions/logs`);
+};
+
+
+
 
 export {
+    fetchPromotionLogs,
     fetchOrderDetailsByOrderID,
     addOrder,
     updateOrder,
