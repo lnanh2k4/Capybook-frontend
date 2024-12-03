@@ -2,20 +2,23 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './BookManagement.css'; // Import CSS for styling
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
-import { fetchBooks, updateBook, fetchBookById } from '../config'; // Import functions from the API
+import { fetchBooks, updateBook, fetchBookById, searchBook } from '../config'; // Thêm searchBook
 import { Space, Table, Tag, Button, Input, message } from 'antd';
 import {
     DeleteOutlined,
-    EditOutlined, InfoCircleOutlined
+    EditOutlined,
+    InfoCircleOutlined,
 } from '@ant-design/icons';
+
 const { Search } = Input;
 
 function BookManagement() {
     const navigate = useNavigate();
     const [books, setBooks] = useState([]);
-    const [searchTerm, setSearchTerm] = useState(''); // Search state to filter books
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [searchTerm, setSearchTerm] = useState(''); // Search term state
+    const [isSearching, setIsSearching] = useState(false);
 
     useEffect(() => {
         const loadBooks = async () => {
@@ -36,9 +39,25 @@ function BookManagement() {
         loadBooks();
     }, []);
 
+    const handleSearch = async (value) => {
+        setIsSearching(true);
+        setLoading(true);
+        try {
+            const response = await searchBook(value); // Gọi API searchBook
+            console.log('Search results:', response.data);
+            setBooks(response.data); // Cập nhật danh sách sách với kết quả tìm kiếm
+            setError('');
+        } catch (error) {
+            console.error('Error searching books:', error);
+            setError('Failed to search books');
+            message.error('Failed to search books');
+        }
+        setLoading(false);
+        setIsSearching(false);
+    };
 
     const handleDelete = async (id) => {
-        if (window.confirm("Are you sure you want to deactivate this book?")) {
+        if (window.confirm('Are you sure you want to deactivate this book?')) {
             try {
                 const currentBookData = await fetchBookById(id);
 
@@ -49,21 +68,22 @@ function BookManagement() {
                 };
 
                 const formDataToSend = new FormData();
-                formDataToSend.append("book", JSON.stringify(updatedBookData));
+                formDataToSend.append('book', JSON.stringify(updatedBookData));
 
                 // Không thêm `image` vào formData
                 await updateBook(id, formDataToSend);
-                setBooks(books.map(book =>
-                    book.bookID === id ? { ...book, bookStatus: 0 } : book
-                ));
-                message.success("Book deactivated successfully");
+                setBooks(
+                    books.map((book) =>
+                        book.bookID === id ? { ...book, bookStatus: 0 } : book
+                    )
+                );
+                message.success('Book deactivated successfully');
             } catch (error) {
-                console.error("Error deactivating book:", error);
-                message.error("Failed to deactivate book");
+                console.error('Error deactivating book:', error);
+                message.error('Failed to deactivate book');
             }
         }
     };
-
 
     const goToAddBook = () => {
         navigate('/dashboard/books/add');
@@ -108,13 +128,17 @@ function BookManagement() {
             dataIndex: 'bookPrice',
             key: 'bookPrice',
         },
-
         {
             title: 'Action',
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    <Button type="link" onClick={() => goToBookDetail(record.bookID)}><InfoCircleOutlined title='Detail' /></Button>
+                    <Button
+                        type="link"
+                        onClick={() => goToBookDetail(record.bookID)}
+                    >
+                        <InfoCircleOutlined title="Detail" />
+                    </Button>
                     {record.bookStatus === 1 && (
                         <>
                             <Button
@@ -122,22 +146,22 @@ function BookManagement() {
                                 onClick={() => goToEditBook(record.bookID)}
                                 className="yellow-button"
                             >
-                                <EditOutlined title='Edit' />
+                                <EditOutlined title="Edit" />
                             </Button>
 
-                            <Button type="link" danger onClick={() => handleDelete(record.bookID)}><DeleteOutlined title='Delete' /></Button>
+                            <Button
+                                type="link"
+                                danger
+                                onClick={() => handleDelete(record.bookID)}
+                            >
+                                <DeleteOutlined title="Delete" />
+                            </Button>
                         </>
                     )}
                 </Space>
             ),
         },
     ];
-    const filteredBooks = books
-        .filter(book => book.bookStatus === 1) // Lọc chỉ những sách có bookStatus = 1
-        .filter(book =>
-            book.bookTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            book.author.toLowerCase().includes(searchTerm.toLowerCase())
-        );
 
     if (loading) return <p>Loading books...</p>;
     if (error) return <p>Error: {error}</p>;
@@ -153,19 +177,24 @@ function BookManagement() {
                     <div>Book Management</div>
                 </div>
                 <div className="action-container">
-                    <Button type="primary" onClick={goToAddBook}>Add book</Button>
+                    <Button type="primary" onClick={goToAddBook}>
+                        Add book
+                    </Button>
                     <Search
                         placeholder="Search by title or author"
                         className="search-input"
+                        enterButton
                         value={searchTerm}
-                        onChange={e => setSearchTerm(e.target.value)}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onSearch={(value) => handleSearch(value)} // Gọi API search khi nhấn Enter
                         style={{ width: 300, marginLeft: '20px' }}
+                        loading={isSearching} // Hiển thị trạng thái loading khi tìm kiếm
                     />
                 </div>
                 <Table
                     columns={columns}
-                    dataSource={filteredBooks} // Use filteredBooks here
-                    rowKey={record => record.bookID}
+                    dataSource={books} // Dữ liệu từ API search hoặc tất cả sách
+                    rowKey={(record) => record.bookID}
                 />
             </div>
             <div className="copyright">

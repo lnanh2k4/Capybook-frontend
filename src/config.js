@@ -123,7 +123,7 @@ const updateAccount = (username, formDataToSend) => {
 };
 const searchAccount = (keyword) => client.get(`v1/accounts/search?keyword=${keyword}`);
 
-
+const searchBook = (keyword) => client.get(`v1/books/search?keyword=${keyword}`)
 // Profile configuration
 const changePassword = (account) => client.put('v1/accounts/change', account, {
     headers: {
