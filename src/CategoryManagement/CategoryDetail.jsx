@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Form, Input, message } from 'antd';
-import { fetchCategoryDetail, fetchCategories } from '../config';
+import { fetchCategoryDetail } from '../config';
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 
 function CategoryDetail() {
@@ -16,9 +16,6 @@ function CategoryDetail() {
                 const response = await fetchCategoryDetail(catID);
                 const category = response.data;
                 setCategoryData(category);
-
-
-
             } catch (error) {
                 console.error("Error fetching category detail:", error);
                 message.error("Failed to fetch category details");

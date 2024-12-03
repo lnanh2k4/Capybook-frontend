@@ -166,6 +166,7 @@ const logout = () => {
 
 
 const fetchNotifications = () => client.get('v1/notifications/');
+const fetchNotificationDetail = (notID) => client.get(`v1/notifications/detail/${notID}`); //Get notification detail
 const addNotification = (notification) => {
     return client.post('v1/notifications/', notification, {
         headers: {
@@ -439,6 +440,7 @@ export {
     viewCart,
     changePassword,
     searchCategoriesByParent,
-    deleteNotification
+    deleteNotification,
+    fetchNotificationDetail
 };
 
