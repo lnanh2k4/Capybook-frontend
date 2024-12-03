@@ -21,7 +21,7 @@ const Login = () => {
                 message.error('Username or password is incorrect! Please enter again')
             } else if (response.data.accountDTO) {
                 message.success('Login successfully')
-                if (response.data.accountDTO.role === 0) {
+                if (response.data.accountDTO.role === 0 || response.data.accountDTO.role === 2 || response.data.accountDTO.role === 3) {
                     navigate("/dashboard/accounts");
                 } else {
                     navigate("/");
