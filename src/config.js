@@ -47,10 +47,19 @@ export const fetchStaffDetail = (id) => {
     });
 };
 
+export const fetchStaffByUsername = (username) => {
+    return client.get(`/v1/staffs/username/${username}`).then((response) => {
+        return response;
+    });
+};
 export const fetchStaffs = () => client.get('v1/staffs/');
 
 export const updateStaff = (formDataToSend) => {
     return client.put(`${URLString}v1/staffs/`, formDataToSend);
+};
+
+export const addStaff = (account) => {
+    return client.post(`${URLString}v1/staffs/`, account);
 };
 
 
@@ -150,7 +159,7 @@ const addNotification = (notification) => {
         }
     });
 };
-
+const deleteNotification = (notID) => client.delete(`v1/notifications/${notID}`);
 
 
 const fetchBooks = () => client.get('v1/books/');
@@ -422,6 +431,7 @@ export {
     handlePaymentReturn,
     viewCart,
     changePassword,
-    searchCategoriesByParent
+    searchCategoriesByParent,
+    deleteNotification
 };
 

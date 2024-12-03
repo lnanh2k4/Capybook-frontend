@@ -81,18 +81,6 @@ const CategoryManagement = () => {
 
   const handleDelete = (catID) => {
     const categoryToDelete = allCategories.find((category) => category.catID === catID);
-    const childCategories = allCategories.filter(
-      (category) => category.parentCatID === catID
-    );
-
-    if (childCategories.length > 0) {
-      Modal.warning({
-        title: "Cannot delete parent category",
-        content: `Category "${categoryToDelete.catName}" has child categories and cannot be deleted.`,
-      });
-      return;
-    }
-
     Modal.confirm({
       title: "Confirm Deletion",
       content: `Are you sure you want to delete category "${categoryToDelete.catName}"?`,
@@ -102,7 +90,7 @@ const CategoryManagement = () => {
       onOk: async () => {
         try {
           await deleteCategory(catID);
-          message.success("Category marked as deleted (status set to 0) successfully");
+          message.success("Category delete successfully");
 
           setLoading(true);
           fetchCategories()

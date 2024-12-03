@@ -71,6 +71,7 @@ import CartDetails from "./Homepage/CartDetails";
 import StaffManagement from "./StaffManagement/StaffManagement";
 import StaffDetail from './StaffManagement/StaffDetail'
 import EditStaff from './StaffManagement/EditStaff'
+import AddStaff from "./StaffManagement/AddStaff";
 
 function App() {
   return (
@@ -148,6 +149,7 @@ function App() {
         <Route path="/dashboard/staffs" element={<StaffManagement />} />
         <Route path="/dashboard/staffs/detail/:staffID" element={<StaffDetail />} />
         <Route path="/dashboard/staffs/:staffID" element={<EditStaff />} />
+        <Route path="/dashboard/staffs/add" element={<AddStaff />} />
       </Routes>
     </Router>
   );
