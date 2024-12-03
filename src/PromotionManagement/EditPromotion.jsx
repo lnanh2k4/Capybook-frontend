@@ -90,18 +90,6 @@ const EditPromotion = () => {
           onFieldsChange={handleFormChange}
           style={{ maxWidth: "600px", margin: "auto" }}
         >
-          <Form.Item label="Promotion Name" name="promotionName">
-            <Input placeholder="Enter promotion name" disabled />
-          </Form.Item>
-
-          <Form.Item label="Promotion Code" name="promotionCode">
-            <Input placeholder="Enter promotion code" disabled />
-          </Form.Item>
-
-          <Form.Item label="Discount" name="discount">
-            <InputNumber style={{ width: "100%" }} disabled />
-          </Form.Item>
-
           <Form.Item
             label="Quantity"
             name="quantity"

@@ -378,8 +378,15 @@ const viewCart = (username) => {
         });
 };
 
+const fetchPromotionLogs = () => {
+    return client.get(`/v1/promotions/logs`);
+};
+
+
+
 
 export {
+    fetchPromotionLogs,
     fetchOrderDetailsByOrderID,
     addOrder,
     updateOrder,
