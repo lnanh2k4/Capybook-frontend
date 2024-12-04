@@ -18,37 +18,33 @@ const DashboardContainer = () => {
   useEffect(() => {
     // Cập nhật mục được chọn dựa trên URL
     const path = location.pathname;
-    switch (path) {
-      case '/dashboard/accounts':
-        setCurrent('1');
-        break;
-      case '/dashboard/staffs':
-        setCurrent('2');
-        break;
-      case '/dashboard/books':
-        setCurrent('3');
-        break;
-      case '/dashboard/order-management':
-        setCurrent('4');
-        break;
-      case '/dashboard/promotion-management':
-        setCurrent('5');
-        break;
-      case '/dashboard/suppliers':
-        setCurrent('6');
-        break;
-      case '/dashboard/category':
-        setCurrent('7');
-        break;
-      case '/dashboard/inventory-management':
-        setCurrent('8');
-        break;
-      case '/dashboard/notifications/':
-        setCurrent('9');
-        break;
-      default:
-        setCurrent('1'); // Mặc định là accounts nếu không tìm thấy
+    console.log(path)
+    if (path.includes("income-statistic")) {
+      setCurrent('1');
     }
+    else if (path.includes("account")) {
+      setCurrent('2');
+    } else if (path.includes("staff")) {
+      setCurrent('3');
+    } else if (path.includes("book")) {
+      setCurrent('4');
+    } else if (path.includes("order")) {
+      setCurrent('5');
+    } else if (path.includes("promotion")) {
+      setCurrent('6');
+    } else if (path.includes("supplier")) {
+      setCurrent('7');
+    } else if (path.includes("category")) {
+      setCurrent('8');
+    } else if (path.includes("inventory")) {
+      setCurrent('9');
+    } else if (path.includes("notification")) {
+      setCurrent('10');
+    } else {
+      setCurrent('1');
+    }
+
+
   }, [location]);  // Mỗi khi URL thay đổi, useEffect sẽ chạy
 
   const onClick = (e) => {
@@ -109,7 +105,6 @@ const DashboardContainer = () => {
     isBookVisible = true
   }
 
-
   const items = [
     {
       key: '1',
@@ -164,7 +159,6 @@ const DashboardContainer = () => {
     // Mục mới: Income Statistic
 
   ].filter(Boolean);
-
 
   return (
     <div
