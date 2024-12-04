@@ -60,18 +60,19 @@ const StaffManagement = () => {
         setFirstName(firstName)
         setLastName(lastName)
     };
-    // const handleOk = () => {
-    //     setIsModalDeleteOpen(false);
-    //     deleteStaff(staffID)
-    //         .then(() => {
-    //             setStaffs(staffs.filter(staff => staff.username !== username));
-    //             message.success('Staff is deleted successfully');
-    //         })
-    //         .catch(error => {
-    //             console.error('Error deleting staff:', error);
-    //             message.error('Failed to delete staff');
-    //         });
-    // };
+    const handleOk = (staffID) => {
+        setIsModalDeleteOpen(false);
+        deleteStaff(staffID)
+            .then(() => {
+                setStaffs(staffs.filter(staff => staff.staffID !== staffID));
+                message.success('Staff is deleted successfully');
+            })
+            .catch(error => {
+                console.error('Error deleting staff:', error);
+                message.error('Failed to delete staff');
+            });
+    };
+
     const handleCancel = () => {
         setIsModalDeleteOpen(false);
     };
@@ -161,9 +162,8 @@ const StaffManagement = () => {
                             <Button type="link" danger onClick={() => showModal(record.username.firstName, record.username.lastName)}><DeleteOutlined title='Disable' /></Button>
                         )
                     }
-                    {/* onOk={() => handleOk()} */}
                     <Modal title="Delete Staff Confirmation" open={isModalDeleteOpen}
-                        onCancel={handleCancel} maskClosable={false} closable={false} okButtonProps={{ danger: true }}  >
+                        onCancel={handleCancel} maskClosable={false} closable={false} okButtonProps={{ danger: true }} onOk={() => handleOk(record.staffID)}>
                         <p>Do you want to delete {lastName} {firstName} account?</p>
                     </Modal>
                 </Space>
