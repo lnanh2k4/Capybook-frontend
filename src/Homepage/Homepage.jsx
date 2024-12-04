@@ -46,7 +46,6 @@ const Homepage = () => {
   const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
   const [modalBooks, setModalBooks] = useState([]); // Books to display in the modal
   const [modalCategory, setModalCategory] = useState(null); // The selected category for the modal
-  const [treeData, setTreeData] = useState([]); // Dữ liệu cho TreeSelect
 
   const navigate = useNavigate(); // Initialize navigate for routing
 
@@ -60,31 +59,28 @@ const Homepage = () => {
     });
 
     fetchCategories().then(response => {
-      setCategories(response.data);
+      setCategories(response.data.filter(category => category.catStatus != 0));
     }).catch(error => {
       console.error('Failed to fetch categories:', error);
     });
+
   }, []);
   // Hàm xây dựng cấu trúc treeData cho TreeSelect
   const buildTreeData = (categories) => {
     const map = {};
     const roots = [];
-
+    roots.push(map[0] = {
+      title: "All",
+      value: 0,
+      key: 0
+    })
     categories.forEach((category) => {
       map[category.catID] = {
         title: category.catName,
         value: category.catID,
         key: category.catID,
-        children: [],
       };
-    });
-
-    categories.forEach((category) => {
-      if (category.parentCatID && map[category.parentCatID]) {
-        map[category.parentCatID].children.push(map[category.catID]);
-      } else if (!category.parentCatID) {
-        roots.push(map[category.catID]);
-      }
+      roots.push(map[category.catID])
     });
 
     return roots;
@@ -320,12 +316,8 @@ const Homepage = () => {
                 <TreeSelect
                   placeholder="Filter by Category"
                   onChange={(value) => setSelectedCategory(value)} // Gán `catID` vào `selectedCategory`
-                  treeData={categories.map(category => ({
-                    title: category.catName,
-                    value: category.catID, // `catID` sẽ được sử dụng để lọc
-                    key: category.catID,
-                    children: []
-                  }))}
+                  defaultValue={0}
+                  treeData={buildTreeData(categories)}
                   style={{ width: 200 }}
                   allowClear
                 />
