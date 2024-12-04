@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Form, Input, Button, DatePicker, InputNumber, message } from "antd";
-import { addPromotion, fetchPromotions } from "../config";
+import { addPromotion, fetchPromotions, fetchStaffByUsername } from "../config";
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import moment from "moment";
 import { decodeJWT } from "../jwtConfig.jsx";
@@ -12,7 +12,8 @@ const AddPromotion = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const [isFormEmpty, setIsFormEmpty] = useState(true);
-  const [existingPromotions, setExistingPromotions] = useState([]); // Lưu các promotions đã tồn tại
+  const [existingPromotions, setExistingPromotions] = useState([]);
+  const [staffID, setStaffID] = useState(null);
   const username = decodeJWT(localStorage.getItem("jwtToken")).sub;
 
   // Fetch promotions on component mount
@@ -21,29 +22,42 @@ const AddPromotion = () => {
       .then((response) => {
         const activePromotions = response.data.filter(
           (promo) => promo.proStatus === 1
-        ); // Lấy promotion có status = 1
+        );
         setExistingPromotions(activePromotions);
       })
       .catch((error) => {
         console.error("Error fetching promotions:", error);
         message.error("Failed to fetch existing promotions.");
       });
-  }, []);
+
+    // Fetch staff ID by username
+    fetchStaffByUsername(username)
+      .then((response) => {
+        setStaffID(response.data.staffID); // Lấy StaffID từ API
+      })
+      .catch((error) => {
+        console.error("Error fetching staff:", error);
+        message.error("Failed to fetch staff information.");
+      });
+  }, [username]);
 
   const handleSubmit = async (values) => {
+    // Kiểm tra xem StaffID có tồn tại không
+    if (!staffID) {
+      message.error("Staff information not found. Please try again.");
+      return;
+    }
+
     try {
       const [startDate, endDate] = values.dateRange;
-      const promotionData = {
-        proName: values.promotionName,
-        proCode: values.promotionCode,
-        quantity: values.quantity,
-        discount: values.discountPercentage,
-        startDate: startDate.format("YYYY-MM-DD"),
-        endDate: endDate.format("YYYY-MM-DD"),
-        proStatus: 1,
-      };
 
-      // Kiểm tra trùng lặp riêng biệt
+      // Validate: Ngày bắt đầu phải nhỏ hơn ngày kết thúc
+      if (startDate.isAfter(endDate)) {
+        message.error("Start date cannot be after end date.");
+        return;
+      }
+
+      // Validate: Tên và mã promotion không được trùng lặp
       const isNameDuplicate = existingPromotions.some(
         (promo) =>
           promo.proName.toLowerCase() === values.promotionName.toLowerCase()
@@ -67,9 +81,33 @@ const AddPromotion = () => {
         return;
       }
 
-      console.log("Promotion data to be sent:", promotionData);
+      // Validate: Phần trăm giảm giá phải nằm trong khoảng 1-50%
+      if (values.discountPercentage < 1 || values.discountPercentage > 50) {
+        message.error("Discount percentage must be between 1% and 50%.");
+        return;
+      }
 
-      // Gửi request với thông tin promotion và username
+      // Validate: Số lượng phải lớn hơn 0
+      if (values.quantity <= 0) {
+        message.error("Quantity must be greater than 0.");
+        return;
+      }
+
+      // Tạo dữ liệu gửi đi
+      const promotionData = {
+        proName: values.promotionName,
+        proCode: values.promotionCode,
+        quantity: values.quantity,
+        discount: values.discountPercentage,
+        startDate: startDate.format("YYYY-MM-DD"),
+        endDate: endDate.format("YYYY-MM-DD"),
+        proStatus: 1,
+        createdBy: staffID, // Gắn StaffID vào dữ liệu
+      };
+
+      console.log("Sending promotion data:", promotionData);
+
+      // Gửi request
       await addPromotion(promotionData, username);
       message.success("Promotion added successfully");
       navigate("/dashboard/promotion-management");

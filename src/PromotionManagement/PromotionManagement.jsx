@@ -17,7 +17,8 @@ import {
   searchPromotions,
   deletePromotion,
   updatePromotion,
-  fetchPromotionLogs, // Đã được import từ config
+  fetchPromotionLogs,
+  fetchStaffByUsername, // Sử dụng fetchStaffByUsername thay cho fetchStaffDetail
   fetchStaffDetail,
 } from "../config";
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
@@ -37,24 +38,36 @@ const PromotionManagement = () => {
   const [promotions, setPromotions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filterStatus, setFilterStatus] = useState("all");
-  const [logModalVisible, setLogModalVisible] = useState(false); // State for Log Modal
+  const [logModalVisible, setLogModalVisible] = useState(false);
   const username = decodeJWT(localStorage.getItem("jwtToken")).sub;
+  const [staffID, setStaffID] = useState(null); // Lưu staffID
   const [logs, setLogs] = useState([]);
   const [logLoading, setLogLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(8); // Số logs mỗi trang
-  const [filterActivity, setFilterActivity] = useState("all"); // Mặc định là "all"
-  const [originalLogs, setOriginalLogs] = useState([]);
+  const [pageSize] = useState(8);
+  const [filterActivity, setFilterActivity] = useState("all");
 
+  // Fetch staffID khi component mount
   useEffect(() => {
-    fetchPromotionsData();
-  }, [filterStatus]);
+    const fetchStaffID = async () => {
+      try {
+        const response = await fetchStaffByUsername(username); // Lấy thông tin staff bằng username
+        setStaffID(response.data.staffID);
+      } catch (error) {
+        console.error("Error fetching staff:", error);
+        message.error("Failed to fetch staff information.");
+      }
+    };
 
+    fetchStaffID();
+    fetchPromotionsData();
+  }, [username, filterStatus]);
+
+  // Fetch promotions data
   const fetchPromotionsData = () => {
     setLoading(true);
     fetchPromotions()
       .then((response) => {
-        console.log("Promotions loaded:", response.data);
         if (Array.isArray(response.data)) {
           const activePromotions = response.data.filter(
             (promo) => promo.proStatus === 1
@@ -80,19 +93,15 @@ const PromotionManagement = () => {
             return true;
           });
 
-          // Sắp xếp theo ID từ lớn đến bé
           const sortedPromotions = filteredPromotions.sort(
             (a, b) => b.proID - a.proID
           );
-
           setPromotions(sortedPromotions);
-        } else {
-          console.error("Expected an array but got", response.data);
         }
       })
       .catch((error) => {
         console.error("Error fetching promotions:", error);
-        message.error("Failed to fetch promotions");
+        message.error("Failed to fetch promotions.");
       })
       .finally(() => {
         setLoading(false);
@@ -190,24 +199,46 @@ const PromotionManagement = () => {
     });
   };
 
-  const handleLogClick = (action = null, startDate = null, endDate = null) => {
+  const handleLogClick = async (
+    action = null,
+    startDate = null,
+    endDate = null
+  ) => {
     setLogLoading(true);
-    fetchPromotionLogs(action, startDate, endDate) // Sử dụng fetchPromotionLogs từ config
-      .then((response) => {
-        const logsData = response.data || [];
-        // Sắp xếp logs theo ID từ lớn đến bé
-        const sortedLogs = logsData.sort((a, b) => b.proLogId - a.proLogId);
-        setLogs(sortedLogs);
-        setOriginalLogs(sortedLogs); // Đặt logs gốc để dễ dàng lọc client-side
-        setLogModalVisible(true);
-      })
-      .catch((error) => {
-        console.error("Error fetching promotion logs:", error);
-        message.error("Unable to load promotion logs.");
-      })
-      .finally(() => {
-        setLogLoading(false);
-      });
+    try {
+      const response = await fetchPromotionLogs(action, startDate, endDate);
+      console.log("Logs fetched from API:", response.data); // Debugging logs
+
+      let logsData = response.data || [];
+
+      // Sắp xếp logs theo `proLogId` từ cao xuống thấp
+      logsData = logsData.sort((a, b) => b.proLogId - a.proLogId);
+
+      const logsWithUsernames = await Promise.all(
+        logsData.map(async (log) => {
+          try {
+            const staffResponse = await fetchStaffDetail(log.staffId); // Fetch username
+            const username = staffResponse.data.username; // Giả định API trả về username
+            return { ...log, username: username || "Unknown" };
+          } catch (error) {
+            console.error(
+              `Error fetching username for staffId ${log.staffId}`,
+              error
+            );
+            return { ...log, username: "Unknown" };
+          }
+        })
+      );
+
+      console.log("Logs with usernames:", logsWithUsernames); // Debugging logs
+      setLogs(logsWithUsernames);
+      setLogModalVisible(true);
+    } catch (error) {
+      console.error("Error fetching promotion logs:", error);
+      message.error("Unable to load promotion logs.");
+    } finally {
+      setLogLoading(false);
+    }
   };
 
   const handleFilterActivity = (value) => {
@@ -228,7 +259,13 @@ const PromotionManagement = () => {
     setLogs(filteredLogs); // Cập nhật logs theo bộ lọc
   };
 
+  // Approve promotion
   const handleApprove = (record) => {
+    if (!staffID) {
+      message.error("Unable to perform action. Staff ID not found.");
+      return;
+    }
+
     Modal.confirm({
       title: "Approve Promotion",
       content: `Are you sure you want to approve promotion "${record.proName}"?`,
@@ -237,8 +274,8 @@ const PromotionManagement = () => {
       onOk: async () => {
         try {
           await updatePromotion(record.proID, {
-            actionId: 2, // Action for Approve
-            username: username, // Current user's username
+            actionId: 2, // Approve action
+            staffID: staffID, // Pass staffID
           });
           message.success(
             `Promotion "${record.proName}" approved successfully.`
@@ -252,7 +289,13 @@ const PromotionManagement = () => {
     });
   };
 
+  // Decline promotion
   const handleDecline = (record) => {
+    if (!staffID) {
+      message.error("Unable to perform action. Staff ID not found.");
+      return;
+    }
+
     Modal.confirm({
       title: "Decline Promotion",
       content: `Are you sure you want to decline promotion "${record.proName}"?`,
@@ -262,8 +305,8 @@ const PromotionManagement = () => {
       onOk: async () => {
         try {
           await updatePromotion(record.proID, {
-            actionId: 3, // Action for Decline
-            username: username, // Current user's username
+            actionId: 3, // Decline action
+            staffID: staffID, // Pass staffID
           });
           message.success(
             `Promotion "${record.proName}" declined successfully.`
@@ -500,12 +543,22 @@ const PromotionManagement = () => {
                   >
                     <p>
                       {log.proAction === 1
-                        ? `${log.staffUsername} created ${log.proId.proName} (ID: ${log.proId.proID})`
+                        ? `${
+                            log.username || "Unknown"
+                          } created promotion (ID: ${log.proId || "N/A"})`
                         : log.proAction === 2
-                        ? `Admin ${log.staffUsername} approved ${log.proId.proName} (ID: ${log.proId.proID})`
-                        : `Admin ${log.staffUsername} rejected ${log.proId.proName} (ID: ${log.proId.proID})`}
+                        ? `Admin ${
+                            log.username || "Unknown"
+                          } approved promotion (ID: ${log.proId || "N/A"})`
+                        : `Admin ${
+                            log.username || "Unknown"
+                          } rejected promotion (ID: ${log.proId || "N/A"})`}
                     </p>
-                    <small>{moment(log.proLogDate).format("DD/MM/YYYY")}</small>
+                    <small>
+                      {log.proLogDate
+                        ? moment(log.proLogDate).format("DD/MM/YYYY")
+                        : "Unknown Date"}
+                    </small>
                   </Timeline.Item>
                 ))}
               </Timeline>
