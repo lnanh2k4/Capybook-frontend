@@ -34,37 +34,9 @@ client.interceptors.response.use(
     }, async (error) => {
         const request = error.config
         if (error.response && error.response.status === 401 && !request._retry) {
-            request._retry = true
-
-            if (!isRefreshing) {
-                isRefreshing = true
-                try {
-                    const refreshResponse = await login.post('auth/refresh', {
-                        token: localStorage.getItem('jwtToken')
-                    })
-                    const newToken = refreshResponse.data.token
-                    localStorage.setItem('jwtToken', newToken)
-
-                    isRefreshing = false
-                    onRefreshed(newToken)
-
-                    request.headers["Authorization"] = `Bearer ${newToken}`
-                    return client(request)
-                } catch (refreshError) {
-                    isRefreshing = false
-                    refreshSubscribers = []
-                    localStorage.removeItem("jwtToken")
-                    return Promise.reject(refreshError);
-                }
-            }
-            return new Promise((resolve) => {
-                refreshSubscribers.push((newToken) => {
-                    request.headers["Authorization"] = `Bearer ${newToken}`;
-                    resolve(client(request));
-                })
-            })
+            window.location.href = '/auth/login'
         }
-        return Promise.reject(error)
+        return
     }
 )
 
@@ -75,11 +47,24 @@ export const fetchStaffDetail = (id) => {
     });
 };
 
+export const fetchStaffByUsername = (username) => {
+    return client.get(`/v1/staffs/username/${username}`).then((response) => {
+        return response;
+    });
+};
 export const fetchStaffs = () => client.get('v1/staffs/');
 
-export const updateStaff = (staffID, formDataToSend) => {
-    return axios.put(`${URLString}v1/staffs/${staffID}`, formDataToSend);
+export const updateStaff = (formDataToSend) => {
+    return client.put(`${URLString}v1/staffs/`, formDataToSend);
 };
+
+export const addStaff = (account) => {
+    return client.post(`${URLString}v1/staffs/`, account);
+};
+
+export const searchStaff = (keyword) => client.get(`v1/staffs/search?keyword=${keyword}`);
+
+export const deleteStaff = (staffID) => client.delete(`v1/staffs/${staffID}`);
 
 
 export const addImportStockDetail = (savedStockId, details) => {
@@ -171,6 +156,7 @@ const logout = () => {
 
 
 const fetchNotifications = () => client.get('v1/notifications/');
+const fetchNotificationDetail = (notID) => client.get(`v1/notifications/detail/${notID}`); //Get notification detail
 const addNotification = (notification) => {
     return client.post('v1/notifications/', notification, {
         headers: {
@@ -178,7 +164,7 @@ const addNotification = (notification) => {
         }
     });
 };
-
+const deleteNotification = (notID) => client.delete(`v1/notifications/${notID}`);
 
 
 const fetchBooks = () => client.get('v1/books/');
@@ -225,8 +211,8 @@ const fetchPromotionDetail = (proID) => {
     return client.get(`/v1/promotions/${proID}`);
 };
 const addPromotion = (promotion, username) => {
-    return client.post(`/v1/promotions/`, promotion, {
-        params: { username: username }, // Gửi username trong params
+    return client.post('/v1/promotions/', promotion, {
+        params: { username },
     });
 };
 
@@ -337,7 +323,6 @@ const createImportStock = async (importStockData) => {
 
 
 
-
 const deleteImportStock = async (id) => {
     return await client.delete(`/Inventory/${id}`);
 };
@@ -426,8 +411,14 @@ const updateCartItem = (username, bookID, quantity) => {
     return
 };
 
+const fetchPromotionLogs = () => {
+    return client.get(`/v1/promotions/logs`);
+};
+
+
 
 export {
+    fetchPromotionLogs,
     fetchOrderDetailsByOrderID,
     addOrder,
     updateOrder,
@@ -483,6 +474,8 @@ export {
     deleteCartItem,
     updateCartItem,
     changePassword,
-    searchCategoriesByParent
+    searchCategoriesByParent,
+    deleteNotification,
+    fetchNotificationDetail
 };
 

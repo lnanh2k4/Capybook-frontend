@@ -1,26 +1,34 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Card, Button, Input, message } from "antd";
-import { fetchPromotionDetail } from "../config";
+import { fetchPromotionDetail, fetchStaffDetail } from "../config";
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 
 const PromotionDetail = () => {
   const { proID } = useParams();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({});
-  const [createdByStaffID, setCreatedByStaffID] = useState("N/A");
-  const [approvedByStaffID, setApprovedByStaffID] = useState("N/A");
+  const [createdByUsername, setCreatedByUsername] = useState("N/A");
+  const [approvedByUsername, setApprovedByUsername] = useState("N/A");
 
   useEffect(() => {
     // Fetch promotion details
     fetchPromotionDetail(proID)
-      .then((response) => {
+      .then(async (response) => {
         console.log("Fetched promotion data:", response.data);
         setFormData(response.data);
 
-        // Set staffID directly for createdBy and approvedBy
-        setCreatedByStaffID(response.data.createdBy || "N/A");
-        setApprovedByStaffID(response.data.approvedBy || "N/A");
+        // Fetch createdBy username if available
+        if (response.data.createdBy) {
+          const createdByResponse = await fetchStaffDetail(response.data.createdBy);
+          setCreatedByUsername(createdByResponse.data.username);
+        }
+
+        // Fetch approvedBy username if available
+        if (response.data.approvedBy) {
+          const approvedByResponse = await fetchStaffDetail(response.data.approvedBy);
+          setApprovedByUsername(approvedByResponse.data.username);
+        }
       })
       .catch((error) => {
         console.error("Error fetching promotion details:", error);
@@ -71,11 +79,11 @@ const PromotionDetail = () => {
           </div>
           <div style={{ marginBottom: "15px" }}>
             <label>Created By</label>
-            <Input value={createdByStaffID} disabled />
+            <Input value={createdByUsername} disabled />
           </div>
           <div style={{ marginBottom: "15px" }}>
             <label>Approved By</label>
-            <Input value={approvedByStaffID} disabled />
+            <Input value={approvedByUsername} disabled />
           </div>
 
           <div style={{ textAlign: "center", marginTop: "20px" }}>

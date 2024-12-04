@@ -10,6 +10,8 @@ import ViewBookDetail from "./BookManagement/ViewBookDetail";
 import EditBook from "./BookManagement/EditBook";
 import BookDetails from "./Homepage/BookDetails";
 
+// Income Statistic
+import IncomeStatistic from "./IncomeStatistic/IncomeStatistic";
 // Import promotion
 import PromotionManagement from "./PromotionManagement/PromotionManagement";
 import AddPromotion from "./PromotionManagement/AddPromotion";
@@ -46,6 +48,7 @@ import AccountManagement from "./AccountManagement/AccountManagement";
 // Import notification
 import NotificationManagement from "./NotificationManagement/NotificationManagement";
 import AddNotification from "./NotificationManagement/AddNotification";
+import NotificationDetail from "./NotificationManagement/NotificationDetail";
 
 // Import category
 import CategoryManagement from "./CategoryManagement/CategoryManagement";
@@ -55,7 +58,7 @@ import EditCategory from "./CategoryManagement/EditCategory";
 
 // Import homepage
 import Homepage from "./Homepage/Homepage"
-
+import OrderHistory from "./Homepage/OrderHistory";
 
 // Import login, logout, register
 import Login from "./Login/Login/"
@@ -69,6 +72,7 @@ import CartDetails from "./Homepage/CartDetails";
 import StaffManagement from "./StaffManagement/StaffManagement";
 import StaffDetail from './StaffManagement/StaffDetail'
 import EditStaff from './StaffManagement/EditStaff'
+import AddStaff from "./StaffManagement/AddStaff";
 
 function App() {
   return (
@@ -76,6 +80,7 @@ function App() {
       <Routes>
         {/* Homepage */}
         <Route path="/" element={<Homepage />} />
+        <Route path="/OrderHistory" element={<OrderHistory />} />
 
         {/* Manage books */}
         <Route path="/detail/:bookId" element={<BookDetails />} />
@@ -86,6 +91,8 @@ function App() {
         <Route path="/dashboard/books/detail" element={<ViewBookDetail />} />
         <Route path="/dashboard/books/edit" element={<EditBook />} />
         <Route path="/dashboard/books/detail/:bookId" element={<ViewBookDetail />} />
+        {/* IncomeStatistic */}
+        <Route path="/dashboard/income-statistic" element={<IncomeStatistic />} />
 
         {/* Manage cart */}
         <Route path="/cart/ViewDetail" element={<CartDetails />} />
@@ -120,9 +127,8 @@ function App() {
 
         {/* Manage notifications */}
         <Route path="/dashboard/notifications/" element={<NotificationManagement />} />
-        <Route path="/dashboard/notifications/detail/:notID" element={<AccountDetail />} />
+        <Route path="/dashboard/notifications/detail/:notID" element={<NotificationDetail />} />
         <Route path="/dashboard/notifications/add" element={<AddNotification />} />
-        <Route path="/dashboard/notifications/:notID" element={<EditAccount />} />
 
         {/* Manage categories */}
         <Route path="/dashboard/category" element={<CategoryManagement />} />
@@ -143,6 +149,7 @@ function App() {
         <Route path="/dashboard/staffs" element={<StaffManagement />} />
         <Route path="/dashboard/staffs/detail/:staffID" element={<StaffDetail />} />
         <Route path="/dashboard/staffs/:staffID" element={<EditStaff />} />
+        <Route path="/dashboard/staffs/add" element={<AddStaff />} />
       </Routes>
     </Router>
   );

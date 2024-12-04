@@ -76,10 +76,10 @@ const OrderDetail = () => {
 
   const columns = [
     {
-      title: "Book ID", // Tiêu đề cột
-      dataIndex: ["book", "bookID"], // Đường dẫn đến dữ liệu bookID
-      key: "bookID", // Key duy nhất của cột
-      render: (text, record) => (record.book ? record.book.bookID : "N/A"), // Hiển thị bookID hoặc "N/A" nếu không có
+      title: "Book ID",
+      dataIndex: "bookID",
+      key: "bookID",
+      render: (text, record) => record.bookID || "N/A",
     },
     {
       title: "Title",
@@ -88,33 +88,26 @@ const OrderDetail = () => {
       render: (text, record) => (record.book ? record.book.bookTitle : "N/A"),
     },
     {
-      title: "Author",
-      dataIndex: ["book", "author"],
-      key: "author",
-      render: (text, record) => (record.book ? record.book.author : "N/A"),
-    },
-    {
-      title: "ISBN",
-      dataIndex: ["book", "isbn"],
-      key: "isbn",
-      render: (text, record) => (record.book ? record.book.isbn : "N/A"),
-    },
-    {
-      title: "Unit Price",
-      dataIndex: ["book", "bookPrice"],
-      key: "bookPrice",
-      render: (price) => `$${price || 0}`,
-    },
-    {
       title: "Quantity",
       dataIndex: "quantity",
       key: "quantity",
     },
     {
-      title: "Final Price",
-      key: "finalPrice",
-      render: (_, record) =>
-        `$${record.quantity * (record.book?.bookPrice || 0)}`,
+      title: "Unit Price",
+      key: "unitPrice",
+      render: (_, record) => {
+        const unitPrice =
+          record.totalPrice && record.quantity
+            ? (record.totalPrice / record.quantity).toFixed(2)
+            : "N/A";
+        return `$${unitPrice}`;
+      },
+    },
+    {
+      title: "Total Price",
+      dataIndex: "totalPrice",
+      key: "totalPrice",
+      render: (price) => `$${price || 0}`,
     },
   ];
 

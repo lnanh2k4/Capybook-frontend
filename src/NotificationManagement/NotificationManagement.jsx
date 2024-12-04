@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Space, Table, Tag, Button, Input, message } from 'antd'; // Ant Design components
-import { fetchNotifications, deleteAccount } from '../config'; // API imports
+import { fetchNotifications, deleteNotification } from '../config'; // API imports
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
+import { DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
 
 const { Search } = Input;
 
@@ -18,7 +19,7 @@ const NotificationManagement = () => {
         setLoading(true);
         fetchNotifications()
             .then(response => {
-                setNotification(response.data);
+                setNotification(response.data.filter((notification) => notification.notStatus !== 0));
                 setError('');
             })
             .catch(error => {
@@ -33,9 +34,22 @@ const NotificationManagement = () => {
 
     const handleDelete = (notID) => {
         if (window.confirm("Are you sure you want to delete this notification?")) {
-            deleteAccount(notification)
+            deleteNotification(notID)
                 .then(() => {
-                    setNotification(notification.filter(notID => notification.notID !== notID));
+                    setLoading(true);
+                    fetchNotifications()
+                        .then(response => {
+                            setNotification(response.data.filter((notification) => notification.notStatus !== 0));
+                            setError('');
+                        })
+                        .catch(error => {
+                            console.error('Error fetching notifications:', error);
+                            setError('Failed to fetch notifications');
+                            message.error('Failed to fetch notifications');
+                        })
+                        .finally(() => {
+                            setLoading(false);
+                        });
                     message.success('Notification deleted successfully');
                 })
                 .catch(error => {
@@ -48,11 +62,6 @@ const NotificationManagement = () => {
     const goToAddNotification = () => {
         navigate('/dashboard/notifications/add');
     };
-
-    const goToEditNotification = (notID) => {
-        navigate(`/dashboard/notifications/${notID}`);
-    };
-
     const goToNotificationDetail = (notID) => {
         navigate(`/dashboard/notifications/detail/${notID}`);
     };
@@ -67,7 +76,7 @@ const NotificationManagement = () => {
         {
             title: 'Title',
             key: 'notTitle',
-            render: (record) => `${record.title}`,
+            render: (record) => `${record.notTitle}`,
         },
         {
             title: 'Receiver',
@@ -88,42 +97,30 @@ const NotificationManagement = () => {
                         receiver = 'Warehouse staff'
                         break;
                     case 4:
+                        receiver = 'Seller and Warehouse'
+                        break;
+                    case 5:
+                        receiver = 'Seller, Warehouse and Customer'
+                        break;
+                    case 6:
                         receiver = 'All'
                         break;
                 }
                 return receiver
             },
         },
-        {
-            title: 'Status',
-            key: 'status',
-            render: (record) => {
-                let status = '';
-                let color = '';
-                switch (record.notStatus) {
-                    case 0:
-                        status = 'Inactive';
-                        color = 'red'
-                        break;
-                    case 1:
-                        status = 'Active';
-                        color = 'green'
-                        break;
-                }
 
-                return <Tag color={color}>
-                    {status}
-                </Tag>
-            },
-        },
         {
             title: 'Action',
             key: 'action',
             render: (record) => (
                 <Space size="middle">
-                    <Button type="link" onClick={() => goToNotificationDetail(record.notID)}>Detail</Button>
-                    <Button type="link" onClick={() => goToEditNotification(record.notID)}>Edit</Button>
-                    <Button type="link" danger onClick={() => handleDelete(record.notID)}>Delete</Button>
+                    <Button type="link" onClick={() => goToNotificationDetail(record.notID)}>
+                        <InfoCircleOutlined />
+                    </Button>
+                    <Button type="link" danger onClick={() => handleDelete(record.notID)}>
+                        <DeleteOutlined />
+                    </Button>
                 </Space>
             ),
         },

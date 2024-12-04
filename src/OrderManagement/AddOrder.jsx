@@ -86,26 +86,26 @@ const AddOrder = () => {
 };
 
 
-  const handleSubmit = async (values) => {
+ const handleSubmit = async (values) => {
   try {
     const orderData = {
       orderDTO: {
         username: selectedAccount,
         proID: selectedPromotion?.proID || null,
         orderDate: new Date().toISOString().slice(0, 10), // Lấy ngày hiện tại
-        orderStatus: 1, // Mặc định là 1
+        orderStatus: 1,
       },
       orderDetails: selectedBooks.map((book) => ({
         bookID: book.bookID,
         quantity: values[`quantity_${book.bookID}`],
+        totalPrice: book.bookPrice * values[`quantity_${book.bookID}`],
       })),
     };
 
+    console.log("Sending orderData:", JSON.stringify(orderData, null, 2)); // In dữ liệu gửi
+
     const response = await addOrder(orderData);
-    const orderID = response.data.orderID;
-
     message.success("Order added successfully");
-
     navigate("/dashboard/order-management");
   } catch (error) {
     console.error("Error adding order:", error);

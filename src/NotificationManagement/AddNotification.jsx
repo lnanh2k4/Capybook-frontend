@@ -1,9 +1,10 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import ReactQuill from 'react-quill';  // Import ReactQuill
 import 'react-quill/dist/quill.snow.css';  // Import ReactQuill styles
 import { useNavigate } from 'react-router-dom';
-import { addNotification } from '../config.js';
+import { addNotification, fetchStaffByUsername } from '../config.js';
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
+import { decodeJWT } from '../jwtConfig';
 import {
     Button,
     Form,
@@ -11,21 +12,25 @@ import {
     Select,
     message
 } from 'antd';
-
+useEffect
 const AddNotification = () => {
     const [form] = Form.useForm();
     const navigate = useNavigate();
     const quillRef = useRef();  // Create a ref for ReactQuill
     const [text, setText] = useState('');
 
+
     const handleSubmit = async (values) => {
+
         try {
+            const response = await fetchStaffByUsername(decodeJWT().sub);
+            console.log(response);
             const NotificationData = {
-                notID: values.notID,
-                staffID: values.staffID,
+                staffID: response.data,
                 notTitle: values.notTitle,
                 receiver: values.receiver,
                 notDescription: text,  // Set description from ReactQuill content
+                notStatus: "1"
             };
             const formDataToSend = new FormData();
             formDataToSend.append('notification', JSON.stringify(NotificationData));  // Append form data
@@ -67,19 +72,6 @@ const AddNotification = () => {
                     onFinish={handleSubmit}
                     style={{ maxWidth: 1200, margin: '0 auto' }}
                 >
-                    <Form.Item
-                        label="Staff name"
-                        name="staffID"
-                        rules={[{ required: true, message: "Please select staff" }]}
-                    >
-                        <Select>
-                            <Option value="0">Admin</Option>
-                            <Option value="1">Customer</Option>
-                            <Option value="2">Seller staff</Option>
-                            <Option value="3">Warehouse staff</Option>
-                        </Select>
-                    </Form.Item>
-
                     <Form.Item
                         label="Title"
                         name="notTitle"
