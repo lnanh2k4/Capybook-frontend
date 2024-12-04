@@ -2,30 +2,40 @@ import React, { useState } from 'react';
 import { Modal, Button, InputNumber, Table, Typography, Tag } from 'antd';
 import { ShoppingCartOutlined, CloseOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { addBookToCart, createPayment } from '../config';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 
 const AddBookToCart = ({ username, bookId, bookData }) => {
     const [quantity, setQuantity] = useState(1);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [cartItems, setCartItems] = useState([]);
-    const navigate = useNavigate(); // Sử dụng useNavigate
+    const navigate = useNavigate();
 
-    // Hàm mở modal hoặc chuyển hướng đến trang chi tiết giỏ hàng
+    // Kiểm tra giá trị props truyền vào
+    console.log("Username:", username);
+    console.log("Book ID:", bookId);
+    console.log("Book Data:", bookData);
+
     const handleShowCart = () => {
-        setIsModalVisible(false); // Đóng modal
-        navigate('/cart/ViewDetail'); // Chuyển hướng đến trang CartDetails
+        setIsModalVisible(false);
+        console.log("Navigating to cart page...");
+        navigate('/cart/ViewDetail');
     };
 
-    // Đóng modal
     const handleCancel = () => {
+        console.log("Modal closed");
         setIsModalVisible(false);
     };
 
-    // Hàm thêm sách vào giỏ hàng
     const handleAddToCart = async () => {
+        console.log("Adding book to cart with the following details:");
+        console.log("Username:", username);
+        console.log("Book ID:", bookId);
+        console.log("Quantity:", quantity);
+
         try {
             await addBookToCart(username, bookId, quantity);
 
+            console.log("API call successful. Updating cart items...");
             const newCartItem = {
                 key: bookId,
                 name: bookData.bookTitle,
@@ -41,7 +51,7 @@ const AddBookToCart = ({ username, bookId, bookData }) => {
                 const existingItemIndex = prevItems.findIndex((item) => item.key === bookId);
                 if (existingItemIndex >= 0) {
                     const updatedItems = [...prevItems];
-                    updatedItems[existingItemIndex].quantity += quantity;
+                    updatedItems[existingItemIndex].quantity = quantity;
                     updatedItems[existingItemIndex].total =
                         updatedItems[existingItemIndex].quantity * updatedItems[existingItemIndex].price;
                     return updatedItems;
@@ -50,29 +60,33 @@ const AddBookToCart = ({ username, bookId, bookData }) => {
                 }
             });
 
+            console.log("Book added to cart successfully. Showing modal...");
             setIsModalVisible(true);
         } catch (error) {
+            console.error("Error adding book to cart:", error.response?.data || error.message);
             Modal.error({
                 content: 'Failed to add book to cart. Please try again.',
             });
         }
     };
 
-    // Hàm xử lý thanh toán
     const handleCheckout = async () => {
+        console.log("Initiating checkout...");
         try {
             const totalAmount = cartItems.reduce((acc, item) => acc + item.total, 0);
+            console.log("Total amount for payment:", totalAmount);
             const response = await createPayment(totalAmount);
             const paymentUrl = response.data;
+            console.log("Redirecting to payment URL:", paymentUrl);
             window.location.href = paymentUrl;
         } catch (error) {
+            console.error("Error during checkout:", error.response?.data || error.message);
             Modal.error({
                 content: 'Failed to initiate payment. Please try again.',
             });
         }
     };
 
-    // Cấu trúc cột bảng
     const columns = [
         {
             title: 'Product',
@@ -136,7 +150,10 @@ const AddBookToCart = ({ username, bookId, bookData }) => {
                         max={10}
                         defaultValue={1}
                         style={{ width: '60px' }}
-                        onChange={(value) => setQuantity(value)}
+                        onChange={(value) => {
+                            console.log("Quantity changed to:", value);
+                            setQuantity(value);
+                        }}
                     />
                 </div>
                 <Button
