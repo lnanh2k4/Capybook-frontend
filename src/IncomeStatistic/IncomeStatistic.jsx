@@ -199,6 +199,8 @@ const RevenueReport = () => {
         <div className="main-container">
             <DashboardContainer />
             <div className="dashboard-content">
+                <h1>Welcome to Capybook Management System</h1>
+                <p>Here is where you can manage your books, orders, promotions, and more.</p>
                 <h2>Revenue Report</h2>
                 <RangePicker
                     onChange={handleDateRangeChange}

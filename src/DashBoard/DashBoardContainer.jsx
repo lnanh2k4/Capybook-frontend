@@ -54,36 +54,37 @@ const DashboardContainer = () => {
   const onClick = (e) => {
     setCurrent(e.key);
     switch (e.key) {
-      case '1':
-        navigate("/dashboard/accounts");
-        break;
-      case '2':
-        navigate("/dashboard/staffs");
-        break;
-      case '3':
-        navigate("/dashboard/books");
-        break;
-      case '4':
-        navigate("/dashboard/order-management");
-        break;
-      case '5':
-        navigate("/dashboard/promotion-management");
-        break;
-      case '6':
-        navigate("/dashboard/suppliers");
-        break;
-      case '7':
-        navigate("/dashboard/category");
-        break;
-      case '8':
-        navigate("/dashboard/inventory");
-        break;
-      case '9':
-        navigate("/dashboard/notifications/");
-        break;
-      case '10': // Điều hướng tới trang Income Statistic
+      case '1': // Điều hướng tới trang Income Statistic
         navigate("/dashboard/income-statistic");
         break;
+      case '2':
+        navigate("/dashboard/accounts");
+        break;
+      case '3':
+        navigate("/dashboard/staffs");
+        break;
+      case '4':
+        navigate("/dashboard/books");
+        break;
+      case '5':
+        navigate("/dashboard/order-management");
+        break;
+      case '6':
+        navigate("/dashboard/promotion-management");
+        break;
+      case '7':
+        navigate("/dashboard/suppliers");
+        break;
+      case '8':
+        navigate("/dashboard/category");
+        break;
+      case '9':
+        navigate("/dashboard/inventory");
+        break;
+      case '10':
+        navigate("/dashboard/notifications/");
+        break;
+
       default:
         break;
     }
@@ -110,57 +111,58 @@ const DashboardContainer = () => {
 
 
   const items = [
-    isAccountVisible && {
+    {
       key: '1',
+      label: 'Dashboard',
+      icon: <AppstoreOutlined />, // Thay đổi icon nếu cần
+    },
+    isAccountVisible && {
+      key: '2',
       label: 'Account Management',
       icon: <UserOutlined />,
     },
     isStaffVisible && {
-      key: '2',
+      key: '3',
       label: 'Staff Management',
       icon: <UserOutlined />,
     },
     isBookVisible && {
-      key: '3',
+      key: '4',
       label: 'Book Management',
       icon: <BookOutlined />,
     },
     isOrderVisible && {
-      key: '4',
+      key: '5',
       label: 'Order Management',
       icon: <TagsOutlined />,
     },
     isPromotionVisible && {
-      key: '5',
+      key: '6',
       label: 'Promotion Management',
       icon: <BellOutlined />,
     },
     isSupplierVisible && {
-      key: '6',
+      key: '7',
       label: 'Supplier Management',
       icon: <TruckOutlined />,
     },
     isCategoryVisible && {
-      key: '7',
+      key: '8',
       label: 'Category Management',
       icon: <BarsOutlined />,
     },
     isInventoryVisible && {
-      key: '8',
+      key: '9',
       label: 'Inventory Management',
       icon: <AppstoreOutlined />,
     },
     isNotificationVisible && {
-      key: '9',
+      key: '10',
       label: 'Notification Management',
       icon: <NotificationOutlined />,
     },
     // Mục mới: Income Statistic
-    {
-      key: '10',
-      label: 'Income Statistic',
-      icon: <AppstoreOutlined />, // Thay đổi icon nếu cần
-    },
+
   ].filter(Boolean);
 
 

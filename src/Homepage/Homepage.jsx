@@ -137,7 +137,7 @@ const Homepage = () => {
 
 
   const handleDashboardClick = () => {
-    navigate("/dashboard");
+    navigate("/dashboard/income-statistic");
   };
 
   const handleBookClick = (bookId) => {
