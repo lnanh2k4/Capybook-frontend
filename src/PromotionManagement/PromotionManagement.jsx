@@ -1,13 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Space, Table, Button, Input, Select, message, Tag, Modal, Timeline  } from "antd";
+import {
+  Space,
+  Table,
+  Button,
+  Input,
+  Select,
+  message,
+  Tag,
+  Modal,
+  Timeline,
+  Pagination,
+} from "antd";
 import {
   fetchPromotions,
   searchPromotions,
   deletePromotion,
   updatePromotion,
-  fetchPromotionLogs,
-  fetchStaffDetail// Thêm hàm này
+  fetchPromotionLogs, // Đã được import từ config
+  fetchStaffDetail,
 } from "../config";
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import moment from "moment";
@@ -28,8 +39,12 @@ const PromotionManagement = () => {
   const [filterStatus, setFilterStatus] = useState("all");
   const [logModalVisible, setLogModalVisible] = useState(false); // State for Log Modal
   const username = decodeJWT(localStorage.getItem("jwtToken")).sub;
-const [logs, setLogs] = useState([]);
-const [logLoading, setLogLoading] = useState(false);
+  const [logs, setLogs] = useState([]);
+  const [logLoading, setLogLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(8); // Số logs mỗi trang
+  const [filterActivity, setFilterActivity] = useState("all"); // Mặc định là "all"
+  const [originalLogs, setOriginalLogs] = useState([]);
 
   useEffect(() => {
     fetchPromotionsData();
@@ -39,11 +54,12 @@ const [logLoading, setLogLoading] = useState(false);
     setLoading(true);
     fetchPromotions()
       .then((response) => {
-        console.log("Promotions loaded:", response.data); // Log dữ liệu promotions
+        console.log("Promotions loaded:", response.data);
         if (Array.isArray(response.data)) {
           const activePromotions = response.data.filter(
             (promo) => promo.proStatus === 1
           );
+
           const today = moment();
           const filteredPromotions = activePromotions.filter((promo) => {
             const startDate = moment(promo.startDate);
@@ -63,7 +79,13 @@ const [logLoading, setLogLoading] = useState(false);
             }
             return true;
           });
-          setPromotions(filteredPromotions);
+
+          // Sắp xếp theo ID từ lớn đến bé
+          const sortedPromotions = filteredPromotions.sort(
+            (a, b) => b.proID - a.proID
+          );
+
+          setPromotions(sortedPromotions);
         } else {
           console.error("Expected an array but got", response.data);
         }
@@ -123,6 +145,15 @@ const [logLoading, setLogLoading] = useState(false);
     }
   };
 
+  const paginatedLogs = logs.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
   const handleDelete = (proID) => {
     const promotionToDelete = promotions.find((promo) => promo.proID === proID);
 
@@ -159,91 +190,92 @@ const [logLoading, setLogLoading] = useState(false);
     });
   };
 
-  const handleLogClick = () => {
-  setLogLoading(true);
-  fetchPromotionLogs()
-  .then(async (response) => {
-    const logs = response.data || [];
-    if (logs.length === 0) {
-      message.info("No activity recorded.");
-      setLogs([]);
-      setLogModalVisible(true);
+  const handleLogClick = (action = null, startDate = null, endDate = null) => {
+    setLogLoading(true);
+    fetchPromotionLogs(action, startDate, endDate) // Sử dụng fetchPromotionLogs từ config
+      .then((response) => {
+        const logsData = response.data || [];
+        // Sắp xếp logs theo ID từ lớn đến bé
+        const sortedLogs = logsData.sort((a, b) => b.proLogId - a.proLogId);
+        setLogs(sortedLogs);
+        setOriginalLogs(sortedLogs); // Đặt logs gốc để dễ dàng lọc client-side
+        setLogModalVisible(true);
+      })
+      .catch((error) => {
+        console.error("Error fetching promotion logs:", error);
+        message.error("Unable to load promotion logs.");
+      })
+      .finally(() => {
+        setLogLoading(false);
+      });
+  };
+
+  const handleFilterActivity = (value) => {
+    setFilterActivity(value);
+
+    if (value === "all") {
+      setLogs(originalLogs); // Hiển thị tất cả logs nếu chọn "all"
       return;
     }
 
-    // Fetch usernames for all staff IDs in logs
-    const logsWithUsernames = await Promise.all(
-      logs.map(async (log) => {
-        try {
-          const staffResponse = await fetchStaffDetail(log.staffId.staffID);
-          const staffUsername = staffResponse.data?.username || "Unknown"; // Fetch username
-          return { ...log, staffUsername }; // Attach username to log
-        } catch (error) {
-          console.error("Error fetching staff detail:", error);
-          return { ...log, staffUsername: "Unknown" }; // Default value
-        }
-      })
-    );
+    const filteredLogs = originalLogs.filter((log) => {
+      if (value === "create") return log.proAction === 1;
+      if (value === "approve") return log.proAction === 2;
+      if (value === "reject") return log.proAction === 3;
+      return true;
+    });
 
-    setLogs(logsWithUsernames); // Set logs with username
-    setLogModalVisible(true);
-  })
-  .catch((error) => {
-    console.error("Error fetching promotion logs:", error);
-    message.error("Unable to load promotion logs.");
-  })
-  .finally(() => {
-    setLogLoading(false);
-  });
-};
-
+    setLogs(filteredLogs); // Cập nhật logs theo bộ lọc
+  };
 
   const handleApprove = (record) => {
-  Modal.confirm({
-    title: "Approve Promotion",
-    content: `Are you sure you want to approve promotion "${record.proName}"?`,
-    okText: "Yes",
-    cancelText: "No",
-    onOk: async () => {
-      try {
-        await updatePromotion(record.proID, {
-          actionId: 2, // Action for Approve
-          username: username, // Current user's username
-        });
-        message.success(`Promotion "${record.proName}" approved successfully.`);
-        fetchPromotionsData(); // Refresh promotions data
-      } catch (error) {
-        console.error("Error approving promotion:", error);
-        message.error("Failed to approve promotion.");
-      }
-    },
-  });
-};
-
+    Modal.confirm({
+      title: "Approve Promotion",
+      content: `Are you sure you want to approve promotion "${record.proName}"?`,
+      okText: "Yes",
+      cancelText: "No",
+      onOk: async () => {
+        try {
+          await updatePromotion(record.proID, {
+            actionId: 2, // Action for Approve
+            username: username, // Current user's username
+          });
+          message.success(
+            `Promotion "${record.proName}" approved successfully.`
+          );
+          fetchPromotionsData(); // Refresh promotions data
+        } catch (error) {
+          console.error("Error approving promotion:", error);
+          message.error("Failed to approve promotion.");
+        }
+      },
+    });
+  };
 
   const handleDecline = (record) => {
-  Modal.confirm({
-    title: "Decline Promotion",
-    content: `Are you sure you want to decline promotion "${record.proName}"?`,
-    okText: "Yes",
-    cancelText: "No",
-    okType: "danger",
-    onOk: async () => {
-      try {
-        await updatePromotion(record.proID, {
-          actionId: 3, // Action for Decline
-          username: username, // Current user's username
-        });
-        message.success(`Promotion "${record.proName}" declined successfully.`);
-        fetchPromotionsData(); // Refresh promotions data
-      } catch (error) {
-        console.error("Error declining promotion:", error);
-        message.error("Failed to decline promotion.");
-      }
-    },
-  });
-};
-
+    Modal.confirm({
+      title: "Decline Promotion",
+      content: `Are you sure you want to decline promotion "${record.proName}"?`,
+      okText: "Yes",
+      cancelText: "No",
+      okType: "danger",
+      onOk: async () => {
+        try {
+          await updatePromotion(record.proID, {
+            actionId: 3, // Action for Decline
+            username: username, // Current user's username
+          });
+          message.success(
+            `Promotion "${record.proName}" declined successfully.`
+          );
+          fetchPromotionsData(); // Refresh promotions data
+        } catch (error) {
+          console.error("Error declining promotion:", error);
+          message.error("Failed to decline promotion.");
+        }
+      },
+    });
+  };
 
   const handleFilterChange = (value) => {
     setFilterStatus(value);
@@ -386,12 +418,11 @@ const [logLoading, setLogLoading] = useState(false);
               Add Promotion
             </Button>
             <Button
-  style={{ backgroundColor: "#1890ff", color: "#fff" }}
-  onClick={handleLogClick} // Gắn hàm này
->
-  Log
-</Button>
-
+              style={{ backgroundColor: "#1890ff", color: "#fff" }}
+              onClick={handleLogClick} // Gắn hàm này
+            >
+              Log
+            </Button>
           </div>
           <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
             <Select
@@ -424,36 +455,71 @@ const [logLoading, setLogLoading] = useState(false);
 
         {/* Modal for Log */}
         <Modal
-  title="Promotion Logs"
-  visible={logModalVisible}
-  onCancel={() => setLogModalVisible(false)}
-  footer={null}
-  width={1000}
->
-  {logLoading ? (
-    <p>Loading...</p>
-  ) : logs.length > 0 ? (
-    <Timeline>
-  {logs.map((log) => (
-    <Timeline.Item
-      key={log.proLogId}
-      color={log.proAction === 3 ? "red" : "green"} // Đỏ nếu bị từ chối
-    >
-      <p>
-        {log.proAction === 1
-          ? `${log.staffUsername} created ${log.proId.proName} (ID: ${log.proId.proID})`
-          : log.proAction === 2
-          ? `Admin ${log.staffUsername} approved ${log.proId.proName} (ID: ${log.proId.proID})`
-          : `Admin ${log.staffUsername} rejected ${log.proId.proName} (ID: ${log.proId.proID})`}
-      </p>
-      <small>{moment(log.proLogDate).format("DD/MM/YYYY")}</small>
-    </Timeline.Item>
-  ))}
-</Timeline>
-  ) : (
-    <p>No activity recorded.</p>
-  )}
-</Modal>
+          title={
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center", // Canh giữa nội dung
+                alignItems: "center",
+                gap: "10px",
+              }}
+            >
+              <Select
+                defaultValue="all"
+                value={filterActivity}
+                onChange={handleFilterActivity}
+                style={{ width: "200px" }} // Tùy chỉnh chiều rộng nếu cần
+              >
+                <Option value="all">All Activities</Option>
+                <Option value="create">Created</Option>
+                <Option value="approve">Approved</Option>
+                <Option value="reject">Rejected</Option>
+              </Select>
+            </div>
+          }
+          visible={logModalVisible}
+          onCancel={() => setLogModalVisible(false)}
+          footer={null}
+          width={1000}
+        >
+          {logLoading ? (
+            <p>Loading...</p>
+          ) : logs.length > 0 ? (
+            <>
+              <Timeline>
+                {paginatedLogs.map((log) => (
+                  <Timeline.Item
+                    key={log.proLogId}
+                    color={
+                      log.proAction === 3
+                        ? "red"
+                        : log.proAction === 2
+                        ? "green"
+                        : "blue"
+                    }
+                  >
+                    <p>
+                      {log.proAction === 1
+                        ? `${log.staffUsername} created ${log.proId.proName} (ID: ${log.proId.proID})`
+                        : log.proAction === 2
+                        ? `Admin ${log.staffUsername} approved ${log.proId.proName} (ID: ${log.proId.proID})`
+                        : `Admin ${log.staffUsername} rejected ${log.proId.proName} (ID: ${log.proId.proID})`}
+                    </p>
+                    <small>{moment(log.proLogDate).format("DD/MM/YYYY")}</small>
+                  </Timeline.Item>
+                ))}
+              </Timeline>
+              <Pagination
+                current={currentPage}
+                pageSize={pageSize}
+                total={logs.length}
+                onChange={handlePageChange}
+              />
+            </>
+          ) : (
+            <p>No activity recorded.</p>
+          )}
+        </Modal>
       </div>
 
       <div className="copyright">
