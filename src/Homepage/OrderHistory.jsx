@@ -24,6 +24,7 @@ import {
   fetchOrderDetail,
   fetchBookDetail,
   logout,
+  fetchPromotionDetail,
 } from "../config";
 
 const { Header, Footer, Content } = Layout;
@@ -40,24 +41,26 @@ const OrderHistory = () => {
     const fetchAllOrders = async () => {
       setLoading(true);
       try {
-        // Lấy username từ JWT
         const username = decodeJWT(localStorage.getItem("jwtToken")).sub;
-        console.log("Decoded Username:", username);
 
-        // Gọi API để lấy danh sách tất cả các đơn hàng
+        console.log("Fetching orders for username:", username);
+
+        // Fetch orders
         const ordersResponse = await fetchOrders();
         const ordersData = ordersResponse.data;
+
         console.log("Fetched Orders Data:", ordersData);
 
-        // Lọc các đơn hàng thuộc về người dùng hiện tại
+        // Filter orders for the current user
         const userOrders = ordersData.filter(
           (order) => order.customerName && order.customerName === username
         );
+
         console.log("Filtered User Orders:", userOrders);
 
         setOrders(userOrders);
 
-        // Lấy chi tiết các đơn hàng của người dùng
+        // Fetch order details for each order
         const orderDetailsPromises = userOrders.map((order) =>
           fetchOrderDetail(order.orderID)
         );
@@ -65,8 +68,32 @@ const OrderHistory = () => {
 
         const detailsMap = {};
         for (let i = 0; i < orderDetailsResponses.length; i++) {
-          const orderDetails = orderDetailsResponses[i].data.orderDetails;
+          console.log(
+            `Fetching details for Order ID: ${userOrders[i].orderID}`
+          );
 
+          const orderDetails = orderDetailsResponses[i].data.orderDetails;
+          const proID = orderDetailsResponses[i].data.order.proID;
+
+          console.log("Order Details Data:", orderDetails);
+
+          // Fetch promotion details if proID exists
+          let promotion = null;
+          if (proID) {
+            try {
+              console.log(`Fetching Promotion Details for proID: ${proID}`);
+              const promotionResponse = await fetchPromotionDetail(proID);
+              promotion = promotionResponse.data || {};
+              console.log("Fetched Promotion Data:", promotion);
+            } catch (error) {
+              console.error(
+                `Error fetching promotion for proID: ${proID}`,
+                error
+              );
+            }
+          }
+
+          // Fetch book details for each order detail
           const bookPromises = orderDetails.map((detail) =>
             fetchBookDetail(detail.bookID)
           );
@@ -77,13 +104,19 @@ const OrderHistory = () => {
             book: booksResponses[index].data || {},
           }));
 
-          detailsMap[userOrders[i].orderID] = updatedDetails;
+          console.log("Updated Order Details with Book Data:", updatedDetails);
+
+          detailsMap[userOrders[i].orderID] = {
+            details: updatedDetails,
+            promotionDiscount: promotion?.discount || 0,
+          };
         }
 
+        console.log("Final Order Details Map:", detailsMap);
         setOrderDetailsMap(detailsMap);
       } catch (error) {
         message.error("Failed to fetch orders or details.");
-        console.error(error);
+        console.error("Error in fetchAllOrders:", error);
       } finally {
         setLoading(false);
       }
@@ -93,8 +126,35 @@ const OrderHistory = () => {
   }, []);
 
   const renderOrderDetailsTable = (orderID) => {
-    const details = orderDetailsMap[orderID] || [];
+    const orderData = orderDetailsMap[orderID];
+
+    // Kiểm tra nếu dữ liệu không hợp lệ hoặc không phải mảng
+    if (!orderData || !Array.isArray(orderData.details)) {
+      console.error(`Invalid details for orderID: ${orderID}`, orderData);
+      return <div>No details available</div>;
+    }
+
+    const details = orderData.details;
     const columns = [
+      {
+        title: "Image",
+        dataIndex: ["book", "image"],
+        key: "image",
+        render: (image) =>
+          image ? (
+            <img
+              src={image}
+              alt="Book"
+              style={{
+                width: "100px", // Gấp đôi kích thước chiều rộng
+                height: "100px", // Gấp đôi kích thước chiều cao
+                objectFit: "cover", // Duy trì tỷ lệ ảnh
+              }}
+            />
+          ) : (
+            "N/A"
+          ),
+      },
       {
         title: "Book ID",
         dataIndex: ["book", "bookID"],
@@ -290,13 +350,31 @@ const OrderHistory = () => {
               >
                 <Descriptions.Item label="Total Books Price" span={3}>
                   $
-                  {orderDetailsMap[order.orderID]
-                    ?.reduce(
+                  {(orderDetailsMap[order.orderID]?.details || [])
+                    .reduce(
                       (acc, item) =>
                         acc + item.quantity * (item.book?.bookPrice || 0),
                       0
                     )
                     .toFixed(2) || "0.00"}
+                </Descriptions.Item>
+
+                <Descriptions.Item label="Promotion Discount (%)" span={3}>
+                  {orderDetailsMap[order.orderID]?.promotionDiscount || 0}%
+                </Descriptions.Item>
+
+                <Descriptions.Item label="Total Price After Discount" span={3}>
+                  $
+                  {(
+                    (orderDetailsMap[order.orderID]?.details || []).reduce(
+                      (acc, item) =>
+                        acc + item.quantity * (item.book?.bookPrice || 0),
+                      0
+                    ) *
+                    (1 -
+                      (orderDetailsMap[order.orderID]?.promotionDiscount || 0) /
+                        100)
+                  ).toFixed(2)}
                 </Descriptions.Item>
               </Descriptions>
             </Card>
