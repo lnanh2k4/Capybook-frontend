@@ -323,7 +323,6 @@ const createImportStock = async (importStockData) => {
 
 
 
-
 const deleteImportStock = async (id) => {
     return await client.delete(`/Inventory/${id}`);
 };
@@ -377,7 +376,6 @@ const viewCart = (username) => {
 const fetchPromotionLogs = () => {
     return client.get(`/v1/promotions/logs`);
 };
-
 
 
 
