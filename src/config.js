@@ -430,9 +430,14 @@ const updateCartItem = (username, bookID, quantity) => {
     return
 };
 
-const fetchPromotionLogs = () => {
-    return client.get(`/v1/promotions/logs`);
+const fetchPromotionLogs = (activity) => {
+    const params = new URLSearchParams();
+    if (typeof activity === "string" && activity) {
+        params.append("activity", activity); // Chỉ thêm nếu là chuỗi hợp lệ
+    }
+    return client.get(`/v1/promotions/logs?${params.toString()}`);
 };
+
 
 
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   Space,
   Table,
@@ -18,7 +19,7 @@ import {
   deletePromotion,
   updatePromotion,
   fetchPromotionLogs,
-  fetchStaffByUsername, // Sử dụng fetchStaffByUsername thay cho fetchStaffDetail
+  fetchStaffByUsername,
   fetchStaffDetail,
 } from "../config";
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
@@ -199,40 +200,47 @@ const PromotionManagement = () => {
     });
   };
 
-  const handleLogClick = async (
-    action = null,
-    startDate = null,
-    endDate = null
-  ) => {
-    setLogLoading(true);
+  const handleLogClick = async (activity = null) => {
+    setLogLoading(true); // Bật trạng thái loading
     try {
-      const response = await fetchPromotionLogs(action, startDate, endDate);
-      console.log("Logs fetched from API:", response.data); // Debugging logs
+      const response = await fetchPromotionLogs(activity);
+      const logsData = response.data || [];
 
-      let logsData = response.data || [];
+      // Sắp xếp logs theo ID giảm dần
+      const sortedLogs = logsData.sort((a, b) => b.proLogId - a.proLogId);
 
-      // Sắp xếp logs theo `proLogId` từ cao xuống thấp
-      logsData = logsData.sort((a, b) => b.proLogId - a.proLogId);
-
+      // Gắn thêm thông tin username từ staff
       const logsWithUsernames = await Promise.all(
-        logsData.map(async (log) => {
+        sortedLogs.map(async (log) => {
           try {
-            const staffResponse = await fetchStaffDetail(log.staffId); // Fetch username
-            const username = staffResponse.data.username; // Giả định API trả về username
-            return { ...log, username: username || "Unknown" };
-          } catch (error) {
-            console.error(
-              `Error fetching username for staffId ${log.staffId}`,
-              error
-            );
+            const staffResponse = await fetchStaffDetail(log.staffId);
+            const username = staffResponse.data.username || "Unknown";
+            return { ...log, username };
+          } catch {
             return { ...log, username: "Unknown" };
           }
         })
       );
 
-      console.log("Logs with usernames:", logsWithUsernames); // Debugging logs
-      setLogs(logsWithUsernames);
-      setLogModalVisible(true);
+      setLogs(logsWithUsernames); // Lưu logs vào state
+      setLogModalVisible(true); // Hiển thị modal logs
+    } catch (error) {
+      console.error("Error fetching promotion logs:", error);
+      message.error("Unable to load promotion logs.");
+    } finally {
+      setLogLoading(false); // Tắt trạng thái loading
+    }
+  };
+
+  const handleFilterActivity = async (value) => {
+    setFilterActivity(value); // Cập nhật trạng thái bộ lọc
+    setLogLoading(true);
+
+    try {
+      const activityParam = value === "all" ? null : value;
+      const response = await fetchPromotionLogs(activityParam); // Gọi hàm từ config
+      const logsData = response.data || [];
+      setLogs(logsData);
     } catch (error) {
       console.error("Error fetching promotion logs:", error);
       message.error("Unable to load promotion logs.");
@@ -240,25 +248,6 @@ const PromotionManagement = () => {
       setLogLoading(false);
     }
   };
-
-  const handleFilterActivity = (value) => {
-    setFilterActivity(value);
-
-    if (value === "all") {
-      setLogs(originalLogs); // Hiển thị tất cả logs nếu chọn "all"
-      return;
-    }
-
-    const filteredLogs = originalLogs.filter((log) => {
-      if (value === "create") return log.proAction === 1;
-      if (value === "approve") return log.proAction === 2;
-      if (value === "reject") return log.proAction === 3;
-      return true;
-    });
-
-    setLogs(filteredLogs); // Cập nhật logs theo bộ lọc
-  };
-
   // Approve promotion
   const handleApprove = (record) => {
     if (!staffID) {
