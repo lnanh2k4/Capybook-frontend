@@ -377,15 +377,53 @@ const handlePaymentReturn = () => {
 };
 
 const viewCart = (username) => {
-    return client.get('v1/cart/view', {
-        params: {
-            username: username,
-        },
-    }).then(response => response.data)
-        .catch(error => {
+    return client
+        .get(`/v1/cart/${username}`) // Sử dụng template string cho đúng cú pháp
+        .then((response) => {
+            console.log("API Data:", response.data); // Kiểm tra dữ liệu trả về từ backend
+            return response.data; // Trả về dữ liệu
+        })
+        .catch((error) => {
             console.error('Error fetching cart:', error.response || error.message);
+            throw error; // Ném lỗi để xử lý ở nơi gọi hàm
+        });
+};
+// Xóa sách khỏi giỏ hàng
+const deleteCartItem = (username, bookID) => {
+    return client
+        .delete('/v1/cart/delete', {
+            params: {
+                username: username,
+                bookID: bookID,
+            },
+        })
+        .then((response) => {
+            console.log("Cart item deleted successfully:", response.data);
+            return response.data;
+        })
+        .catch((error) => {
+            console.error("Error deleting cart item:", error.response || error.message);
             throw error;
         });
+};
+// Cập nhật số lượng sách trong giỏ hàng
+const updateCartItem = (username, bookID, quantity) => {
+    client.put(`/v1/cart/update`, null, {
+        params: {
+            username: username,
+            bookID: bookID,
+            quantity: quantity,
+        },
+    })
+        .then((response) => {
+            console.log("Cart item quantity updated successfully:", response.data);
+            return response.data;
+        })
+        .catch((error) => {
+            console.error("Error updating cart item quantity:", error.response || error.message);
+            throw error;
+        });
+    return
 };
 
 
@@ -442,6 +480,8 @@ export {
     createPayment, // Thêm hàm createPayment
     handlePaymentReturn,
     viewCart,
+    deleteCartItem,
+    updateCartItem,
     changePassword,
     searchCategoriesByParent
 };

@@ -13,7 +13,7 @@ const { Search } = Input; // Correct Search import
 const BookDetails = () => {
     const { bookId } = useParams(); // Get bookId from URL
     const navigate = useNavigate(); // Navigation handler
-
+    const username = decodeJWT().sub
     const [bookData, setBookData] = useState({
         bookTitle: '',
         publicationYear: '',
@@ -135,7 +135,7 @@ const BookDetails = () => {
 
                                 <div style={{ marginTop: '20px', display: 'flex', gap: '10px', justifyContent: 'flex-start' }}>
 
-                                    <AddBookToCart username="khanh_dep_trai" bookId={bookId} bookData={bookData} />
+                                    <AddBookToCart username={username} bookId={bookId} bookData={bookData} />
                                 </div>
                             </div>
                         </div>
