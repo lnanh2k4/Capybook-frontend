@@ -14,23 +14,26 @@ const OrderDetail = () => {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
   const [orderDetails, setOrderDetails] = useState([]);
-  const [user, setUser] = useState(null);
+  const [phone, setPhone] = useState(""); // State lưu phone
 
   useEffect(() => {
     const fetchData = async () => {
       if (id) {
         try {
+          // Fetch order details
           const orderData = await fetchOrderDetail(id);
           console.log("Order Data:", orderData.data);
           setOrder(orderData.data);
 
+          // Fetch account to get phone number
           const username = orderData?.data?.order?.username;
           if (username) {
-            const userData = await fetchAccountDetail(username);
-            console.log("User Data:", userData.data);
-            setUser(userData.data);
+            const accountData = await fetchAccountDetail(username);
+            console.log("Account Data:", accountData.data);
+            setPhone(accountData.data.phone || "N/A");
           }
 
+          // Fetch order details data
           const orderDetailsData = orderData.data.orderDetails;
           console.log("Order Details Data:", orderDetailsData);
 
@@ -51,6 +54,7 @@ const OrderDetail = () => {
           console.log("Updated Order Details:", updatedOrderDetails);
           setOrderDetails(updatedOrderDetails);
 
+          // Fetch promotion details if applicable
           const proID = orderData.data.order?.proID;
           if (proID) {
             const promotionData = await fetchPromotionDetail(proID);
@@ -70,7 +74,7 @@ const OrderDetail = () => {
     fetchData();
   }, [id]);
 
-  if (!order || !user) {
+  if (!order) {
     return <div>Loading...</div>;
   }
 
@@ -127,11 +131,11 @@ const OrderDetail = () => {
         >
           <Descriptions bordered column={1} style={{ marginBottom: "20px" }}>
             <Descriptions.Item label="Customer Name">
-              {user.firstName} {user.lastName}
+              {order.order.username}
             </Descriptions.Item>
-            <Descriptions.Item label="Phone">{user.phone}</Descriptions.Item>
+            <Descriptions.Item label="Phone">{phone}</Descriptions.Item>
             <Descriptions.Item label="Address">
-              {user.address}
+              {order.order.orderAddress || "N/A"}
             </Descriptions.Item>
           </Descriptions>
 

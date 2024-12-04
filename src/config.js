@@ -48,9 +48,7 @@ export const fetchStaffDetail = (id) => {
 };
 
 export const fetchStaffByUsername = (username) => {
-    return client.get(`/v1/staffs/username/${username}`).then((response) => {
-        return response;
-    });
+    return client.get(`/v1/staffs/username/${username}`);
 };
 export const fetchStaffs = () => client.get('v1/staffs/');
 
