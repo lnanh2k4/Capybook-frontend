@@ -117,6 +117,8 @@ export const sortBooks = (sortBy, sortOrder) => {
 };
 
 export const searchBook = (keyword) => client.get(`v1/books/search?keyword=${keyword}`)
+
+export const fetchBooksByCategory = (categoryID) => client.get(`v1/books/category?categoryID=${categoryID}`)
 // Profile configuration
 const changePassword = (account) => client.put('v1/accounts/change', account, {
     headers: {
