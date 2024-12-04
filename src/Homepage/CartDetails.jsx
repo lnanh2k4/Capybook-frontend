@@ -14,7 +14,7 @@ import {
 } from 'antd';
 import { UserOutlined, ShoppingCartOutlined, BellOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
-import { viewCart, deleteCartItem, updateCartItem } from '../config'; // API functions
+import { viewCart } from '../config'; // API functions
 import { decodeJWT } from '../jwtConfig';
 
 const { Header, Footer, Content } = Layout;
