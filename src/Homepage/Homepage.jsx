@@ -28,8 +28,9 @@ import {
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import "./Homepage.css";
-import { fetchBooks, fetchAccountDetail, fetchCategories, logout, sortBooks, fetchNotifications } from "../config"; // Fetch books and categories from API
+import { fetchBooks, fetchAccountDetail, fetchCategories, logout, sortBooks, fetchNotifications, fetchBooksByCategory } from "../config"; // Fetch books and categories from API
 import { decodeJWT } from "../jwtConfig";
+import { set } from "@ant-design/plots/es/core/utils";
 
 const { Header, Footer, Content } = Layout;
 const { Search } = Input;
@@ -47,7 +48,6 @@ const Homepage = () => {
   const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
   const [modalBooks, setModalBooks] = useState([]); // Books to display in the modal
   const [modalCategory, setModalCategory] = useState(null); // The selected category for the modal
-  const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate(); // Initialize navigate for routing
 
   // Fetch books and categories when the component mounts
@@ -122,19 +122,25 @@ const Homepage = () => {
   };
 
   // Filter books based on the search term, category, and only include those with bookStatus = 1
-  const filteredBooks = books
-    .filter(book => book.bookStatus === 1) // Chỉ lấy sách có trạng thái hợp lệ
-    .filter(book =>
-      book?.bookTitle?.toLowerCase().includes(searchTerm) ||
-      book?.author?.toLowerCase().includes(searchTerm)
-    )
-    .filter(book =>
-      !selectedCategory || // Nếu không chọn danh mục, hiển thị tất cả sách
-      book.bookCategories?.some(bookCategory => bookCategory.catId?.catID === selectedCategory) // Kiểm tra danh mục
-    );
+  const filteredBooks = async (categoryID) => {
+    if (categoryID != 0) {
+      try {
+        const response = await fetchBooksByCategory(categoryID);
+        console.log(response);
+        setBooks(response.data.filter((book) => book.bookStatus === 1));// Chỉ lấy sách có trạng thái hợp lệ
+      } catch {
+        const response = await fetchBooks();
+        setBooks(response.data.filter((book) => book.bookStatus === 1));// Chỉ lấy sách có trạng thái hợp lệ
+        message.error("There isn's any book in this category!")
+      }
+    } else {
+      const response = await fetchBooks();
+      setBooks(response.data.filter((book) => book.bookStatus === 1));// Chỉ lấy sách có trạng thái hợp lệ
+    }
+  }
 
   // Sort books based on selected criteria
-  const sortedBooks = filteredBooks.length > 0 ? [...filteredBooks] : [...books];
+  const sortedBooks = books.length > 0 ? [...books] : [...books];
 
   const handleNotificationClick = () => {
     navigate("/notifications")
@@ -324,13 +330,11 @@ const Homepage = () => {
               <Col>
                 <TreeSelect
                   placeholder="Filter by Category"
-                  onChange={(value) => setSelectedCategory(value)} // Gán `catID` vào `selectedCategory`
+                  onChange={(value) => filteredBooks(value)} // Gán `catID` vào `selectedCategory`
                   defaultValue={0}
                   treeData={buildTreeData(categories)}
                   style={{ width: 200 }}
-                  allowClear
                 />
-
               </Col>
             </Row>
           </Col>
