@@ -6,6 +6,8 @@ import {
     Dropdown,
     Button,
     List,
+    Modal,
+    notification
 } from "antd";
 import {
     UserOutlined,
@@ -22,9 +24,11 @@ const { Header, Footer, Content } = Layout;
 
 const Notifications = () => {
     const [notifications, setNotifications] = useState([]);
+    const [selectedNotifications, setSelectedNotifications] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
-
+    const navigate = useNavigate(); // Initialize navigate for routing
+    const [notificationDetailModal, setnotificationDetailModalOpen] = useState(false);
     useEffect(() => {
         const fetchData = async () => {
             setIsLoading(true);
@@ -33,7 +37,7 @@ const Notifications = () => {
             try {
                 const
                     fetchedNotifications = await fetchNotifications();
-                setNotifications(fetchedNotifications.data);
+                setNotifications(fetchedNotifications.data.filter(notification => notification.notStatus != 0 && (notification.receiver == 6 || notification.receiver == 1 || notification.receiver == 5)));
             } catch (error) {
                 console.error('Failed to fetch notifications:', error);
                 setError(error.message || 'An error occurred.');
@@ -44,12 +48,14 @@ const Notifications = () => {
 
         fetchData();
     }, []); // Empty dependency array: fetch data only once on component mount
-
+    const handleNotificationDetailClick = (item) => {
+        setSelectedNotifications(item);
+        setnotificationDetailModalOpen(true);
+    }
     const renderItem = (item) => (
         <List.Item>
-            <List.Item.Meta
+            <List.Item.Meta onClick={() => handleNotificationDetailClick(item)}
                 title={item.notTitle} // Assuming 'title' exists in your notification data
-                description={ReactHtmlParser(item.notDescription) || 'No description available'} // Handle potential lack of description
             />
         </List.Item>
     );
@@ -98,6 +104,7 @@ const Notifications = () => {
             );
         } else navigate("/auth/login");
     };
+
     return (
         <Layout>
             <Header
@@ -151,6 +158,29 @@ const Notifications = () => {
                 loading={isLoading} // Display loading indicator while fetching data
                 locale={{ emptyText: error ? error : 'No notifications yet' }} // Display custom message for loading or error states
             />
+
+            <Modal
+                title={selectedNotifications.notTitle}
+                centered
+                open={notificationDetailModal}
+                onOk={() => setnotificationDetailModalOpen(false)}
+                onCancel={() => setnotificationDetailModalOpen(false)}
+                width={1000}
+            >
+
+                {ReactHtmlParser(selectedNotifications.notDescription || 'No description available')}
+            </Modal>
+            <Footer
+                style={{
+                    textAlign: "center",
+                    color: "#fff",
+                    backgroundColor: "#343a40",
+                    padding: "10px 0",
+                }}
+            >
+                <div>© {new Date().getFullYear()} Capybook Management System</div>
+                <div>All Rights Reserved</div>
+            </Footer>
         </Layout>
     );
 };
