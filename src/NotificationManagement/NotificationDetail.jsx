@@ -3,8 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Form, Input, message } from 'antd';
 import { fetchNotificationDetail } from '../config';
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
-import 'react-quill/dist/quill.snow.css';  // Import ReactQuill styles
-import ReactQuill, { Quill } from 'react-quill';
+import ReactHtmlParser from 'html-react-parser';
 
 function NotificationDetail() {
     const [notificationyData, setNotificationData] = useState(null);
@@ -47,7 +46,7 @@ function NotificationDetail() {
                 </div>
                 <div>
                     <h1>{notificationyData.notTitle}</h1>
-                    <ReactQuill theme="snow" value={text} readOnly></ReactQuill>
+                    {ReactHtmlParser(text)}
                 </div>
             </div>
 
