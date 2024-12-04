@@ -1,32 +1,22 @@
 import React from 'react';
 import { Button, Form, Input, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import './Login.css'; // Đường dẫn tới file CSS
-import { login } from '../config.js';
+import { resetPassword } from '../config.js';
+import { decodeJWT } from '../jwtConfig.jsx';
 
-const Login = () => {
+const ResetPassword = () => {
     const navigate = useNavigate();
     const onFinish = async (values) => {
         try {
-            const loginData = {
-                username: values.username,
-                password: values.password
+            const resetPasswordData = {
+                username: localStorage.getItem("username"),
+                password: values.newPassword
             }
-
             const formDataToSend = new FormData()
-            formDataToSend.append('login', JSON.stringify(loginData))
+            formDataToSend.append('password', JSON.stringify(resetPasswordData))
             console.log(values)
-            const response = await login(formDataToSend)
-            if (!response.data) {
-                message.error('Username or password is incorrect! Please enter again')
-            } else if (response.data.accountDTO) {
-                message.success('Login successfully')
-                if (response.data.accountDTO.role === 0 || response.data.accountDTO.role === 2 || response.data.accountDTO.role === 3) {
-                    navigate("/dashboard/accounts");
-                } else {
-                    navigate("/");
-                }
-            }
+            const response = await resetPassword(formDataToSend)
+            navigate("/auth/login");
             console.log(response)
             localStorage.setItem("jwtToken", response.data.token)
         } catch (error) {
@@ -59,12 +49,12 @@ const Login = () => {
                     className="login-logo"
                 />
                 <Form.Item
-                    label="Username"
-                    name="username"
+                    label="New Password"
+                    name="newPassword"
                     rules={[
                         {
                             required: true,
-                            message: 'Please input your username!',
+                            message: 'Please input your new password!',
                         },
                     ]}
                 >
@@ -72,12 +62,12 @@ const Login = () => {
                 </Form.Item>
 
                 <Form.Item
-                    label="Password"
-                    name="password"
+                    label="Confirm password"
+                    name="confirmPassword"
                     rules={[
                         {
                             required: true,
-                            message: 'Please input your password!',
+                            message: 'Please input your confirm password!',
                         },
                     ]}
                 >
@@ -86,21 +76,7 @@ const Login = () => {
 
                 <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
                     <Button type="primary" htmlType="submit">
-                        Login
-                    </Button>
-                    <Button
-                        type="default"
-                        style={{ marginLeft: '10px' }}
-                        onClick={() => navigate('/register')}
-                    >
-                        Register
-                    </Button>
-                    <Button
-                        type="default"
-                        style={{ marginLeft: '10px' }}
-                        onClick={() => navigate('/password/forgot')}
-                    >
-                        Forgot password
+                        Save
                     </Button>
                 </Form.Item>
             </Form>
@@ -108,4 +84,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default ResetPassword;
