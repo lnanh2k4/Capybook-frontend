@@ -14,7 +14,8 @@ import {
   Divider,
   TreeSelect,
   Modal,
-  message
+  message,
+  notification
 } from "antd";
 import {
   UserOutlined,
@@ -27,7 +28,7 @@ import {
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import "./Homepage.css";
-import { fetchBooks, fetchCategories, logout, sortBooks } from "../config"; // Fetch books and categories from API
+import { fetchBooks, fetchAccountDetail, fetchCategories, logout, sortBooks, fetchNotifications } from "../config"; // Fetch books and categories from API
 import { decodeJWT } from "../jwtConfig";
 
 const { Header, Footer, Content } = Layout;
@@ -46,7 +47,7 @@ const Homepage = () => {
   const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
   const [modalBooks, setModalBooks] = useState([]); // Books to display in the modal
   const [modalCategory, setModalCategory] = useState(null); // The selected category for the modal
-
+  const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate(); // Initialize navigate for routing
 
   // Fetch books and categories when the component mounts
@@ -63,6 +64,7 @@ const Homepage = () => {
     }).catch(error => {
       console.error('Failed to fetch categories:', error);
     });
+
 
   }, []);
   // Hàm xây dựng cấu trúc treeData cho TreeSelect
@@ -94,7 +96,6 @@ const Homepage = () => {
   const handleSortChange = async (value) => {
     try {
       setSortOrder(value);
-
       const [sortBy, sortOrder = "asc"] = value.split(/(?=[A-Z])/); // Phân tách `value` thành `sortBy` và `sortOrder`
       const response = await sortBooks(sortBy.toLowerCase(), sortOrder.toLowerCase()); // Gọi API với đúng tham số
       setBooks(response.data); // Cập nhật danh sách sách đã được sắp xếp từ backend
@@ -135,7 +136,9 @@ const Homepage = () => {
   // Sort books based on selected criteria
   const sortedBooks = filteredBooks.length > 0 ? [...filteredBooks] : [...books];
 
-
+  const handleNotificationClick = () => {
+    navigate("/notifications")
+  }
   const handleDashboardClick = () => {
     navigate("/dashboard");
   };
@@ -270,9 +273,15 @@ const Homepage = () => {
         />
 
         <div style={{ display: "flex", alignItems: "center" }}>
-          <BellOutlined
-            style={{ fontSize: "24px", marginRight: "20px", color: "#fff" }}
-          />
+          <Button
+            type="text"
+            icon={<BellOutlined
+              style={{ fontSize: "24px", marginRight: "20px", color: "#fff" }}
+            />}
+            style={{ color: "#fff" }}
+            onClick={handleNotificationClick}
+          >
+          </Button>
           <ShoppingCartOutlined
             style={{ fontSize: "24px", marginRight: "20px", color: "#fff" }}
           />
@@ -458,7 +467,7 @@ const Homepage = () => {
         <div>© {new Date().getFullYear()} Capybook Management System</div>
         <div>All Rights Reserved</div>
       </Footer>
-    </Layout>
+    </Layout >
   );
 };
 
