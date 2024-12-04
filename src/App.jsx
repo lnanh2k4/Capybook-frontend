@@ -27,6 +27,7 @@ import AddOrder from "./OrderManagement/AddOrder";
 import ProfileDashboard from './AccountManagement/Profile'
 import ChangePasswordDashboard from './AccountManagement/ChangePassword'
 import Profile from "./Profile/ProfileManagement"
+import ChangePassword from "./Profile/ChangPassword";
 
 // Import inventory
 import InventoryManagement from "./InventoryManagement/InventoryManagement";
@@ -68,12 +69,16 @@ import Register from "./Register/Register";
 // Import cart
 import CartDetails from "./Homepage/CartDetails";
 
-
 // Import staff
 import StaffManagement from "./StaffManagement/StaffManagement";
 import StaffDetail from './StaffManagement/StaffDetail'
 import EditStaff from './StaffManagement/EditStaff'
 import AddStaff from "./StaffManagement/AddStaff";
+
+// Forgot password
+import ForgotPassword from "./ForgotPassword/ForgotPassword";
+import ResetPassword from "./ForgotPassword/ResetPassword";
+import VerifyEmail from "./ForgotPassword/VerifyEmail";
 
 function App() {
   return (
@@ -138,14 +143,18 @@ function App() {
         <Route path="/dashboard/category/add" element={<AddCategory />} />
         <Route path="/dashboard/category/:catID" element={<EditCategory />} />
 
-        {/* Login, Register, Logout */}
+        {/* Login, Register, Logout, Forgot password, Reset Password, Verify Email */}
         <Route path="/auth/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/password/forgot" element={<ForgotPassword />} />
+        <Route path="/password/reset" element={<ResetPassword />} />
+        <Route path="/email/verify" element={<VerifyEmail />} />
 
         {/* Manage profile */}
         <Route path="/profile" element={<Profile />} />
         <Route path="/dashboard/profile" element={<ProfileDashboard />} />
         <Route path="/dashboard/profile/changepassword" element={<ChangePasswordDashboard />} />
+        <Route path="/profile/changepassword" element={<ChangePassword />} />
 
         {/* Manage staffs */}
         <Route path="/dashboard/staffs" element={<StaffManagement />} />

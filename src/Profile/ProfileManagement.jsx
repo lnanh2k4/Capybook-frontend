@@ -61,6 +61,10 @@ const ProfileManagement = () => {
         navigate("/");
     }
 
+    const goToChangePassword = () => {
+        navigate("/profile/changepassword")
+    }
+
     const handleSave = () => {
         setIsEditing(false);
     };
@@ -209,6 +213,9 @@ const ProfileManagement = () => {
                                 Edit
                             </Button>
                         )}
+                        <Button type="default" onClick={() => goToChangePassword()} htmlType="submit">
+                            Change Password
+                        </Button>
                     </Form.Item>
 
                 </Form>

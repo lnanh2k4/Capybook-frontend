@@ -120,7 +120,26 @@ export const sortBooks = (sortBy, sortOrder) => {
 
 export const searchBook = (keyword) => client.get(`v1/books/search?keyword=${keyword}`)
 // Profile configuration
-const changePassword = (account) => client.put('v1/accounts/change', account, {
+const changePassword = (changePassword) => client.put('v1/accounts/change', changePassword, {
+    headers: {
+        'Content-Type': 'multipart/form-data',
+    }
+});
+
+
+export const forgotPassword = (forgotPassword) => axios.post(`${URLString}v1/accounts/email/send/`, forgotPassword, {
+    headers: {
+        'Content-Type': 'multipart/form-data',
+    }
+});
+
+export const resetPassword = (resetPassword) => axios.post(`${URLString}v1/accounts/password/reset/`, resetPassword, {
+    headers: {
+        'Content-Type': 'multipart/form-data',
+    }
+});
+
+export const verifyEmail = (code) => axios.post(`${URLString}v1/accounts/email/verify/`, code, {
     headers: {
         'Content-Type': 'multipart/form-data',
     }
