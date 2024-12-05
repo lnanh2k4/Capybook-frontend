@@ -206,23 +206,24 @@ const PromotionManagement = () => {
       const response = await fetchPromotionLogs(activity);
       const logsData = response.data || [];
 
-      // Sắp xếp logs theo ID giảm dần
-      const sortedLogs = logsData.sort((a, b) => b.proLogId - a.proLogId);
-
-      // Gắn thêm thông tin username từ staff
+      // Dùng Promise.all để lấy username tương ứng với mỗi staffId
       const logsWithUsernames = await Promise.all(
-        sortedLogs.map(async (log) => {
+        logsData.map(async (log) => {
           try {
-            const staffResponse = await fetchStaffDetail(log.staffId);
-            const username = staffResponse.data.username || "Unknown";
-            return { ...log, username };
-          } catch {
-            return { ...log, username: "Unknown" };
+            const staffResponse = await fetchStaffDetail(log.staffId); // Gọi API lấy thông tin staff
+            const username = staffResponse.data.username || "Unknown"; // Lấy username
+            return { ...log, username }; // Gắn username vào log
+          } catch (error) {
+            console.error(
+              `Error fetching username for staffId ${log.staffId}`,
+              error
+            );
+            return { ...log, username: "Unknown" }; // Trường hợp lỗi
           }
         })
       );
 
-      setLogs(logsWithUsernames); // Lưu logs vào state
+      setLogs(logsWithUsernames); // Lưu logs với username vào state
       setLogModalVisible(true); // Hiển thị modal logs
     } catch (error) {
       console.error("Error fetching promotion logs:", error);
@@ -536,10 +537,10 @@ const PromotionManagement = () => {
                             log.username || "Unknown"
                           } created promotion (ID: ${log.proId || "N/A"})`
                         : log.proAction === 2
-                        ? `Admin ${
+                        ? ` ${
                             log.username || "Unknown"
                           } approved promotion (ID: ${log.proId || "N/A"})`
-                        : `Admin ${
+                        : ` ${
                             log.username || "Unknown"
                           } rejected promotion (ID: ${log.proId || "N/A"})`}
                     </p>

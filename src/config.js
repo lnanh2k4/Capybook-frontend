@@ -433,12 +433,10 @@ const updateCartItem = (username, bookID, quantity) => {
 const fetchPromotionLogs = (activity) => {
     const params = new URLSearchParams();
     if (typeof activity === "string" && activity) {
-        params.append("activity", activity); // Chỉ thêm nếu là chuỗi hợp lệ
+        params.append("activity", activity); 
     }
     return client.get(`/v1/promotions/logs?${params.toString()}`);
 };
-
-
 
 
 export {
