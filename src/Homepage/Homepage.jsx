@@ -337,12 +337,27 @@ const Homepage = () => {
                   style={{ width: 200 }}
                 />
               </Col>
+
             </Row>
           </Col>
         </Row>
+        <Card>
+          {
+            selectedCategory ?
+              (
+                <>
+                  {categories.at(selectedCategory - 1).catName} type: {categories.at(selectedCategory - 1).catDescription}
+                </>
+              ) : (
 
+                "Welcome to CapyBook!"
+              )
+          }
+        </Card>
+        <br></br>
         {selectedCategory
           ? (
+
             <Row gutter={[16, 16]}>
               {sortedBooks.map((book) => (
                 <Col key={book.bookID} xs={24} sm={12} md={8} lg={4} xl={4}>
