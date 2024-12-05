@@ -1,247 +1,266 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Layout,
   Card,
-  Input,
+  Checkbox,
   Button,
+  InputNumber,
   Row,
   Col,
   Typography,
   Divider,
   Dropdown,
   Menu,
-  Modal,
-  Select,
-} from "antd";
-import {
-  UserOutlined,
-  ShoppingCartOutlined,
-  BellOutlined,
-} from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
-import { viewCart, fetchPromotions, createPayment, handlePaymentReturn } from "../config"; // API functions
-import { decodeJWT } from "../jwtConfig";
+} from 'antd';
+import { UserOutlined, ShoppingCartOutlined, BellOutlined, DeleteOutlined } from '@ant-design/icons';
+import { useNavigate, useParams } from 'react-router-dom';
+import { viewCart, updateCartItem, deleteCartItem } from '../config'; // API functions
+import { decodeJWT } from '../jwtConfig';
 
 const { Header, Footer, Content } = Layout;
 const { Text } = Typography;
-const { Option } = Select;
 
 const CartDetails = () => {
   const navigate = useNavigate();
 
   const [cartItems, setCartItems] = useState([]);
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [promotions, setPromotions] = useState([]);
-  const [selectedPromotion, setSelectedPromotion] = useState(null);
   const username = decodeJWT().sub; // Fetch username directly
 
-  // Shipping Information
-  const [accountInfo, setAccountInfo] = useState({
-    firstName: "John",
-    lastName: "Doe",
-    phone: "123456789",
-    address: "123 Main Street",
-  });
-  const [isEditingShipping, setIsEditingShipping] = useState(false);
-  const [editableAccountInfo, setEditableAccountInfo] = useState(accountInfo);
-
+  // Fetch cart data
   useEffect(() => {
     const fetchCart = async () => {
       try {
         const data = await viewCart(username);
+        console.log('Cart Data:', data); // Remove unused bookId, quantity
         const formattedData = data.map((item) => ({
           id: item.cartID,
-          name: item.bookID.bookTitle || "Unknown",
+
+          name: item.bookID.bookTitle || 'Unknown',
           price: item.bookID.bookPrice || 0,
           originalPrice: item.bookID.originalPrice || 0,
           discount: item.bookID.discount || 0,
           quantity: item.quantity,
+          selected: false,
           total: (item.bookID.bookPrice || 0) * (item.quantity || 1),
-          image: item.bookID.image || "https://via.placeholder.com/50",
+          image: item.bookID.image || 'https://via.placeholder.com/50',
         }));
         setCartItems(formattedData);
       } catch (error) {
-        console.error("Error fetching cart data:", error);
-      }
-    };
-    const handleCheckout = async () => {
-      console.log("Initiating checkout...");
-      try {
-        const totalAmount = cartItems.reduce((acc, item) => acc + item.total, 0);
-        console.log("Total amount for payment:", totalAmount);
-        const response = await createPayment(totalAmount);
-        const paymentUrl = response.data;
-        console.log("Redirecting to payment URL:", paymentUrl);
-        window.location.href = paymentUrl;
-      } catch (error) {
-        console.error("Error during checkout:", error.response?.data || error.message);
-        Modal.error({
-          content: 'Failed to initiate payment. Please try again.',
-        });
-      }
-    };
-    const fetchActivePromotions = async () => {
-      try {
-        const response = await fetchPromotions();
-        const currentDate = new Date();
-        const activePromotions = response.data.filter((promo) => {
-          const startDate = new Date(promo.startDate);
-          const endDate = new Date(promo.endDate);
-          return (
-            startDate <= currentDate &&
-            endDate >= currentDate &&
-            promo.quantity > 0 &&
-            promo.approveBy !== null
-          );
-        });
-        setPromotions(activePromotions);
-      } catch (error) {
-        console.error("Error fetching promotions:", error);
+        console.error('Error fetching cart data:', error);
       }
     };
 
     if (username) {
       fetchCart();
-      fetchActivePromotions();
     } else {
-      navigate("/auth/login");
+      navigate('/auth/login');
     }
   }, [username, navigate]);
 
-  const calculateFinalTotal = () =>
-    cartItems.reduce((total, item) => total + item.total, 0);
-
-  const calculateDiscountedTotal = () => {
-    const finalTotal = calculateFinalTotal();
-    if (!selectedPromotion) return finalTotal;
-
-    const promotion = promotions.find(
-      (promo) => promo.proID === selectedPromotion
+  // Calculate total amount
+  const calculateTotal = () =>
+    cartItems.reduce(
+      (total, item) => (item.selected ? total + item.price * item.quantity : total),
+      0
     );
-    if (!promotion) return finalTotal;
 
-    const discountRate = promotion.discount / 100;
-    return Math.round(finalTotal * discountRate);
+  // Handle quantity change
+  const handleQuantityChange = async (value, itemId) => {
+    try {
+      const item = cartItems.find((item) => item.id === itemId); // Sử dụng `id`
+      if (item) {
+        console.log("Updating cart item with:", { username, id: item.id, quantity: value });
+        await updateCartItem(username, item.id, value); // Sử dụng `item.id`
+        setCartItems((prev) =>
+          prev.map((item) =>
+            item.id === itemId
+              ? { ...item, quantity: value, total: value * item.price }
+              : item
+          )
+        );
+      }
+    } catch (error) {
+      console.error("Error updating cart item quantity:", error);
+    }
   };
 
-  const handlePurchase = () => {
-    setIsModalVisible(true);
+
+
+  // Handle select item
+  const handleSelectItem = (itemId) => {
+    setCartItems((prev) =>
+      prev.map((item) =>
+        item.id === itemId ? { ...item, selected: !item.selected } : item
+      )
+    );
   };
 
-  const handleModalClose = () => {
-    setIsModalVisible(false);
-    setIsEditingShipping(false);
+  // Handle delete item
+  const handleDeleteItem = async (itemId) => {
+    try {
+      const item = cartItems.find((item) => item.id === itemId);
+      if (item) {
+        await deleteCartItem(username, item.id);
+        setCartItems((prev) => prev.filter((item) => item.id !== itemId));
+      }
+    } catch (error) {
+      console.error("Error deleting cart item:", error);
+    }
   };
 
-  const handleEditShipping = () => {
-    setIsEditingShipping(true);
-    setEditableAccountInfo(accountInfo); // Copy current account info
-  };
 
-  const handleSaveShipping = () => {
-    setIsEditingShipping(false);
-    setAccountInfo(editableAccountInfo); // Update the main account info
+  // Handle select all items
+  const handleSelectAll = (e) => {
+    const isChecked = e.target.checked;
+    setCartItems((prev) => prev.map((item) => ({ ...item, selected: isChecked })));
   };
 
   return (
     <Layout>
       <Header
         style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          backgroundColor: "#0fa4d6",
-          padding: "0 20px",
-          height: "64px",
-          color: "#fff",
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          backgroundColor: '#0fa4d6',
+          padding: '0 20px',
+          height: '64px',
+          color: '#fff',
         }}
       >
         <div
-          style={{ display: "flex", alignItems: "center", cursor: "pointer" }}
-          onClick={() => navigate("/")}
+          style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+          onClick={() => navigate('/')}
         >
           <img
             src="/logo-capybook.png"
             alt="Capybook Logo"
-            style={{ height: "40px", marginRight: "20px" }}
+            style={{ height: '40px', marginRight: '20px' }}
           />
-          <div
-            className="logo"
-            style={{ fontSize: "20px", fontWeight: "bold" }}
-          >
+          <div className="logo" style={{ fontSize: '20px', fontWeight: 'bold' }}>
             Capybook
           </div>
         </div>
-        <div style={{ display: "flex", alignItems: "center" }}>
-          <BellOutlined
-            style={{ fontSize: "24px", marginRight: "20px", color: "#fff" }}
-          />
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <BellOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
           <ShoppingCartOutlined
-            style={{ fontSize: "24px", marginRight: "20px", color: "#fff" }}
+            style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }}
           />
           <Dropdown
             overlay={
               <Menu>
-                <Menu.Item key="profile" onClick={() => navigate("/profile")}>
+                <Menu.Item key="profile" onClick={() => navigate('/profile')}>
                   Profile
                 </Menu.Item>
-                <Menu.Item
-                  key="signout"
-                  onClick={() => navigate("/auth/login")}
-                >
+                <Menu.Item key="signout" onClick={() => navigate('/auth/login')}>
                   Logout
                 </Menu.Item>
               </Menu>
             }
-            trigger={["click"]}
+            trigger={['click']}
             placement="bottomRight"
           >
-            <Button
-              type="text"
-              icon={<UserOutlined />}
-              style={{ color: "#fff" }}
-            >
-              {username || "Login"}
+            <Button type="text" icon={<UserOutlined />} style={{ color: '#fff' }}>
+              {username || 'Login'}
             </Button>
           </Dropdown>
         </div>
       </Header>
-      <Content style={{ padding: "20px", backgroundColor: "#f0f2f5" }}>
-        <Card title="Shopping Cart" style={{ width: "100%" }}>
+      <Content style={{ padding: '20px', backgroundColor: '#f0f2f5' }}>
+        <Card title="Shopping Cart" style={{ width: '100%' }}>
+          <Row
+            align="middle"
+            style={{
+              backgroundColor: '#1E90FF',
+              padding: '10px',
+              color: '#fff',
+              fontWeight: 'bold',
+            }}
+          >
+            <Col span={1}>
+              <Checkbox
+                onChange={handleSelectAll}
+                checked={cartItems.every((item) => item.selected)}
+              />
+            </Col>
+            <Col span={6}>
+              <Text style={{ color: '#fff' }}>Product</Text>
+            </Col>
+            <Col span={4}>
+              <Text style={{ color: '#fff' }}>Quantity</Text>
+            </Col>
+            <Col span={4}>
+              <Text style={{ color: '#fff' }}>Price</Text>
+            </Col>
+            <Col span={4}>
+              <Text style={{ color: '#fff' }}>Total</Text>
+            </Col>
+            <Col span={1}></Col>
+          </Row>
+          <Divider style={{ margin: 0 }} />
           {cartItems.map((item) => (
-            <Row key={item.id} align="middle" style={{ marginBottom: "10px" }}>
-              <Col span={6}>
+            <Row
+              key={item.id}
+              align="middle"
+              style={{
+                padding: '15px 0',
+                borderBottom: '1px solid #e8e8e8',
+              }}
+            >
+              <Col span={1}>
+                <Checkbox
+                  checked={item.selected}
+                  onChange={() => handleSelectItem(item.id)}
+                />
+              </Col>
+              <Col span={6} style={{ display: 'flex', alignItems: 'center' }}>
                 <img
                   src={item.image}
                   alt={item.name}
-                  style={{ width: "50px", marginRight: "10px" }}
+                  style={{
+                    width: '50px',
+                    height: '50px',
+                    marginRight: '10px',
+                  }}
                 />
                 <Text>{item.name}</Text>
               </Col>
               <Col span={4}>
-                <Text>{item.originalPrice.toLocaleString()} VND</Text>
+                <InputNumber
+                  min={1}
+                  value={item.quantity}
+                  onChange={(value) =>
+                    handleQuantityChange(value, item.id)
+                  }
+                  style={{ width: '80px' }}
+                />
               </Col>
               <Col span={4}>
                 <Text>{item.price.toLocaleString()} VND</Text>
               </Col>
               <Col span={4}>
-                <Text>{item.quantity}</Text>
-              </Col>
-              <Col span={4}>
                 <Text>{item.total.toLocaleString()} VND</Text>
+              </Col>
+              <Col span={1}>
+                <Button
+                  type="text"
+                  icon={<DeleteOutlined />}
+                  onClick={() => handleDeleteItem(item.id)}
+                />
               </Col>
             </Row>
           ))}
           <Divider />
-          <Row justify="end" style={{ marginTop: "20px" }}>
+          <Row justify="end" style={{ marginTop: '20px' }}>
             <Col>
-              <Text style={{ fontSize: "16px", fontWeight: "bold" }}>
-                Total amount: {calculateFinalTotal().toLocaleString()} VND
+              <Text style={{ fontSize: '16px', fontWeight: 'bold' }}>
+                Total amount: {calculateTotal().toLocaleString()} VND
               </Text>
+
               <Button
                 type="primary"
-                style={{ marginLeft: "20px" }}
-                onClick={handlePurchase}
+                style={{ marginLeft: '20px' }}
+                onClick={() => alert('Proceed to checkout!')}
               >
                 Purchase
               </Button>
@@ -251,208 +270,15 @@ const CartDetails = () => {
       </Content>
       <Footer
         style={{
-          textAlign: "center",
-          color: "#fff",
-          backgroundColor: "#343a40",
-          padding: "10px 0",
+          textAlign: 'center',
+          color: '#fff',
+          backgroundColor: '#343a40',
+          padding: '10px 0',
         }}
       >
         <div>© {new Date().getFullYear()} Capybook Management System</div>
         <div>All Rights Reserved</div>
       </Footer>
-
-      <Modal
-        title="Purchase Summary"
-        visible={isModalVisible}
-        onCancel={handleModalClose}
-        footer={null}
-        width="80%"
-      >
-        <Card
-          title="Shipping Information"
-          extra={
-            isEditingShipping ? (
-              <Button type="primary" size="small" onClick={handleSaveShipping}>
-                Save
-              </Button>
-            ) : (
-              <Button type="link" size="small" onClick={handleEditShipping}>
-                Edit
-              </Button>
-            )
-          }
-        >
-          {isEditingShipping ? (
-            <div>
-              <p>
-                <strong>Name:</strong>{" "}
-                <Input
-                  value={editableAccountInfo.firstName}
-                  onChange={(e) =>
-                    setEditableAccountInfo((prev) => ({
-                      ...prev,
-                      firstName: e.target.value,
-                    }))
-                  }
-                  style={{ width: "48%", marginRight: "4%" }}
-                />
-                <Input
-                  value={editableAccountInfo.lastName}
-                  onChange={(e) =>
-                    setEditableAccountInfo((prev) => ({
-                      ...prev,
-                      lastName: e.target.value,
-                    }))
-                  }
-                  style={{ width: "48%" }}
-                />
-              </p>
-              <p>
-                <strong>Phone:</strong>{" "}
-                <Input
-                  value={editableAccountInfo.phone}
-                  onChange={(e) =>
-                    setEditableAccountInfo((prev) => ({
-                      ...prev,
-                      phone: e.target.value,
-                    }))
-                  }
-                />
-              </p>
-              <p>
-                <strong>Address:</strong>{" "}
-                <Input
-                  value={editableAccountInfo.address}
-                  onChange={(e) =>
-                    setEditableAccountInfo((prev) => ({
-                      ...prev,
-                      address: e.target.value,
-                    }))
-                  }
-                />
-              </p>
-            </div>
-          ) : (
-            <div>
-              <p>
-                <strong>Name:</strong> {accountInfo.firstName}{" "}
-                {accountInfo.lastName}
-              </p>
-              <p>
-                <strong>Phone:</strong> {accountInfo.phone}
-              </p>
-              <p>
-                <strong>Address:</strong> {accountInfo.address}
-              </p>
-            </div>
-          )}
-        </Card>
-        <Card title="Promotion" style={{ marginTop: "20px" }}>
-          <Select
-            style={{ width: "100%" }}
-            placeholder="Select a promotion"
-            onChange={(value) => setSelectedPromotion(value)}
-          >
-            {promotions.map((promo) => (
-              <Option key={promo.proID} value={promo.proID}>
-                {promo.proCode} - {promo.discount}% off
-              </Option>
-            ))}
-          </Select>
-        </Card>
-        <Card title="Books" style={{ marginTop: "20px" }}>
-          {cartItems.map((item) => (
-            <Row key={item.id} align="middle" style={{ marginBottom: "10px" }}>
-              <Col span={10}>
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  style={{
-                    width: "80px",
-                    height: "80px",
-                    objectFit: "cover",
-                    marginRight: "10px",
-                  }}
-                />
-                <Text>{item.name}</Text>
-              </Col>
-              <Col span={4}>
-                <Text>{item.originalPrice.toLocaleString()} VND</Text>
-              </Col>
-              <Col span={4}>
-                <Text>{item.price.toLocaleString()} VND</Text>
-              </Col>
-              <Col span={2}>
-                <Text>{item.quantity}</Text>
-              </Col>
-              <Col span={4}>
-                <Text>{item.total.toLocaleString()} VND</Text>
-              </Col>
-            </Row>
-          ))}
-        </Card>
-        <Divider />
-        <Row justify="end" style={{ marginTop: "20px" }}>
-          <Text style={{ fontSize: "16px", fontWeight: "bold" }}>
-            Total Books Price: {calculateFinalTotal().toLocaleString()} VND
-          </Text>
-        </Row>
-        {selectedPromotion && (
-          <Row justify="end" style={{ marginTop: "10px" }}>
-            <Text
-              style={{
-                fontSize: "16px",
-                fontWeight: "bold",
-                color: "green",
-              }}
-            >
-              Discounted Price: {calculateDiscountedTotal().toLocaleString()}{" "}
-              VND
-            </Text>
-          </Row>
-        )}
-        <Row justify="end" style={{ marginTop: "20px" }}>
-          <Button
-            type="primary"
-            onClick={async () => {
-              // Tính tổng tiền sau khi áp dụng giảm giá
-              const finalPrice = calculateDiscountedTotal();
-              console.log("Purchase confirmed!");
-              console.log("Selected Promotion ID:", selectedPromotion);
-              console.log("Final Total with Discount:", finalPrice.toLocaleString());
-
-              // Gọi hàm handleCheckout với finalPrice
-              const handleCheckout = async () => {
-                console.log("Initiating checkout...");
-                try {
-                  // Tính tổng tiền và in ra log
-                  console.log("Total amount for payment:", finalPrice);
-
-                  // Gọi API tạo thanh toán
-                  const response = await createPayment(finalPrice);
-                  const paymentUrl = response.data;
-
-                  // Chuyển hướng tới URL thanh toán
-                  console.log("Redirecting to payment URL:", paymentUrl);
-                  window.location.href = paymentUrl;
-                } catch (error) {
-                  // Xử lý lỗi
-                  console.error("Error during checkout:", error.response?.data || error.message);
-                  Modal.error({
-                    content: 'Failed to initiate payment. Please try again.',
-                  });
-                }
-              };
-
-              // Thực thi hàm checkout
-              await handleCheckout();
-            }}
-          >
-            Purchase
-          </Button>
-
-        </Row>
-      </Modal>
     </Layout>
   );
 };
