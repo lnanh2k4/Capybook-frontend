@@ -71,6 +71,9 @@ const BookDetails = () => {
         logout();
         navigate("/");
     };
+    const handleNotificationClick = () => {
+        navigate("/notifications")
+    }
     const handleDashboardClick = () => {
         navigate("/dashboard");
     };

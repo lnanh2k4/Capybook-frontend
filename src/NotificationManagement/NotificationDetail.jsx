@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Button, Form, Input, message } from 'antd';
+import { Card, message } from 'antd';
 import { fetchNotificationDetail } from '../config';
+import UnderlineOutlined from '@ant-design/icons';
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import ReactHtmlParser from 'html-react-parser';
 
@@ -41,13 +42,14 @@ function NotificationDetail() {
             </div>
 
             <div className="dashboard-content">
-                <div className="titlemanagement">
+                <div className="titlemanagement" style={{ textAlign: 'center' }}>
                     <div>Notification Management - Notification Details</div>
                 </div>
-                <div>
-                    <h1>{notificationyData.notTitle}</h1>
+                <Card title={notificationyData.notTitle}
+                    style={{ marginBottom: '30px', padding: '20px' }}
+                    headStyle={{ fontSize: '20px', textAlign: 'center' }}>
                     {ReactHtmlParser(text)}
-                </div>
+                </Card>
             </div>
 
             <div className="copyright">
@@ -55,7 +57,7 @@ function NotificationDetail() {
                 <div>Capybook Management System</div>
                 <div>All Rights Reserved</div>
             </div>
-        </div>
+        </div >
     );
 }
 export default NotificationDetail;

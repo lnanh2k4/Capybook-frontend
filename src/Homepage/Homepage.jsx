@@ -107,10 +107,7 @@ const Homepage = () => {
 
 
 
-  // Handle category filter change
-  const handleCategoryChange = (value) => {
-    setSelectedCategory(value);
-  };
+
 
   // Paginate books for each category (6 books per page)
   const paginateBooks = (books, pageSize) => {
@@ -123,25 +120,28 @@ const Homepage = () => {
 
   // Filter books based on the search term, category, and only include those with bookStatus = 1
   const filteredBooks = async (categoryID) => {
-    setSelectedCategory(categoryID);
+
     if (categoryID != 0) {
       try {
         const response = await fetchBooksByCategory(categoryID);
         console.log(response);
         setBooks(response.data.filter((book) => book.bookStatus === 1));// Chỉ lấy sách có trạng thái hợp lệ
+        setSelectedCategory(categoryID);
       } catch {
         const response = await fetchBooks();
         setBooks(response.data.filter((book) => book.bookStatus === 1));// Chỉ lấy sách có trạng thái hợp lệ
+        setSelectedCategory(0);
         message.error("There isn's any book in this category!")
       }
     } else {
       const response = await fetchBooks();
       setBooks(response.data.filter((book) => book.bookStatus === 1));// Chỉ lấy sách có trạng thái hợp lệ
+      setSelectedCategory(categoryID);
     }
   }
 
   // Sort books based on selected criteria
-  const sortedBooks = books.length > 0 ? [...books] : [...books];
+  const sortedBooks = books.length > 0 ? [...books] : null;
 
   const handleNotificationClick = () => {
     navigate("/notifications")

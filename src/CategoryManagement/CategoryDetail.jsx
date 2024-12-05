@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Form, Input, message } from 'antd';
 import { fetchCategoryDetail } from '../config';
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
-
+import TextArea from 'antd/es/input/TextArea.js';
 function CategoryDetail() {
     const [categoryData, setCategoryData] = useState(null);
     const navigate = useNavigate();
@@ -54,7 +54,7 @@ function CategoryDetail() {
                     </Form.Item>
 
                     <Form.Item>
-                        <Input htmlType="textarea" value={categoryData.catDescription} readOnly style={{ width: '800px', height: '200px', textJustify: 'revert-layer', textWrap: '-moz-initial' }} />
+                        <TextArea value={categoryData.catDescription} readOnly />
                     </Form.Item>
 
                     <Form.Item>

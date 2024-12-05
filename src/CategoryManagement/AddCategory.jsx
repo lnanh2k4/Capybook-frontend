@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Form, Input, Button, TreeSelect, message } from 'antd';
 import { fetchCategories, addCategory } from '../config';
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
+import TextArea from 'antd/es/input/TextArea.js';
 
 function AddCategory() {
     const [form] = Form.useForm();
@@ -79,7 +80,7 @@ function AddCategory() {
                         style={{ maxWidth: '600px', margin: 'auto' }}
 
                     >
-                        <Input htmlType="textarea" style={{ width: '600px', height: '200px', textJustify: 'revert-layer', textWrap: '-moz-initial' }} />
+                        <TextArea placeholder="Enter category description" />
                     </Form.Item>
 
                     <Form.Item>
