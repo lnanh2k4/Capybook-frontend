@@ -123,6 +123,7 @@ const Homepage = () => {
 
   // Filter books based on the search term, category, and only include those with bookStatus = 1
   const filteredBooks = async (categoryID) => {
+    setSelectedCategory(categoryID);
     if (categoryID != 0) {
       try {
         const response = await fetchBooksByCategory(categoryID);
