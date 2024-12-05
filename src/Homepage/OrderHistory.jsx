@@ -209,6 +209,9 @@ const OrderHistory = () => {
     logout();
     navigate("/");
   };
+  const handleNotificationClick = () => {
+    navigate("/notifications")
+  }
 
   const userMenu = () => {
     if (decodeJWT()) {
@@ -278,9 +281,15 @@ const OrderHistory = () => {
           <div style={{ fontSize: "20px", fontWeight: "bold" }}>Capybook</div>
         </div>
         <div style={{ display: "flex", alignItems: "center" }}>
-          <BellOutlined
-            style={{ fontSize: "24px", marginRight: "20px", color: "#fff" }}
-          />
+          <Button
+            type="text"
+            icon={<BellOutlined
+              style={{ fontSize: "24px", marginRight: "20px", color: "#fff" }}
+            />}
+            style={{ color: "#fff" }}
+            onClick={handleNotificationClick}
+          >
+          </Button>
           <ShoppingCartOutlined
             style={{ fontSize: "24px", marginRight: "20px", color: "#fff" }}
           />
@@ -331,10 +340,10 @@ const OrderHistory = () => {
                   {order.orderStatus === 0
                     ? "Processing"
                     : order.orderStatus === 1
-                    ? "Delivering"
-                    : order.orderStatus === 2
-                    ? "Delivered"
-                    : "Cancelled"}
+                      ? "Delivering"
+                      : order.orderStatus === 2
+                        ? "Delivered"
+                        : "Cancelled"}
                 </Descriptions.Item>
               </Descriptions>
 
