@@ -1,191 +1,246 @@
 import React, { useEffect, useState } from "react";
-import { Spin, DatePicker, message } from "antd";
-import { Column } from "@ant-design/plots";
+import { Spin, message, Table, Modal, Button } from "antd";
+import { BarChart } from "@mui/x-charts/BarChart";
 import {
     fetchImportStockDetailsByStockId,
     fetchImportStocks,
     fetchOrderDetail,
-    fetchBookDetail,
     fetchOrders,
+    fetchBookDetail
 } from "../config";
 import DashboardContainer from "../DashBoard/DashBoardContainer";
-
-const { RangePicker } = DatePicker;
+import moment from "moment";
 
 const RevenueReport = () => {
     const [loading, setLoading] = useState(true);
-    const [importData, setImportData] = useState([]);
-    const [exportData, setExportData] = useState([]);
     const [chartData, setChartData] = useState([]);
-    const [dateRange, setDateRange] = useState([]);
+    const [booksData, setBooksData] = useState([]);
+    const [importedBooksData, setImportedBooksData] = useState([]);
+    const [isModalVisible, setIsModalVisible] = useState(false); // Trạng thái hiển thị Modal
+    const [selectedBook, setSelectedBook] = useState(null); // Dữ liệu sách được chọn
+    const [selectedQuantity, setSelectedQuantity] = useState(null); // Số lượng sách nhập
+
+    const showModal = (record) => {
+        const book = {
+            bookID: record.bookID || 'N/A',
+            bookTitle: record.bookTitle || 'N/A',
+            author: record.author || 'N/A',
+            translator: record.translator || 'N/A',
+            publisher: record.publisher || 'N/A',
+            publicationYear: record.publicationYear || 'N/A',
+            isbn: record.isbn || 'N/A',
+            bookDescription: record.bookDescription || 'N/A',
+            bookPrice: record.bookPrice,
+            image: record.image || '',
+        };
+        console.log("Record: ", record)
+        setSelectedBook(book);
+        setSelectedQuantity(record.iSDQuantity || 'N/A');
+        setIsModalVisible(true);
+    };
+
+
+    const handleCancel = () => {
+        setIsModalVisible(false);
+        setSelectedBook(null);
+        setSelectedQuantity(null);
+    };
 
     useEffect(() => {
+
         const loadData = async () => {
             try {
                 setLoading(true);
-
-                console.log("Bắt đầu tải dữ liệu...");
+                const [importResponse, ordersResponse] = await Promise.all([fetchImportStocks(), fetchOrders()]);
+                console.log(ordersResponse);
 
                 // Xử lý dữ liệu nhập kho
-                console.log("Đang tải dữ liệu nhập kho...");
-                const importResponse = await fetchImportStocks();
-                console.log("Kết quả từ API nhập kho:", importResponse.data);
-
                 const imports = await Promise.all(
                     importResponse.data.map(async (item) => {
-                        try {
-                            const detailsResponse = await fetchImportStockDetailsByStockId(item.isid);
-                            console.log(`Chi tiết nhập kho ID ${item.isid}:`, detailsResponse.data);
+                        const detailsResponse = await fetchImportStockDetailsByStockId(item.isid);
+                        console.log("Chi tiết Import Stock: ", detailsResponse)
+                        const totalPrice = detailsResponse.data.reduce(
+                            (sum, detail) => sum + (detail.iSDQuantity || 0) * (parseFloat(detail.importPrice) || 0),
+                            0
+                        );
+                        return { date: item.importDate, type: "Import", value: totalPrice || 0 };
+                    })
+                );
 
-                            const totalPrice = detailsResponse.data.reduce(
-                                (sum, detail) => sum + (detail.iSDQuantity || 0) * (parseFloat(detail.importPrice) || 0),
+
+                // Xử lý dữ liệu xuất kho
+                const exports = await Promise.all(
+                    ordersResponse.data.map(async (order) => {
+                        try {
+                            // Fetch chi tiết đơn hàng
+                            const detailsResponse = await fetchOrderDetail(order.orderID);
+                            if (!detailsResponse || !detailsResponse.data) {
+                                console.error(`Chi tiết đơn hàng ID ${order.orderID} không có dữ liệu.`);
+                                return { date: order.orderDate, type: "Export", value: 0 };
+                            }
+
+                            console.log(`Chi tiết đơn hàng ID ${order.orderID}:`, detailsResponse.data);
+
+                            // Tính tổng giá trị sách trong đơn hàng
+                            const orderDetails = detailsResponse.data.orderDetails || [];
+                            const totalBooksPrice = orderDetails.reduce(
+                                (sum, detail) => sum + (detail.totalPrice || 0), // Sử dụng trực tiếp totalPrice
                                 0
                             );
-                            console.log(`Tổng giá trị nhập kho ID ${item.isid}:`, totalPrice);
 
-                            return {
-                                date: item.importDate,
-                                type: "Import",
-                                value: totalPrice || 0,
-                            };
+                            console.log(`Tổng giá trị sách cho đơn hàng ID ${order.orderID}:`, totalBooksPrice);
+
+                            // Tính tổng giá trị đơn hàng (bao gồm giảm giá)
+                            const totalPrice = totalBooksPrice;
+
+                            console.log(`Tổng giá trị đơn hàng ID ${order.orderID}:`, totalPrice);
+
+                            return { date: order.orderDate, type: "Export", value: totalPrice || 0 };
+
                         } catch (error) {
-                            console.error(`Lỗi khi lấy chi tiết nhập kho ID ${item.isid}:`, error);
-                            return {
-                                date: item.importDate,
-                                type: "Import",
-                                value: 0,
-                            };
+                            console.error(`Lỗi khi xử lý đơn hàng ID ${order.orderID}:`, error);
+
+                            // Trả về giá trị mặc định nếu gặp lỗi
+                            return { date: order.orderDate, type: "Export", value: 0 };
                         }
                     })
                 );
 
-                console.log("Dữ liệu nhập kho đã xử lý:", imports);
+                // Gộp dữ liệu và tính Revenue
+                const allData = [...imports, ...exports];
+                const groupedData = {};
 
-                // Xử lý dữ liệu xuất kho
-                const loadOrders = async () => {
-                    const response = await fetchOrders();
-                    console.log("Kết quả từ API đơn hàng:", response.data);
+                allData.forEach((item) => {
+                    const dateKey = moment(item.date).format("YYYY-MM-DD");
+                    if (!groupedData[dateKey]) {
+                        groupedData[dateKey] = { date: dateKey, Import: 0, Export: 0 };
+                    }
+                    groupedData[dateKey][item.type] += item.value;
+                });
 
-                    const ordersData = response.data;
+                const formattedData = Object.values(groupedData).map((item) => ({
+                    ...item,
+                    Revenue: item.Export - item.Import,
+                }));
 
-                    const ordersWithDetails = await Promise.all(
-                        ordersData.map(async (order) => {
-                            try {
-                                const detailsResponse = await fetchOrderDetail(order.orderID);
-                                console.log(`Chi tiết đơn hàng ID ${order.orderID}:`, detailsResponse.data);
-
-                                const orderDetails = detailsResponse.data.orderDetails || [];
-
-                                // Lấy chi tiết sách cho từng đơn hàng
-                                const booksWithDetails = await Promise.all(
-                                    orderDetails.map(async (detail) => {
-                                        try {
-                                            const bookResponse = await fetchBookDetail(detail.bookID);
-
-                                            return { ...detail, book: bookResponse.data || {} };
-                                        } catch (error) {
-                                            console.error(`Lỗi khi lấy chi tiết sách cho ID ${detail.ODID}:`, error);
-                                            return { ...detail, book: {} };
-                                        }
-                                    })
-                                );
-
-                                const totalBooksPrice = booksWithDetails.reduce(
-                                    (sum, detail) => sum + (detail.quantity || 0) * (detail.book?.bookPrice || 0),
-                                    0
-                                );
-                                const totalPrice = totalBooksPrice - (order.discount || 0);
-
-                                console.log(`Tổng giá trị đơn hàng ID ${order.orderID}:`, totalPrice);
-
-                                return {
-                                    date: order.orderDate,
-                                    type: "Export",
-                                    value: totalPrice || 0,
-                                };
-                            } catch (error) {
-                                console.error(`Lỗi khi lấy chi tiết đơn hàng ID ${order.orderID}:`, error);
-                                return {
-                                    date: order.orderDate,
-                                    type: "Export",
-                                    value: 0,
-                                };
-                            }
-                        })
-                    );
-
-                    return ordersWithDetails;
-                };
-
-                const exports = await loadOrders();
-
-                console.log("Dữ liệu xuất kho đã xử lý:", exports);
-
-                // Cập nhật state
-                setImportData(imports);
-                setExportData(exports);
-                setChartData([...imports, ...exports]);
+                setChartData(formattedData);
             } catch (error) {
                 console.error("Lỗi khi tải dữ liệu:", error);
                 message.error("Không thể tải dữ liệu báo cáo doanh thu");
             } finally {
-                console.log("Tải dữ liệu hoàn tất.");
                 setLoading(false);
             }
         };
 
         loadData();
+        const loadBooksData = async () => {
+            try {
+                setLoading(true);
+
+                // Lấy danh sách đơn hàng trong tháng hiện tại
+                const ordersResponse = await fetchOrders();
+                const filteredOrders = ordersResponse.data.filter((order) =>
+                    moment(order.orderDate).isBetween(moment().startOf("month"), moment().endOf("month"), "day", "[]")
+                );
+
+                // Fetch chi tiết từng đơn hàng và tính số lượng sách
+                const bookMap = {}; // Để lưu trữ tổng số lượng sách được bán theo bookID
+
+                for (const order of filteredOrders) {
+                    const detailsResponse = await fetchOrderDetail(order.orderID);
+                    const orderDetails = detailsResponse.data.orderDetails || [];
+
+                    for (const detail of orderDetails) {
+                        const bookId = detail.bookID;
+                        const quantity = detail.quantity || 0;
+
+                        if (!bookMap[bookId]) {
+                            bookMap[bookId] = { bookId, quantity: 0 };
+                        }
+                        bookMap[bookId].quantity += quantity;
+                    }
+                }
+
+                // Fetch thông tin chi tiết từng sách
+                const bookDetails = await Promise.all(
+                    Object.keys(bookMap).map(async (bookId) => {
+                        try {
+                            const response = await fetchBookDetail(bookId);
+                            const bookData = response.data;
+                            const imageFromDB = bookData.image;
+                            const imagePreview = imageFromDB && imageFromDB.startsWith(`/uploads/book_`)
+                                ? `http://localhost:6789${imageFromDB}`
+                                : imageFromDB;
+
+                            return {
+                                ...bookMap[bookId],
+                                title: bookData.bookTitle,
+                                author: bookData.author,
+                                publisher: bookData.publisher,
+                                image: imagePreview,
+                            };
+                        } catch (error) {
+                            console.error(`Lỗi khi fetch sách ID ${bookId}:`, error);
+                            return null;
+                        }
+                    })
+                );
+
+                // Lọc ra các sách hợp lệ
+                setBooksData(bookDetails.filter((book) => book !== null));
+            } catch (error) {
+                console.error("Lỗi khi tải dữ liệu sách:", error);
+                message.error("Không thể tải dữ liệu sách đã bán");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadBooksData();
+
+        const loadImportedBooksData = async () => {
+            try {
+                const importResponse = await fetchImportStocks();
+                const importedData = await Promise.all(
+                    importResponse.data.map(async (item) => {
+                        const detailsResponse = await fetchImportStockDetailsByStockId(item.isid);
+                        console.log("Chi tiết sách: ", detailsResponse.data);
+
+                        // Sử dụng trực tiếp dữ liệu từ detailsResponse.data
+                        return detailsResponse.data.map((detail) => ({
+                            isdid: detail.isdid, // ID nhập kho
+                            bookID: detail.bookID.bookID, // ID sách
+                            bookTitle: detail.bookID.bookTitle, // Tên sách
+                            author: detail.bookID.author || 'N/A', // Tác giả
+                            translator: detail.bookID.translator || 'N/A', // Dịch giả
+                            publisher: detail.bookID.publisher || 'N/A', // Nhà xuất bản
+                            publicationYear: detail.bookID.publicationYear || 'N/A', // Năm xuất bản
+                            isbn: detail.bookID.isbn || 'N/A', // Mã ISBN
+                            bookDescription: detail.bookID.bookDescription || 'N/A', // Mô tả sách
+                            image: detail.bookID.image || '', // Hình ảnh
+                            iSDQuantity: detail.iSDQuantity || 0, // Số lượng nhập
+                            bookPrice: detail.bookID.bookPrice || 0,
+                            importPrice: detail.importPrice || 0, // Giá nhập
+                            totalPrice: (detail.iSDQuantity || 0) * (detail.importPrice || 0), // Tổng giá trị
+                        }));
+                    })
+                );
+
+                setImportedBooksData(importedData.flat()); // Làm phẳng dữ liệu để phù hợp với bảng
+            } catch (error) {
+                console.error("Lỗi khi tải dữ liệu sách nhập:", error);
+                message.error("Không thể tải dữ liệu sách nhập");
+            }
+        };
+
+
+        loadImportedBooksData();
     }, []);
 
-    const handleDateRangeChange = (dates) => {
-        if (dates && dates.length === 2) {
-            const [startDate, endDate] = dates;
-
-            const filteredImports = importData.filter((item) =>
-                new Date(item.date) >= startDate.toDate() &&
-                new Date(item.date) <= endDate.toDate()
-            );
-
-            const filteredExports = exportData.filter((item) =>
-                new Date(item.date) >= startDate.toDate() &&
-                new Date(item.date) <= endDate.toDate()
-            );
-
-            setChartData([...filteredImports, ...filteredExports]);
-        } else {
-            setChartData([...importData, ...exportData]);
-        }
-    };
-
-    console.log("Dữ liệu truyền vào biểu đồ:", chartData);
-
-    const config = {
-        data: chartData.map((item) => ({
-            ...item,
-            value: item.value || 0, // Đảm bảo giá trị không phải null
-        })),
-        isGroup: true,
-        xField: "date",
-        yField: "value",
-        seriesField: "type",
-        color: ["#1890ff", "#ff4d4f"],
-        legend: {
-            position: "top",
-        },
-        xAxis: {
-            title: { text: "Date" },
-        },
-        yAxis: {
-            title: { text: "Revenue (VND)" },
-        },
-        tooltip: {
-            formatter: (datum) => ({
-                name: datum.type,
-                value: `${new Intl.NumberFormat("vi-VN").format(datum.value)} VND`,
-            }),
-        },
-    };
-
+    const filteredData = chartData.filter((item) =>
+        moment(item.date).isBetween(moment().startOf("month"), moment().endOf("month"), "day", "[]")
+    );
+    console.log("Dữ liệu cho biểu đồ:", filteredData);
 
     if (loading) {
         return (
@@ -195,20 +250,199 @@ const RevenueReport = () => {
         );
     }
 
-    return (
-        <div className="main-container">
-            <DashboardContainer />
-            <div className="dashboard-content">
-                <h1>Welcome to Capybook Management System</h1>
-                <p>Here is where you can manage your books, orders, promotions, and more.</p>
-                <h2>Revenue Report</h2>
-                <RangePicker
-                    onChange={handleDateRangeChange}
-                    style={{ marginBottom: "16px" }}
+    const columns = [
+        {
+            title: "Image",
+            dataIndex: "image",
+            key: "image",
+            render: (image) => (
+                <img src={image} alt="Book" style={{ width: 50, height: 75, objectFit: "cover" }} />
+            ),
+        },
+        {
+            title: "Title Book",
+            dataIndex: "title",
+            key: "title",
+        },
+        {
+            title: "Author",
+            dataIndex: "author",
+            key: "author",
+        },
+        {
+            title: "Publisher",
+            dataIndex: "publisher",
+            key: "publisher",
+        },
+        {
+            title: "Sold",
+            dataIndex: "quantity",
+            key: "quantity",
+        },
+    ];
+
+
+    const importedColumns = [
+        {
+            title: "Image (Detail)",
+            dataIndex: "image",
+            key: "image",
+            render: (image, record) => (
+                <img
+                    src={image}
+                    alt="Book"
+                    style={{ width: 75, height: 75, objectFit: "cover", cursor: "pointer" }}
+                    onClick={() => showModal(record)} // Gắn sự kiện click
                 />
-                <Column {...config} />
+            ),
+        },
+        {
+            title: "Book Title",
+            dataIndex: "bookTitle",
+            key: "bookTitle",
+        },
+        {
+            title: "Author",
+            dataIndex: "author",
+            key: "author",
+        },
+        {
+            title: "Publisher",
+            dataIndex: "publisher",
+            key: "publisher",
+        },
+        {
+            title: "Quantity Imported",
+            dataIndex: "iSDQuantity",
+            key: "quantity",
+        },
+        {
+            title: "Import Price",
+            dataIndex: "importPrice",
+            key: "price",
+            render: (price) => `${price.toLocaleString()} VND`, // Định dạng giá nhập
+        },
+        {
+            title: "Total Price",
+            dataIndex: "totalPrice",
+            key: "totalPrice",
+            render: (totalPrice) => `${totalPrice.toLocaleString()} VND`, // Hiển thị tổng giá trị
+        },
+    ];
+
+
+
+
+    return (
+        <div
+            className="main-container"
+            style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                minHeight: "100vh", // Đổi từ height sang minHeight để cho phép cuộn
+                padding: "20px", // Thêm padding để tránh nội dung chạm sát mép
+                overflow: "auto", // Cho phép cuộn khi nội dung vượt quá
+            }}
+        >
+            <DashboardContainer />
+            <div
+                className="dashboard-content"
+                style={{
+                    textAlign: "center",
+                    width: "80%",
+                }}
+            >
+                <div style={{ marginBottom: "40px" }}>
+                    <h2 style={{ textAlign: "center", margin: "20px 0" }}>Revenue Report This Month</h2>
+                    <div style={{ display: "flex", justifyContent: "center" }}>
+                        <BarChart
+                            xAxis={[
+                                {
+                                    scaleType: "band",
+                                    data: filteredData.map((item) => item.date),
+                                },
+                            ]}
+                            series={[
+                                { data: filteredData.map((item) => item.Import), label: "Import" },
+                                { data: filteredData.map((item) => item.Export), label: "Export" },
+                                { data: filteredData.map((item) => item.Revenue), label: "Revenue" },
+                            ]}
+                            width={500}
+                            height={500}
+                            barLabel="value"
+                        />
+                    </div>
+                </div>
+
+                <div style={{ marginBottom: "40px" }}>
+                    <h2 style={{ textAlign: "center", margin: "20px 0" }}>Books Sold This Month</h2>
+                    <Table
+                        dataSource={booksData}
+                        columns={columns}
+                        rowKey="bookId"
+                        bordered
+                        pagination={{ pageSize: 10 }}
+                        style={{ margin: "0 auto" }}
+                    />
+                </div>
+
+                <div style={{ marginBottom: "40px" }}>
+                    <h2 style={{ textAlign: "center", margin: "20px 0" }}>Books Imported This Month</h2>
+                    <Table
+                        dataSource={importedBooksData} // Dữ liệu đã xử lý
+                        columns={importedColumns} // Cột hiển thị
+                        rowKey="isdid" // Khóa duy nhất cho từng hàng (cột isdid trong dữ liệu)
+                        bordered
+                        pagination={{ pageSize: 10 }}
+                        style={{ margin: "20px 0" }}
+                    />
+
+                </div>
             </div>
+            <Modal
+                title="Book Detail"
+                visible={isModalVisible}
+                onCancel={handleCancel}
+                footer={[
+                    <Button key="back" onClick={handleCancel}>
+                        Close
+                    </Button>,
+                ]}
+            >
+                {selectedBook && (
+                    <div style={{ display: 'flex', alignItems: 'flex-start' }}>
+                        <div style={{ flex: 1 }}>
+                            <p><strong>Book ID:</strong> {selectedBook.bookID || 'N/A'}</p>
+                            <p><strong>Title:</strong> {selectedBook.bookTitle || 'N/A'}</p>
+                            <p><strong>Author:</strong> {selectedBook.author || 'N/A'}</p>
+                            <p><strong>Translator:</strong> {selectedBook.translator || 'N/A'}</p>
+                            <p><strong>Publisher:</strong> {selectedBook.publisher || 'N/A'}</p>
+                            <p><strong>Publication Year:</strong> {selectedBook.publicationYear || 'N/A'}</p>
+                            <p><strong>ISBN:</strong> {selectedBook.isbn || 'N/A'}</p>
+                            <p><strong>Description:</strong> {selectedBook.bookDescription || 'N/A'}</p>
+                            <p><strong>Quantity:</strong> {selectedQuantity || 'N/A'}</p>
+                            <p><strong>Price:</strong> {selectedBook.bookPrice ? `${new Intl.NumberFormat('en-US').format(selectedBook.bookPrice)} VND` : 'N/A'}</p>
+                        </div>
+                        {console.log("Sách đang được chọn: ", selectedBook)}
+                        {selectedBook.image ? (
+                            <div style={{ marginLeft: '20px', maxWidth: '200px' }}>
+                                <img
+                                    src={selectedBook.image.startsWith('http') ? selectedBook.image : `http://localhost:6789${selectedBook.image}`}
+                                    alt="Book Cover"
+                                    style={{ width: '100%', borderRadius: '5px' }}
+                                />
+                            </div>
+                        ) : (
+                            <p>No Image Available</p>
+                        )}
+                    </div>
+                )}
+            </Modal>
+
+
         </div>
+
     );
 };
 

@@ -13,6 +13,7 @@ function ViewStockDetail() {
     const [selectedBook, setSelectedBook] = useState(null);
     const [selectedQuantity, setSelectedQuantity] = useState(0);
 
+
     useEffect(() => {
         loadStockDetails();
     }, [stockId]);
