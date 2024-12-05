@@ -55,6 +55,9 @@ const BookDetails = () => {
         logout()
         navigate("/");
     }
+    const handleNotificationClick = () => {
+        navigate("/notifications")
+    }
     const handleDashboardClick = () => {
         navigate('/dashboard');
     };
@@ -97,7 +100,15 @@ const BookDetails = () => {
                 />
 
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <BellOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
+                    <Button
+                        type="text"
+                        icon={<BellOutlined
+                            style={{ fontSize: "24px", marginRight: "20px", color: "#fff" }}
+                        />}
+                        style={{ color: "#fff" }}
+                        onClick={handleNotificationClick}
+                    >
+                    </Button>
                     <ShoppingCartOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
                     <Dropdown overlay={userMenu} trigger={['click']} placement="bottomRight">
                         <Button

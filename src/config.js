@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { checkAdminRole } from './jwtConfig'
+import { config } from 'dotenv';
 // Handle axios
 const URLString = 'http://localhost:6789/api/'
 const client = axios.create({
@@ -34,7 +35,7 @@ client.interceptors.response.use(
     }, async (error) => {
         const request = error.config
         if (error.response && error.response.status === 401 && !request._retry) {
-            window.location.href = '/auth/login'
+            //window.location.href = '/auth/login'
         }
         return
     }
@@ -234,7 +235,9 @@ const searchPromotions = (id, term) => {
 
 const fetchPromotionById = (proID) => client.get(`/v1/promotions/${proID}`);
 
-const fetchCategories = () => client.get('v1/categories/');
+const fetchCategories = () => {
+    return axios.get(`${URLString}v1/categories/`);
+}
 const fetchCategoryDetail = (catID) => {
     console.log("Fetching category detail for ID:", catID);
     return client.get(`/v1/categories/${catID}`);
