@@ -1,5 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
+//Error Page
+import ErrorPage from "./ErrorPage/Error404";
+
 // Import dashboard
 import Dashboard from "./DashBoard/DashBoard"; // Adjust this path if necessary
 
@@ -28,6 +31,7 @@ import ProfileDashboard from './AccountManagement/Profile'
 import ChangePasswordDashboard from './AccountManagement/ChangePassword'
 import Profile from "./Profile/ProfileManagement"
 import ChangePassword from "./Profile/ChangPassword";
+
 
 // Import inventory
 import InventoryManagement from "./InventoryManagement/InventoryManagement";
@@ -84,6 +88,9 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* error Page */}
+        <Route path="/404" element={<ErrorPage />} />
+
         {/* Homepage */}
         <Route path="/" element={<Homepage />} />
         <Route path="/OrderHistory" element={<OrderHistory />} />
