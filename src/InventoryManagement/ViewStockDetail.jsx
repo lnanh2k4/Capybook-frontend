@@ -3,7 +3,9 @@ import { Table, Button, message, Spin, Modal } from 'antd';
 import { useParams } from 'react-router-dom';
 import { fetchImportStockDetailsByStockId } from '../config';
 import DashboardContainer from '../DashBoard/DashBoardContainer';
-
+import {
+    InfoCircleOutlined,
+} from '@ant-design/icons';
 function ViewStockDetail() {
     const { stockId } = useParams();
     const [stockDetails, setStockDetails] = useState([]);
@@ -84,7 +86,7 @@ function ViewStockDetail() {
             key: 'action',
             render: (_, record) => (
                 <Button type="link" onClick={() => showBookDetail(record.bookID, record.iSDQuantity)}>
-                    Detail
+                    <InfoCircleOutlined title="Detail" />
                 </Button>
             ),
         },

@@ -8,6 +8,25 @@
     background-position: center;
 }
 
+.titlemanagement {
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: center;
+    /* Căn giữa ngang */
+    color: #333;
+    /* Đổi màu chữ */
+    padding: 10px 20px;
+    /* Khoảng cách từ trên và dưới */
+    display: flex;
+    /* Kích hoạt Flexbox */
+    justify-content: center;
+    /* Căn giữa ngang */
+    align-items: center;
+    /* Căn giữa dọc */
+    height: 100px;
+    /* Chiều cao để căn giữa dọc, điều chỉnh nếu cần */
+}
+
 .dashboard-container {
     grid-column: 1 / 2;
     /* Sidebar chiếm cột đầu tiên */
