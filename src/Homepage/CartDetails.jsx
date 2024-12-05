@@ -19,7 +19,7 @@ import {
   BellOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { viewCart, fetchPromotions } from "../config"; // API functions
+import { viewCart, fetchPromotions, createPayment, handlePaymentReturn } from "../config"; // API functions
 import { decodeJWT } from "../jwtConfig";
 
 const { Header, Footer, Content } = Layout;
@@ -64,7 +64,22 @@ const CartDetails = () => {
         console.error("Error fetching cart data:", error);
       }
     };
-
+    const handleCheckout = async () => {
+      console.log("Initiating checkout...");
+      try {
+        const totalAmount = cartItems.reduce((acc, item) => acc + item.total, 0);
+        console.log("Total amount for payment:", totalAmount);
+        const response = await createPayment(totalAmount);
+        const paymentUrl = response.data;
+        console.log("Redirecting to payment URL:", paymentUrl);
+        window.location.href = paymentUrl;
+      } catch (error) {
+        console.error("Error during checkout:", error.response?.data || error.message);
+        Modal.error({
+          content: 'Failed to initiate payment. Please try again.',
+        });
+      }
+    };
     const fetchActivePromotions = async () => {
       try {
         const response = await fetchPromotions();
@@ -399,19 +414,43 @@ const CartDetails = () => {
         <Row justify="end" style={{ marginTop: "20px" }}>
           <Button
             type="primary"
-            onClick={() => {
+            onClick={async () => {
+              // Tính tổng tiền sau khi áp dụng giảm giá
               const finalPrice = calculateDiscountedTotal();
               console.log("Purchase confirmed!");
               console.log("Selected Promotion ID:", selectedPromotion);
-              console.log(
-                "Final Total with Discount:",
-                finalPrice.toLocaleString()
-              );
-              handleModalClose();
+              console.log("Final Total with Discount:", finalPrice.toLocaleString());
+
+              // Gọi hàm handleCheckout với finalPrice
+              const handleCheckout = async () => {
+                console.log("Initiating checkout...");
+                try {
+                  // Tính tổng tiền và in ra log
+                  console.log("Total amount for payment:", finalPrice);
+
+                  // Gọi API tạo thanh toán
+                  const response = await createPayment(finalPrice);
+                  const paymentUrl = response.data;
+
+                  // Chuyển hướng tới URL thanh toán
+                  console.log("Redirecting to payment URL:", paymentUrl);
+                  window.location.href = paymentUrl;
+                } catch (error) {
+                  // Xử lý lỗi
+                  console.error("Error during checkout:", error.response?.data || error.message);
+                  Modal.error({
+                    content: 'Failed to initiate payment. Please try again.',
+                  });
+                }
+              };
+
+              // Thực thi hàm checkout
+              await handleCheckout();
             }}
           >
             Purchase
           </Button>
+
         </Row>
       </Modal>
     </Layout>
