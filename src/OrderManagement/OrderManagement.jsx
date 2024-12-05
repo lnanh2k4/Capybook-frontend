@@ -11,7 +11,12 @@ import {
   Select,
   DatePicker,
 } from "antd";
-import { fetchOrders, searchOrders, updateOrder } from "../config";
+import {
+  fetchOrders,
+  searchOrders,
+  updateOrder,
+  fetchAccountDetail,
+} from "../config";
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import { EditOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import moment from "moment";
@@ -35,27 +40,53 @@ const OrderManagement = () => {
     loadOrders();
   }, []);
 
-  const loadOrders = () => {
+  const loadOrders = async () => {
     setLoading(true);
-    fetchOrders()
-      .then((response) => {
-        if (Array.isArray(response.data)) {
-          const sortedOrders = response.data.sort(
-            (a, b) => b.orderID - a.orderID
-          );
-          setOrders(sortedOrders);
-          setError("");
-        } else {
-          setError("Failed to fetch orders");
-        }
-      })
-      .catch(() => {
+    try {
+      const response = await fetchOrders();
+      if (Array.isArray(response.data)) {
+        const ordersWithFullName = await Promise.all(
+          response.data.map(async (order) => {
+            if (!order.customerName) {
+              return { ...order, fullName: "Unknown" }; // Nếu thiếu username
+            }
+            try {
+              const accountResponse = await fetchAccountDetail(
+                order.customerName
+              ); // Sử dụng customerName
+              const accountData = accountResponse.data;
+              return {
+                ...order,
+                fullName: `${accountData.firstName || ""} ${
+                  accountData.lastName || ""
+                }`.trim(), // Gắn thông tin đầy đủ
+              };
+            } catch (error) {
+              console.error(
+                `Error fetching account for ${order.customerName}:`,
+                error
+              );
+              return { ...order, fullName: "Unknown" }; // Giá trị mặc định nếu API thất bại
+            }
+          })
+        );
+
+        // Sắp xếp danh sách đơn hàng theo `orderID` từ lớn đến bé
+        const sortedOrders = ordersWithFullName.sort(
+          (a, b) => b.orderID - a.orderID
+        );
+
+        setOrders(sortedOrders); // Cập nhật danh sách orders đã được sắp xếp
+      } else {
         setError("Failed to fetch orders");
-        message.error("Failed to fetch orders");
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+      }
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      setError("Failed to fetch orders");
+      message.error("Failed to fetch orders");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSearch = (value) => {
@@ -120,21 +151,22 @@ const OrderManagement = () => {
   const getNextStatuses = (currentStatus) => {
     const statuses = [
       { value: 0, label: "Processing" },
-      { value: 1, label: "Delivering" },
-      { value: 2, label: "Delivered" },
-      { value: 3, label: "Cancelled" },
+      { value: 1, label: "Cancelled" },
+      { value: 2, label: "Delivering" },
+      { value: 3, label: "Delivered" },
+      { value: 4, label: "Returned" },
     ];
 
     return statuses
       .map((status) => ({
         ...status,
-        disabled: status.value === currentStatus, // Làm mờ trạng thái hiện tại
+        disabled: status.value === currentStatus, // Disable trạng thái hiện tại
       }))
       .filter(
         (status) =>
           status.value === currentStatus ||
-          (currentStatus === 0 && status.value === 1) ||
-          (currentStatus === 1 && (status.value === 2 || status.value === 3))
+          (currentStatus === 0 && (status.value === 1 || status.value === 2)) || // Processing -> Cancelled hoặc Delivering
+          (currentStatus === 2 && (status.value === 3 || status.value === 4)) // Delivering -> Delivered hoặc Returned
       );
   };
 
@@ -150,12 +182,10 @@ const OrderManagement = () => {
 
       // Kiểm tra nếu trạng thái mới không hợp lệ
       if (
-        (selectedOrder.orderStatus === 2 && selectedStatus !== 2) || // Delivered không thể chuyển sang trạng thái khác
-        selectedOrder.orderStatus === 3 // Cancelled không thể chuyển sang trạng thái khác
+        (selectedOrder.orderStatus === 0 && ![1, 2].includes(selectedStatus)) || // Processing -> Chỉ có thể Cancelled hoặc Delivering
+        (selectedOrder.orderStatus === 2 && ![3, 4].includes(selectedStatus)) // Delivering -> Chỉ có thể Delivered hoặc Returned
       ) {
-        message.warning(
-          "You cannot update the status of a completed or cancelled order."
-        );
+        message.warning("Invalid status transition.");
         return;
       }
 
@@ -195,9 +225,9 @@ const OrderManagement = () => {
       key: "orderID",
     },
     {
-      title: "Customer Name",
-      dataIndex: "customerName",
-      key: "customerName",
+      title: "Full Name", // Tiêu đề cột
+      dataIndex: "fullName", // Sử dụng trường fullName
+      key: "fullName",
     },
     {
       title: "Order Date",
@@ -216,16 +246,20 @@ const OrderManagement = () => {
             text = "Processing";
             break;
           case 1:
+            color = "red";
+            text = "Cancelled";
+            break;
+          case 2:
             color = "yellow";
             text = "Delivering";
             break;
-          case 2:
+          case 3:
             color = "green";
             text = "Delivered";
             break;
-          case 3:
-            color = "red";
-            text = "Cancelled";
+          case 4:
+            color = "orange";
+            text = "Returned";
             break;
           default:
             color = "gray";
@@ -242,8 +276,9 @@ const OrderManagement = () => {
           <Button type="link" onClick={() => goToOrderDetail(record.orderID)}>
             <InfoCircleOutlined title="Detail" />
           </Button>
-          {record.orderStatus !== 2 &&
-            record.orderStatus !== 3 && ( // Kiểm tra trạng thái trước khi hiển thị nút Edit
+          {record.orderStatus !== 3 &&
+            record.orderStatus !== 1 &&
+            record.orderStatus !== 4 && ( // Không hiển thị nút Edit nếu trạng thái là Delivered hoặc Returned
               <Button
                 type="link"
                 style={{ color: "orange" }}
@@ -293,7 +328,6 @@ const OrderManagement = () => {
           pagination={{ pageSize: 10 }}
         />
         {error && <p style={{ color: "red" }}>{error}</p>}
-
         <Modal
           title="Edit Order Status"
           open={isModalVisible}
