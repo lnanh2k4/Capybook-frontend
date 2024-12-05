@@ -141,7 +141,7 @@ const Homepage = () => {
   }
 
   // Sort books based on selected criteria
-  const sortedBooks = books.length > 0 ? [...books] : null;
+  const sortedBooks = books.length > 0 ? [...books] : [...books];
 
   const handleNotificationClick = () => {
     navigate("/notifications")
