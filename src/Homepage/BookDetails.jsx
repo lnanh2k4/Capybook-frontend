@@ -10,7 +10,7 @@ import {
   InputNumber,
 } from "antd"; // Added Tag here
 
-import { fetchBookById, logout } from "../config";
+import { fetchBookById, logout, fetchPromotions } from "../config";
 import {
   AppstoreOutlined,
   ShoppingCartOutlined,
@@ -48,25 +48,75 @@ const BookDetails = () => {
   const [imagePreview, setImagePreview] = useState(null);
 
   useEffect(() => {
-    fetchBookById(bookId)
-      .then((response) => {
-        if (response && response.data) {
-          setBookData(response.data);
-          const imageFromDB = response.data.image;
-          if (imageFromDB && imageFromDB.startsWith(`/uploads/book_`)) {
-            const fullImagePath = `http://localhost:6789${imageFromDB}`;
-            setImagePreview(fullImagePath);
-          } else {
-            setImagePreview(imageFromDB);
+    const fetchBookAndApplyPromotion = async () => {
+      try {
+        // Fetch book data
+        const bookResponse = await fetchBookById(bookId);
+        if (bookResponse && bookResponse.data) {
+          const book = bookResponse.data;
+          setBookData({
+            ...book,
+            originalPrice: book.bookPrice, // Lưu giá gốc trước khi áp dụng khuyến mãi
+          });
+
+          // Set image preview
+          const imageFromDB = book.image;
+          setImagePreview(
+            imageFromDB && imageFromDB.startsWith(`/uploads/book_`)
+              ? `http://localhost:6789${imageFromDB}`
+              : imageFromDB
+          );
+
+          // Fetch promotions
+          const promotionResponse = await fetchPromotions();
+          const promotions = promotionResponse.data || [];
+          const currentDate = new Date();
+
+          // Lọc các khuyến mãi hợp lệ
+          const validPromotions = promotions.filter((promo) => {
+            const startDate = new Date(promo.startDate);
+            const endDate = new Date(promo.endDate);
+            return (
+              promo.quantity > 0 &&
+              promo.proStatus === 1 &&
+              promo.approveBy !== null &&
+              currentDate >= startDate &&
+              currentDate <= endDate
+            );
+          });
+
+          // Tìm khuyến mãi tốt nhất
+          const bestPromo = validPromotions.reduce(
+            (max, promo) =>
+              promo.discount > (max?.discount || 0) ? promo : max,
+            null
+          );
+
+          // Áp dụng khuyến mãi nếu có
+          if (bestPromo) {
+            setBookData((prevBookData) => ({
+              ...prevBookData,
+              bookPrice: Math.max(
+                Math.round(
+                  prevBookData.bookPrice * (1 - bestPromo.discount / 100)
+                ),
+                1 // Đảm bảo giá tối thiểu là 1
+              ),
+              discount: bestPromo.discount,
+              bookTitle: `[${bestPromo.proCode}] ${prevBookData.bookTitle}`, // Ghép mã khuyến mãi vào tiêu đề
+            }));
           }
         } else {
           console.error("No data received from API");
         }
-      })
-      .catch((error) => {
-        console.error("Error fetching book details:", error);
-      });
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchBookAndApplyPromotion();
   }, [bookId]);
+
   const handleLogout = () => {
     logout();
     navigate("/");
@@ -97,7 +147,6 @@ const BookDetails = () => {
               Profile
             </Menu.Item>
           )}
-
 
           <Menu.Item
             key="signout"
@@ -256,13 +305,17 @@ const BookDetails = () => {
                       color: "#999",
                     }}
                   >
-                    {bookData.originalPrice} đ
+                    {bookData.originalPrice
+                      ? `${bookData.originalPrice.toLocaleString("vi-VN")} đ`
+                      : ""}
                   </span>
-                  <Tag
-                    color="volcano"
-                    style={{ marginLeft: "10px" }}
-                  >{`${bookData.discount}% off`}</Tag>
+                  {bookData.discount > 0 && (
+                    <Tag color="volcano" style={{ marginLeft: "10px" }}>
+                      {`${bookData.discount}% off`}
+                    </Tag>
+                  )}
                 </div>
+
                 <div style={{ fontSize: "14px", color: "#999" }}>Sold: 52</div>
               </div>
 
