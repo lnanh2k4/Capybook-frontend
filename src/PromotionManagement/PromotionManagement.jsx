@@ -59,7 +59,6 @@ const PromotionManagement = () => {
         message.error("Failed to fetch staff information.");
       }
     };
-
     fetchStaffID();
     fetchPromotionsData();
   }, [username, filterStatus]);
@@ -239,44 +238,33 @@ const PromotionManagement = () => {
 
     try {
       const activityParam = value === "all" ? null : value;
-      const response = await fetchPromotionLogs(activityParam); // Gọi hàm từ config
+      const response = await fetchPromotionLogs(activityParam); // Fetch logs từ API
       const logsData = response.data || [];
-      setLogs(logsData);
+
+      // Dùng Promise.all để fetch thông tin staff tương ứng với từng log
+      const logsWithUsernames = await Promise.all(
+        logsData.map(async (log) => {
+          try {
+            const staffResponse = await fetchStaffDetail(log.staffId); // Fetch thông tin staff
+            const username = staffResponse.data.username || "Unknown"; // Lấy username
+            return { ...log, username }; // Gắn username vào log
+          } catch (error) {
+            console.error(
+              `Error fetching staff for log ID ${log.proLogId}:`,
+              error
+            );
+            return { ...log, username: "Unknown" }; // Gắn giá trị mặc định nếu có lỗi
+          }
+        })
+      );
+
+      setLogs(logsWithUsernames); // Cập nhật logs với username
     } catch (error) {
       console.error("Error fetching promotion logs:", error);
       message.error("Unable to load promotion logs.");
     } finally {
-      setLogLoading(false);
+      setLogLoading(false); // Tắt trạng thái loading
     }
-  };
-  // Approve promotion
-  const handleApprove = (record) => {
-    if (!staffID) {
-      message.error("Unable to perform action. Staff ID not found.");
-      return;
-    }
-
-    Modal.confirm({
-      title: "Approve Promotion",
-      content: `Are you sure you want to approve promotion "${record.proName}"?`,
-      okText: "Yes",
-      cancelText: "No",
-      onOk: async () => {
-        try {
-          await updatePromotion(record.proID, {
-            actionId: 2, // Approve action
-            staffID: staffID, // Pass staffID
-          });
-          message.success(
-            `Promotion "${record.proName}" approved successfully.`
-          );
-          fetchPromotionsData(); // Refresh promotions data
-        } catch (error) {
-          console.error("Error approving promotion:", error);
-          message.error("Failed to approve promotion.");
-        }
-      },
-    });
   };
 
   // Decline promotion
@@ -492,7 +480,7 @@ const PromotionManagement = () => {
             <div
               style={{
                 display: "flex",
-                justifyContent: "center", // Canh giữa nội dung
+                justifyContent: "center",
                 alignItems: "center",
                 gap: "10px",
               }}
@@ -501,7 +489,7 @@ const PromotionManagement = () => {
                 defaultValue="all"
                 value={filterActivity}
                 onChange={handleFilterActivity}
-                style={{ width: "200px" }} // Tùy chỉnh chiều rộng nếu cần
+                style={{ width: "200px" }}
               >
                 <Option value="all">All Activities</Option>
                 <Option value="create">Created</Option>
@@ -537,10 +525,10 @@ const PromotionManagement = () => {
                             log.username || "Unknown"
                           } created promotion (ID: ${log.proId || "N/A"})`
                         : log.proAction === 2
-                        ? ` ${
+                        ? `${
                             log.username || "Unknown"
                           } approved promotion (ID: ${log.proId || "N/A"})`
-                        : ` ${
+                        : `${
                             log.username || "Unknown"
                           } rejected promotion (ID: ${log.proId || "N/A"})`}
                     </p>

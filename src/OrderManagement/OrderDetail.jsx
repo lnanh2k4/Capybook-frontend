@@ -14,7 +14,8 @@ const OrderDetail = () => {
   const { id } = useParams();
   const [order, setOrder] = useState(null);
   const [orderDetails, setOrderDetails] = useState([]);
-  const [phone, setPhone] = useState(""); // State lưu phone
+  const [customer, setCustomer] = useState({}); // Lưu thông tin khách hàng
+  const [discount, setDiscount] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -22,26 +23,24 @@ const OrderDetail = () => {
         try {
           // Fetch order details
           const orderData = await fetchOrderDetail(id);
-          console.log("Order Data:", orderData.data);
           setOrder(orderData.data);
 
-          // Fetch account to get phone number
+          // Fetch customer information
           const username = orderData?.data?.order?.username;
           if (username) {
             const accountData = await fetchAccountDetail(username);
-            console.log("Account Data:", accountData.data);
-            setPhone(accountData.data.phone || "N/A");
+            setCustomer({
+              name: `${accountData.data.firstName} ${accountData.data.lastName}`,
+              phone: accountData.data.phone || "N/A",
+            });
           }
 
-          // Fetch order details data
+          // Fetch order details and books
           const orderDetailsData = orderData.data.orderDetails;
-          console.log("Order Details Data:", orderDetailsData);
-
           const bookIDs = orderDetailsData.map((item) => item.bookID);
           const bookPromises = bookIDs.map((bookID) => fetchBookDetail(bookID));
           const bookResponses = await Promise.all(bookPromises);
           const books = bookResponses.map((res) => res.data);
-          console.log("Fetched Book Data:", books);
 
           const updatedOrderDetails = orderDetailsData.map((item) => {
             const book = books.find((book) => book.bookID === item.bookID);
@@ -50,19 +49,13 @@ const OrderDetail = () => {
               book: book || {},
             };
           });
-
-          console.log("Updated Order Details:", updatedOrderDetails);
           setOrderDetails(updatedOrderDetails);
 
           // Fetch promotion details if applicable
           const proID = orderData.data.order?.proID;
           if (proID) {
             const promotionData = await fetchPromotionDetail(proID);
-            console.log("Promotion Data:", promotionData.data);
-            setOrder((prevOrder) => ({
-              ...prevOrder,
-              discount: promotionData.data.discount,
-            }));
+            setDiscount(promotionData.data.discount || 0);
           }
         } catch (error) {
           message.error("Failed to fetch data");
@@ -77,6 +70,10 @@ const OrderDetail = () => {
   if (!order) {
     return <div>Loading...</div>;
   }
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("vi-VN").format(price);
+  };
 
   const columns = [
     {
@@ -104,14 +101,14 @@ const OrderDetail = () => {
           record.totalPrice && record.quantity
             ? (record.totalPrice / record.quantity).toFixed(2)
             : "N/A";
-        return `$${unitPrice}`;
+        return `${formatPrice(unitPrice)} VNĐ`;
       },
     },
     {
       title: "Total Price",
       dataIndex: "totalPrice",
       key: "totalPrice",
-      render: (price) => `$${price || 0}`,
+      render: (price) => `${formatPrice(price || 0)} VNĐ`,
     },
   ];
 
@@ -131,9 +128,11 @@ const OrderDetail = () => {
         >
           <Descriptions bordered column={1} style={{ marginBottom: "20px" }}>
             <Descriptions.Item label="Customer Name">
-              {order.order.username}
+              {customer.name || "N/A"}
             </Descriptions.Item>
-            <Descriptions.Item label="Phone">{phone}</Descriptions.Item>
+            <Descriptions.Item label="Phone">
+              {customer.phone || "N/A"}
+            </Descriptions.Item>
             <Descriptions.Item label="Address">
               {order.order.orderAddress || "N/A"}
             </Descriptions.Item>
@@ -149,28 +148,26 @@ const OrderDetail = () => {
 
           <Descriptions title="Summary" bordered style={{ marginTop: "20px" }}>
             <Descriptions.Item label="Total Books Price" span={3}>
-              $
-              {orderDetails
-                .reduce(
-                  (acc, item) =>
-                    acc + item.quantity * (item.book?.bookPrice || 0),
+              {formatPrice(
+                orderDetails.reduce(
+                  (acc, item) => acc + (item.totalPrice || 0),
                   0
                 )
-                .toFixed(2)}
+              )}{" "}
+              VNĐ
             </Descriptions.Item>
             <Descriptions.Item label="Discount (%)" span={3}>
-              {order.discount || 0}%
+              {discount || 0}%
             </Descriptions.Item>
             <Descriptions.Item label="Total Price" span={3}>
-              $
-              {(
+              {formatPrice(
                 orderDetails.reduce(
-                  (acc, item) =>
-                    acc + item.quantity * (item.book?.bookPrice || 0),
+                  (acc, item) => acc + (item.totalPrice || 0),
                   0
                 ) *
-                (1 - (order.discount || 0) / 100)
-              ).toFixed(2)}
+                  (1 - discount / 100)
+              )}{" "}
+              VNĐ
             </Descriptions.Item>
           </Descriptions>
 

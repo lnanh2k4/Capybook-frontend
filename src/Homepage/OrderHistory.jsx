@@ -9,6 +9,7 @@ import {
   Table,
   Typography,
   message,
+  Input,
 } from "antd";
 import {
   UserOutlined,
@@ -25,94 +26,93 @@ import {
   fetchBookDetail,
   logout,
   fetchPromotionDetail,
+  fetchAccountDetail,
 } from "../config";
 
 const { Header, Footer, Content } = Layout;
 const { Title } = Typography;
+const { Search } = Input;
 
 const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]); // Thêm state này
   const [orderDetailsMap, setOrderDetailsMap] = useState({});
   const [loading, setLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState(""); // Kết nối với thanh tìm kiếm
   const navigate = useNavigate();
 
-  // Fetch all orders and their details
+  // Fetch all orders and initialize filteredOrders
   useEffect(() => {
     const fetchAllOrders = async () => {
       setLoading(true);
       try {
+        // Fetch username từ token
         const username = decodeJWT(localStorage.getItem("jwtToken")).sub;
-
-        console.log("Fetching orders for username:", username);
 
         // Fetch orders
         const ordersResponse = await fetchOrders();
-        const ordersData = ordersResponse.data;
+        const ordersData = ordersResponse.data || []; // Xử lý nếu ordersResponse.data không tồn tại
 
-        console.log("Fetched Orders Data:", ordersData);
-
-        // Filter orders for the current user
-        const userOrders = ordersData.filter(
-          (order) => order.customerName && order.customerName === username
-        );
-
-        console.log("Filtered User Orders:", userOrders);
+        // Lọc các orders của user hiện tại và sắp xếp giảm dần theo orderID
+        const userOrders = ordersData
+          .filter(
+            (order) => order.customerName && order.customerName === username
+          )
+          .sort((a, b) => b.orderID - a.orderID);
 
         setOrders(userOrders);
+        setFilteredOrders(userOrders); // Đồng bộ filteredOrders với orders ban đầu
 
-        // Fetch order details for each order
-        const orderDetailsPromises = userOrders.map((order) =>
-          fetchOrderDetail(order.orderID)
-        );
-        const orderDetailsResponses = await Promise.all(orderDetailsPromises);
-
+        // Fetch chi tiết từng order
         const detailsMap = {};
-        for (let i = 0; i < orderDetailsResponses.length; i++) {
-          console.log(
-            `Fetching details for Order ID: ${userOrders[i].orderID}`
+        for (const order of userOrders) {
+          const orderDetailsResponse = await fetchOrderDetail(order.orderID);
+          const orderDetails = orderDetailsResponse?.data?.orderDetails || [];
+          const proID = orderDetailsResponse?.data?.order?.proID;
+
+          // Fetch chi tiết sách
+          const books = await Promise.all(
+            orderDetails.map((detail) => fetchBookDetail(detail.bookID))
           );
+          const updatedDetails = orderDetails.map((detail, index) => ({
+            ...detail,
+            book: books[index]?.data || {},
+          }));
 
-          const orderDetails = orderDetailsResponses[i].data.orderDetails;
-          const proID = orderDetailsResponses[i].data.order.proID;
-
-          console.log("Order Details Data:", orderDetails);
-
-          // Fetch promotion details if proID exists
+          // Fetch thông tin khuyến mãi
           let promotion = null;
           if (proID) {
             try {
-              console.log(`Fetching Promotion Details for proID: ${proID}`);
               const promotionResponse = await fetchPromotionDetail(proID);
-              promotion = promotionResponse.data || {};
-              console.log("Fetched Promotion Data:", promotion);
+              promotion = promotionResponse?.data || {};
             } catch (error) {
               console.error(
-                `Error fetching promotion for proID: ${proID}`,
+                `Failed to fetch promotion for proID: ${proID}`,
                 error
               );
             }
           }
 
-          // Fetch book details for each order detail
-          const bookPromises = orderDetails.map((detail) =>
-            fetchBookDetail(detail.bookID)
-          );
-          const booksResponses = await Promise.all(bookPromises);
+          // Fetch thông tin khách hàng
+          let customerFullName = "N/A";
+          try {
+            const customerData = await fetchAccountDetail(order.customerName);
+            customerFullName = `${customerData?.data?.firstName} ${customerData?.data?.lastName}`;
+          } catch (error) {
+            console.error(
+              `Failed to fetch account for customer: ${order.customerName}`,
+              error
+            );
+          }
 
-          const updatedDetails = orderDetails.map((detail, index) => ({
-            ...detail,
-            book: booksResponses[index].data || {},
-          }));
-
-          console.log("Updated Order Details with Book Data:", updatedDetails);
-
-          detailsMap[userOrders[i].orderID] = {
+          // Lưu vào map
+          detailsMap[order.orderID] = {
             details: updatedDetails,
             promotionDiscount: promotion?.discount || 0,
+            customerFullName,
           };
         }
 
-        console.log("Final Order Details Map:", detailsMap);
         setOrderDetailsMap(detailsMap);
       } catch (error) {
         message.error("Failed to fetch orders or details.");
@@ -124,6 +124,24 @@ const OrderHistory = () => {
 
     fetchAllOrders();
   }, []);
+
+  // Handle search
+  const handleSearch = (searchTerm) => {
+    const lowerCaseTerm = searchTerm.toLowerCase();
+    const filtered = orders.filter(
+      (order) =>
+        order.orderID.toString().includes(lowerCaseTerm) || // Tìm theo Order ID
+        (orderDetailsMap[order.orderID]?.details || []).some(
+          (detail) =>
+            detail.book?.bookTitle?.toLowerCase().includes(lowerCaseTerm) // Tìm theo Book Title
+        )
+    );
+    setFilteredOrders(filtered); // Cập nhật danh sách đã lọc
+  };
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("vi-VN").format(price);
+  };
 
   const renderOrderDetailsTable = (orderID) => {
     const orderData = orderDetailsMap[orderID];
@@ -179,7 +197,7 @@ const OrderHistory = () => {
         title: "Unit Price",
         dataIndex: ["book", "bookPrice"],
         key: "bookPrice",
-        render: (price) => `$${price || 0}`,
+        render: (price) => `${formatPrice(price || 0)} VNĐ`,
       },
       {
         title: "Quantity",
@@ -190,7 +208,7 @@ const OrderHistory = () => {
         title: "Final Price",
         key: "finalPrice",
         render: (_, record) =>
-          `$${(record.quantity * (record.book?.bookPrice || 0)).toFixed(2)}`,
+          `${formatPrice(record.quantity * (record.book?.bookPrice || 0))} VNĐ`,
       },
     ];
 
@@ -210,8 +228,8 @@ const OrderHistory = () => {
     navigate("/");
   };
   const handleNotificationClick = () => {
-    navigate("/notifications")
-  }
+    navigate("/notifications");
+  };
 
   const userMenu = () => {
     if (decodeJWT()) {
@@ -280,16 +298,26 @@ const OrderHistory = () => {
           />
           <div style={{ fontSize: "20px", fontWeight: "bold" }}>Capybook</div>
         </div>
+        <Search
+          placeholder="Search by Order ID or Book Title"
+          value={searchTerm} // Kết nối với state `searchTerm`
+          onChange={(e) => {
+            setSearchTerm(e.target.value); // Cập nhật giá trị tìm kiếm
+            handleSearch(e.target.value); // Gọi hàm lọc danh sách
+          }}
+          style={{ width: "400px", marginRight: "20px" }}
+        />
         <div style={{ display: "flex", alignItems: "center" }}>
           <Button
             type="text"
-            icon={<BellOutlined
-              style={{ fontSize: "24px", marginRight: "20px", color: "#fff" }}
-            />}
+            icon={
+              <BellOutlined
+                style={{ fontSize: "24px", marginRight: "20px", color: "#fff" }}
+              />
+            }
             style={{ color: "#fff" }}
             onClick={handleNotificationClick}
-          >
-          </Button>
+          ></Button>
           <ShoppingCartOutlined
             style={{ fontSize: "24px", marginRight: "20px", color: "#fff" }}
           />
@@ -318,76 +346,89 @@ const OrderHistory = () => {
         </Title>
         {loading ? (
           <div>Loading...</div>
-        ) : orders.length === 0 ? ( // Kiểm tra nếu không có đơn hàng nào
+        ) : filteredOrders.length === 0 ? ( // Sử dụng filteredOrders ở đây
           <div style={{ textAlign: "center", fontSize: "18px", color: "#555" }}>
-            You don't have any orders yet.
+            No orders found.
           </div>
         ) : (
-          orders.map((order) => (
-            <Card
-              key={order.orderID}
-              title={`Order ID: ${order.orderID}`}
-              style={{ marginBottom: "20px", border: "1px solid #ddd" }}
-            >
-              <Descriptions bordered column={1}>
-                <Descriptions.Item label="Customer Name">
-                  {order.customerName || "N/A"}
-                </Descriptions.Item>
-                <Descriptions.Item label="Order Date">
-                  {order.orderDate}
-                </Descriptions.Item>
-                <Descriptions.Item label="Status">
-                  {order.orderStatus === 0
-                    ? "Processing"
-                    : order.orderStatus === 1
-                      ? "Delivering"
-                      : order.orderStatus === 2
-                        ? "Delivered"
-                        : "Cancelled"}
-                </Descriptions.Item>
-              </Descriptions>
-
-              <Title level={4} style={{ marginTop: "20px" }}>
-                Order Details
-              </Title>
-              {renderOrderDetailsTable(order.orderID)}
-
-              <Descriptions
-                title="Order Summary"
-                bordered
-                style={{ marginTop: "20px" }}
+          filteredOrders.map(
+            (
+              order // Và ở đây
+            ) => (
+              <Card
+                key={order.orderID}
+                title={`Order ID: ${order.orderID}`}
+                style={{ marginBottom: "20px", border: "1px solid #ddd" }}
               >
-                <Descriptions.Item label="Total Books Price" span={3}>
-                  $
-                  {(orderDetailsMap[order.orderID]?.details || [])
-                    .reduce(
-                      (acc, item) =>
-                        acc + item.quantity * (item.book?.bookPrice || 0),
-                      0
-                    )
-                    .toFixed(2) || "0.00"}
-                </Descriptions.Item>
+                <Descriptions bordered column={1}>
+                  <Descriptions.Item label="Customer Name">
+                    {orderDetailsMap[order.orderID]?.customerFullName || "N/A"}
+                  </Descriptions.Item>
 
-                <Descriptions.Item label="Promotion Discount (%)" span={3}>
-                  {orderDetailsMap[order.orderID]?.promotionDiscount || 0}%
-                </Descriptions.Item>
+                  <Descriptions.Item label="Order Date">
+                    {order.orderDate}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Status">
+                    {order.orderStatus === 0
+                      ? "Processing"
+                      : order.orderStatus === 1
+                      ? "Cancelled"
+                      : order.orderStatus === 2
+                      ? "Delivering"
+                      : order.orderStatus === 3
+                      ? "Delivered"
+                      : order.orderStatus === 4
+                      ? "Returned"
+                      : "Unknown"}
+                  </Descriptions.Item>
+                </Descriptions>
 
-                <Descriptions.Item label="Total Price After Discount" span={3}>
-                  $
-                  {(
-                    (orderDetailsMap[order.orderID]?.details || []).reduce(
-                      (acc, item) =>
-                        acc + item.quantity * (item.book?.bookPrice || 0),
-                      0
-                    ) *
-                    (1 -
-                      (orderDetailsMap[order.orderID]?.promotionDiscount || 0) /
-                        100)
-                  ).toFixed(2)}
-                </Descriptions.Item>
-              </Descriptions>
-            </Card>
-          ))
+                <Title level={4} style={{ marginTop: "20px" }}>
+                  Order Details
+                </Title>
+                {renderOrderDetailsTable(order.orderID)}
+
+                <Descriptions
+                  title="Order Summary"
+                  bordered
+                  style={{ marginTop: "20px" }}
+                >
+                  <Descriptions.Item label="Total Books Price" span={3}>
+                    {formatPrice(
+                      (orderDetailsMap[order.orderID]?.details || []).reduce(
+                        (acc, item) =>
+                          acc + item.quantity * (item.book?.bookPrice || 0),
+                        0
+                      )
+                    )}{" "}
+                    VNĐ
+                  </Descriptions.Item>
+
+                  <Descriptions.Item label="Promotion Discount (%)" span={3}>
+                    {orderDetailsMap[order.orderID]?.promotionDiscount || 0}%
+                  </Descriptions.Item>
+
+                  <Descriptions.Item
+                    label="Total Price After Discount"
+                    span={3}
+                  >
+                    {formatPrice(
+                      (orderDetailsMap[order.orderID]?.details || []).reduce(
+                        (acc, item) =>
+                          acc + item.quantity * (item.book?.bookPrice || 0),
+                        0
+                      ) *
+                        (1 -
+                          (orderDetailsMap[order.orderID]?.promotionDiscount ||
+                            0) /
+                            100)
+                    )}{" "}
+                    VNĐ
+                  </Descriptions.Item>
+                </Descriptions>
+              </Card>
+            )
+          )
         )}
       </Content>
 
