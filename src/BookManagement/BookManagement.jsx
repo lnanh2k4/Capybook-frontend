@@ -183,7 +183,6 @@ function BookManagement() {
                     <Search
                         placeholder="Search by title or author"
                         className="search-input"
-                        enterButton
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         onSearch={(value) => handleSearch(value)} // Gọi API search khi nhấn Enter

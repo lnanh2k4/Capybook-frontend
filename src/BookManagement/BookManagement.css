@@ -152,6 +152,16 @@ button.ant-btn-primary:hover {
     cursor: pointer;
 }
 
+.ant-input-search-button {
+    display: none !important;
+    /* Ẩn nút kính lúp */
+}
+
+.ant-input-search {
+    padding-right: 0 !important;
+    /* Loại bỏ khoảng trống dành cho nút */
+}
+
 /* Hover animation for all buttons */
 .ant-btn-link:hover {
     transform: scale(1.05);

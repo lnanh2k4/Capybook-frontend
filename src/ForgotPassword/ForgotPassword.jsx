@@ -1,39 +1,26 @@
 import React from 'react';
 import { Button, Form, Input, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import './Login.css'; // Đường dẫn tới file CSS
-import { login } from '../config.js';
+import { forgotPassword } from '../config.js';
 
-const Login = () => {
+const ForgotPassword = () => {
     const navigate = useNavigate();
     const onFinish = async (values) => {
         try {
-            const loginData = {
+            const forgotPasswordData = {
                 username: values.username,
-                password: values.password
+                email: values.email
             }
-
+            localStorage.setItem("username", values.username)
             const formDataToSend = new FormData()
-            formDataToSend.append('login', JSON.stringify(loginData))
-            console.log(values)
-            const response = await login(formDataToSend)
-            if (!response.data) {
-                message.error('Username or password is incorrect! Please enter again')
-            } else if (response.data.accountDTO) {
-                message.success('Login successfully')
-                if (response.data.accountDTO.role === 0 || response.data.accountDTO.role === 2 || response.data.accountDTO.role === 3) {
-                    navigate("/dashboard/accounts");
-                } else {
-                    navigate("/");
-                }
-            }
+            formDataToSend.append('forgot-password', JSON.stringify(forgotPasswordData))
+            navigate("/email/verify")
+            const response = await forgotPassword(formDataToSend)
             console.log(response)
-            localStorage.setItem("jwtToken", response.data.token)
         } catch (error) {
             console.log(error)
             message.error('Login failed')
         }
-
     };
     return (
         <div className="login-container">
@@ -72,35 +59,21 @@ const Login = () => {
                 </Form.Item>
 
                 <Form.Item
-                    label="Password"
-                    name="password"
+                    label="Email"
+                    name="email"
                     rules={[
                         {
                             required: true,
-                            message: 'Please input your password!',
+                            message: 'Please input your email!',
                         },
                     ]}
                 >
-                    <Input.Password />
+                    <Input />
                 </Form.Item>
 
                 <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
                     <Button type="primary" htmlType="submit">
-                        Login
-                    </Button>
-                    <Button
-                        type="default"
-                        style={{ marginLeft: '10px' }}
-                        onClick={() => navigate('/register')}
-                    >
-                        Register
-                    </Button>
-                    <Button
-                        type="default"
-                        style={{ marginLeft: '10px' }}
-                        onClick={() => navigate('/password/forgot')}
-                    >
-                        Forgot password
+                        Send
                     </Button>
                 </Form.Item>
             </Form>
@@ -108,4 +81,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default ForgotPassword;

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchAccountDetail } from '../config';
+import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
+
 import {
     Button,
     Form,
@@ -44,7 +46,7 @@ const AccountDetail = () => {
         <>
             {/* <DashboardContainer /> */}
             <h1 style={{ textAlign: 'center' }}>View Account Detail</h1>
-            {/* <DashboardContainer /> */}
+            <DashboardContainer />
             <Form
                 labelCol={{
                     span: 4,

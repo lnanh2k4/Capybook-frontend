@@ -49,9 +49,7 @@ export const fetchStaffDetail = (id) => {
 };
 
 export const fetchStaffByUsername = (username) => {
-    return client.get(`/v1/staffs/username/${username}`).then((response) => {
-        return response;
-    });
+    return client.get(`/v1/staffs/username/${username}`);
 };
 export const fetchStaffs = () => client.get('v1/staffs/');
 
@@ -123,7 +121,26 @@ export const searchBook = (keyword) => client.get(`v1/books/search?keyword=${key
 
 export const fetchBooksByCategory = (categoryID) => client.get(`v1/books/category?categoryID=${categoryID}`)
 // Profile configuration
-const changePassword = (account) => client.put('v1/accounts/change', account, {
+const changePassword = (changePassword) => client.put('v1/accounts/change', changePassword, {
+    headers: {
+        'Content-Type': 'multipart/form-data',
+    }
+});
+
+
+export const forgotPassword = (forgotPassword) => axios.post(`${URLString}v1/accounts/email/send/`, forgotPassword, {
+    headers: {
+        'Content-Type': 'multipart/form-data',
+    }
+});
+
+export const resetPassword = (resetPassword) => axios.post(`${URLString}v1/accounts/password/reset/`, resetPassword, {
+    headers: {
+        'Content-Type': 'multipart/form-data',
+    }
+});
+
+export const verifyEmail = (code) => axios.post(`${URLString}v1/accounts/email/verify/`, code, {
     headers: {
         'Content-Type': 'multipart/form-data',
     }
@@ -416,10 +433,13 @@ const updateCartItem = (username, bookID, quantity) => {
     return
 };
 
-const fetchPromotionLogs = () => {
-    return client.get(`/v1/promotions/logs`);
+const fetchPromotionLogs = (activity) => {
+    const params = new URLSearchParams();
+    if (typeof activity === "string" && activity) {
+        params.append("activity", activity); 
+    }
+    return client.get(`/v1/promotions/logs?${params.toString()}`);
 };
-
 
 
 export {

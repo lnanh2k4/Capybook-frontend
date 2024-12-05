@@ -54,6 +54,7 @@ function EditAccount() {
     return (
         <>
             <h1 style={{ textAlign: 'center' }}>Account Management - Edit Account</h1>
+            <DashboardContainer />
             <Form
                 form={form}
                 layout="vertical"

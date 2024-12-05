@@ -33,7 +33,7 @@ function ViewBookDetail() {
             .then(response => {
                 const book = response.data;
                 setBookData(book);
-
+                console.log(response)
                 // If the book contains a valid category ID, fetch the category name
                 if (book.catID) {
                     fetchCategoryDetail(book.catID)
