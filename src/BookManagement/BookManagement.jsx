@@ -127,6 +127,7 @@ function BookManagement() {
             title: 'Price',
             dataIndex: 'bookPrice',
             key: 'bookPrice',
+            render: (price) => `${new Intl.NumberFormat("en-US").format(price)} VND`,
         },
         {
             title: 'Action',

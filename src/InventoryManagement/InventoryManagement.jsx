@@ -12,7 +12,9 @@ import {
 import DashboardContainer from "../DashBoard/DashBoardContainer";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
-
+import {
+    InfoCircleOutlined,
+} from '@ant-design/icons';
 const { Search } = Input;
 const { RangePicker } = DatePicker;
 
@@ -380,7 +382,7 @@ function InventoryManagement() {
                 key: "action",
                 render: (_, record) => (
                     <Button type="link" onClick={() => navigate(`/dashboard/inventory/stock/${record.isid}`)}>
-                        Detail
+                        <InfoCircleOutlined title="Detail" />
                     </Button>
                 ),
             },
@@ -398,7 +400,7 @@ function InventoryManagement() {
             key: "action",
             render: (_, record) => (
                 <Button type="link" onClick={() => openDetailModal(record.orderID)}>
-                    Detail
+                    <InfoCircleOutlined title="Detail" />
                 </Button>
             ),
         },

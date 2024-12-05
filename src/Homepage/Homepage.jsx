@@ -107,10 +107,7 @@ const Homepage = () => {
 
 
 
-  // Handle category filter change
-  const handleCategoryChange = (value) => {
-    setSelectedCategory(value);
-  };
+
 
   // Paginate books for each category (6 books per page)
   const paginateBooks = (books, pageSize) => {
@@ -123,19 +120,23 @@ const Homepage = () => {
 
   // Filter books based on the search term, category, and only include those with bookStatus = 1
   const filteredBooks = async (categoryID) => {
+
     if (categoryID != 0) {
       try {
         const response = await fetchBooksByCategory(categoryID);
         console.log(response);
         setBooks(response.data.filter((book) => book.bookStatus === 1));// Chỉ lấy sách có trạng thái hợp lệ
+        setSelectedCategory(categoryID);
       } catch {
         const response = await fetchBooks();
         setBooks(response.data.filter((book) => book.bookStatus === 1));// Chỉ lấy sách có trạng thái hợp lệ
+        setSelectedCategory(0);
         message.error("There isn's any book in this category!")
       }
     } else {
       const response = await fetchBooks();
       setBooks(response.data.filter((book) => book.bookStatus === 1));// Chỉ lấy sách có trạng thái hợp lệ
+      setSelectedCategory(categoryID);
     }
   }
 
@@ -336,12 +337,27 @@ const Homepage = () => {
                   style={{ width: 200 }}
                 />
               </Col>
+
             </Row>
           </Col>
         </Row>
+        <Card>
+          {
+            selectedCategory ?
+              (
+                <>
+                  {categories.at(selectedCategory - 1).catName} type: {categories.at(selectedCategory - 1).catDescription}
+                </>
+              ) : (
 
+                "Welcome to CapyBook!"
+              )
+          }
+        </Card>
+        <br></br>
         {selectedCategory
           ? (
+
             <Row gutter={[16, 16]}>
               {sortedBooks.map((book) => (
                 <Col key={book.bookID} xs={24} sm={12} md={8} lg={4} xl={4}>

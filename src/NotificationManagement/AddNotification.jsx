@@ -12,6 +12,7 @@ import {
     Select,
     message
 } from 'antd';
+import { colors } from '@mui/material';
 useEffect
 const AddNotification = () => {
     const [form] = Form.useForm();
@@ -101,12 +102,14 @@ const AddNotification = () => {
                         name="notDescription"
                         rules={[{ required: true, message: "Please enter description" }]}
                     >
-                        <ReactQuill ref={quillRef} value={text} onChange={setText} />
+                        <ReactQuill theme='snow' ref={quillRef} value={text} onChange={setText} style={{ backgroundColor: 'white' }} />
                     </Form.Item>
 
                     <Form.Item>
-                        <Button type="primary" htmlType="submit">Submit</Button>
-                        <Button type="default" onClick={handleReset} style={{ marginLeft: 10 }}>Reset</Button>
+                        <div style={{ marginLeft: 400, display: 'flex', justifyContent: 'center' }}>
+                            <Button type="primary" htmlType="submit">Submit</Button>
+                            <Button type="default" onClick={handleReset} style={{ marginLeft: 10 }}>Reset</Button>
+                        </div>
                     </Form.Item>
                 </Form>
             </div>

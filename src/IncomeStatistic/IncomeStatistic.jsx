@@ -177,6 +177,7 @@ const RevenueReport = () => {
                                 title: bookData.bookTitle,
                                 author: bookData.author,
                                 publisher: bookData.publisher,
+                                price: bookData.bookPrice,
                                 image: imagePreview,
                             };
                         } catch (error) {
@@ -279,6 +280,20 @@ const RevenueReport = () => {
             dataIndex: "quantity",
             key: "quantity",
         },
+        {
+            title: "Price",
+            dataIndex: "price",
+            key: "price",
+            render: (price) => `${price.toLocaleString()} VND`, // Hiển thị giá với định dạng tiền tệ
+        },
+        {
+            title: "Total Price",
+            key: "totalPrice",
+            render: (_, record) => {
+                const total = (record.quantity || 0) * (record.price || 0); // Tính tổng giá
+                return `${total.toLocaleString()} VND`; // Hiển thị tổng giá với định dạng tiền tệ
+            },
+        },
     ];
 
 
@@ -361,22 +376,50 @@ const RevenueReport = () => {
                                 {
                                     scaleType: "band",
                                     data: filteredData.map((item) => item.date),
+                                    padding: 0.2, // Tăng khoảng cách giữa các cụm cột
                                 },
                             ]}
                             series={[
-                                { data: filteredData.map((item) => item.Import), label: "Import" },
-                                { data: filteredData.map((item) => item.Export), label: "Export" },
-                                { data: filteredData.map((item) => item.Revenue), label: "Revenue" },
+                                {
+                                    data: filteredData.map((item) => item.Import),
+                                    label: "Import (VND)"
+                                },
+                                {
+                                    data: filteredData.map((item) => item.Export),
+                                    label: "Export (VND)"
+                                },
+                                {
+                                    data: filteredData.map((item) => item.Revenue),
+                                    label: "Revenue (VND)"
+                                },
                             ]}
-                            width={500}
-                            height={500}
-                            barLabel="value"
+                            width={1400} // Tăng chiều rộng để có không gian hiển thị
+                            height={400} // Chiều cao của biểu đồ
+                            barGap={5} // Khoảng cách giữa các cụm cột
+                            barCategoryGap={30} // Khoảng cách giữa các cột trong cụm
+                            barLabel={(value) => {
+                                if (typeof value === "object") {
+                                    const numericValue = Number(value?.value || 0);
+                                    return `${numericValue.toLocaleString()} VND`;
+                                } else if (typeof value === "number") {
+                                    return `${value.toLocaleString()} VND`;
+                                }
+                                return "0 VND"; // Trường hợp không hợp lệ
+                            }}
+                            barLabelPosition="top" // Đặt nhãn ở trên đỉnh cột
+                            barLabelStyle={{
+                                transform: "translateY(-10px)", // Dịch chuyển nhãn lên trên đỉnh cột
+                                fontWeight: "bold", // Tùy chỉnh kiểu chữ nếu cần
+                                fontSize: "12px", // Kích thước chữ
+                            }}
                         />
+
+
                     </div>
                 </div>
 
                 <div style={{ marginBottom: "40px" }}>
-                    <h2 style={{ textAlign: "center", margin: "20px 0" }}>Books Sold This Month</h2>
+                    <h2 style={{ textAlign: "center", margin: "20px 0" }}>Books Sold</h2>
                     <Table
                         dataSource={booksData}
                         columns={columns}
@@ -388,7 +431,7 @@ const RevenueReport = () => {
                 </div>
 
                 <div style={{ marginBottom: "40px" }}>
-                    <h2 style={{ textAlign: "center", margin: "20px 0" }}>Books Imported This Month</h2>
+                    <h2 style={{ textAlign: "center", margin: "20px 0" }}>Books Imported Of All Time</h2>
                     <Table
                         dataSource={importedBooksData} // Dữ liệu đã xử lý
                         columns={importedColumns} // Cột hiển thị
