@@ -41,6 +41,7 @@ const Notifications = () => {
             } catch (error) {
                 console.error('Failed to fetch notifications:', error);
                 setError(error.message || 'An error occurred.');
+                setNotifications("null");
             } finally {
                 setIsLoading(false);
             }
