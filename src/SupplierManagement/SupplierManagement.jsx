@@ -4,7 +4,7 @@ import { Space, Table, Button, Input, message } from 'antd'; // Ant Design compo
 import { fetchSuppliers, updateSupplier, fetchSupplierById } from '../config'; // Adjusted import path
 import DashboardContainer from '../DashBoard/DashBoardContainer.jsx';
 import { DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons'; // Import Ant Design icons
-
+import { checkAdminRole, checkWarehouseStaffRole } from "../jwtConfig";
 const { Search } = Input;
 
 function SupplierManagement() {

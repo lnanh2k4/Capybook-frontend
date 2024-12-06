@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Form, Input, Button, message } from "antd"; // Import Ant Design components
 import { addSupplier } from '../config'; // API to add supplier
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
-
+import { checkAdminRole, checkWarehouseStaffRole } from "../jwtConfig";
 const AddSupplier = () => {
     const [form] = Form.useForm(); // Initialize Ant Design form
     const navigate = useNavigate(); // Initialize useNavigate for routing
