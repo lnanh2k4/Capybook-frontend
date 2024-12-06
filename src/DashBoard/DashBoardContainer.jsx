@@ -16,6 +16,9 @@ const DashboardContainer = () => {
     navigate("/");
   }
   useEffect(() => {
+    if (!checkWarehouseStaffRole() && !checkAdminRole() && !checkSellerStaffRole()) {
+      return navigate("/404");
+    }
     // Cập nhật mục được chọn dựa trên URL
     const path = location.pathname;
     console.log(path)
