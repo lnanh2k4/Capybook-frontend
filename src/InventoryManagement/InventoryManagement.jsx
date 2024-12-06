@@ -63,7 +63,10 @@ const handleDownloadExcelForDateRange = (orders) => {
             order.totalPrice?.toLocaleString() || "0",
         ]),
     ];
+    const totalStockPrice = orders.reduce((acc, order) => acc + (order.totalPrice || 0), 0); // Tổng giá trị cột Total Price
 
+    // Thêm dòng tổng vào sheetData
+    sheetData.push(["", "", "", "", "Total Stock", totalStockPrice.toLocaleString()]);
     console.log("Excel Sheet Data:", sheetData); // Log dữ liệu trước khi xuất
     const worksheet = XLSX.utils.aoa_to_sheet(sheetData);
     const workbook = XLSX.utils.book_new();
