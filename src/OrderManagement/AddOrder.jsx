@@ -9,6 +9,11 @@ import {
   fetchAccountDetail,
 } from "../config";
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
+import {
+  decodeJWT,
+  checkAdminRole,
+  checkSellerStaffRole,
+} from "../jwtConfig.jsx";
 
 const { Option } = Select;
 
@@ -26,6 +31,9 @@ const AddOrder = () => {
   const [selectedAccountDetails, setSelectedAccountDetails] = useState({});
 
   useEffect(() => {
+    if (!checkSellerStaffRole() && !checkAdminRole()) {
+      return navigate("/404");
+    }
     // Fetch dữ liệu sách và khuyến mãi
     fetchBooks()
       .then((response) => {

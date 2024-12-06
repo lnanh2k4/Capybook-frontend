@@ -1,9 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Space, Table, Button, Input, message, Modal, TreeSelect } from "antd";
-import { fetchCategories, searchCategories, deleteCategory, searchCategoriesByParent } from "../config";
+import {
+  fetchCategories,
+  searchCategories,
+  deleteCategory,
+  searchCategoriesByParent,
+} from "../config";
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
-import { DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import {
+  DeleteOutlined,
+  EditOutlined,
+  InfoCircleOutlined,
+} from "@ant-design/icons";
+import {
+  decodeJWT,
+  checkAdminRole,
+  checkSellerStaffRole,
+} from "../jwtConfig.jsx";
 
 const { Search } = Input;
 
@@ -18,6 +32,9 @@ const CategoryManagement = () => {
   const [expandedKeys, setExpandedKeys] = useState([]); // Các mục mở rộng trong TreeSelect
 
   useEffect(() => {
+    if (!checkSellerStaffRole() && !checkAdminRole()) {
+      return navigate("/404");
+    }
     setLoading(true);
     setSelectedCategory("All");
     fetchCategories()
@@ -27,7 +44,7 @@ const CategoryManagement = () => {
             (category) => category.catStatus === 1
           );
           setAllCategories(activeCategories);
-          setFilteredCategories(activeCategories); // Ban đầu hiển thị tất cả các danh mục        
+          setFilteredCategories(activeCategories); // Ban đầu hiển thị tất cả các danh mục
         } else {
           console.error("Expected an array but got", response.data);
         }
@@ -73,14 +90,14 @@ const CategoryManagement = () => {
       });
   };
 
-
-
   const handleEditCategory = (category) => {
     navigate(`/dashboard/category/${category.catID}`);
   };
 
   const handleDelete = (catID) => {
-    const categoryToDelete = allCategories.find((category) => category.catID === catID);
+    const categoryToDelete = allCategories.find(
+      (category) => category.catID === catID
+    );
     Modal.confirm({
       title: "Confirm Deletion",
       content: `Are you sure you want to delete category "${categoryToDelete.catName}"?`,
@@ -101,7 +118,6 @@ const CategoryManagement = () => {
                 );
                 setAllCategories(activeCategories);
                 setFilteredCategories(activeCategories);
-
               } else {
                 console.error("Expected an array but got", response.data);
               }
@@ -120,7 +136,6 @@ const CategoryManagement = () => {
       },
     });
   };
-
 
   const goToAddCategory = () => {
     navigate("/dashboard/category/add");
@@ -150,7 +165,7 @@ const CategoryManagement = () => {
             <InfoCircleOutlined />
           </Button>
           <Button type="link" onClick={() => handleEditCategory(record)}>
-            <EditOutlined style={{ color: 'orange' }} />
+            <EditOutlined style={{ color: "orange" }} />
           </Button>
           <Button type="link" danger onClick={() => handleDelete(record.catID)}>
             <DeleteOutlined />

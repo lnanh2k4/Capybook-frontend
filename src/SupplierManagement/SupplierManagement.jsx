@@ -15,6 +15,9 @@ function SupplierManagement() {
 
     // Fetch suppliers from API
     useEffect(() => {
+        if (!checkWarehouseStaffRole() && !checkAdminRole()) {
+            return navigate("/404");
+        }
         setLoading(true);
         fetchSuppliers()
             .then(response => {

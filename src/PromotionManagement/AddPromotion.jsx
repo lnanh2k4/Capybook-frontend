@@ -4,8 +4,11 @@ import { Form, Input, Button, DatePicker, InputNumber, message } from "antd";
 import { addPromotion, fetchPromotions, fetchStaffByUsername } from "../config";
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import moment from "moment";
-import { decodeJWT } from "../jwtConfig.jsx";
-
+import {
+  decodeJWT,
+  checkAdminRole,
+  checkSellerStaffRole,
+} from "../jwtConfig.jsx";
 const { RangePicker } = DatePicker;
 
 const AddPromotion = () => {
@@ -18,6 +21,9 @@ const AddPromotion = () => {
 
   // Fetch promotions on component mount
   useEffect(() => {
+    if (!checkSellerStaffRole() && !checkAdminRole()) {
+      return navigate("/404");
+    }
     fetchPromotions()
       .then((response) => {
         const activePromotions = response.data.filter(
