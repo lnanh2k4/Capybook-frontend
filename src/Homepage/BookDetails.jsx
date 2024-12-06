@@ -48,75 +48,81 @@ const BookDetails = () => {
   const [imagePreview, setImagePreview] = useState(null);
 
   useEffect(() => {
-    const fetchBookAndApplyPromotion = async () => {
+    const fetchData = async () => {
       try {
-        // Fetch book data
         const bookResponse = await fetchBookById(bookId);
-        if (bookResponse && bookResponse.data) {
-          const book = bookResponse.data;
-          setBookData({
-            ...book,
-            originalPrice: book.bookPrice, // Lưu giá gốc trước khi áp dụng khuyến mãi
-          });
+        const promotionResponse = await fetchPromotions();
 
-          // Set image preview
+        if (bookResponse?.data) {
+          const book = {
+            ...bookResponse.data,
+            originalPrice: bookResponse.data.bookPrice,
+          };
+
+          // Cập nhật `bookData` sau khi áp dụng khuyến mãi
+          const updatedBook = applyPromotion(
+            book,
+            promotionResponse?.data || []
+          );
+          setBookData(updatedBook);
+
+          // Cập nhật hình ảnh nếu cần
           const imageFromDB = book.image;
-          setImagePreview(
-            imageFromDB && imageFromDB.startsWith(`/uploads/book_`)
-              ? `http://localhost:6789${imageFromDB}`
-              : imageFromDB
-          );
-
-          // Fetch promotions
-          const promotionResponse = await fetchPromotions();
-          const promotions = promotionResponse.data || [];
-          const currentDate = new Date();
-
-          // Lọc các khuyến mãi hợp lệ
-          const validPromotions = promotions.filter((promo) => {
-            const startDate = new Date(promo.startDate);
-            const endDate = new Date(promo.endDate);
-            return (
-              promo.quantity > 0 &&
-              promo.proStatus === 1 &&
-              promo.approveBy !== null &&
-              currentDate >= startDate &&
-              currentDate <= endDate
-            );
-          });
-
-          // Tìm khuyến mãi tốt nhất
-          const bestPromo = validPromotions.reduce(
-            (max, promo) =>
-              promo.discount > (max?.discount || 0) ? promo : max,
-            null
-          );
-
-          // Áp dụng khuyến mãi nếu có
-          if (bestPromo) {
-            setBookData((prevBookData) => ({
-              ...prevBookData,
-              bookPrice: Math.max(
-                Math.round(
-                  prevBookData.bookPrice * (1 - bestPromo.discount / 100)
-                ),
-                1 // Đảm bảo giá tối thiểu là 1
-              ),
-              discount: bestPromo.discount,
-              bookTitle: `[${bestPromo.proCode}] ${prevBookData.bookTitle}`, // Ghép mã khuyến mãi vào tiêu đề
-            }));
+          if (imageFromDB && imageFromDB.startsWith(`/uploads/book_`)) {
+            setImagePreview(`http://localhost:6789${imageFromDB}`);
+          } else {
+            setImagePreview(imageFromDB);
           }
-        } else {
-          console.error("No data received from API");
         }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
 
-    fetchBookAndApplyPromotion();
+    fetchData();
   }, [bookId]);
 
+  const applyPromotion = (book, promotions) => {
+    const currentDate = new Date();
+
+    // Lọc các khuyến mãi hợp lệ
+    const validPromotions = promotions.filter((promo) => {
+      const startDate = new Date(promo.startDate);
+      const endDate = new Date(promo.endDate);
+      return (
+        promo.quantity > 0 &&
+        promo.proStatus === 1 &&
+        promo.approveBy !== null &&
+        currentDate >= startDate &&
+        currentDate <= endDate
+      );
+    });
+
+    // Tìm khuyến mãi tốt nhất
+    const bestPromo = validPromotions.reduce(
+      (max, promo) => (promo.discount > (max?.discount || 0) ? promo : max),
+      null
+    );
+
+    if (bestPromo) {
+      return {
+        ...book,
+        bookPrice: Math.max(
+          Math.round(
+            book.originalPrice - (book.originalPrice * bestPromo.discount) / 100
+          ),
+          1
+        ),
+        discount: bestPromo.discount,
+        bookTitle: `[${bestPromo.proCode}] ${book.bookTitle}`,
+      };
+    }
+    return book;
+  };
+
+  const handleNotificationClick = () => {
+    navigate("/notifications");
+  };
   const handleLogout = () => {
     logout();
     navigate("/");
@@ -194,9 +200,16 @@ const BookDetails = () => {
         />
 
         <div style={{ display: "flex", alignItems: "center" }}>
-          <BellOutlined
-            style={{ fontSize: "24px", marginRight: "20px", color: "#fff" }}
-          />
+          <Button
+            type="text"
+            icon={
+              <BellOutlined
+                style={{ fontSize: "24px", marginRight: "20px", color: "#fff" }}
+              />
+            }
+            style={{ color: "#fff" }}
+            onClick={handleNotificationClick}
+          ></Button>
           <ShoppingCartOutlined
             style={{ fontSize: "24px", marginRight: "20px", color: "#fff" }}
           />

@@ -336,6 +336,35 @@ const PromotionManagement = () => {
     });
   };
 
+  const handleApprove = (record) => {
+    if (!staffID) {
+      message.error("Unable to perform action. Staff ID not found.");
+      return;
+    }
+
+    Modal.confirm({
+      title: "Approve Promotion",
+      content: `Are you sure you want to approve promotion "${record.proName}"?`,
+      okText: "Yes",
+      cancelText: "No",
+      onOk: async () => {
+        try {
+          await updatePromotion(record.proID, {
+            actionId: 2, // Approve action
+            staffID: staffID, // Pass staffID
+          });
+          message.success(
+            `Promotion "${record.proName}" approved successfully.`
+          );
+          fetchPromotionsData(); // Refresh promotions data
+        } catch (error) {
+          console.error("Error approving promotion:", error);
+          message.error("Failed to approve promotion.");
+        }
+      },
+    });
+  };
+
   const handleFilterChange = (value) => {
     setFilterStatus(value);
   };
