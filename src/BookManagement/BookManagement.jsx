@@ -122,6 +122,7 @@ function BookManagement() {
             title: 'Quantity',
             dataIndex: 'bookQuantity',
             key: 'bookQuantity',
+            render: (quantity) => `${new Intl.NumberFormat("en-US").format(quantity)}`
         },
         {
             title: 'Price',

@@ -112,11 +112,11 @@ function ViewBookDetail() {
                                 <Descriptions.Item label="Publication Year" contentStyle={{ textAlign: 'left' }}>{bookData.publicationYear}</Descriptions.Item>
                                 <Descriptions.Item label="Author" contentStyle={{ textAlign: 'left' }}>{bookData.author}</Descriptions.Item>
                                 <Descriptions.Item label="Dimensions" contentStyle={{ textAlign: 'left' }}>{bookData.dimension}</Descriptions.Item>
-                                <Descriptions.Item label="Price" contentStyle={{ textAlign: 'left' }}>{bookData.bookPrice}</Descriptions.Item>
+                                <Descriptions.Item label="Price" contentStyle={{ textAlign: 'left' }}>{new Intl.NumberFormat("en-US").format(bookData.bookPrice)} VND</Descriptions.Item>
                                 <Descriptions.Item label="Translator" contentStyle={{ textAlign: 'left' }}>{bookData.translator}</Descriptions.Item>
                                 <Descriptions.Item label="Hardcover" contentStyle={{ textAlign: 'left' }}>{bookData.hardcover}</Descriptions.Item>
                                 <Descriptions.Item label="Publisher" contentStyle={{ textAlign: 'left' }}>{bookData.publisher}</Descriptions.Item>
-                                <Descriptions.Item label="Weight" contentStyle={{ textAlign: 'left' }}>{bookData.weight}</Descriptions.Item>
+                                <Descriptions.Item label="Weight" contentStyle={{ textAlign: 'left' }}>{bookData.weight} gram</Descriptions.Item>
                                 <Descriptions.Item label="Isbn" contentStyle={{ textAlign: 'left' }}>{bookData.isbn}</Descriptions.Item>
                                 <Descriptions.Item label="Description" contentStyle={{ textAlign: 'left' }}>{bookData.bookDescription}</Descriptions.Item>
                             </Descriptions>
