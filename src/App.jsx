@@ -70,6 +70,7 @@ import OrderPage from "./Homepage/OrderPage";
 // Import login, logout, register
 import Login from "./Login/Login/"
 import Register from "./Register/Register";
+import VerifyAccount from "./Register/verifyAccount"
 
 // Import cart
 import CartDetails from "./Homepage/CartDetails";
@@ -152,12 +153,13 @@ function App() {
         <Route path="/dashboard/category/add" element={<AddCategory />} />
         <Route path="/dashboard/category/:catID" element={<EditCategory />} />
 
-        {/* Login, Register, Logout, Forgot password, Reset Password, Verify Email */}
+        {/* Login, Register, Logout, Forgot password, Reset Password, Verify Email, Verify Account */}
         <Route path="/auth/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/password/forgot" element={<ForgotPassword />} />
         <Route path="/password/reset" element={<ResetPassword />} />
         <Route path="/email/verify" element={<VerifyEmail />} />
+        <Route path="/account/verify" element={<VerifyAccount />} />
 
         {/* Manage profile */}
         <Route path="/profile" element={<Profile />} />

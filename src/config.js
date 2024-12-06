@@ -82,18 +82,14 @@ export const addImportStockDetail = (savedStockId, details) => {
 
 // Account configuration
 const addAccount = (account) => {
-    return client.post('v1/accounts/', account, {
+    return client.post(`v1/accounts/`, account, {
         headers: {
             'Content-Type': 'multipart/form-data',
         }
     });
 };
 const fetchAccounts = () => {
-    if (checkAdminRole()) {
-        return client.get('v1/accounts/')
-    } else {
-        window.location.href = '/dashboard'
-    }
+    return client.get(`v1/accounts/`)
 
 }
 const fetchAccountDetail = (username) => {
@@ -103,7 +99,7 @@ const fetchAccountDetail = (username) => {
 }
 const deleteAccount = (username) => client.delete(`v1/accounts/${username}`);
 const updateAccount = (username, formDataToSend) => {
-    return axios.put(`${URLString}v1/accounts/${username}`, formDataToSend);
+    return client.put(`v1/accounts/${username}`, formDataToSend);
 };
 const searchAccount = (keyword) => client.get(`v1/accounts/search?keyword=${keyword}`);
 
@@ -146,8 +142,14 @@ export const verifyEmail = (code) => axios.post(`${URLString}v1/accounts/email/v
     }
 });
 
+export const verifyAccount = (code) => axios.post(`${URLString}v1/accounts/account/verify/`, code, {
+    headers: {
+        'Content-Type': 'multipart/form-data',
+    }
+});
+
 const registerAccount = (account) => {
-    return client.post('v1/accounts/register', account, {
+    return axios.post(`${URLString}v1/accounts/register`, account, {
         headers: {
             'Content-Type': 'multipart/form-data',
         }
@@ -253,7 +255,7 @@ const searchPromotions = (id, term) => {
 const fetchPromotionById = (proID) => client.get(`/v1/promotions/${proID}`);
 
 const fetchCategories = () => {
-    return axios.get(`${URLString}v1/categories/`);
+    return client.get(`v1/categories/`);
 }
 const fetchCategoryDetail = (catID) => {
     console.log("Fetching category detail for ID:", catID);

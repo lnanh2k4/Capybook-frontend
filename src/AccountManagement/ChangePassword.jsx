@@ -12,7 +12,7 @@ function ChangePassword() {
     const [form] = Form.useForm(); // Ant Design form instance
 
     const goToProfile = () => {
-        navigate("/profile");
+        navigate("/dashboard");
     };
 
     const handleSubmit = async (values) => {
@@ -30,7 +30,7 @@ function ChangePassword() {
 
             await changePassword(formDataToSend);
             message.success('Change password successfully');
-            navigate("/profile");
+            navigate("/dashboard/profile");
         } catch (error) {
             console.error('Error change password:', error);
             message.error('Failed to change password.');

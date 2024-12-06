@@ -77,6 +77,8 @@ const StaffManagement = () => {
         setIsModalDeleteOpen(false);
     };
 
+    console.log(staffs)
+
     // Handle Search
     const handleSearch = (value) => {
         setSearchKey(value)
@@ -189,7 +191,7 @@ const StaffManagement = () => {
                 </div>
                 <Table
                     columns={columns}
-                    dataSource={staffs}
+                    dataSource={staffs.filter(staff => staff.username.role !== 1)}
                     rowKey="staffID"
                     loading={loading}
                     pagination={{ pageSize: 10 }}

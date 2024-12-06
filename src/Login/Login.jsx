@@ -2,7 +2,8 @@ import React from 'react';
 import { Button, Form, Input, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import './Login.css'; // Đường dẫn tới file CSS
-import { login } from '../config.js';
+import { login, forgotPassword } from '../config.js';
+import { decodeJWT } from '../jwtConfig.jsx';
 
 const Login = () => {
     const navigate = useNavigate();
@@ -12,23 +13,35 @@ const Login = () => {
                 username: values.username,
                 password: values.password
             }
-
             const formDataToSend = new FormData()
             formDataToSend.append('login', JSON.stringify(loginData))
-            console.log(values)
             const response = await login(formDataToSend)
+            console.log(response)
+
             if (!response.data) {
                 message.error('Username or password is incorrect! Please enter again')
             } else if (response.data.accountDTO) {
+                localStorage.setItem("jwtToken", response.data.token)
                 message.success('Login successfully')
-                if (response.data.accountDTO.role === 0 || response.data.accountDTO.role === 2 || response.data.accountDTO.role === 3) {
-                    navigate("/dashboard/accounts");
+                if (decodeJWT().status === 3) {
+                    const verifyAccountData = {
+                        username: response.data.accountDTO.username,
+                        email: response.data.accountDTO.email
+                    }
+                    const formVerifyAccountDataToSend = new FormData()
+                    formVerifyAccountDataToSend.append('forgot-password', JSON.stringify(verifyAccountData))
+                    navigate("/account/verify")
+                    await forgotPassword(formVerifyAccountDataToSend)
+
                 } else {
-                    navigate("/");
+                    if (response.data.accountDTO.role === 0 || response.data.accountDTO.role === 2 || response.data.accountDTO.role === 3) {
+                        navigate("/dashboard");
+                    } else {
+                        navigate("/");
+                    }
                 }
+
             }
-            console.log(response)
-            localStorage.setItem("jwtToken", response.data.token)
         } catch (error) {
             console.log(error)
             message.error('Login failed')
