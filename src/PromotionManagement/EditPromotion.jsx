@@ -59,7 +59,7 @@ const EditPromotion = () => {
 
       await updatePromotion(proID, promotionData);
       message.success("Promotion updated successfully");
-      navigate("/dashboard/promotion-management");
+      navigate("/dashboard/promotions");
     } catch (error) {
       console.error("Error updating promotion:", error);
       message.error("Failed to update promotion");
@@ -73,7 +73,7 @@ const EditPromotion = () => {
   };
 
   const handleResetOrBack = () => {
-    navigate("/dashboard/promotion-management");
+    navigate("/dashboard/promotions");
   };
 
   const disabledDate = (current) => {

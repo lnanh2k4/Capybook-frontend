@@ -116,7 +116,7 @@ const AddPromotion = () => {
       // Gửi request
       await addPromotion(promotionData, username);
       message.success("Promotion added successfully");
-      navigate("/dashboard/promotion-management");
+      navigate("/dashboard/promotions");
     } catch (error) {
       console.error("Error adding promotion:", error);
       message.error("Failed to add promotion");
@@ -131,7 +131,7 @@ const AddPromotion = () => {
 
   const handleResetOrBack = () => {
     if (isFormEmpty) {
-      navigate("/dashboard/promotion-management");
+      navigate("/dashboard/promotions");
     } else {
       form.resetFields();
       setIsFormEmpty(true);
