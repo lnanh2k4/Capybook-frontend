@@ -3,7 +3,7 @@ import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { fetchBookById, updateBook, fetchCategories, fetchAccountDetail, updateAccount, logout } from '../config';
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import { Form, Input, Button, InputNumber, Upload, message, Select, Menu, Radio } from 'antd';
-import { decodeJWT } from '../jwtConfig.jsx';
+import { checkAdminRole, checkSellerStaffRole, checkWarehouseStaffRole, decodeJWT } from '../jwtConfig.jsx';
 
 function Profile() {
     const [form] = Form.useForm(); // Ant Design form instance
@@ -11,6 +11,9 @@ function Profile() {
     const username = decodeJWT(localStorage.getItem("jwtToken")).sub
     const navigate = useNavigate();
     useEffect(() => {
+        if (!checkAdminRole() && !checkSellerStaffRole() && !checkWarehouseStaffRole()) {
+            return navigate("/404");
+        }
         if (username) {
             fetchAccountDetail(username)
                 .then(response => {

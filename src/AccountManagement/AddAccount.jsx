@@ -10,11 +10,14 @@ import {
     Select,
     message
 } from 'antd';
+import { checkAdminRole } from '../jwtConfig.jsx';
 
 const AddAccount = () => {
     const [form] = Form.useForm();  // Sử dụng Ant Design Form API
     const navigate = useNavigate();
-
+    if (!checkAdminRole()) {
+        navigate("/404");
+    }
     const handleSubmit = async (values) => {
         try {
             console.log(values)
@@ -59,6 +62,7 @@ const AddAccount = () => {
 
     return (
         <>
+
             <h1 style={{ textAlign: 'center' }}>Add Account</h1>
             <DashboardContainer />
             <div className="add-account-container">

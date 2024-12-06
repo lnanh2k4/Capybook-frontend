@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { fetchAccountDetail, updateAccount } from '../config';
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import { Form, Input, Button, Radio, message, Select } from 'antd';
+import { checkAdminRole } from '../jwtConfig.jsx';
 
 function EditAccount() {
     const { username } = useParams();
@@ -12,8 +13,10 @@ function EditAccount() {
     const goToAccountManagement = () => {
         navigate("/dashboard/accounts");
     };
-
     useEffect(() => {
+        if (!checkAdminRole()) {
+            return navigate("/404");
+        }
         if (username) {
             fetchAccountDetail(username)
                 .then(response => {
