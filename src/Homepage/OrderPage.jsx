@@ -21,17 +21,15 @@ const OrderPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-
   // Lấy username từ decodeJWT
   const username = decodeJWT(localStorage.getItem("jwtToken"))?.sub;
   // Lấy dữ liệu từ `location.state`
-  const cartItems = location.state?.bookData || [];
   const accountInfo = location.state?.accountInfo || {
     firstName: "",
     lastName: "",
     phone: "",
     address: "",
-  });
+  };
 
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [editableAddress, setEditableAddress] = useState("");
@@ -138,9 +136,12 @@ const OrderPage = () => {
       console.log("Redirecting to payment URL:", paymentUrl);
       window.location.href = paymentUrl;
     } catch (error) {
-      console.error("Error during checkout:", error.response?.data || error.message);
+      console.error(
+        "Error during checkout:",
+        error.response?.data || error.message
+      );
       Modal.error({
-        content: 'Failed to initiate payment. Please try again.',
+        content: "Failed to initiate payment. Please try again.",
       });
     }
   };
