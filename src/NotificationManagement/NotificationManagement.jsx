@@ -4,6 +4,7 @@ import { Space, Table, Tag, Button, Input, message } from 'antd'; // Ant Design 
 import { fetchNotifications, deleteNotification } from '../config'; // API imports
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import { DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { checkAdminRole, checkSellerStaffRole, checkWarehouseStaffRole } from '../jwtConfig.jsx';
 
 const { Search } = Input;
 
@@ -16,6 +17,9 @@ const NotificationManagement = () => {
 
     // Fetch accounts from the API
     useEffect(() => {
+        if (checkAdminRole || checkWarehouseStaffRole || checkSellerStaffRole) {
+            navigate("/404");
+        }
         setLoading(true);
         fetchNotifications()
             .then(response => {
