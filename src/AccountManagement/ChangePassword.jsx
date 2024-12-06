@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { changePassword, fetchAccountDetail, updateAccount } from '../config';
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import { Form, Input, Button, Radio, message, Select } from 'antd';
-import { decodeJWT } from '../jwtConfig.jsx';
+import { checkSellerStaffRole, checkWarehouseStaffRole, decodeJWT, checkAdminRole } from '../jwtConfig.jsx';
 import Password from 'antd/es/input/Password.js';
 
 function ChangePassword() {
@@ -14,23 +14,29 @@ function ChangePassword() {
     const goToProfile = () => {
         navigate("/dashboard");
     };
-
+    if (!checkAdminRole() && !checkSellerStaffRole() && !checkWarehouseStaffRole()) {
+        return navigate("/404");
+    }
     const handleSubmit = async (values) => {
         try {
             const formDataToSend = new FormData();
             let username = decodeJWT().sub
             let currentPassword = values.currentPassword
             let newPassword = values.newPassword
-            // Create the book data object, explicitly setting bookStatus to 1
-            const changePasswordData = {
-                username, currentPassword, newPassword
-            };
+            if (values.newPassword === values.confirmPassword) {
+                // Create the book data object, explicitly setting bookStatus to 1
+                const changePasswordData = {
+                    username, currentPassword, newPassword
+                };
 
-            formDataToSend.append('password-request', JSON.stringify(changePasswordData));
+                formDataToSend.append('password-request', JSON.stringify(changePasswordData));
 
-            await changePassword(formDataToSend);
-            message.success('Change password successfully');
-            navigate("/dashboard/profile");
+                await changePassword(formDataToSend);
+                message.success('Change password successfully');
+                navigate("/dashboard/profile");
+            } else {
+                message.error('New password and confirm password are not match!');
+            }
         } catch (error) {
             console.error('Error change password:', error);
             message.error('Failed to change password.');

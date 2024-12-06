@@ -197,7 +197,7 @@ function BookManagement() {
                 </div>
                 <Table
                     columns={columns}
-                    dataSource={books} // Dữ liệu từ API search hoặc tất cả sách
+                    dataSource={books.filter((book) => book.bookStatus === 1)}// Dữ liệu từ API search hoặc tất cả sách
                     rowKey={(record) => record.bookID}
                 />
             </div>

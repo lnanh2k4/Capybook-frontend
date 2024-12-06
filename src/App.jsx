@@ -89,6 +89,7 @@ function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/*" element={<ErrorPage />} />
         {/* error Page */}
         <Route path="/404" element={<ErrorPage />} />
 

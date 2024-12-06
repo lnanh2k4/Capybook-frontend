@@ -5,15 +5,18 @@ import { fetchNotificationDetail } from '../config';
 import UnderlineOutlined from '@ant-design/icons';
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import ReactHtmlParser from 'html-react-parser';
+import { checkAdminRole, checkSellerStaffRole, checkWarehouseStaffRole } from '../jwtConfig.jsx';
 
 function NotificationDetail() {
     const [notificationyData, setNotificationData] = useState(null);
     const navigate = useNavigate();
-    const quillRef = useRef();  // Create a ref for ReactQuill
     const { notID } = useParams();  // Get the Notification ID from the route
     const [text, setText] = useState('');
 
     useEffect(() => {
+        if (checkAdminRole || checkWarehouseStaffRole || checkSellerStaffRole) {
+            navigate("/404");
+        }
         const loadNotificationDetail = async () => {
             try {
                 console.log("notID: " + notID)

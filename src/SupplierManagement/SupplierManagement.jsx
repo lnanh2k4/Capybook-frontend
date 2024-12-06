@@ -5,6 +5,8 @@ import { fetchSuppliers, updateSupplier, fetchSupplierById } from '../config'; /
 import DashboardContainer from '../DashBoard/DashBoardContainer.jsx';
 import { DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons'; // Import Ant Design icons
 
+import { checkAdminRole, checkWarehouseStaffRole } from "../jwtConfig";
+
 const { Search } = Input;
 
 function SupplierManagement() {
