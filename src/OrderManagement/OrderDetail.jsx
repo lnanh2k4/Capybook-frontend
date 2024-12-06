@@ -8,6 +8,11 @@ import {
   fetchBookDetail,
   fetchPromotionDetail,
 } from "../config";
+import {
+  decodeJWT,
+  checkAdminRole,
+  checkSellerStaffRole,
+} from "../jwtConfig.jsx";
 
 const OrderDetail = () => {
   const navigate = useNavigate();
@@ -18,6 +23,9 @@ const OrderDetail = () => {
   const [discount, setDiscount] = useState(0);
 
   useEffect(() => {
+    if (!checkSellerStaffRole() && !checkAdminRole()) {
+      return navigate("/404");
+    }
     const fetchData = async () => {
       if (id) {
         try {

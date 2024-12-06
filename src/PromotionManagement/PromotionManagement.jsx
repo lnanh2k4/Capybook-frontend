@@ -24,7 +24,11 @@ import {
 } from "../config";
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import moment from "moment";
-import { decodeJWT } from "../jwtConfig.jsx";
+import {
+  decodeJWT,
+  checkAdminRole,
+  checkSellerStaffRole,
+} from "../jwtConfig.jsx";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -50,6 +54,9 @@ const PromotionManagement = () => {
 
   // Fetch staffID khi component mount
   useEffect(() => {
+    if (!checkSellerStaffRole() && !checkAdminRole()) {
+      return navigate("/404");
+    }
     const fetchStaffID = async () => {
       try {
         const response = await fetchStaffByUsername(username); // Lấy thông tin staff bằng username
@@ -205,24 +212,37 @@ const PromotionManagement = () => {
       const response = await fetchPromotionLogs(activity);
       const logsData = response.data || [];
 
-      // Dùng Promise.all để lấy username tương ứng với mỗi staffId
-      const logsWithUsernames = await Promise.all(
+      // Dùng Promise.all để lấy cả username và proName
+      const logsWithDetails = await Promise.all(
         logsData.map(async (log) => {
           try {
-            const staffResponse = await fetchStaffDetail(log.staffId); // Gọi API lấy thông tin staff
-            const username = staffResponse.data.username || "Unknown"; // Lấy username
-            return { ...log, username }; // Gắn username vào log
+            // Fetch staff information
+            const staffResponse = await fetchStaffDetail(log.staffId);
+            const username = staffResponse.data.username || "Unknown";
+
+            // Fetch promotion details
+            const promotionResponse = await fetchPromotions();
+            const promotion = promotionResponse.data.find(
+              (promo) => promo.proID === log.proId
+            );
+            const proName = promotion ? promotion.proName : "Unknown Promotion";
+
+            return { ...log, username, proName }; // Gắn thêm `proName` vào log
           } catch (error) {
             console.error(
-              `Error fetching username for staffId ${log.staffId}`,
+              `Error fetching details for log ID ${log.proLogId}:`,
               error
             );
-            return { ...log, username: "Unknown" }; // Trường hợp lỗi
+            return {
+              ...log,
+              username: "Unknown",
+              proName: "Unknown Promotion",
+            };
           }
         })
       );
 
-      setLogs(logsWithUsernames); // Lưu logs với username vào state
+      setLogs(logsWithDetails); // Cập nhật logs với thông tin mới
       setLogModalVisible(true); // Hiển thị modal logs
     } catch (error) {
       console.error("Error fetching promotion logs:", error);
@@ -238,27 +258,45 @@ const PromotionManagement = () => {
 
     try {
       const activityParam = value === "all" ? null : value;
-      const response = await fetchPromotionLogs(activityParam); // Fetch logs từ API
-      const logsData = response.data || [];
 
-      // Dùng Promise.all để fetch thông tin staff tương ứng với từng log
-      const logsWithUsernames = await Promise.all(
+      // Fetch logs từ API
+      const logResponse = await fetchPromotionLogs(activityParam);
+      const logsData = logResponse.data || [];
+
+      // Fetch danh sách promotions
+      const promotionResponse = await fetchPromotions();
+      const promotions = promotionResponse.data || [];
+
+      // Dùng Promise.all để fetch thông tin staff và tìm promotion tương ứng
+      const logsWithDetails = await Promise.all(
         logsData.map(async (log) => {
           try {
-            const staffResponse = await fetchStaffDetail(log.staffId); // Fetch thông tin staff
-            const username = staffResponse.data.username || "Unknown"; // Lấy username
-            return { ...log, username }; // Gắn username vào log
+            // Fetch staff thông tin
+            const staffResponse = await fetchStaffDetail(log.staffId);
+            const username = staffResponse.data.username || "Unknown";
+
+            // Tìm promotion dựa trên proId
+            const promotion = promotions.find(
+              (promo) => `${promo.proID}` === `${log.proId}` // So sánh kiểu chuỗi
+            );
+            const proName = promotion ? promotion.proName : "Unknown Promotion";
+
+            return { ...log, username, proName }; // Gắn thêm `proName` vào log
           } catch (error) {
             console.error(
-              `Error fetching staff for log ID ${log.proLogId}:`,
+              `Error fetching details for log ID ${log.proLogId}:`,
               error
             );
-            return { ...log, username: "Unknown" }; // Gắn giá trị mặc định nếu có lỗi
+            return {
+              ...log,
+              username: "Unknown",
+              proName: "Unknown Promotion",
+            };
           }
         })
       );
 
-      setLogs(logsWithUsernames); // Cập nhật logs với username
+      setLogs(logsWithDetails); // Cập nhật logs với thông tin mới
     } catch (error) {
       console.error("Error fetching promotion logs:", error);
       message.error("Unable to load promotion logs.");
@@ -521,16 +559,16 @@ const PromotionManagement = () => {
                   >
                     <p>
                       {log.proAction === 1
-                        ? `${
-                            log.username || "Unknown"
-                          } created promotion (ID: ${log.proId || "N/A"})`
+                        ? `${log.username || "Unknown"} created promotion "${
+                            log.proName || "Unknown Promotion"
+                          }"`
                         : log.proAction === 2
-                        ? `${
-                            log.username || "Unknown"
-                          } approved promotion (ID: ${log.proId || "N/A"})`
-                        : `${
-                            log.username || "Unknown"
-                          } rejected promotion (ID: ${log.proId || "N/A"})`}
+                        ? `${log.username || "Unknown"} approved promotion "${
+                            log.proName || "Unknown Promotion"
+                          }"`
+                        : `${log.username || "Unknown"} rejected promotion "${
+                            log.proName || "Unknown Promotion"
+                          }`}
                     </p>
                     <small>
                       {log.proLogDate
