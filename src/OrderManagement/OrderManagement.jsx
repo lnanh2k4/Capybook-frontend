@@ -20,6 +20,11 @@ import {
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import { EditOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import moment from "moment";
+import {
+  decodeJWT,
+  checkAdminRole,
+  checkSellerStaffRole,
+} from "../jwtConfig.jsx";
 
 const { Search } = Input;
 const { Option } = Select;
@@ -37,6 +42,9 @@ const OrderManagement = () => {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (!checkSellerStaffRole() && !checkAdminRole()) {
+      return navigate("/404");
+    }
     loadOrders();
   }, []);
 

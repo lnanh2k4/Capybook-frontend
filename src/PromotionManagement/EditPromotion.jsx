@@ -4,6 +4,11 @@ import { Form, Input, Button, DatePicker, InputNumber, message } from "antd"; //
 import { updatePromotion, fetchPromotionDetail } from "../config"; // API để cập nhật và lấy dữ liệu
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import moment from "moment"; // Import moment for date handling
+import {
+  decodeJWT,
+  checkAdminRole,
+  checkSellerStaffRole,
+} from "../jwtConfig.jsx";
 
 const { RangePicker } = DatePicker;
 
@@ -15,6 +20,9 @@ const EditPromotion = () => {
   const [isFormEmpty, setIsFormEmpty] = useState(false);
 
   useEffect(() => {
+    if (!checkSellerStaffRole() && !checkAdminRole()) {
+      return navigate("/404");
+    }
     setLoading(true);
     fetchPromotionDetail(proID)
       .then((response) => {
@@ -38,14 +46,14 @@ const EditPromotion = () => {
     try {
       const [startDate, endDate] = values.dateRange;
       const promotionData = {
-  proName: values.promotionName,
-  proCode: values.promotionCode,
-  quantity: values.quantity,
-  discount: values.discount,
-  startDate: startDate.format("YYYY-MM-DD"),
-  endDate: endDate.format("YYYY-MM-DD"),
-  proStatus: 1,
-};
+        proName: values.promotionName,
+        proCode: values.promotionCode,
+        quantity: values.quantity,
+        discount: values.discount,
+        startDate: startDate.format("YYYY-MM-DD"),
+        endDate: endDate.format("YYYY-MM-DD"),
+        proStatus: 1,
+      };
 
       console.log("Promotion data to be updated:", promotionData);
 

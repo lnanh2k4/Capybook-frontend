@@ -3,6 +3,11 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Card, Button, Input, message } from "antd";
 import { fetchPromotionDetail, fetchStaffDetail } from "../config";
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
+import {
+  decodeJWT,
+  checkAdminRole,
+  checkSellerStaffRole,
+} from "../jwtConfig.jsx";
 
 const PromotionDetail = () => {
   const { proID } = useParams();
@@ -12,6 +17,9 @@ const PromotionDetail = () => {
   const [approvedByUsername, setApprovedByUsername] = useState("N/A");
 
   useEffect(() => {
+    if (!checkSellerStaffRole() && !checkAdminRole()) {
+      return navigate("/404");
+    }
     // Fetch promotion details
     fetchPromotionDetail(proID)
       .then(async (response) => {
@@ -20,13 +28,17 @@ const PromotionDetail = () => {
 
         // Fetch createdBy username if available
         if (response.data.createdBy) {
-          const createdByResponse = await fetchStaffDetail(response.data.createdBy);
+          const createdByResponse = await fetchStaffDetail(
+            response.data.createdBy
+          );
           setCreatedByUsername(createdByResponse.data.username);
         }
 
         // Fetch approvedBy username if available
         if (response.data.approvedBy) {
-          const approvedByResponse = await fetchStaffDetail(response.data.approvedBy);
+          const approvedByResponse = await fetchStaffDetail(
+            response.data.approvedBy
+          );
           setApprovedByUsername(approvedByResponse.data.username);
         }
       })

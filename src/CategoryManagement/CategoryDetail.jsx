@@ -1,81 +1,91 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Button, Form, Input, message } from 'antd';
-import { fetchCategoryDetail } from '../config';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Button, Form, Input, message } from "antd";
+import { fetchCategoryDetail } from "../config";
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
-import TextArea from 'antd/es/input/TextArea.js';
+import TextArea from "antd/es/input/TextArea.js";
+import {
+  decodeJWT,
+  checkAdminRole,
+  checkSellerStaffRole,
+} from "../jwtConfig.jsx";
+
 function CategoryDetail() {
-    const [categoryData, setCategoryData] = useState(null);
-    const navigate = useNavigate();
-    const { catID } = useParams();  // Get the category ID from the route
+  const [categoryData, setCategoryData] = useState(null);
+  const navigate = useNavigate();
+  const { catID } = useParams(); // Get the category ID from the route
 
-    useEffect(() => {
-        const loadCategoryDetail = async () => {
-            try {
-                // Fetch the current category details
-                const response = await fetchCategoryDetail(catID);
-                const category = response.data;
-                setCategoryData(category);
-            } catch (error) {
-                console.error("Error fetching category detail:", error);
-                message.error("Failed to fetch category details");
-            }
-        };
-
-        loadCategoryDetail();
-    }, [catID]);
-
-    const handleBack = () => {
-        navigate("/dashboard/category");
+  useEffect(() => {
+    if (!checkSellerStaffRole() && !checkAdminRole()) {
+      return navigate("/404");
+    }
+    const loadCategoryDetail = async () => {
+      try {
+        // Fetch the current category details
+        const response = await fetchCategoryDetail(catID);
+        const category = response.data;
+        setCategoryData(category);
+      } catch (error) {
+        console.error("Error fetching category detail:", error);
+        message.error("Failed to fetch category details");
+      }
     };
 
-    if (!categoryData) {
-        return <p>Loading category details...</p>;
-    }
+    loadCategoryDetail();
+  }, [catID]);
 
-    return (
-        <div className="main-container">
-            <div className="dashboard-container">
-                <DashboardContainer />
-            </div>
+  const handleBack = () => {
+    navigate("/dashboard/category");
+  };
 
-            <div className="dashboard-content">
-                <div className="titlemanagement">
-                    <div>Category Management - Category Details</div>
-                </div>
+  if (!categoryData) {
+    return <p>Loading category details...</p>;
+  }
 
-                <Form
-                    layout="vertical"
-                    style={{ maxWidth: '800px', margin: 'auto' }}
-                >
+  return (
+    <div className="main-container">
+      <div className="dashboard-container">
+        <DashboardContainer />
+      </div>
 
-                    <Form.Item label="Category Name">
-                        <Input value={categoryData.catName} readOnly />
-                    </Form.Item>
-
-                    <Form.Item>
-                        <TextArea value={categoryData.catDescription} readOnly />
-                    </Form.Item>
-
-                    <Form.Item>
-                        <Button
-                            type="default"
-                            onClick={handleBack}
-                            style={{ backgroundColor: "black", color: "white", display: 'block', margin: '0 auto' }}
-                        >
-                            Back
-                        </Button>
-                    </Form.Item>
-                </Form>
-            </div>
-
-            <div className="copyright">
-                <div>© {new Date().getFullYear()}</div>
-                <div>Capybook Management System</div>
-                <div>All Rights Reserved</div>
-            </div>
+      <div className="dashboard-content">
+        <div className="titlemanagement">
+          <div>Category Management - Category Details</div>
         </div>
-    );
+
+        <Form layout="vertical" style={{ maxWidth: "800px", margin: "auto" }}>
+          <Form.Item label="Category Name">
+            <Input value={categoryData.catName} readOnly />
+          </Form.Item>
+
+          <Form.Item>
+            <TextArea value={categoryData.catDescription} readOnly />
+          </Form.Item>
+
+          <Form.Item>
+            <Button
+              type="default"
+              onClick={handleBack}
+              style={{
+                backgroundColor: "black",
+                color: "white",
+                display: "block",
+                margin: "0 auto",
+              }}
+            >
+              Back
+            </Button>
+          </Form.Item>
+        </Form>
+      </div>
+
+      <div className="copyright">
+        <div>© {new Date().getFullYear()}</div>
+        <div>Capybook Management System</div>
+        <div>All Rights Reserved</div>
+      </div>
+    </div>
+  );
 }
 
 export default CategoryDetail;
