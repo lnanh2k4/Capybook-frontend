@@ -28,7 +28,7 @@ import {
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import "./Homepage.css";
-import { fetchBooks, fetchAccountDetail, fetchCategories, logout, sortBooks, fetchNotifications, fetchBooksByCategory } from "../config"; // Fetch books and categories from API
+import { fetchBooks, fetchAccountDetail, fetchCategories, logout, sortBooks, fetchNotifications, fetchBooksByCategory, searchBook } from "../config"; // Fetch books and categories from API
 import { decodeJWT } from "../jwtConfig";
 import { set } from "@ant-design/plots/es/core/utils";
 
@@ -48,6 +48,7 @@ const Homepage = () => {
   const [isModalVisible, setIsModalVisible] = useState(false); // Modal visibility state
   const [modalBooks, setModalBooks] = useState([]); // Books to display in the modal
   const [modalCategory, setModalCategory] = useState(null); // The selected category for the modal
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate(); // Initialize navigate for routing
 
   // Fetch books and categories when the component mounts
@@ -88,9 +89,28 @@ const Homepage = () => {
     return roots;
   };
   // Handle search input
-  const handleSearch = useCallback((value) => {
-    setSearchTerm(value.toLowerCase());
-  }, []);
+  const handleSearch = async (value) => {
+    setLoading(true); // Kích hoạt trạng thái tải
+    try {
+      if (!value.trim()) {
+        // Nếu searchTerm trống, hiển thị toàn bộ sách
+        const response = await fetchBooks(); // Gọi API để lấy tất cả sách
+        setBooks(response.data.filter((book) => book.bookStatus === 1)); // Lọc sách hợp lệ
+        message.info("Displaying all books."); // Hiển thị thông báo
+      } else {
+        // Nếu có từ khóa, thực hiện tìm kiếm
+        const response = await searchBook(value); // Gọi API tìm kiếm
+        setBooks(response.data);
+        message.success("Search completed."); // Hiển thị thông báo
+      }
+    } catch (error) {
+      console.error("Error searching books:", error);
+      message.error("Failed to load books.");
+    } finally {
+      setLoading(false); // Tắt trạng thái tải
+    }
+  };
+
 
   // Handle sorting
   const handleSortChange = async (value) => {
@@ -277,6 +297,7 @@ const Homepage = () => {
           placeholder="Search for books or orders"
           enterButton
           style={{ maxWidth: "500px" }}
+          onSearch={(value) => handleSearch(value)} // Gọi hàm tìm kiếm khi nhấn Enter
         />
 
         <div style={{ display: "flex", alignItems: "center" }}>
