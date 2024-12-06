@@ -20,7 +20,7 @@ const OrderPage = () => {
   const location = useLocation();
 
   // Lấy dữ liệu từ `location.state`
-  const cartItems = location.state?.bookData || [];
+  const cartItems = location.state?.bookData || []; // Sách đã chọn
   const accountInfo = location.state?.accountInfo || {
     firstName: "",
     lastName: "",

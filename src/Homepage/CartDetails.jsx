@@ -290,14 +290,24 @@ const CartDetails = () => {
                 type="primary"
                 style={{ marginLeft: "20px" }}
                 onClick={() => {
-                  const bookData = cartItems.map((item) => ({
-                    bookTitle: item.name,
-                    quantity: item.quantity,
-                    price: item.price,
-                    total: item.total,
-                  }));
+                  const selectedBooks = cartItems
+                    .filter((item) => item.selected) // Lọc sách được chọn
+                    .map((item) => ({
+                      bookTitle: item.name,
+                      quantity: item.quantity,
+                      price: item.price,
+                      total: item.total,
+                      image: item.image,
+                    }));
 
-                  navigate("/OrderPage", { state: { bookData } });
+                  if (selectedBooks.length === 0) {
+                    alert("Please select at least one book to purchase.");
+                    return;
+                  }
+
+                  navigate("/OrderPage", {
+                    state: { bookData: selectedBooks },
+                  });
                 }}
               >
                 Purchase
