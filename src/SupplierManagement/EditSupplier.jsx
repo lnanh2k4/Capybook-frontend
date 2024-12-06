@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Form, Input, Button, message } from 'antd';
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import { fetchSupplierById, updateSupplier } from '../config'; // Import API functions
-
+import { checkAdminRole, checkWarehouseStaffRole } from "../jwtConfig";
 const EditSupplier = () => {
     const { supID } = useParams(); // Get supID from URL
     const navigate = useNavigate();
