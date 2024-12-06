@@ -10,6 +10,9 @@ const ViewSupplierDetail = () => {
     const [formData, setFormData] = useState({});
 
     useEffect(() => {
+        if (!checkWarehouseStaffRole() && !checkAdminRole()) {
+            return navigate("/404");
+        }
         // Fetch supplier data when component mounts
         fetchSupplierDetail(supID)
             .then((response) => {

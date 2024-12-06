@@ -11,6 +11,9 @@ const EditSupplier = () => {
     const [loading, setLoading] = useState(false); // Loading state
 
     useEffect(() => {
+        if (!checkWarehouseStaffRole() && !checkAdminRole()) {
+            return navigate("/404");
+        }
         // Fetch supplier details when component loads
         if (supID) {
             fetchSupplierById(supID)
