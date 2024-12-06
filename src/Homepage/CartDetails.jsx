@@ -148,7 +148,7 @@ const CartDetails = () => {
                             style={{ fontSize: "24px", marginRight: "20px", color: "#fff" }}
                         />}
                         style={{ color: "#fff" }}
-                        onClick={handleNotificationClick}
+
                     >
                     </Button>
                     <ShoppingCartOutlined
