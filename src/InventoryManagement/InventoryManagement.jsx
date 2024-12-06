@@ -135,8 +135,8 @@ function InventoryManagement() {
 
     // Load Import Stocks
     useEffect(() => {
-        if (!checkWarehouseStaffRole() || !checkAdminRole()) {
-            return navigate("/404"); // Điều hướng đến trang 404
+        if (!checkWarehouseStaffRole() && !checkAdminRole()) {
+            return navigate("/404");
         }
         if (activeTab === "import" && !importLoaded) {
             loadImportStocks();

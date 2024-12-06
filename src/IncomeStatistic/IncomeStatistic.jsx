@@ -10,6 +10,7 @@ import {
 } from "../config";
 import DashboardContainer from "../DashBoard/DashBoardContainer";
 import moment from "moment";
+import { checkAdminRole, checkWarehouseStaffRole } from "../jwtConfig";
 
 const RevenueReport = () => {
     const [loading, setLoading] = useState(true);
@@ -47,7 +48,9 @@ const RevenueReport = () => {
     };
 
     useEffect(() => {
-
+        if (!checkWarehouseStaffRole() && !checkAdminRole()) {
+            return navigate("/404");
+        }
         const loadData = async () => {
             try {
                 setLoading(true);

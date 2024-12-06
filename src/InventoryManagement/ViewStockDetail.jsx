@@ -18,8 +18,8 @@ function ViewStockDetail() {
 
 
     useEffect(() => {
-        if (!checkWarehouseStaffRole() || !checkAdminRole()) {
-            return navigate("/404"); // Điều hướng đến trang 404
+        if (!checkWarehouseStaffRole() && !checkAdminRole()) {
+            return navigate("/404");
         }
         loadStockDetails();
     }, [stockId]);

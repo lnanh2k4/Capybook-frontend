@@ -29,6 +29,9 @@ function AddStock() {
     const [categoryTreeData, setCategoryTreeData] = useState([]);
     const [editModalVisible, setEditModalVisible] = useState(false);
     useEffect(() => {
+        if (!checkWarehouseStaffRole() && !checkAdminRole()) {
+            return navigate("/404");
+        }
         const fetchData = async () => {
             try {
                 const supplierResponse = await fetchSuppliers();

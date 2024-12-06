@@ -33,6 +33,7 @@ export const checkSellerStaffRole = () => {
 
 export const checkWarehouseStaffRole = () => {
     let scope = decodeJWT().scope
+    console.log(scope.includes("WAREHOUSE_STAFF") ? true : false)
     return scope.includes("WAREHOUSE_STAFF") ? true : false
 
 }

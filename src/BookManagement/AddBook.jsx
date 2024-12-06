@@ -17,8 +17,8 @@ function AddBook() {
 
     // Fetch categories when the component mounts
     useEffect(() => {
-        if (!checkWarehouseStaffRole() || !checkAdminRole()) {
-            return navigate("/404"); // Điều hướng đến trang 404
+        if (!checkWarehouseStaffRole() && !checkAdminRole()) {
+            return navigate("/404");
         }
         fetchCategories()
             .then((response) => {
