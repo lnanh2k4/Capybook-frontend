@@ -7,11 +7,11 @@ import {
     DeleteOutlined,
     EditOutlined, InfoCircleOutlined
 } from '@ant-design/icons';
+import { checkAdminRole } from '../jwtConfig.jsx';
 
 const { Search } = Input;
 
 const AccountManagement = () => {
-
     //navigation
     const navigate = useNavigate();
     const goToAddAccount = () => {
@@ -36,6 +36,9 @@ const AccountManagement = () => {
 
     // Fetch accounts from the API
     useEffect(() => {
+        if (!checkAdminRole()) {
+            return navigate("/404");
+        }
         setLoading(true);
         fetchAccounts()
             .then(response => {

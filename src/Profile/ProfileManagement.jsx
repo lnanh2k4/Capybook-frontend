@@ -4,7 +4,7 @@ import { UserOutlined, AppstoreOutlined, SettingOutlined, ShoppingCartOutlined, 
 import { useNavigate } from 'react-router-dom';
 import '../Homepage/Homepage.css';
 import { fetchAccountDetail, fetchBooks, fetchCategories, logout, updateAccount } from '../config'; // Fetch books and categories from API
-import { decodeJWT } from '../jwtConfig'
+import { checkCustomerRole, decodeJWT } from '../jwtConfig'
 
 
 
@@ -17,6 +17,9 @@ const ProfileManagement = () => {
     const username = decodeJWT().sub
 
     useEffect(() => {
+        if (!checkCustomerRole()) {
+            return navigate("/404");
+        }
         if (username) {
             fetchAccountDetail(username)
                 .then(response => {
