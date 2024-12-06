@@ -9,7 +9,6 @@ import {
   Tag,
   InputNumber,
 } from "antd"; // Added Tag here
-
 import { fetchBookById, logout, fetchPromotions } from "../config";
 import {
   AppstoreOutlined,

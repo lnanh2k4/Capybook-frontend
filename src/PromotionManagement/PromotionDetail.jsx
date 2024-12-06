@@ -49,7 +49,7 @@ const PromotionDetail = () => {
   }, [proID]);
 
   const goToPromotionManagement = () => {
-    navigate("/dashboard/promotion-management");
+    navigate("/dashboard/promotions");
   };
 
   return (

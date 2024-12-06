@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Layout,
   Card,
@@ -10,6 +10,8 @@ import {
   Input,
   Result,
 } from "antd";
+import { fetchAccountDetail, fetchPromotions } from "../config";
+import { decodeJWT } from "../jwtConfig";
 import { useNavigate, useLocation } from "react-router-dom";
 import { createPayment } from "../config";
 const { Header, Footer, Content } = Layout;
@@ -19,6 +21,9 @@ const OrderPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+
+  // Lấy username từ decodeJWT
+  const username = decodeJWT(localStorage.getItem("jwtToken"))?.sub;
   // Lấy dữ liệu từ `location.state`
   const cartItems = location.state?.bookData || [];
   const accountInfo = location.state?.accountInfo || {
@@ -26,31 +31,103 @@ const OrderPage = () => {
     lastName: "",
     phone: "",
     address: "",
-  };
+  });
 
-  const [isEditingShipping, setIsEditingShipping] = useState(false);
-  const [editableAccountInfo, setEditableAccountInfo] = useState(accountInfo);
-
+  const [isEditingAddress, setIsEditingAddress] = useState(false);
+  const [editableAddress, setEditableAddress] = useState("");
+  const [promotionCode, setPromotionCode] = useState("");
+  const [promotionMessage, setPromotionMessage] = useState("");
+  const [cartItems, setCartItems] = useState(location.state?.bookData || []);
+  const [promotions, setPromotions] = useState([]); // Danh sách khuyến mãi
   const [error, setError] = useState(null);
+
+  // Fetch thông tin khách hàng
+  useEffect(() => {
+    const fetchAccountInfo = async () => {
+      try {
+        if (username) {
+          const response = await fetchAccountDetail(username);
+          setAccountInfo(response.data);
+          setEditableAddress(response.data.address);
+        }
+      } catch (err) {
+        console.error("Error fetching account details:", err);
+        setError("Unable to fetch account details. Please try again later.");
+      }
+    };
+
+    fetchAccountInfo();
+  }, [username]);
+
+  // Fetch danh sách khuyến mãi
+  useEffect(() => {
+    const fetchPromotionsData = async () => {
+      try {
+        const response = await fetchPromotions();
+        console.log("Fetched Promotions:", response.data); // Thêm dòng này để in dữ liệu ra console
+        setPromotions(response.data); // Lưu danh sách khuyến mãi vào state
+      } catch (error) {
+        console.error("Error fetching promotions:", error);
+      }
+    };
+
+    fetchPromotionsData();
+  }, []);
 
   // Tính tổng tiền
   const calculateTotal = () =>
     cartItems.reduce((total, item) => total + item.total, 0);
 
-  const handleSaveShipping = () => {
-    setIsEditingShipping(false);
-    console.log("Updated Customer Information:", editableAccountInfo);
+  // Lưu địa chỉ
+  const handleSaveAddress = () => {
+    setIsEditingAddress(false);
+    setAccountInfo((prev) => ({
+      ...prev,
+      address: editableAddress,
+    }));
+
+    console.log("Updated Address:", editableAddress);
+    // Logic gọi API để cập nhật địa chỉ (nếu cần)
   };
 
+  // Áp dụng mã khuyến mãi
+  const handleApplyPromotion = () => {
+    const today = new Date();
+
+    // Tìm mã khuyến mãi hợp lệ từ danh sách khuyến mãi
+    const matchedPromotion = promotions.find(
+      (promo) =>
+        promo.proCode === promotionCode &&
+        new Date(promo.startDate) <= today &&
+        new Date(promo.endDate) >= today &&
+        promo.quantity > 0 &&
+        promo.proStatus === 1 // Chỉ áp dụng mã khuyến mãi còn hiệu lực
+    );
+
+    if (matchedPromotion) {
+      const discount = matchedPromotion.discount || 0; // Lấy giá trị giảm giá (%)
+      const total = calculateTotal(); // Tổng tiền ban đầu
+      const discountedTotal = total - (total * discount) / 100; // Tính tổng tiền sau giảm giá
+
+      setPromotionMessage(
+        `Promotion "${promotionCode}" applied successfully! You save ${discount}%. Total after discount: ${discountedTotal.toLocaleString()} VND`
+      );
+    } else {
+      setPromotionMessage("Invalid or expired promotion code.");
+    }
+  };
+
+  // Xử lý mua hàng
   const handlePurchase = () => {
     console.log("Purchase Confirmed!");
     console.log("Order Details:", {
       cartItems,
-      customerInfo: editableAccountInfo,
+      customerInfo: accountInfo,
       totalPrice: calculateTotal(),
     });
     navigate("/");
   };
+
   const handleCheckout = async () => {
     console.log("Initiating checkout...");
     try {
@@ -85,7 +162,6 @@ const OrderPage = () => {
 
   return (
     <Layout>
-      {/* Header */}
       <Header
         style={{
           display: "flex",
@@ -109,99 +185,60 @@ const OrderPage = () => {
           <div style={{ fontSize: "20px", fontWeight: "bold" }}>Capybook</div>
         </div>
       </Header>
-      {/* Content */}
       <Content style={{ padding: "20px", backgroundColor: "#f0f2f5" }}>
         <Card title="Order Summary">
           {/* Shipping Information */}
-          <Card
-            title="Shipping Information"
-            extra={
-              isEditingShipping ? (
-                <Button
-                  type="primary"
-                  size="small"
-                  onClick={handleSaveShipping}
-                >
-                  Save
-                </Button>
-              ) : (
-                <Button
-                  type="link"
-                  size="small"
-                  onClick={() => setIsEditingShipping(true)}
-                >
-                  Edit
-                </Button>
-              )
-            }
-            style={{ marginBottom: "20px" }}
-          >
-            {isEditingShipping ? (
-              <div>
-                <p>
-                  <strong>Name:</strong>{" "}
-                  <Input
-                    value={editableAccountInfo.firstName}
-                    onChange={(e) =>
-                      setEditableAccountInfo((prev) => ({
-                        ...prev,
-                        firstName: e.target.value,
-                      }))
-                    }
-                    style={{ width: "48%", marginRight: "4%" }}
-                  />
-                  <Input
-                    value={editableAccountInfo.lastName}
-                    onChange={(e) =>
-                      setEditableAccountInfo((prev) => ({
-                        ...prev,
-                        lastName: e.target.value,
-                      }))
-                    }
-                    style={{ width: "48%" }}
-                  />
-                </p>
-                <p>
-                  <strong>Phone:</strong>{" "}
-                  <Input
-                    value={editableAccountInfo.phone}
-                    onChange={(e) =>
-                      setEditableAccountInfo((prev) => ({
-                        ...prev,
-                        phone: e.target.value,
-                      }))
-                    }
-                  />
-                </p>
-                <p>
-                  <strong>Address:</strong>{" "}
-                  <Input
-                    value={editableAccountInfo.address}
-                    onChange={(e) =>
-                      setEditableAccountInfo((prev) => ({
-                        ...prev,
-                        address: e.target.value,
-                      }))
-                    }
-                  />
-                </p>
-              </div>
-            ) : (
-              <div>
-                <p>
-                  <strong>Name:</strong> {editableAccountInfo.firstName}{" "}
-                  {editableAccountInfo.lastName}
-                </p>
-                <p>
-                  <strong>Phone:</strong> {editableAccountInfo.phone}
-                </p>
-                <p>
-                  <strong>Address:</strong> {editableAccountInfo.address}
-                </p>
-              </div>
-            )}
+          <Card title="Shipping Information" style={{ marginBottom: "20px" }}>
+            <div>
+              <p>
+                <strong>Name:</strong> {accountInfo.firstName}{" "}
+                {accountInfo.lastName}
+              </p>
+              <p>
+                <strong>Phone:</strong> {accountInfo.phone}
+              </p>
+              <p style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <strong>Address:</strong>
+                {isEditingAddress ? (
+                  <>
+                    <Input
+                      value={editableAddress}
+                      onChange={(e) => setEditableAddress(e.target.value)}
+                      style={{ flex: "1", maxWidth: "400px" }}
+                    />
+                    <Button
+                      type="primary"
+                      size="small"
+                      onClick={handleSaveAddress}
+                    >
+                      Save
+                    </Button>
+                    <Button
+                      type="default"
+                      size="small"
+                      onClick={() => {
+                        setIsEditingAddress(false);
+                        setEditableAddress(accountInfo.address);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <span>{accountInfo.address}</span>
+                    <Button
+                      type="link"
+                      size="small"
+                      onClick={() => setIsEditingAddress(true)}
+                    >
+                      Edit
+                    </Button>
+                  </>
+                )}
+              </p>
+            </div>
           </Card>
-
           {/* Book List */}
           <Card title="Books">
             {cartItems.map((item, index) => (
@@ -235,12 +272,47 @@ const OrderPage = () => {
               </Row>
             ))}
           </Card>
-
+          {/* Promotion */}
+          <Card title="Apply Promotion" style={{ marginTop: "20px" }}>
+            <Row
+              align="middle"
+              style={{ marginBottom: "10px", padding: "10px" }}
+            >
+              <Col span={18}>
+                <Input
+                  placeholder="Enter promotion code"
+                  value={promotionCode}
+                  onChange={(e) => setPromotionCode(e.target.value)}
+                />
+              </Col>
+              <Col span={6}>
+                <Button
+                  type="primary"
+                  onClick={handleApplyPromotion}
+                  style={{ marginLeft: "10px" }}
+                >
+                  Apply
+                </Button>
+              </Col>
+            </Row>
+            {promotionMessage && (
+              <Text
+                type="success"
+                style={{ marginTop: "10px", display: "block" }}
+              >
+                {promotionMessage}
+              </Text>
+            )}
+          </Card>
           {/* Total Price */}
           <Divider />
           <Row justify="end" style={{ marginTop: "20px" }}>
             <Text style={{ fontSize: "16px", fontWeight: "bold" }}>
-              Total Books Price: {calculateTotal().toLocaleString()} VND
+              {promotionMessage ? (
+                <>{promotionMessage}</>
+              ) : (
+                <>Total Books Price: {calculateTotal().toLocaleString()} VND</>
+              )}
             </Text>
           </Row>
           <Row justify="end" style={{ marginTop: "20px" }}>
@@ -250,7 +322,6 @@ const OrderPage = () => {
           </Row>
         </Card>
       </Content>
-      {/* Footer */}
       <Footer
         style={{
           textAlign: "center",
