@@ -9,7 +9,7 @@ import {
     EditOutlined,
     InfoCircleOutlined,
 } from '@ant-design/icons';
-
+import { checkAdminRole, checkWarehouseStaffRole } from "../jwtConfig";
 const { Search } = Input;
 
 function BookManagement() {
@@ -21,6 +21,9 @@ function BookManagement() {
     const [isSearching, setIsSearching] = useState(false);
 
     useEffect(() => {
+        if (!checkWarehouseStaffRole() || !checkAdminRole()) {
+            return navigate("/404"); // Điều hướng đến trang 404
+        }
         const loadBooks = async () => {
             setLoading(true);
             try {

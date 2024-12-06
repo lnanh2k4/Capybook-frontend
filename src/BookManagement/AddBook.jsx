@@ -4,7 +4,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { Button, Form, Input, InputNumber, Upload, message, Select } from 'antd';
 import { addBook, fetchCategories } from '../config'; // Ensure fetchCategories is imported
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
-
+import { checkAdminRole, checkWarehouseStaffRole } from "../jwtConfig";
 const { TextArea } = Input;
 const { Option } = Select;
 
@@ -17,6 +17,9 @@ function AddBook() {
 
     // Fetch categories when the component mounts
     useEffect(() => {
+        if (!checkWarehouseStaffRole() || !checkAdminRole()) {
+            return navigate("/404"); // Điều hướng đến trang 404
+        }
         fetchCategories()
             .then((response) => {
                 if (Array.isArray(response.data)) {

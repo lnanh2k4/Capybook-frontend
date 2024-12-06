@@ -1,8 +1,16 @@
-import React from "react";
 import "./Dashboard.css";
 import DashboardContainer from "./DashBoardContainer.jsx";
-
+import { checkAdminRole, checkWarehouseStaffRole } from "../jwtConfig";
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 function Dashboard() {
+  const navigate = useNavigate();
+  useEffect(() => {
+    // Kiểm tra quyền
+    if (!checkWarehouseStaffRole() || !checkAdminRole()) {
+      return navigate("/404"); // Điều hướng đến trang 404 nếu không đủ quyền
+    }
+  }, [navigate]);
   return (
     <div className="main-container">
       {/* Left Sidebar (DashboardContainer) */}

@@ -4,7 +4,7 @@ import { fetchBookById, updateBook, fetchCategories } from '../config';
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import { Form, Input, Button, InputNumber, Upload, message, Select } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
-
+import { checkAdminRole, checkWarehouseStaffRole } from "../jwtConfig";
 const { Option } = Select;
 
 function EditBook() {
@@ -39,6 +39,9 @@ function EditBook() {
     }, [bookId, form]);
 
     useEffect(() => {
+        if (!checkWarehouseStaffRole() || !checkAdminRole()) {
+            return navigate("/404"); // Điều hướng đến trang 404
+        }
         if (bookId) {
             fetchBookById(bookId)
                 .then(response => {

@@ -6,6 +6,7 @@ import DashboardContainer from '../DashBoard/DashBoardContainer';
 import {
     InfoCircleOutlined,
 } from '@ant-design/icons';
+import { checkAdminRole, checkWarehouseStaffRole } from "../jwtConfig";
 function ViewStockDetail() {
     const { stockId } = useParams();
     const [stockDetails, setStockDetails] = useState([]);
@@ -17,6 +18,9 @@ function ViewStockDetail() {
 
 
     useEffect(() => {
+        if (!checkWarehouseStaffRole() || !checkAdminRole()) {
+            return navigate("/404"); // Điều hướng đến trang 404
+        }
         loadStockDetails();
     }, [stockId]);
 

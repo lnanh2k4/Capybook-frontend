@@ -15,6 +15,7 @@ import * as XLSX from "xlsx";
 import {
     InfoCircleOutlined,
 } from '@ant-design/icons';
+import { checkAdminRole, checkWarehouseStaffRole } from "../jwtConfig";
 const { Search } = Input;
 const { RangePicker } = DatePicker;
 
@@ -134,12 +135,16 @@ function InventoryManagement() {
 
     // Load Import Stocks
     useEffect(() => {
+        if (!checkWarehouseStaffRole() || !checkAdminRole()) {
+            return navigate("/404"); // Điều hướng đến trang 404
+        }
         if (activeTab === "import" && !importLoaded) {
             loadImportStocks();
         }
         if (activeTab === "export") {
             loadOrders();
         }
+
     }, [activeTab]);
 
 

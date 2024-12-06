@@ -409,7 +409,7 @@ const Homepage = () => {
                   </Row>
                   {pages.length > 1 && (
                     <div style={{ display: 'flex', justifyContent: 'center', marginTop: '10px' }}>
-                      <Button type="primary" onClick={() => showModal(category, pages.flat())}>Xem thêm</Button>
+                      <Button type="primary" onClick={() => showModal(category, pages.flat())}>View more</Button>
                     </div>
                   )}
                 </div>

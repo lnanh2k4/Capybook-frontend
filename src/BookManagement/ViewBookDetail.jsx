@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Descriptions, Button, Image, message } from 'antd'; // Import các component cần thiết từ Ant Design
 import { fetchBookById, fetchCategoryDetail } from '../config'; // Import API để lấy chi tiết sách và category
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
-
+import { checkAdminRole, checkWarehouseStaffRole } from "../jwtConfig";
 function ViewBookDetail() {
     const { bookId } = useParams(); // Lấy bookId từ URL
     const navigate = useNavigate(); // Điều hướng giữa các trang
@@ -28,6 +28,9 @@ function ViewBookDetail() {
     const [imagePreview, setImagePreview] = useState(null);
 
     useEffect(() => {
+        if (!checkWarehouseStaffRole() || !checkAdminRole()) {
+            return navigate("/404"); // Điều hướng đến trang 404
+        }
         // Fetch book details by ID
         fetchBookById(bookId)
             .then(response => {
