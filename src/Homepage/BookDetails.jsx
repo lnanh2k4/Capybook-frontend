@@ -52,8 +52,12 @@ const BookDetails = () => {
       try {
         const bookResponse = await fetchBookById(bookId);
         const promotionResponse = await fetchPromotions();
-
+        console.log(bookResponse);
+        if (bookResponse === undefined) {
+          navigate("/404")
+        }
         if (bookResponse?.data) {
+
           const book = {
             ...bookResponse.data,
             originalPrice: bookResponse.data.bookPrice,
@@ -76,6 +80,7 @@ const BookDetails = () => {
         }
       } catch (error) {
         console.error("Error fetching data:", error);
+
       }
     };
 
