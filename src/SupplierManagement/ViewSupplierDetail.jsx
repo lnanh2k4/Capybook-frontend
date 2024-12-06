@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Card, Button, Descriptions, message } from "antd"; // Import Ant Design components
 import { fetchSupplierDetail } from "../config"; // API to fetch supplier details
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx"; // Dashboard layout
-
+import { checkAdminRole, checkWarehouseStaffRole } from "../jwtConfig";
 const ViewSupplierDetail = () => {
     const { supID } = useParams(); // Get supID from URL
     const navigate = useNavigate(); // Navigation between pages

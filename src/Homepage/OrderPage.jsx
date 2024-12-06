@@ -11,7 +11,7 @@ import {
   Result,
 } from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
-
+import { createPayment } from "../config";
 const { Header, Footer, Content } = Layout;
 const { Text } = Typography;
 
@@ -20,7 +20,7 @@ const OrderPage = () => {
   const location = useLocation();
 
   // Lấy dữ liệu từ `location.state`
-  const cartItems = location.state?.bookData || []; // Sách đã chọn
+  const cartItems = location.state?.bookData || [];
   const accountInfo = location.state?.accountInfo || {
     firstName: "",
     lastName: "",
@@ -51,7 +51,22 @@ const OrderPage = () => {
     });
     navigate("/");
   };
-
+  const handleCheckout = async () => {
+    console.log("Initiating checkout...");
+    try {
+      const totalAmount = cartItems.reduce((acc, item) => acc + item.total, 0);
+      console.log("Total amount for payment:", totalAmount);
+      const response = await createPayment(totalAmount);
+      const paymentUrl = response.data;
+      console.log("Redirecting to payment URL:", paymentUrl);
+      window.location.href = paymentUrl;
+    } catch (error) {
+      console.error("Error during checkout:", error.response?.data || error.message);
+      Modal.error({
+        content: 'Failed to initiate payment. Please try again.',
+      });
+    }
+  };
   // Kiểm tra nếu không có dữ liệu
   if (!cartItems.length) {
     return (
@@ -229,7 +244,7 @@ const OrderPage = () => {
             </Text>
           </Row>
           <Row justify="end" style={{ marginTop: "20px" }}>
-            <Button type="primary" onClick={handlePurchase}>
+            <Button type="primary" onClick={handleCheckout}>
               Confirm Purchase
             </Button>
           </Row>
