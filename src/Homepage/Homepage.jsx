@@ -91,18 +91,60 @@ const Homepage = () => {
   // Handle search input
   const handleSearch = async (value) => {
     setLoading(true); // Kích hoạt trạng thái tải
+    setSearchTerm(value.toLowerCase());
+    let bookData;
     try {
-      if (!value.trim()) {
+      if (!searchTerm.trim()) {
         // Nếu searchTerm trống, hiển thị toàn bộ sách
         const response = await fetchBooks(); // Gọi API để lấy tất cả sách
-        setBooks(response.data.filter((book) => book.bookStatus === 1)); // Lọc sách hợp lệ
+        bookData = (response.data.filter((book) => book.bookStatus === 1)); // Lọc sách hợp lệ
         message.info("Displaying all books."); // Hiển thị thông báo
       } else {
         // Nếu có từ khóa, thực hiện tìm kiếm
         const response = await searchBook(value); // Gọi API tìm kiếm
-        setBooks(response.data);
+        bookData = (response.data);
         message.success("Search completed."); // Hiển thị thông báo
       }
+      if (selectedCategory != 0 && selectedCategory != null) {
+        bookData = bookData.filter(book => book.bookCategories?.some(bookCategory => bookCategory.catId?.catID === selectedCategory));
+      }
+      if (sortOrder !== "default") {
+        switch (sortOrder) {
+          case "priceAsc":
+            bookData.sort((a, b) => a.bookPrice - b.bookPrice);
+            break;
+          case "priceDesc":
+            bookData.sort((a, b) => b.bookPrice - a.bookPrice);
+            break;
+          case "titleAsc":
+            bookData.sort((a, b) => {
+              const nameA = a.bookTitle.toUpperCase();
+              const nameB = b.bookTitle.toUpperCase();
+              if (nameA < nameB) {
+                return -1;
+              }
+              if (nameA > nameB) {
+                return 1;
+              }
+              return 0;
+            })
+            break;
+          case "titleDesc":
+            bookData.sort((a, b) => {
+              const nameA = a.bookTitle.toUpperCase();
+              const nameB = b.bookTitle.toUpperCase();
+              if (nameA < nameB) {
+                return 1;
+              }
+              if (nameA > nameB) {
+                return -1;
+              }
+              return 0;
+            })
+            break;
+        }
+      }
+      setBooks(bookData);
     } catch (error) {
       console.error("Error searching books:", error);
       message.error("Failed to load books.");
@@ -118,7 +160,16 @@ const Homepage = () => {
       setSortOrder(value);
       const [sortBy, sortOrder = "asc"] = value.split(/(?=[A-Z])/); // Phân tách `value` thành `sortBy` và `sortOrder`
       const response = await sortBooks(sortBy.toLowerCase(), sortOrder.toLowerCase()); // Gọi API với đúng tham số
-      setBooks(response.data); // Cập nhật danh sách sách đã được sắp xếp từ backend
+      let bookData = response.data.filter((book) => book.bookStatus === 1);
+      if (selectedCategory != 0 && selectedCategory != null) {
+        bookData = bookData.filter(book => book.bookCategories?.some(bookCategory => bookCategory.catId?.catID === selectedCategory));
+      }
+      if (searchTerm.trim()) {
+        bookData = bookData.filter(book => book?.bookTitle?.toLowerCase().includes(searchTerm)) ||
+          books.filter(book => book?.author?.toLowerCase().includes(searchTerm));
+      }
+      setBooks(bookData);
+
     } catch (error) {
       console.error("Failed to sort books:", error);
       message.error("Failed to sort books. Please try again."); // Hiển thị thông báo lỗi
@@ -140,24 +191,65 @@ const Homepage = () => {
 
   // Filter books based on the search term, category, and only include those with bookStatus = 1
   const filteredBooks = async (categoryID) => {
-
+    let bookData;
     if (categoryID != 0) {
       try {
         const response = await fetchBooksByCategory(categoryID);
         console.log(response);
-        setBooks(response.data.filter((book) => book.bookStatus === 1));// Chỉ lấy sách có trạng thái hợp lệ
+        bookData = (response.data.filter((book) => book.bookStatus === 1));// Chỉ lấy sách có trạng thái hợp lệ
         setSelectedCategory(categoryID);
       } catch {
         const response = await fetchBooks();
-        setBooks(response.data.filter((book) => book.bookStatus === 1));// Chỉ lấy sách có trạng thái hợp lệ
+        bookData = (response.data.filter((book) => book.bookStatus === 1));// Chỉ lấy sách có trạng thái hợp lệ
         setSelectedCategory(0);
         message.error("There isn's any book in this category!")
       }
     } else {
       const response = await fetchBooks();
-      setBooks(response.data.filter((book) => book.bookStatus === 1));// Chỉ lấy sách có trạng thái hợp lệ
+      bookData = (response.data.filter((book) => book.bookStatus === 1));// Chỉ lấy sách có trạng thái hợp lệ
       setSelectedCategory(categoryID);
     }
+    if (searchTerm.trim()) {
+      bookData = bookData.filter(book => book?.bookTitle?.toLowerCase().includes(searchTerm)) ||
+        books.filter(book => book?.author?.toLowerCase().includes(searchTerm));
+    }
+    if (sortOrder !== "default") {
+      switch (sortOrder) {
+        case "priceAsc":
+          bookData.sort((a, b) => a.bookPrice - b.bookPrice);
+          break;
+        case "priceDesc":
+          bookData.sort((a, b) => b.bookPrice - a.bookPrice);
+          break;
+        case "titleAsc":
+          bookData.sort((a, b) => {
+            const nameA = a.bookTitle.toUpperCase();
+            const nameB = b.bookTitle.toUpperCase();
+            if (nameA < nameB) {
+              return -1;
+            }
+            if (nameA > nameB) {
+              return 1;
+            }
+            return 0;
+          })
+          break;
+        case "titleDesc":
+          bookData.sort((a, b) => {
+            const nameA = a.bookTitle.toUpperCase();
+            const nameB = b.bookTitle.toUpperCase();
+            if (nameA < nameB) {
+              return 1;
+            }
+            if (nameA > nameB) {
+              return -1;
+            }
+            return 0;
+          })
+          break;
+      }
+    }
+    setBooks(bookData);
   }
 
   // Sort books based on selected criteria
