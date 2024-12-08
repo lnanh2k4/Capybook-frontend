@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Space, Table, Tag, Button, Input, message } from 'antd'; // Ant Design components
+import { Space, Table, Modal, Button, Input, message } from 'antd'; // Ant Design components
 import { fetchNotifications, deleteNotification } from '../config'; // API imports
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import { DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
@@ -17,8 +17,8 @@ const NotificationManagement = () => {
 
     // Fetch accounts from the API
     useEffect(() => {
-        if (checkAdminRole || checkWarehouseStaffRole || checkSellerStaffRole) {
-            navigate("/404");
+        if (!checkSellerStaffRole() && !checkAdminRole() && !checkWarehouseStaffRole()) {
+            return navigate("/404");
         }
         setLoading(true);
         fetchNotifications()
@@ -37,31 +37,39 @@ const NotificationManagement = () => {
     }, []);
 
     const handleDelete = (notID) => {
-        if (window.confirm("Are you sure you want to delete this notification?")) {
-            deleteNotification(notID)
-                .then(() => {
-                    setLoading(true);
-                    fetchNotifications()
-                        .then(response => {
-                            setNotification(response.data.filter((notification) => notification.notStatus !== 0));
-                            setError('');
-                        })
-                        .catch(error => {
-                            console.error('Error fetching notifications:', error);
-                            setError('Failed to fetch notifications');
-                            message.error('Failed to fetch notifications');
-                        })
-                        .finally(() => {
-                            setLoading(false);
-                        });
-                    message.success('Notification deleted successfully');
-                })
-                .catch(error => {
-                    console.error('Error deleting notification:', error);
-                    message.error('Failed to delete notification');
-                });
-        }
-    };
+        Modal.confirm({
+            title: "Confirm Deletion",
+            content: `Are you sure you want to delete notification "${notification.find((notification) => notification.notID === notID).notTitle}"?`,
+            okText: "Yes",
+            okType: "danger",
+            cancelText: "No",
+            onOk: async () => {
+
+                deleteNotification(notID)
+                    .then(() => {
+                        setLoading(true);
+                        fetchNotifications()
+                            .then(response => {
+                                setNotification(response.data.filter((notification) => notification.notStatus !== 0));
+                                setError('');
+                            })
+                            .catch(error => {
+                                console.error('Error fetching notifications:', error);
+                                setError('Failed to fetch notifications');
+                                message.error('Failed to fetch notifications');
+                            })
+                            .finally(() => {
+                                setLoading(false);
+                            });
+                        message.success('Notification deleted successfully');
+                    })
+                    .catch(error => {
+                        console.error('Error deleting notification:', error);
+                        message.error('Failed to delete notification');
+                    });
+            }
+        })
+    }
 
     const goToAddNotification = () => {
         navigate('/dashboard/notifications/add');
@@ -136,7 +144,7 @@ const NotificationManagement = () => {
     );
 
     return (
-        <div className="main-container">
+        <div className="main-container" >
             <div className="dashboard-container">
                 <DashboardContainer />
             </div>
@@ -164,7 +172,7 @@ const NotificationManagement = () => {
 
                 {error && <p style={{ color: 'red' }}>{error}</p>}
             </div>
-        </div>
+        </div >
     );
 };
 

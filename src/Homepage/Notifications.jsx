@@ -7,7 +7,8 @@ import {
     Button,
     List,
     Modal,
-    notification
+    notification,
+    Card
 } from "antd";
 import {
     UserOutlined,
@@ -152,13 +153,14 @@ const Notifications = () => {
                     </Dropdown>
                 </div>
             </Header>
-            <List
-                itemLayout="horizontal"
-                dataSource={notifications}
-                renderItem={renderItem}
-                loading={isLoading} // Display loading indicator while fetching data
-                locale={{ emptyText: error ? error : 'No notifications yet' }} // Display custom message for loading or error states
-            />
+            <Card>
+                <List
+                    itemLayout="horizontal"
+                    dataSource={notifications}
+                    renderItem={renderItem}
+                    loading={isLoading} // Display loading indicator while fetching data
+                    locale={{ emptyText: error ? error : 'No notifications yet' }} // Display custom message for loading or error states
+                /></Card>
 
             <Modal
                 title={selectedNotifications.notTitle}
@@ -177,6 +179,9 @@ const Notifications = () => {
                     color: "#fff",
                     backgroundColor: "#343a40",
                     padding: "10px 0",
+                    bottom: 0,
+                    position: 'sticky',
+                    width: '100%'
                 }}
             >
                 <div>© {new Date().getFullYear()} Capybook Management System</div>

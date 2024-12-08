@@ -11,20 +11,26 @@ function NotificationDetail() {
     const [notificationyData, setNotificationData] = useState(null);
     const navigate = useNavigate();
     const { notID } = useParams();  // Get the Notification ID from the route
-    const [text, setText] = useState('');
 
     useEffect(() => {
-        if (checkAdminRole || checkWarehouseStaffRole || checkSellerStaffRole) {
-            navigate("/404");
+        if (!checkSellerStaffRole() && !checkAdminRole() && !checkWarehouseStaffRole()) {
+            return navigate("/404");
         }
         const loadNotificationDetail = async () => {
             try {
                 console.log("notID: " + notID)
                 // Fetch the current category details
                 const response = await fetchNotificationDetail(notID);
-                const notification = response.data;
-                setNotificationData(notification);
-                setText(notification.notDescription)
+                console.log(response)
+                if (response === undefined) {
+                    navigate("/404")
+                }
+                if (response.data.notStatus === 0) {
+                    navigate("/404")
+                }
+
+                setNotificationData(response.data);
+
             } catch (error) {
                 console.error("Error fetching notification detail:", error);
                 message.error("Failed to fetch notification details");
@@ -51,7 +57,7 @@ function NotificationDetail() {
                 <Card title={notificationyData.notTitle}
                     style={{ marginBottom: '30px', padding: '20px' }}
                     headStyle={{ fontSize: '20px', textAlign: 'center' }}>
-                    {ReactHtmlParser(text)}
+                    {ReactHtmlParser(notificationyData.notDescription)}
                 </Card>
             </div>
 

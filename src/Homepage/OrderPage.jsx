@@ -326,9 +326,12 @@ const OrderPage = () => {
       <Footer
         style={{
           textAlign: "center",
-          backgroundColor: "#343a40",
           color: "#fff",
-          padding: "10px",
+          backgroundColor: "#343a40",
+          padding: "10px 0",
+          bottom: 0,
+          position: 'sticky',
+          width: '100%'
         }}
       >
         <div>© {new Date().getFullYear()} Capybook Management System</div>
