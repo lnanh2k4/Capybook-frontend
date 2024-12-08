@@ -322,6 +322,9 @@ const CartDetails = () => {
           color: "#fff",
           backgroundColor: "#343a40",
           padding: "10px 0",
+          bottom: 0,
+          position: 'sticky',
+          width: '100%'
         }}
       >
         <div>© {new Date().getFullYear()} Capybook Management System</div>

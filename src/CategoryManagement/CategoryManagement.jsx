@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Space, Table, Button, Input, message, Modal, TreeSelect } from "antd";
+import { Space, Table, Button, Input, message, Modal } from "antd";
 import {
   fetchCategories,
   searchCategories,
-  deleteCategory,
-  searchCategoriesByParent,
+  deleteCategory
 } from "../config";
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import {

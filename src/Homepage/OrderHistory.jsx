@@ -372,14 +372,14 @@ const OrderHistory = () => {
                     {order.orderStatus === 0
                       ? "Processing"
                       : order.orderStatus === 1
-                      ? "Cancelled"
-                      : order.orderStatus === 2
-                      ? "Delivering"
-                      : order.orderStatus === 3
-                      ? "Delivered"
-                      : order.orderStatus === 4
-                      ? "Returned"
-                      : "Unknown"}
+                        ? "Cancelled"
+                        : order.orderStatus === 2
+                          ? "Delivering"
+                          : order.orderStatus === 3
+                            ? "Delivered"
+                            : order.orderStatus === 4
+                              ? "Returned"
+                              : "Unknown"}
                   </Descriptions.Item>
                 </Descriptions>
 
@@ -418,10 +418,10 @@ const OrderHistory = () => {
                           acc + item.quantity * (item.book?.bookPrice || 0),
                         0
                       ) *
-                        (1 -
-                          (orderDetailsMap[order.orderID]?.promotionDiscount ||
-                            0) /
-                            100)
+                      (1 -
+                        (orderDetailsMap[order.orderID]?.promotionDiscount ||
+                          0) /
+                        100)
                     )}{" "}
                     VNĐ
                   </Descriptions.Item>
@@ -436,9 +436,12 @@ const OrderHistory = () => {
       <Footer
         style={{
           textAlign: "center",
-          backgroundColor: "#343a40",
           color: "#fff",
-          padding: "10px",
+          backgroundColor: "#343a40",
+          padding: "10px 0",
+          bottom: 0,
+          position: 'fixed',
+          width: '100%'
         }}
       >
         <div>© {new Date().getFullYear()} Capybook Management System</div>
