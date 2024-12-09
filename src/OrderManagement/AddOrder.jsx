@@ -144,7 +144,7 @@ const AddOrder = () => {
 
       const response = await addOrder(orderData);
       message.success("Order added successfully");
-      navigate("/dashboard/order-management");
+      navigate("/dashboard/orders");
     } catch (error) {
       console.error("Error adding order:", error);
       message.error("Failed to add order");
@@ -174,7 +174,7 @@ const AddOrder = () => {
 
   const handleResetOrBack = () => {
     if (isFormEmpty) {
-      navigate("/dashboard/order-management");
+      navigate("/dashboard/orders");
     } else {
       form.resetFields();
       setIsFormEmpty(true);
