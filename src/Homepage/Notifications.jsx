@@ -139,7 +139,7 @@ const Notifications = () => {
                     <Dropdown
                         overlay={userMenu}
                         trigger={["click"]}
-                        placement="bottomRight"
+                        placement="topCenter"
                     >
                         <Button
                             type="text"
@@ -158,6 +158,7 @@ const Notifications = () => {
                     itemLayout="horizontal"
                     dataSource={notifications}
                     renderItem={renderItem}
+                    pagination={{ pageSize: 7 }}
                     loading={isLoading} // Display loading indicator while fetching data
                     locale={{ emptyText: error ? error : 'No notifications yet' }} // Display custom message for loading or error states
                 /></Card>
@@ -180,7 +181,7 @@ const Notifications = () => {
                     backgroundColor: "#343a40",
                     padding: "10px 0",
                     bottom: 0,
-                    position: 'sticky',
+                    position: 'absolute',
                     width: '100%'
                 }}
             >

@@ -78,7 +78,7 @@ const RevenueReport = () => {
               (sum, detail) =>
                 sum +
                 (detail.iSDQuantity || 0) *
-                  (parseFloat(detail.importPrice) || 0),
+                (parseFloat(detail.importPrice) || 0),
               0
             );
             return {
@@ -552,8 +552,8 @@ const RevenueReport = () => {
                 <strong>Price:</strong>{" "}
                 {selectedBook.bookPrice
                   ? `${new Intl.NumberFormat("en-US").format(
-                      selectedBook.bookPrice
-                    )} VND`
+                    selectedBook.bookPrice
+                  )} VND`
                   : "N/A"}
               </p>
             </div>
