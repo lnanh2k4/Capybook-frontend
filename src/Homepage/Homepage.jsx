@@ -480,7 +480,7 @@ const Homepage = () => {
                     onClick={() => handleBookClick(book.bookID)}
                     cover={
                       <div className="image-container">
-                        <img alt={book.bookTitle} src={normalizeImageUrl(book.image)} className="book-image" />
+                        <img alt={book.bookTitle} src={normalizeImageUrl(book.image)} className="book-image" style={{ height: '200px', objectFit: 'contain' }} />
                       </div>
                     }
                   >

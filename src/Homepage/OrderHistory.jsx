@@ -440,7 +440,7 @@ const OrderHistory = () => {
           backgroundColor: "#343a40",
           padding: "10px 0",
           bottom: 0,
-          position: 'fixed',
+          position: 'sticky',
           width: '100%'
         }}
       >
