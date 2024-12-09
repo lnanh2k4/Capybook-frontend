@@ -4,12 +4,15 @@ import { addStaff } from '../config.js';
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import {
     Button,
+    Col,
     Form,
     Input,
     Radio,
+    Row,
     Select,
     message
 } from 'antd';
+import { Label } from 'recharts';
 
 const AddStaff = () => {
     const [form] = Form.useForm();  // Sử dụng Ant Design Form API
@@ -59,9 +62,9 @@ const AddStaff = () => {
 
     return (
         <>
-            <h1 style={{ textAlign: 'center' }}>Add Staff</h1>
-            <DashboardContainer />
-            <div className="add-staff-container">
+           <DashboardContainer />
+            <div className="dashboard-content" style={{ marginLeft: "250px", marginRight: "100px" }}>
+                <h1 style={{ textAlign: 'center' }}>Add Staff</h1>
                 <Form
                     initialValues={{
                         role: 'Please select role',  // Giá trị mặc định cho trường role
@@ -77,140 +80,149 @@ const AddStaff = () => {
                     layout="horizontal"
                     onFinish={handleSubmit} // Thay đổi onSubmit thành onFinish để Ant Design quản lý submit
                     style={{
-                        maxWidth: 600,
-                        marginLeft: '20%',
+                        maxWidth: 1200,
                         background: '255, 255, 0, 0.9',
-                        padding: '3%',
+
                         borderRadius: '5%',
                     }}
                 >
-                    <Form.Item
-                        label="Username"
-                        name="username"
-                        rules={[
-                            {
-                                required: true,
-                                message: "Please enter username",
-                            },
-                        ]}
-                    >
-                        <Input placeholder="Username of account" />
-                    </Form.Item>
+                    <Row gutter={24}>
+                        <Col span={12}>
+                            <Form.Item
+                                label="Username"
+                                name="username"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Please enter username",
+                                    },
+                                ]}
+                            >
 
-                    <Form.Item
-                        label="First Name"
-                        name="firstName"
-                        rules={[
-                            {
-                                required: true,
-                                message: "Please enter First Name",
-                            },
-                        ]}
-                    >
-                        <Input placeholder="First name of account" />
-                    </Form.Item>
+                                <Input placeholder="Username of account" />
+                            </Form.Item>
 
-                    <Form.Item
-                        label="Last Name"
-                        name="lastName"
-                        rules={[
-                            {
-                                required: true,
-                                message: "Please enter Last Name",
-                            },
-                        ]}
-                    >
-                        <Input placeholder="Last name of account" />
-                    </Form.Item>
+                            <Form.Item
+                                label="First Name"
+                                name="firstName"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Please enter First Name",
+                                    },
+                                ]}
+                            >
+                                <Input placeholder="First name of account" />
+                            </Form.Item>
 
-                    <Form.Item
-                        label="Date Of Birth"
-                        name="dob"
-                        rules={[
-                            {
-                                required: true,
-                                message: "Please enter Date of birth",
-                            },
-                        ]}
-                    >
-                        <Input type="date" placeholder="Date of birth" />
-                    </Form.Item>
+                            <Form.Item
+                                label="Last Name"
+                                name="lastName"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Please enter Last Name",
+                                    },
+                                ]}
+                            >
+                                <Input placeholder="Last name of account" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                label="Birthday:"
+                                name="dob"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Please enter Date of birth",
+                                    },
+                                ]}
+                            >
+                                <Input type="date" placeholder="Date of birth" />
+                            </Form.Item>
 
-                    <Form.Item
-                        label="Email"
-                        name="email"
-                        rules={[
-                            {
-                                required: true,
-                                message: "Please enter Email",
-                                type: 'email',
-                            },
-                        ]}
-                    >
-                        <Input placeholder="Email of account" />
-                    </Form.Item>
+                            <Form.Item
+                                label="Email"
+                                name="email"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Please enter Email",
+                                        type: 'email',
+                                    },
+                                ]}
+                            >
+                                <Input placeholder="Email of account" />
+                            </Form.Item>
 
-                    <Form.Item
-                        label="Phone"
-                        name="phone"
-                        rules={[
-                            {
-                                required: true,
-                                message: "Please enter phone",
-                            },
-                        ]}
-                    >
-                        <Input type="tel" placeholder="Phone number of account" />
-                    </Form.Item>
+                            <Form.Item
+                                label="Phone"
+                                name="phone"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Please enter phone",
+                                    },
+                                ]}
+                            >
+                                <Input type="tel" placeholder="Phone number of account" />
+                            </Form.Item>
+                        </Col>
+                    </Row>
+                    <Row gutter={24}>
+                        <Col span={12}>
+                            <Form.Item
+                                label="Sex"
+                                name="sex"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Please select sex",
+                                    },
+                                ]}
+                            >
+                                <Radio.Group>
+                                    <Radio value="0"> Female </Radio>
+                                    <Radio value="1"> Male </Radio>
+                                </Radio.Group>
+                            </Form.Item>
 
-                    <Form.Item
-                        label="Sex"
-                        name="sex"
-                        rules={[
-                            {
-                                required: true,
-                                message: "Please select sex",
-                            },
-                        ]}
-                    >
-                        <Radio.Group>
-                            <Radio value="0"> Female </Radio>
-                            <Radio value="1"> Male </Radio>
-                        </Radio.Group>
-                    </Form.Item>
+                            <Form.Item
+                                label="Role"
+                                name="role"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Please select role",
+                                    },
+                                ]}
+                            >
+                                <Select>
+                                    <Option value="0">Admin</Option>
+                                    <Option value="2">Seller staff</Option>
+                                    <Option value="3">Warehouse staff</Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item
+                                label="Address"
+                                name="address"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Please enter address",
+                                    },
+                                ]}
+                            >
+                                <TextArea rows={4} placeholder="Address of account" />
+                            </Form.Item>
 
-                    <Form.Item
-                        label="Role"
-                        name="role"
-                        rules={[
-                            {
-                                required: true,
-                                message: "Please select role",
-                            },
-                        ]}
-                    >
-                        <Select>
-                            <Option value="0">Admin</Option>
-                            <Option value="2">Seller staff</Option>
-                            <Option value="3">Warehouse staff</Option>
-                        </Select>
-                    </Form.Item>
-
-                    <Form.Item
-                        label="Address"
-                        name="address"
-                        rules={[
-                            {
-                                required: true,
-                                message: "Please enter address",
-                            },
-                        ]}
-                    >
-                        <TextArea rows={4} placeholder="Address of account" />
-                    </Form.Item>
-
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit">Submit</Button>
+                        </Col>
+                    </Row>
+                    <Form.Item style={{ marginLeft: '250px' }}>
+                        <Button type="primary" htmlType="submit" st>Submit</Button>
                         <Button type="default" onClick={handleReset} style={{ marginLeft: 10 }}>Reset</Button>
                     </Form.Item>
                 </Form>
