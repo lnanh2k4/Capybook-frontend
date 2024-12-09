@@ -169,6 +169,7 @@ const CartDetails = () => {
           ></Button>
           <ShoppingCartOutlined
             style={{ fontSize: "24px", marginRight: "20px", color: "#fff" }}
+
           />
           <Dropdown
             overlay={

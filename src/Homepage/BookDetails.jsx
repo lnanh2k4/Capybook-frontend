@@ -99,12 +99,11 @@ const BookDetails = () => {
       console.log(`Start Date: ${startDate}, End Date: ${endDate}`);
       console.log(`Current Date: ${currentDate}`);
       console.log(
-        `Condition: ${
-          promo.quantity > 0 &&
-          promo.proStatus === 1 &&
-          promo.approvedBy !== null &&
-          currentDate >= startDate &&
-          currentDate <= endDate
+        `Condition: ${promo.quantity > 0 &&
+        promo.proStatus === 1 &&
+        promo.approvedBy !== null &&
+        currentDate >= startDate &&
+        currentDate <= endDate
         }`
       );
       return (
@@ -150,6 +149,9 @@ const BookDetails = () => {
     logout();
     navigate("/");
   };
+  const handleCartClick = () => {
+    navigate("/cart/ViewDetail")
+  }
   const handleDashboardClick = () => {
     navigate("/dashboard");
   };
@@ -235,6 +237,7 @@ const BookDetails = () => {
           ></Button>
           <ShoppingCartOutlined
             style={{ fontSize: "24px", marginRight: "20px", color: "#fff" }}
+            onClick={handleCartClick}
           />
           <Dropdown
             overlay={userMenu}

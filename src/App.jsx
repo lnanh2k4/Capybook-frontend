@@ -65,7 +65,7 @@ import EditCategory from "./CategoryManagement/EditCategory";
 import Homepage from "./Homepage/Homepage";
 import OrderHistory from "./Homepage/OrderHistory";
 import OrderPage from "./Homepage/OrderPage";
-
+import PaymentSuccessPage from "./Homepage/PaymentSuccessPage";
 // Import login, logout, register
 import Login from "./Login/Login/";
 import Register from "./Register/Register";
@@ -97,7 +97,7 @@ function App() {
         <Route path="/" element={<Homepage />} />
         <Route path="/OrderHistory" element={<OrderHistory />} />
         <Route path="/OrderPage" element={<OrderPage />} />
-
+        <Route path="/PaymentSuccessPage" element={<PaymentSuccessPage />} />
         {/* Manage books */}
         <Route path="/detail/:bookId" element={<BookDetails />} />
         <Route path="/dashboard" element={<Dashboard />} />
