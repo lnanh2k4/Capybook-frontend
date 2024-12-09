@@ -62,8 +62,7 @@ const AddStaff = () => {
 
     return (
         <>
-
-            <DashboardContainer />
+           <DashboardContainer />
             <div className="dashboard-content" style={{ marginLeft: "250px", marginRight: "100px" }}>
                 <h1 style={{ textAlign: 'center' }}>Add Staff</h1>
                 <Form

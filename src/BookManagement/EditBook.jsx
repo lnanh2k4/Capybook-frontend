@@ -20,6 +20,10 @@ function EditBook() {
             fetchBookById(bookId)
                 .then(response => {
                     const bookData = response.data;
+                    console.log(bookData)
+                    if (response === undefined) {
+                        navigate("/404");
+                    }
                     form.setFieldsValue({
                         ...bookData,
                         publicationYear: bookData.publicationYear.toString(),
@@ -34,6 +38,7 @@ function EditBook() {
                 .catch(error => {
                     console.error('Error fetching book details:', error);
                     message.error('Failed to fetch book details.');
+                    navigate("/404");
                 });
         }
     }, [bookId, form]);
