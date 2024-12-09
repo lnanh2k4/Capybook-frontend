@@ -128,22 +128,13 @@ function App() {
         <Route path="/dashboard/inventory/addstock" element={<AddStock />} />
 
         {/* Manage promotions */}
-        <Route
-          path="/dashboard/promotion-detail/:proID"
-          element={<PromotionDetail />}
-        />
+        <Route path="/dashboard/detail/:proID" element={<PromotionDetail />} />
         <Route path="/dashboard/promotions" element={<PromotionManagement />} />
-        <Route path="/dashboard/add-promotion" element={<AddPromotion />} />
-        <Route
-          path="/dashboard/edit-promotion/:proID"
-          element={<EditPromotion />}
-        />
+        <Route path="/dashboard/add" element={<AddPromotion />} />
+        <Route path="/dashboard/edit/:proID" element={<EditPromotion />} />
 
         {/* Manage orders */}
-        <Route
-          path="/dashboard/order-management"
-          element={<OrderManagement />}
-        />
+        <Route path="/dashboard/orders" element={<OrderManagement />} />
         <Route path="/dashboard/orders/detail/:id" element={<OrderDetail />} />
         <Route path="/dashboard/orders/add" element={<AddOrder />}></Route>
 

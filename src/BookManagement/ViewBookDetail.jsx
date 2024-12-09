@@ -35,6 +35,11 @@ function ViewBookDetail() {
         fetchBookById(bookId)
             .then(response => {
                 const book = response.data;
+                console.log("Data book: ", book);
+                if (!book) { // Kiểm tra nếu book không tồn tại
+                    navigate("/404");
+                }
+
                 setBookData(book);
                 console.log(response)
                 // If the book contains a valid category ID, fetch the category name
@@ -61,6 +66,7 @@ function ViewBookDetail() {
             .catch(error => {
                 console.error('Error fetching book details:', error);
                 message.error('Failed to fetch book details');
+                navigate("/404");
             });
     }, [bookId]);
 
@@ -73,7 +79,6 @@ function ViewBookDetail() {
             <div className="dashboard-container">
                 <DashboardContainer />
             </div>
-
             <div className="dashboard-content" style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
                 <Card
                     title="Book Management - View Book Detail"

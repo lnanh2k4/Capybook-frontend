@@ -46,12 +46,11 @@ const OrderHistory = () => {
     const fetchAllOrders = async () => {
       setLoading(true);
       try {
-        // Fetch username từ token
         const username = decodeJWT(localStorage.getItem("jwtToken")).sub;
 
         // Fetch orders
         const ordersResponse = await fetchOrders();
-        const ordersData = ordersResponse.data || []; // Xử lý nếu ordersResponse.data không tồn tại
+        const ordersData = ordersResponse.data || [];
 
         // Lọc các orders của user hiện tại và sắp xếp giảm dần theo orderID
         const userOrders = ordersData
@@ -61,16 +60,29 @@ const OrderHistory = () => {
           .sort((a, b) => b.orderID - a.orderID);
 
         setOrders(userOrders);
-        setFilteredOrders(userOrders); // Đồng bộ filteredOrders với orders ban đầu
+        setFilteredOrders(userOrders);
 
         // Fetch chi tiết từng order
         const detailsMap = {};
+        let customerPhone = "N/A";
+
+        // Lấy thông tin số điện thoại của người dùng
+        try {
+          const accountResponse = await fetchAccountDetail(username);
+          customerPhone = accountResponse?.data?.phone || "N/A";
+        } catch (error) {
+          console.error(
+            "Failed to fetch account details for phone number",
+            error
+          );
+        }
+
         for (const order of userOrders) {
           const orderDetailsResponse = await fetchOrderDetail(order.orderID);
           const orderDetails = orderDetailsResponse?.data?.orderDetails || [];
           const proID = orderDetailsResponse?.data?.order?.proID;
 
-          // Fetch chi tiết sách
+          // Fetch book details
           const books = await Promise.all(
             orderDetails.map((detail) => fetchBookDetail(detail.bookID))
           );
@@ -79,7 +91,7 @@ const OrderHistory = () => {
             book: books[index]?.data || {},
           }));
 
-          // Fetch thông tin khuyến mãi
+          // Fetch promotion details
           let promotion = null;
           if (proID) {
             try {
@@ -93,23 +105,14 @@ const OrderHistory = () => {
             }
           }
 
-          // Fetch thông tin khách hàng
-          let customerFullName = "N/A";
-          try {
-            const customerData = await fetchAccountDetail(order.customerName);
-            customerFullName = `${customerData?.data?.firstName} ${customerData?.data?.lastName}`;
-          } catch (error) {
-            console.error(
-              `Failed to fetch account for customer: ${order.customerName}`,
-              error
-            );
-          }
-
-          // Lưu vào map
+          // Lưu thông tin vào detailsMap
           detailsMap[order.orderID] = {
             details: updatedDetails,
             promotionDiscount: promotion?.discount || 0,
-            customerFullName,
+            customerFullName: `${username}`, // Lấy từ decodeJWT
+            customerPhone, // Thêm số điện thoại
+            orderAddress:
+              orderDetailsResponse?.data?.order?.orderAddress || "N/A",
           };
         }
 
@@ -153,6 +156,7 @@ const OrderHistory = () => {
     }
 
     const details = orderData.details;
+
     const columns = [
       {
         title: "Image",
@@ -164,19 +168,14 @@ const OrderHistory = () => {
               src={image}
               alt="Book"
               style={{
-                width: "100px", // Gấp đôi kích thước chiều rộng
-                height: "100px", // Gấp đôi kích thước chiều cao
-                objectFit: "cover", // Duy trì tỷ lệ ảnh
+                width: "100px",
+                height: "100px",
+                objectFit: "cover",
               }}
             />
           ) : (
             "N/A"
           ),
-      },
-      {
-        title: "Book ID",
-        dataIndex: ["book", "bookID"],
-        key: "bookID",
       },
       {
         title: "Title",
@@ -219,6 +218,11 @@ const OrderHistory = () => {
         rowKey={(record) => record.book?.bookID || record.ODID}
         pagination={false}
         size="small"
+        onRow={(record) => ({
+          onClick: () => {
+            navigate(`/detail/${record.book.bookID}`); // Điều hướng tới trang chi tiết sách
+          },
+        })}
       />
     );
   };
@@ -254,13 +258,6 @@ const OrderHistory = () => {
               Profile
             </Menu.Item>
           )}
-          <Menu.Item
-            key="order-history"
-            icon={<ShoppingCartOutlined />}
-            onClick={() => navigate("/OrderHistory")}
-          >
-            Order History
-          </Menu.Item>
           <Menu.Item
             key="signout"
             icon={<SettingOutlined />}
@@ -368,7 +365,12 @@ const OrderHistory = () => {
                   <Descriptions.Item label="Customer Name">
                     {orderDetailsMap[order.orderID]?.customerFullName || "N/A"}
                   </Descriptions.Item>
-
+                  <Descriptions.Item label="Phone Number">
+                    {orderDetailsMap[order.orderID]?.customerPhone || "N/A"}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Order Address">
+                    {orderDetailsMap[order.orderID]?.orderAddress || "N/A"}
+                  </Descriptions.Item>
                   <Descriptions.Item label="Order Date">
                     {order.orderDate}
                   </Descriptions.Item>
@@ -376,14 +378,14 @@ const OrderHistory = () => {
                     {order.orderStatus === 0
                       ? "Processing"
                       : order.orderStatus === 1
-                        ? "Cancelled"
-                        : order.orderStatus === 2
-                          ? "Delivering"
-                          : order.orderStatus === 3
-                            ? "Delivered"
-                            : order.orderStatus === 4
-                              ? "Returned"
-                              : "Unknown"}
+                      ? "Cancelled"
+                      : order.orderStatus === 2
+                      ? "Delivering"
+                      : order.orderStatus === 3
+                      ? "Delivered"
+                      : order.orderStatus === 4
+                      ? "Returned"
+                      : "Unknown"}
                   </Descriptions.Item>
                 </Descriptions>
 
@@ -422,10 +424,10 @@ const OrderHistory = () => {
                           acc + item.quantity * (item.book?.bookPrice || 0),
                         0
                       ) *
-                      (1 -
-                        (orderDetailsMap[order.orderID]?.promotionDiscount ||
-                          0) /
-                        100)
+                        (1 -
+                          (orderDetailsMap[order.orderID]?.promotionDiscount ||
+                            0) /
+                            100)
                     )}{" "}
                     VNĐ
                   </Descriptions.Item>
@@ -444,8 +446,8 @@ const OrderHistory = () => {
           backgroundColor: "#343a40",
           padding: "10px 0",
           bottom: 0,
-          position: 'fixed',
-          width: '100%'
+          position: "fixed",
+          width: "100%",
         }}
       >
         <div>© {new Date().getFullYear()} Capybook Management System</div>

@@ -178,7 +178,13 @@ const BookDetails = () => {
               Profile
             </Menu.Item>
           )}
-
+          <Menu.Item
+            key="order-history"
+            icon={<ShoppingCartOutlined />}
+            onClick={() => navigate("/OrderHistory")}
+          >
+            Order History
+          </Menu.Item>
           <Menu.Item
             key="signout"
             icon={<SettingOutlined />}

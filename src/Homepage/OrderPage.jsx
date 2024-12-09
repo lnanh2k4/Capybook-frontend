@@ -9,6 +9,7 @@ import {
   Button,
   Input,
   Result,
+  Table,
 } from "antd";
 import { fetchAccountDetail, fetchPromotions, createPayment } from "../config";
 import { decodeJWT } from "../jwtConfig";
@@ -254,37 +255,57 @@ const OrderPage = () => {
           </Card>
           {/* Book List */}
           <Card title="Books">
-            {cartItems.map((item, index) => (
-              <Row
-                key={index}
-                align="middle"
-                style={{ marginBottom: "10px", padding: "10px" }}
-              >
-                <Col span={10}>
-                  <img
-                    src={item.image || "https://via.placeholder.com/80"}
-                    alt={item.bookTitle}
-                    style={{
-                      width: "80px",
-                      height: "80px",
-                      objectFit: "cover",
-                      marginRight: "10px",
-                    }}
-                  />
-                  <Text>{item.bookTitle}</Text>
-                </Col>
-                <Col span={4}>
-                  <Text>{item.price.toLocaleString()} VND</Text>
-                </Col>
-                <Col span={2}>
-                  <Text>{item.quantity}</Text>
-                </Col>
-                <Col span={4}>
-                  <Text>{item.total.toLocaleString()} VND</Text>
-                </Col>
-              </Row>
-            ))}
+            <Table
+              dataSource={cartItems}
+              rowKey={(record) => record.bookID}
+              pagination={false}
+              columns={[
+                {
+                  title: "Image",
+                  dataIndex: "image",
+                  key: "image",
+                  render: (image) => (
+                    <img
+                      src={image || "https://via.placeholder.com/80"}
+                      alt="Book"
+                      style={{
+                        width: "80px",
+                        height: "80px",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ),
+                },
+                {
+                  title: "Title",
+                  dataIndex: "bookTitle",
+                  key: "bookTitle",
+                  render: (text) => (
+                    <Text style={{ fontSize: "16px" }}>{text}</Text>
+                  ),
+                },
+                {
+                  title: "Unit Price",
+                  dataIndex: "price",
+                  key: "price",
+                  render: (price) => `${price.toLocaleString()} VND`,
+                },
+                {
+                  title: "Quantity",
+                  dataIndex: "quantity",
+                  key: "quantity",
+                  render: (quantity) => <Text>{quantity}</Text>,
+                },
+                {
+                  title: "Total Price",
+                  dataIndex: "total",
+                  key: "total",
+                  render: (total) => `${total.toLocaleString()} VND`,
+                },
+              ]}
+            />
           </Card>
+
           {/* Promotion */}
           <Card title="Apply Promotion" style={{ marginTop: "20px" }}>
             <Row
