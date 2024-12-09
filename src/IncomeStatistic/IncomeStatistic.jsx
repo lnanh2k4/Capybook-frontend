@@ -16,6 +16,9 @@ import {
   checkSellerStaffRole,
 } from "../jwtConfig";
 
+
+
+
 const RevenueReport = () => {
   const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState([]);
@@ -78,7 +81,7 @@ const RevenueReport = () => {
               (sum, detail) =>
                 sum +
                 (detail.iSDQuantity || 0) *
-                  (parseFloat(detail.importPrice) || 0),
+                (parseFloat(detail.importPrice) || 0),
               0
             );
             return {
@@ -291,6 +294,8 @@ const RevenueReport = () => {
       "[]"
     )
   );
+  const sortedData = filteredData.sort((a, b) => new Date(a.date) - new Date(b.date));
+
   console.log("Dữ liệu cho biểu đồ:", filteredData);
 
   if (loading) {
@@ -428,6 +433,7 @@ const RevenueReport = () => {
         style={{
           textAlign: "center",
           width: "80%",
+          marginLeft: "150px",
         }}
       >
         <div style={{ marginBottom: "40px" }}>
@@ -439,7 +445,7 @@ const RevenueReport = () => {
               xAxis={[
                 {
                   scaleType: "band",
-                  data: filteredData.map((item) => item.date),
+                  data: sortedData.map((item) => item.date),
                   padding: 0.2, // Tăng khoảng cách giữa các cụm cột
                 },
               ]}
@@ -552,8 +558,8 @@ const RevenueReport = () => {
                 <strong>Price:</strong>{" "}
                 {selectedBook.bookPrice
                   ? `${new Intl.NumberFormat("en-US").format(
-                      selectedBook.bookPrice
-                    )} VND`
+                    selectedBook.bookPrice
+                  )} VND`
                   : "N/A"}
               </p>
             </div>

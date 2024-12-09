@@ -54,7 +54,7 @@ const Homepage = () => {
   useEffect(() => {
     fetchBooks().then(response => {
       console.log(response)
-      setBooks(response.data);
+      setBooks(response.data.filter((book) => book.bookStatus === 1));
     }).catch(error => {
       console.error('Failed to fetch books:', error);
     });
@@ -90,10 +90,11 @@ const Homepage = () => {
   // Handle search input
   const handleSearch = async (value) => {
     setLoading(true); // Kích hoạt trạng thái tải
+    console.log(value)
     setSearchTerm(value.toLowerCase());
     let bookData;
     try {
-      if (!searchTerm.trim()) {
+      if (!value.trim()) {
         // Nếu searchTerm trống, hiển thị toàn bộ sách
         const response = await fetchBooks(); // Gọi API để lấy tất cả sách
         bookData = (response.data.filter((book) => book.bookStatus === 1)); // Lọc sách hợp lệ
@@ -101,7 +102,7 @@ const Homepage = () => {
       } else {
         // Nếu có từ khóa, thực hiện tìm kiếm
         const response = await searchBook(value); // Gọi API tìm kiếm
-        bookData = (response.data);
+        bookData = (response.data.filter((book) => book.bookStatus === 1));
         message.success("Search completed."); // Hiển thị thông báo
       }
       if (selectedCategory != 0 && selectedCategory != null) {
@@ -479,7 +480,7 @@ const Homepage = () => {
                     onClick={() => handleBookClick(book.bookID)}
                     cover={
                       <div className="image-container">
-                        <img alt={book.bookTitle} src={normalizeImageUrl(book.image)} className="book-image" />
+                        <img alt={book.bookTitle} src={normalizeImageUrl(book.image)} className="book-image" style={{ height: '200px', objectFit: 'contain' }} />
                       </div>
                     }
                   >

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchStaffDetail, updateStaff } from '../config';
+import DashboardContainer from '../DashBoard/DashBoardContainer';
 import {
     Button,
     Form,
@@ -54,7 +55,9 @@ const EditStaff = () => {
     }, [staffID, form]);
     return (
         <>
-            {/* <DashboardContainer /> */}
+            <div className="dashboard-container">
+                <DashboardContainer />
+            </div>
             <h1 style={{ textAlign: 'center' }}>Update Staff</h1>
             {/* <DashboardContainer /> */}
             <Form
