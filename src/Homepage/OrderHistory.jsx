@@ -234,7 +234,9 @@ const OrderHistory = () => {
   const handleNotificationClick = () => {
     navigate("/notifications");
   };
-
+  const handleCartClick = () => {
+    navigate("/cart/ViewDetail");
+  };
   const userMenu = () => {
     if (decodeJWT()) {
       return (
@@ -317,6 +319,8 @@ const OrderHistory = () => {
           ></Button>
           <ShoppingCartOutlined
             style={{ fontSize: "24px", marginRight: "20px", color: "#fff" }}
+            onClick={handleCartClick}
+
           />
           <Dropdown
             overlay={userMenu}

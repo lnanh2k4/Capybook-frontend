@@ -380,10 +380,22 @@ const createPayment = (totalAmount) => {
 
 
 
-// Hàm xử lý kết quả trả về từ VNPay
-const handlePaymentReturn = () => {
-    return client.get('v1/payment/return');
+const handlePaymentReturn = async (queryParams) => {
+    try {
+        const response = await client.get('/v1/payment/return', {
+            params: queryParams, // Gửi tham số đến backend
+        });
+        return response.data; // Trả về kết quả từ backend
+    } catch (error) {
+        console.error("Error in handlePaymentReturn:", error.response || error.message);
+        throw error;
+    }
 };
+
+
+
+
+
 
 const viewCart = (username) => {
     return client

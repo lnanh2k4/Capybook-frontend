@@ -11,10 +11,10 @@ import {
   Result,
   Table,
 } from "antd";
-import { fetchAccountDetail, fetchPromotions } from "../config";
+import { fetchAccountDetail, fetchPromotions, createPayment } from "../config";
 import { decodeJWT } from "../jwtConfig";
 import { useNavigate, useLocation } from "react-router-dom";
-import { createPayment } from "../config";
+
 const { Header, Footer, Content } = Layout;
 const { Text } = Typography;
 

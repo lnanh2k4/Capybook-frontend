@@ -28,7 +28,7 @@ import {
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import "./Homepage.css";
-import { fetchBooks, fetchAccountDetail, fetchCategories, logout, sortBooks, fetchNotifications, fetchBooksByCategory, searchBook } from "../config"; // Fetch books and categories from API
+import { fetchBooks, fetchAccountDetail, fetchCategories, logout, sortBooks, fetchNotifications, fetchBooksByCategory, searchBook, viewCart } from "../config"; // Fetch books and categories from API
 import { decodeJWT } from "../jwtConfig";
 
 const { Header, Footer, Content } = Layout;
@@ -258,6 +258,9 @@ const Homepage = () => {
   const handleNotificationClick = () => {
     navigate("/notifications")
   }
+  const handleCartClick = () => {
+    navigate("/cart/ViewDetail")
+  }
   const handleDashboardClick = () => {
     navigate("/dashboard/income-statistic");
   };
@@ -404,6 +407,7 @@ const Homepage = () => {
           </Button>
           <ShoppingCartOutlined
             style={{ fontSize: "24px", marginRight: "20px", color: "#fff" }}
+            onClick={handleCartClick}
           />
           <Dropdown
             overlay={userMenu}
