@@ -53,10 +53,9 @@ const BookDetails = () => {
         const promotionResponse = await fetchPromotions();
         console.log(bookResponse);
         if (bookResponse === undefined) {
-          navigate("/404")
+          navigate("/404");
         }
         if (bookResponse?.data) {
-
           const book = {
             ...bookResponse.data,
             originalPrice: bookResponse.data.bookPrice,
@@ -79,7 +78,6 @@ const BookDetails = () => {
         }
       } catch (error) {
         console.error("Error fetching data:", error);
-
       }
     };
 
@@ -87,28 +85,47 @@ const BookDetails = () => {
   }, [bookId]);
 
   const applyPromotion = (book, promotions) => {
+    // Lấy ngày hiện tại và trừ đi 1 ngày
     const currentDate = new Date();
+    currentDate.setDate(currentDate.getDate() + 1); // Trừ đi 1 ngày
+
+    console.log("Modified Current Date:", currentDate); // Log currentDate sau khi thay đổi
 
     // Lọc các khuyến mãi hợp lệ
     const validPromotions = promotions.filter((promo) => {
       const startDate = new Date(promo.startDate);
       const endDate = new Date(promo.endDate);
+      console.log(`Checking Promo: ${promo.proCode}`);
+      console.log(`Start Date: ${startDate}, End Date: ${endDate}`);
+      console.log(`Current Date: ${currentDate}`);
+      console.log(
+        `Condition: ${
+          promo.quantity > 0 &&
+          promo.proStatus === 1 &&
+          promo.approvedBy !== null &&
+          currentDate >= startDate &&
+          currentDate <= endDate
+        }`
+      );
       return (
-        promo.quantity > 0 &&
-        promo.proStatus === 1 &&
-        promo.approveBy !== null &&
-        currentDate >= startDate &&
-        currentDate <= endDate
+        promo.quantity > 0 && // Khuyến mãi còn số lượng
+        promo.proStatus === 1 && // Khuyến mãi đang hoạt động
+        promo.approvedBy !== null && // Đã được phê duyệt
+        currentDate >= startDate && // Trong thời gian bắt đầu
+        currentDate <= endDate // Trong thời gian kết thúc
       );
     });
 
-    // Tìm khuyến mãi tốt nhất
+    console.log("Valid Promotions for Book:", validPromotions); // Debug
+
+    // Tìm khuyến mãi tốt nhất (nếu có)
     const bestPromo = validPromotions.reduce(
       (max, promo) => (promo.discount > (max?.discount || 0) ? promo : max),
       null
     );
 
     if (bestPromo) {
+      console.log("Best Promotion Applied:", bestPromo); // Debug
       return {
         ...book,
         bookPrice: Math.max(
@@ -118,9 +135,11 @@ const BookDetails = () => {
           1
         ),
         discount: bestPromo.discount,
-        bookTitle: `[${bestPromo.proCode}] ${book.bookTitle}`,
+        bookTitle: `[${bestPromo.proCode}] ${book.bookTitle}`, // Gắn mã giảm giá vào tiêu đề
       };
     }
+
+    console.log("No Valid Promotions Found"); // Debug
     return book;
   };
 
@@ -314,22 +333,23 @@ const BookDetails = () => {
                     marginBottom: "10px",
                   }}
                 >
-                  {`${bookData.bookPrice.toLocaleString("vi-VN")}`} đ{" "}
-                  <span
-                    style={{
-                      textDecoration: "line-through",
-                      fontSize: "16px",
-                      color: "#999",
-                    }}
-                  >
-                    {bookData.originalPrice
-                      ? `${bookData.originalPrice.toLocaleString("vi-VN")} đ`
-                      : ""}
-                  </span>
+                  {`${bookData.bookPrice.toLocaleString("vi-VN")}`} đ
                   {bookData.discount > 0 && (
-                    <Tag color="volcano" style={{ marginLeft: "10px" }}>
-                      {`${bookData.discount}% off`}
-                    </Tag>
+                    <>
+                      {" "}
+                      <span
+                        style={{
+                          textDecoration: "line-through",
+                          fontSize: "16px",
+                          color: "#999",
+                        }}
+                      >
+                        {`${bookData.originalPrice.toLocaleString("vi-VN")} đ`}
+                      </span>
+                      <Tag color="volcano" style={{ marginLeft: "10px" }}>
+                        {`${bookData.discount}% off`}
+                      </Tag>
+                    </>
                   )}
                 </div>
 
@@ -413,8 +433,8 @@ const BookDetails = () => {
           backgroundColor: "#343a40",
           padding: "10px 0",
           bottom: 0,
-          position: 'sticky',
-          width: '100%'
+          position: "sticky",
+          width: "100%",
         }}
       >
         <div>© {new Date().getFullYear()} Capybook Management System</div>

@@ -24,12 +24,12 @@ const OrderPage = () => {
   // Lấy username từ decodeJWT
   const username = decodeJWT(localStorage.getItem("jwtToken"))?.sub;
   // Lấy dữ liệu từ `location.state`
-  const accountInfo = location.state?.accountInfo || {
+  const [accountInfo, setAccountInfo] = useState({
     firstName: "",
     lastName: "",
     phone: "",
     address: "",
-  };
+  });
 
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [editableAddress, setEditableAddress] = useState("");
@@ -38,6 +38,7 @@ const OrderPage = () => {
   const [cartItems, setCartItems] = useState(location.state?.bookData || []);
   const [promotions, setPromotions] = useState([]); // Danh sách khuyến mãi
   const [error, setError] = useState(null);
+  const [discountedTotal, setDiscountedTotal] = useState(null); // Tổng tiền sau giảm giá
 
   // Fetch thông tin khách hàng
   useEffect(() => {
@@ -46,7 +47,7 @@ const OrderPage = () => {
         if (username) {
           const response = await fetchAccountDetail(username);
           setAccountInfo(response.data);
-          setEditableAddress(response.data.address);
+          setEditableAddress(response.data.address); // Cập nhật địa chỉ có thể chỉnh sửa
         }
       } catch (err) {
         console.error("Error fetching account details:", err);
@@ -68,7 +69,7 @@ const OrderPage = () => {
         console.error("Error fetching promotions:", error);
       }
     };
-
+    console.log(username);
     fetchPromotionsData();
   }, []);
 
@@ -90,14 +91,18 @@ const OrderPage = () => {
 
   // Áp dụng mã khuyến mãi
   const handleApplyPromotion = () => {
+    // Lấy ngày hiện tại và cộng thêm 1 ngày
     const today = new Date();
+    today.setDate(today.getDate() + 1); // Cộng thêm 1 ngày
+
+    console.log("Modified Today Date:", today); // Debug
 
     // Tìm mã khuyến mãi hợp lệ từ danh sách khuyến mãi
     const matchedPromotion = promotions.find(
       (promo) =>
         promo.proCode === promotionCode &&
-        new Date(promo.startDate) <= today &&
-        new Date(promo.endDate) >= today &&
+        new Date(promo.startDate) <= today && // So sánh với ngày đã chỉnh sửa
+        new Date(promo.endDate) >= today && // So sánh với ngày đã chỉnh sửa
         promo.quantity > 0 &&
         promo.proStatus === 1 // Chỉ áp dụng mã khuyến mãi còn hiệu lực
     );
@@ -107,11 +112,15 @@ const OrderPage = () => {
       const total = calculateTotal(); // Tổng tiền ban đầu
       const discountedTotal = total - (total * discount) / 100; // Tính tổng tiền sau giảm giá
 
+      // Cập nhật tổng tiền giảm giá
+      setDiscountedTotal(discountedTotal);
+
       setPromotionMessage(
         `Promotion "${promotionCode}" applied successfully! You save ${discount}%. Total after discount: ${discountedTotal.toLocaleString()} VND`
       );
     } else {
       setPromotionMessage("Invalid or expired promotion code.");
+      setDiscountedTotal(null); // Không áp dụng giảm giá
     }
   };
 
@@ -129,8 +138,11 @@ const OrderPage = () => {
   const handleCheckout = async () => {
     console.log("Initiating checkout...");
     try {
-      const totalAmount = cartItems.reduce((acc, item) => acc + item.total, 0);
+      // Sử dụng discountedTotal nếu tồn tại, ngược lại dùng calculateTotal()
+      const totalAmount =
+        discountedTotal !== null ? discountedTotal : calculateTotal();
       console.log("Total amount for payment:", totalAmount);
+
       const response = await createPayment(totalAmount);
       const paymentUrl = response.data;
       console.log("Redirecting to payment URL:", paymentUrl);
@@ -309,13 +321,14 @@ const OrderPage = () => {
           <Divider />
           <Row justify="end" style={{ marginTop: "20px" }}>
             <Text style={{ fontSize: "16px", fontWeight: "bold" }}>
-              {promotionMessage ? (
-                <>{promotionMessage}</>
-              ) : (
-                <>Total Books Price: {calculateTotal().toLocaleString()} VND</>
-              )}
+              Total Books Price:{" "}
+              {discountedTotal !== null
+                ? discountedTotal.toLocaleString()
+                : calculateTotal().toLocaleString()}{" "}
+              VND
             </Text>
           </Row>
+
           <Row justify="end" style={{ marginTop: "20px" }}>
             <Button type="primary" onClick={handleCheckout}>
               Confirm Purchase
@@ -330,8 +343,8 @@ const OrderPage = () => {
           backgroundColor: "#343a40",
           padding: "10px 0",
           bottom: 0,
-          position: 'sticky',
-          width: '100%'
+          position: "sticky",
+          width: "100%",
         }}
       >
         <div>© {new Date().getFullYear()} Capybook Management System</div>
