@@ -60,7 +60,9 @@ const AddStaff = () => {
     return (
         <>
             <h1 style={{ textAlign: 'center' }}>Add Staff</h1>
-            <DashboardContainer />
+            <div className="dashboard-container">
+                <DashboardContainer />
+            </div>
             <div className="add-staff-container">
                 <Form
                     initialValues={{
