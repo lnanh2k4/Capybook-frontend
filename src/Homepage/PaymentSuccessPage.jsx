@@ -7,11 +7,16 @@ import {
     Menu,
     Dropdown,
     Typography,
+
 } from "antd";
 import {
     UserOutlined,
+    AppstoreOutlined,
+    SettingOutlined,
     ShoppingCartOutlined,
     BellOutlined,
+    LeftOutlined,
+    RightOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
 import { handlePaymentReturn } from "../config"; // API gọi backend
@@ -58,17 +63,33 @@ const PaymentSuccessPage = () => {
     const handleCartClick = () => {
         navigate("/cart/ViewDetail")
     }
-    const userMenu = (
-        <Menu>
-            {decodeJWT() ? (
-                <>
-                    <Menu.Item
-                        key="profile"
-                        icon={<UserOutlined />}
-                        onClick={() => navigate("/profile")}
-                    >
-                        Profile
-                    </Menu.Item>
+    const handleDashboardClick = () => {
+        navigate("/dashboard/income-statistic");
+    };
+
+    const userMenu = () => {
+        if (decodeJWT()) {
+            return (
+                <Menu>
+                    {decodeJWT().scope != "CUSTOMER" ? (
+                        <Menu.Item
+                            key="dashboard"
+                            icon={<AppstoreOutlined />}
+                            onClick={handleDashboardClick}
+                        >
+                            Dashboard
+                        </Menu.Item>
+                    ) : (
+                        <Menu.Item
+                            key="profile"
+                            icon={<AppstoreOutlined />}
+                            onClick={() => {
+                                navigate("/profile");
+                            }}
+                        >
+                            Profile
+                        </Menu.Item>
+                    )}
                     <Menu.Item
                         key="order-history"
                         icon={<ShoppingCartOutlined />}
@@ -77,20 +98,16 @@ const PaymentSuccessPage = () => {
                         Order History
                     </Menu.Item>
                     <Menu.Item
-                        key="logout"
-                        icon={<UserOutlined />}
+                        key="signout"
+                        icon={<SettingOutlined />}
                         onClick={handleLogout}
                     >
                         Logout
                     </Menu.Item>
-                </>
-            ) : (
-                <Menu.Item key="login" onClick={() => navigate("/auth/login")}>
-                    Login
-                </Menu.Item>
-            )}
-        </Menu>
-    );
+                </Menu>
+            );
+        } else navigate("/auth/login");
+    };
 
     if (loading) {
         return (
