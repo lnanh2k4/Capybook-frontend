@@ -30,7 +30,6 @@ import { useNavigate } from "react-router-dom";
 import "./Homepage.css";
 import { fetchBooks, fetchAccountDetail, fetchCategories, logout, sortBooks, fetchNotifications, fetchBooksByCategory, searchBook } from "../config"; // Fetch books and categories from API
 import { decodeJWT } from "../jwtConfig";
-import { set } from "@ant-design/plots/es/core/utils";
 
 const { Header, Footer, Content } = Layout;
 const { Search } = Input;
