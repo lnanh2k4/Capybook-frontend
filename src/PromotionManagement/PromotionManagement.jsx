@@ -426,9 +426,7 @@ const PromotionManagement = () => {
         <Space size="middle">
           <Button
             type="link"
-            onClick={() =>
-              navigate(`/dashboard/promotion-detail/${record.proID}`)
-            }
+            onClick={() => navigate(`/dashboard/detail/${record.proID}`)}
           >
             <InfoCircleOutlined />
           </Button>
@@ -453,9 +451,7 @@ const PromotionManagement = () => {
           ) : (
             <Button
               type="link"
-              onClick={() =>
-                navigate(`/dashboard/edit-promotion/${record.proID}`)
-              }
+              onClick={() => navigate(`/dashboard/edit/${record.proID}`)}
             >
               <EditOutlined style={{ color: "orange" }} />
             </Button>
@@ -499,10 +495,7 @@ const PromotionManagement = () => {
           }}
         >
           <div style={{ display: "flex", gap: "10px" }}>
-            <Button
-              type="primary"
-              onClick={() => navigate("/dashboard/add-promotion")}
-            >
+            <Button type="primary" onClick={() => navigate("/dashboard/add")}>
               Add Promotion
             </Button>
             <Button
