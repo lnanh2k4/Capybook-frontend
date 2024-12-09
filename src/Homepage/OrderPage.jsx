@@ -139,14 +139,34 @@ const OrderPage = () => {
   const handleCheckout = async () => {
     console.log("Initiating checkout...");
     try {
-      // Sử dụng discountedTotal nếu tồn tại, ngược lại dùng calculateTotal()
       const totalAmount =
         discountedTotal !== null ? discountedTotal : calculateTotal();
-      console.log("Total amount for payment:", totalAmount);
 
+      const order = {
+        customerInfo: accountInfo,
+        cartItems: cartItems.map((item) => {
+          if (!item.bookID) {
+            throw new Error(`Missing bookID for item: ${JSON.stringify(item)}`);
+          }
+          return {
+            bookID: item.bookID,
+            quantity: item.quantity,
+            total: item.total,
+          };
+        }),
+        promotion: promotions.find((promo) => promo.proCode === promotionCode),
+        totalAmount,
+      };
+
+      // Lưu dữ liệu order vào localStorage
+      localStorage.setItem("orderData", JSON.stringify(order));
+
+      // Gửi yêu cầu thanh toán và chuyển hướng đến Payment Gateway
       const response = await createPayment(totalAmount);
-      const paymentUrl = response.data;
+      const paymentUrl = response.data; // URL từ backend
       console.log("Redirecting to payment URL:", paymentUrl);
+
+      // Chuyển hướng đến trang thanh toán
       window.location.href = paymentUrl;
     } catch (error) {
       console.error(
@@ -158,6 +178,7 @@ const OrderPage = () => {
       });
     }
   };
+
   // Kiểm tra nếu không có dữ liệu
   if (!cartItems.length) {
     return (
