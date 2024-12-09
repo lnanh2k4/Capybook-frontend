@@ -11,6 +11,7 @@ import {
     message
 } from 'antd';
 import { checkAdminRole } from '../jwtConfig.jsx';
+import './AddAccount.css'
 
 const AddAccount = () => {
     const [form] = Form.useForm();  // Sử dụng Ant Design Form API
@@ -80,13 +81,7 @@ const AddAccount = () => {
                     }}
                     layout="horizontal"
                     onFinish={handleSubmit} // Thay đổi onSubmit thành onFinish để Ant Design quản lý submit
-                    style={{
-                        maxWidth: 600,
-                        marginLeft: '20%',
-                        background: '255, 255, 0, 0.9',
-                        padding: '3%',
-                        borderRadius: '5%',
-                    }}
+                    className='formAddAccount'
                 >
                     <Form.Item
                         label="Username"

@@ -23,7 +23,7 @@ const Login = () => {
             } else if (response.data.accountDTO) {
                 localStorage.setItem("jwtToken", response.data.token)
                 message.success('Login successfully')
-                if (decodeJWT().status === 3) {
+                if (decodeJWT().status === 2) {
                     const verifyAccountData = {
                         username: response.data.accountDTO.username,
                         email: response.data.accountDTO.email

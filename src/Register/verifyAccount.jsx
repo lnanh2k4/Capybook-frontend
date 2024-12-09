@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Form, Input, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { verifyAccount } from '../config.js';
-import { checkCustomerRole, decodeJWT } from '../jwtConfig.jsx';
+import { checkAdminRole, checkCustomerRole, checkSellerStaffRole, checkWarehouseStaffRole, decodeJWT } from '../jwtConfig.jsx';
 
 const VerifyEmail = () => {
     const navigate = useNavigate();
@@ -16,11 +16,11 @@ const VerifyEmail = () => {
             const formDataToSend = new FormData()
             formDataToSend.append('code', JSON.stringify(loginData))
             const response = await verifyAccount(formDataToSend)
-            if (checkCustomerRole()) {
-                navigate('/')
+            if (checkAdminRole() || checkSellerStaffRole() || checkWarehouseStaffRole()) {
+                navigate('/dashboard')
                 return
             }
-            navigate('/dashboard')
+            navigate('/')
             console.log(response)
         } catch (error) {
             console.log(error)
