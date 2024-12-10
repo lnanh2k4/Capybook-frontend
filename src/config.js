@@ -410,12 +410,13 @@ const viewCart = (username) => {
         });
 };
 // Xóa sách khỏi giỏ hàng
-const deleteCartItem = (username, bookID) => {
+const deleteCartItem = (username, cartID, bookID) => {
     return client
-        .delete('/v1/cart/delete', {
+        .delete('v1/cart/delete', {
             params: {
                 username: username,
-                bookID: bookID,
+                cartID: cartID,
+
             },
         })
         .then((response) => {

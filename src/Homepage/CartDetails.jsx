@@ -11,12 +11,18 @@ import {
   Divider,
   Dropdown,
   Menu,
+  Modal,
 } from "antd";
 import {
   UserOutlined,
+  AppstoreOutlined,
+  SettingOutlined,
   ShoppingCartOutlined,
   BellOutlined,
+  LeftOutlined,
+  RightOutlined,
   DeleteOutlined,
+
 } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
 import { viewCart, updateCartItem, deleteCartItem } from "../config"; // API functions
@@ -42,9 +48,11 @@ const CartDetails = () => {
           name: item.bookID?.bookTitle || "Unknown",
           price: item.bookID?.bookPrice || 0,
           quantity: item.quantity,
-          total: (item.bookID?.bookPrice || 0) * item.quantity,
-          image: item.bookID?.image || "https://via.placeholder.com/50",
           selected: false,
+          total: (item.bookID.bookPrice || 0) * (item.quantity || 1),
+          image: item.bookID.image || "https://via.placeholder.com/50",
+          bookStatus: item.bookID.bookStatus,
+          bookQuantity: item.bookID.bookQuantity || 0,
         }));
         setCartItems(formattedData);
       } catch (error) {
@@ -70,14 +78,41 @@ const CartDetails = () => {
   // Handle quantity change
   const handleQuantityChange = async (value, itemId) => {
     try {
-      const item = cartItems.find((item) => item.id === itemId); // Sử dụng `id`
+      const item = cartItems.find((item) => item.id === itemId);
+
       if (item) {
+        // Kiểm tra nếu số lượng chuyển về 0
+        if (value === 0) {
+          Modal.confirm({
+            title: "Remove book from cart",
+            content: `Are you sure you want to remove "${item.name}" from your cart?`,
+            okText: "Yes",
+            cancelText: "No",
+            onOk: async () => {
+              await handleDeleteItem(itemId); // Xóa sách khỏi giỏ hàng
+            },
+          });
+          return;
+        }
+
+        // Cập nhật số lượng nếu hợp lệ
+        if (value > item.stockQuantity) {
+          alert(`You can only order up to ${item.stockQuantity} items.`);
+          return;
+        }
+        if (value < 1) {
+          alert("Quantity cannot be less than 1.");
+          return;
+        }
+
         console.log("Updating cart item with:", {
           username,
           id: item.id,
           quantity: value,
         });
-        await updateCartItem(username, item.id, value); // Sử dụng `item.id`
+
+        await updateCartItem(username, item.id, value);
+
         setCartItems((prev) =>
           prev.map((item) =>
             item.id === itemId
@@ -100,7 +135,6 @@ const CartDetails = () => {
     );
   };
 
-  // Handle delete item
   const handleDeleteItem = async (itemId) => {
     try {
       const item = cartItems.find((item) => item.id === itemId);
@@ -113,6 +147,7 @@ const CartDetails = () => {
     }
   };
 
+
   // Handle select all items
   const handleSelectAll = (e) => {
     const isChecked = e.target.checked;
@@ -120,7 +155,55 @@ const CartDetails = () => {
       prev.map((item) => ({ ...item, selected: isChecked }))
     );
   };
+  const handleDashboardClick = () => {
+    navigate("/dashboard/income-statistic");
+  };
 
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
+  const userMenu = () => {
+    if (decodeJWT()) {
+      return (
+        <Menu>
+          {decodeJWT().scope != "CUSTOMER" ? (
+            <Menu.Item
+              key="dashboard"
+              icon={<AppstoreOutlined />}
+              onClick={handleDashboardClick}
+            >
+              Dashboard
+            </Menu.Item>
+          ) : (
+            <Menu.Item
+              key="profile"
+              icon={<AppstoreOutlined />}
+              onClick={() => {
+                navigate("/profile");
+              }}
+            >
+              Profile
+            </Menu.Item>
+          )}
+          <Menu.Item
+            key="order-history"
+            icon={<ShoppingCartOutlined />}
+            onClick={() => navigate("/OrderHistory")}
+          >
+            Order History
+          </Menu.Item>
+          <Menu.Item
+            key="signout"
+            icon={<SettingOutlined />}
+            onClick={handleLogout}
+          >
+            Logout
+          </Menu.Item>
+        </Menu>
+      );
+    } else navigate("/auth/login");
+  };
   return (
     <Layout>
       <Header
@@ -168,19 +251,7 @@ const CartDetails = () => {
             style={{ fontSize: "24px", marginRight: "20px", color: "#fff" }}
           />
           <Dropdown
-            overlay={
-              <Menu>
-                <Menu.Item key="profile" onClick={() => navigate("/profile")}>
-                  Profile
-                </Menu.Item>
-                <Menu.Item
-                  key="signout"
-                  onClick={() => navigate("/auth/login")}
-                >
-                  Logout
-                </Menu.Item>
-              </Menu>
-            }
+            overlay={userMenu}
             trigger={["click"]}
             placement="bottomRight"
           >
@@ -189,7 +260,9 @@ const CartDetails = () => {
               icon={<UserOutlined />}
               style={{ color: "#fff" }}
             >
-              {username || "Login"}
+              {localStorage.getItem("jwtToken")
+                ? decodeJWT(localStorage.getItem("jwtToken")).sub
+                : "Login"}
             </Button>
           </Dropdown>
         </div>
@@ -233,12 +306,14 @@ const CartDetails = () => {
               style={{
                 padding: "15px 0",
                 borderBottom: "1px solid #e8e8e8",
+                backgroundColor: item.bookStatus === 0 ? "#f8d7da" : "transparent", // Màu nền nếu không khả dụng
               }}
             >
               <Col span={1}>
                 <Checkbox
                   checked={item.selected}
                   onChange={() => handleSelectItem(item.id)}
+                  disabled={item.bookStatus === 0} // Không cho chọn sản phẩm
                 />
               </Col>
               <Col span={6} style={{ display: "flex", alignItems: "center" }}>
@@ -249,16 +324,19 @@ const CartDetails = () => {
                     width: "50px",
                     height: "50px",
                     marginRight: "10px",
+                    opacity: item.bookStatus === 0 ? 0.5 : 1, // Làm mờ nếu không khả dụng
                   }}
                 />
-                <Text>{item.name}</Text>
+                <Text delete={item.bookStatus === 0}>{item.name}</Text>
               </Col>
               <Col span={4}>
                 <InputNumber
-                  min={1}
+                  min={0}
+                  max={item.bookQuantity}
                   value={item.quantity}
                   onChange={(value) => handleQuantityChange(value, item.id)}
                   style={{ width: "80px" }}
+                  disabled={item.bookStatus === 0} // Không cho thay đổi số lượng
                 />
               </Col>
               <Col span={4}>
@@ -274,8 +352,17 @@ const CartDetails = () => {
                   onClick={() => handleDeleteItem(item.id)}
                 />
               </Col>
+              {item.bookStatus === 0 && (
+                <Col span={24}>
+                  <Text type="danger">
+                    This product is unavailable or has been removed.
+                  </Text>
+                </Col>
+              )}
             </Row>
           ))}
+
+
           <Divider />
           <Row justify="end" style={{ marginTop: "20px" }}>
             <Col>
