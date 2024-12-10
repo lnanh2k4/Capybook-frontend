@@ -154,6 +154,10 @@ const ProfileManagement = () => {
                         name="firstName"
                         rules={[
                             { required: true, message: 'Please enter first name' },
+                            {
+                                pattern: /^\p{L}+(\s\p{L}+)*$/u,
+                                message: "First name must be contained letters"
+                            }
                         ]}
                     >
                         <Input placeholder="First name of account" disabled={!isEditing} />
@@ -164,6 +168,10 @@ const ProfileManagement = () => {
                         name="lastName"
                         rules={[
                             { required: true, message: 'Please enter last name' },
+                            {
+                                pattern: /^\p{L}+(\s\p{L}+)*$/u,
+                                message: "Last name must be contained letters"
+                            }
                         ]}
                     >
                         <Input placeholder="Last name of account" disabled={!isEditing} />
@@ -172,7 +180,26 @@ const ProfileManagement = () => {
                     <Form.Item
                         label="Date of birth"
                         name="dob"
-                        rules={[{ required: true, message: 'Please enter the dimensions' }]}
+                        rules={[{ required: true, message: 'Please enter the dimensions' },
+                        {
+                            validator: (_, value) => {
+                                if (!value) {
+                                    return Promise.resolve()
+                                }
+                                const selectedDate = new Date(value)
+                                const currentDate = new Date()
+                                const minDate = new Date('1900-01-01')
+
+                                if (selectedDate > currentDate) {
+                                    return Promise.reject(new Error("Date cannot be in the future"))
+                                }
+
+                                if (selectedDate < minDate) {
+                                    return Promise.reject(new Error("Date cannot be before 1900-01-01"))
+                                }
+                            }
+                        }
+                        ]}
                     >
                         <Input type='date' placeholder="Date of birth of account" disabled={!isEditing} />
                     </Form.Item>
@@ -182,6 +209,14 @@ const ProfileManagement = () => {
                         name="email"
                         rules={[
                             { required: true, message: 'Please enter email' },
+                            {
+                                validator: (_, value) => {
+                                    if (!value || !/\s/.test(value)) {
+                                        return Promise.resolve()
+                                    }
+                                    return Promise.reject(new Error("Email must not contain spaces"))
+                                }
+                            }
                         ]}
                     >
                         <Input type='email' placeholder='Email of account' disabled={!isEditing} />
@@ -192,6 +227,10 @@ const ProfileManagement = () => {
                         name="phone"
                         rules={[
                             { required: true, message: 'Please enter phone' },
+                            {
+                                pattern: /^[0-9]{10,15}$/,
+                                message: "Phone number must be 10-15 digits!"
+                            }
                         ]}
                     >
                         <Input placeholder="Phone of account" disabled={!isEditing} />
