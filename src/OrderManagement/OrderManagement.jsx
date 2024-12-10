@@ -25,6 +25,7 @@ import {
   checkAdminRole,
   checkSellerStaffRole,
 } from "../jwtConfig.jsx";
+import { fetchStaffByUsername } from "../config"; // Import hàm API lấy staffID
 
 const { Search } = Input;
 const { Option } = Select;
@@ -40,12 +41,25 @@ const OrderManagement = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [selectedStatus, setSelectedStatus] = useState(null);
   const [error, setError] = useState("");
+  const [staffID, setStaffID] = useState(null);
 
   useEffect(() => {
     if (!checkSellerStaffRole() && !checkAdminRole()) {
       return navigate("/404");
     }
     loadOrders();
+    const fetchStaff = async () => {
+      try {
+        const username = decodeJWT(localStorage.getItem("jwtToken")).sub;
+        const response = await fetchStaffByUsername(username); // Lấy thông tin staff dựa theo username
+        setStaffID(response.data.staffID);
+      } catch (error) {
+        console.error("Error fetching staff:", error);
+        message.error("Failed to fetch staff information.");
+      }
+    };
+
+    fetchStaff();
   }, []);
 
   const loadOrders = async () => {
@@ -178,43 +192,33 @@ const OrderManagement = () => {
       );
   };
 
-  const handleUpdate = () => {
-    if (selectedOrder) {
-      // Kiểm tra nếu trạng thái mới nhỏ hơn trạng thái hiện tại
-      if (selectedStatus < selectedOrder.orderStatus) {
-        message.warning(
-          "You cannot revert the order status to a previous state."
-        );
-        return;
-      }
+  const handleUpdate = async () => {
+    if (!selectedOrder || selectedStatus === null || !staffID) {
+      message.error("Missing data for updating order.");
+      return;
+    }
 
-      // Kiểm tra nếu trạng thái mới không hợp lệ
-      if (
-        (selectedOrder.orderStatus === 0 && ![1, 2].includes(selectedStatus)) || // Processing -> Chỉ có thể Cancelled hoặc Delivering
-        (selectedOrder.orderStatus === 2 && ![3, 4].includes(selectedStatus)) // Delivering -> Chỉ có thể Delivered hoặc Returned
-      ) {
-        message.warning("Invalid status transition.");
-        return;
-      }
+    const updatedOrder = {
+      orderStatus: selectedStatus,
+      staffID, // Gửi staffID từ frontend
+    };
 
-      // Tạo đối tượng cập nhật trạng thái
-      const updatedOrder = { orderStatus: selectedStatus };
+    try {
+      await updateOrder(selectedOrder.orderID, updatedOrder); // Gửi API cập nhật
+      message.success("Order updated successfully.");
 
-      updateOrder(selectedOrder.orderID, updatedOrder)
-        .then(() => {
-          setOrders(
-            orders.map((order) =>
-              order.orderID === selectedOrder.orderID
-                ? { ...order, orderStatus: selectedStatus }
-                : order
-            )
-          );
-          setIsModalVisible(false);
-          message.success("Order status updated successfully");
-        })
-        .catch(() => {
-          message.error("Failed to update order status");
-        });
+      // Cập nhật trạng thái đơn hàng trong bảng
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order.orderID === selectedOrder.orderID
+            ? { ...order, orderStatus: selectedStatus }
+            : order
+        )
+      );
+      setIsModalVisible(false); // Ẩn modal
+    } catch (error) {
+      console.error("Error updating order:", error);
+      message.error("Failed to update order.");
     }
   };
 

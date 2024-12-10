@@ -10,8 +10,14 @@ import {
   Input,
   Result,
   Table,
+  Modal,
 } from "antd";
-import { fetchAccountDetail, fetchPromotions, createPayment } from "../config";
+import {
+  fetchAccountDetail,
+  fetchPromotions,
+  createPayment,
+  fetchBookById,
+} from "../config";
 import { decodeJWT } from "../jwtConfig";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -125,6 +131,38 @@ const OrderPage = () => {
     }
   };
 
+  const checkBookQuantities = async () => {
+    try {
+      for (const item of cartItems) {
+        console.log("Checking book:", item.bookID);
+        const response = await fetchBookById(item.bookID);
+        const availableQuantity = response.data.bookQuantity;
+
+        console.log(
+          `Book ID: ${item.bookID}, Available: ${availableQuantity}, Requested: ${item.quantity}`
+        );
+
+        if (availableQuantity < item.quantity) {
+          Modal.warning({
+            title: "Insufficient Quantity",
+            content:
+              "The book quantity is not sufficient. Please check your cart.",
+            onOk: () => navigate("/cart/ViewDetail"), // Điều hướng về giỏ hàng
+          });
+          return false; // Không đủ sách, trả về false
+        }
+      }
+      return true; // Đủ sách, trả về true
+    } catch (error) {
+      console.error("Error checking book quantity:", error);
+      Modal.error({
+        title: "Error",
+        content: "Unable to check book quantity. Please try again later.",
+      });
+      return false;
+    }
+  };
+
   // Xử lý mua hàng
   const handlePurchase = () => {
     console.log("Purchase Confirmed!");
@@ -137,36 +175,28 @@ const OrderPage = () => {
   };
 
   const handleCheckout = async () => {
-    console.log("Initiating checkout...");
+    const canPurchase = await checkBookQuantities(); // Gọi hàm kiểm tra
+    if (!canPurchase) return; // Dừng lại nếu không đủ sách
+
     try {
       const totalAmount =
         discountedTotal !== null ? discountedTotal : calculateTotal();
 
       const order = {
         customerInfo: accountInfo,
-        cartItems: cartItems.map((item) => {
-          if (!item.bookID) {
-            throw new Error(`Missing bookID for item: ${JSON.stringify(item)}`);
-          }
-          return {
-            bookID: item.bookID,
-            quantity: item.quantity,
-            total: item.total,
-          };
-        }),
+        cartItems: cartItems.map((item) => ({
+          bookID: item.bookID,
+          quantity: item.quantity,
+          total: item.total,
+        })),
         promotion: promotions.find((promo) => promo.proCode === promotionCode),
         totalAmount,
       };
 
-      // Lưu dữ liệu order vào localStorage
       localStorage.setItem("orderData", JSON.stringify(order));
 
-      // Gửi yêu cầu thanh toán và chuyển hướng đến Payment Gateway
       const response = await createPayment(totalAmount);
-      const paymentUrl = response.data; // URL từ backend
-      console.log("Redirecting to payment URL:", paymentUrl);
-
-      // Chuyển hướng đến trang thanh toán
+      const paymentUrl = response.data;
       window.location.href = paymentUrl;
     } catch (error) {
       console.error(
