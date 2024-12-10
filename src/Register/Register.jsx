@@ -3,12 +3,14 @@ import { Button, Form, Input, Radio, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { registerAccount } from '../config';
 import './Register.css'; // Import file CSS
+import { values } from '@ant-design/plots/es/core/utils';
 
 const Register = () => {
     const [form] = Form.useForm();
     const navigate = useNavigate();
 
     const handleSubmit = async (values) => {
+
         try {
             const registerData = {
                 username: values.username,
@@ -64,7 +66,13 @@ const Register = () => {
                     <Form.Item
                         label="Username"
                         name="username"
-                        rules={[{ required: true, message: "Please enter username" }]}
+                        rules={[{ required: true, message: "Please enter username" },
+                        {
+                            pattern: /^[a-zA-Z0-9]+$/,
+                            message: "Username must be contained letters and numbers!"
+                        }
+
+                        ]}
                     >
                         <Input placeholder="Username" />
                     </Form.Item>
@@ -72,7 +80,37 @@ const Register = () => {
                     <Form.Item
                         label="Password"
                         name="password"
-                        rules={[{ required: true, message: 'Please input your password!' }]}
+                        rules={[{ required: true, message: 'Please input your password!' },
+                        {
+                            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                            message:
+                                "Password must be at least 8 characters long, include uppercase, lowercase, a number, a special character, and no spaces.",
+                        },
+                        ]}
+                    >
+                        <Input.Password placeholder="Password" />
+                    </Form.Item>
+                    <Form.Item
+                        label="Confirm password"
+                        name="confirmPassword"
+                        dependencies={['password']}
+                        rules={[{ required: true, message: 'Please input confirm your password!' },
+                        {
+                            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                            message:
+                                "Confirm password must be at least 8 characters long, include uppercase, lowercase, a number, a special character, and no spaces.",
+                        },
+                        {
+                            validator: (_, value) => {
+                                if (!value || value === form.getFieldValue('password')) {
+                                    return Promise.resolve()
+                                }
+                                return Promise.reject(
+                                    new Error('Confirm password does not match to password!')
+                                )
+                            }
+                        }
+                        ]}
                     >
                         <Input.Password placeholder="Password" />
                     </Form.Item>
@@ -80,7 +118,12 @@ const Register = () => {
                     <Form.Item
                         label="First Name"
                         name="firstName"
-                        rules={[{ required: true, message: "Please enter first name" }]}
+                        rules={[{ required: true, message: "Please enter first name" },
+                        {
+                            pattern: /^\p{L}+(\s\p{L}+)*$/u,
+                            message: "First name must be contained letters"
+                        }
+                        ]}
                     >
                         <Input placeholder="First Name" />
                     </Form.Item>
@@ -88,15 +131,39 @@ const Register = () => {
                     <Form.Item
                         label="Last Name"
                         name="lastName"
-                        rules={[{ required: true, message: "Please enter last name" }]}
+                        rules={[{ required: true, message: "Please enter last name" },
+                        {
+                            pattern: /^\p{L}+(\s\p{L}+)*$/u,
+                            message: "Last name must be contained letters"
+                        }
+                        ]}
                     >
                         <Input placeholder="Last Name" />
                     </Form.Item>
 
                     <Form.Item
-                        label="Date of Birth"
+                        label="Date of birth"
                         name="dob"
-                        rules={[{ required: true, message: "Please enter date of birth" }]}
+                        rules={[{ required: true, message: "Please enter date of birth" },
+                        {
+                            validator: (_, value) => {
+                                if (!value) {
+                                    return Promise.resolve()
+                                }
+                                const selectedDate = new Date(value)
+                                const currentDate = new Date()
+                                const minDate = new Date('1900-01-01')
+
+                                if (selectedDate > currentDate) {
+                                    return Promise.reject(new Error("Date cannot be in the future"))
+                                }
+
+                                if (selectedDate < minDate) {
+                                    return Promise.reject(new Error("Date cannot be before 1900-01-01"))
+                                }
+                            }
+                        }
+                        ]}
                     >
                         <Input type="date" />
                     </Form.Item>
@@ -104,7 +171,16 @@ const Register = () => {
                     <Form.Item
                         label="Email"
                         name="email"
-                        rules={[{ required: true, type: 'email', message: "Please enter a valid email" }]}
+                        rules={[{ required: true, type: 'email', message: "Please enter a valid email" },
+                        {
+                            validator: (_, value) => {
+                                if (!value || !/\s/.test(value)) {
+                                    return Promise.resolve()
+                                }
+                                return Promise.reject(new Error("Email must not contain spaces"))
+                            }
+                        }
+                        ]}
                     >
                         <Input placeholder="Email" />
                     </Form.Item>
@@ -112,7 +188,12 @@ const Register = () => {
                     <Form.Item
                         label="Phone"
                         name="phone"
-                        rules={[{ required: true, message: "Please enter phone number" }]}
+                        rules={[{ required: true, message: "Please enter phone number" },
+                        {
+                            pattern: /^[0-9]{10,15}$/,
+                            message: "Phone number must be 10-15 digits!"
+                        }
+                        ]}
                     >
                         <Input placeholder="Phone Number" />
                     </Form.Item>
