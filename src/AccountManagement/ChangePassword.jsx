@@ -65,6 +65,11 @@ function ChangePassword() {
                     name="newPassword"
                     rules={[
                         { required: true, message: 'Please enter new password' },
+                        {
+                            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                            message:
+                                "New password must be at least 8 characters long, include uppercase, lowercase, a number, a special character, and no spaces.",
+                        }
                     ]}
                 >
                     <Input.Password placeholder="New password of account" />
@@ -75,6 +80,21 @@ function ChangePassword() {
                     name="confirmPassword"
                     rules={[
                         { required: true, message: 'Please enter confirm password' },
+                        {
+                            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                            message:
+                                "Confirm password must be at least 8 characters long, include uppercase, lowercase, a number, a special character, and no spaces.",
+                        },
+                        {
+                            validator: (_, value) => {
+                                if (!value || value === form.getFieldValue('newPassword')) {
+                                    return Promise.resolve()
+                                }
+                                return Promise.reject(
+                                    new Error('Confirm password does not match to new password!')
+                                )
+                            }
+                        }
                     ]}
                 >
                     <Input.Password placeholder="Confirm password of account" />

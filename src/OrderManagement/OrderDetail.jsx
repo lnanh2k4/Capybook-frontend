@@ -7,6 +7,7 @@ import {
   fetchAccountDetail,
   fetchBookDetail,
   fetchPromotionDetail,
+  fetchStaffDetail,
 } from "../config";
 import {
   decodeJWT,
@@ -21,6 +22,7 @@ const OrderDetail = () => {
   const [orderDetails, setOrderDetails] = useState([]);
   const [customer, setCustomer] = useState({}); // Lưu thông tin khách hàng
   const [discount, setDiscount] = useState(0);
+  const [processedByUsername, setProcessedByUsername] = useState("N/A"); // Thêm state cho Processed By
 
   useEffect(() => {
     if (!checkSellerStaffRole() && !checkAdminRole()) {
@@ -41,6 +43,13 @@ const OrderDetail = () => {
               name: `${accountData.data.firstName} ${accountData.data.lastName}`,
               phone: accountData.data.phone || "N/A",
             });
+          }
+
+          // Fetch processedBy staff information
+          const staffID = orderData?.data?.order?.processedBy;
+          if (staffID) {
+            const staffData = await fetchStaffDetail(staffID);
+            setProcessedByUsername(staffData.data.username); // Lưu username vào state
           }
 
           // Fetch order details and books
@@ -143,6 +152,9 @@ const OrderDetail = () => {
             </Descriptions.Item>
             <Descriptions.Item label="Address">
               {order.order.orderAddress || "N/A"}
+            </Descriptions.Item>
+            <Descriptions.Item label="Processed By">
+              {processedByUsername || "N/A"}
             </Descriptions.Item>
           </Descriptions>
 

@@ -42,14 +42,11 @@ const CartDetails = () => {
     const fetchCart = async () => {
       try {
         const data = await viewCart(username);
-        console.log("Cart Data:", data); // Remove unused bookId, quantity
         const formattedData = data.map((item) => ({
           id: item.cartID,
-
-          name: item.bookID.bookTitle || "Unknown",
-          price: item.bookID.bookPrice || 0,
-          originalPrice: item.bookID.originalPrice || 0,
-          discount: item.bookID.discount || 0,
+          bookID: item.bookID?.bookID, // Không nên gán `null`, thay vào đó cần kiểm tra lỗi nếu thiếu
+          name: item.bookID?.bookTitle || "Unknown",
+          price: item.bookID?.bookPrice || 0,
           quantity: item.quantity,
           selected: false,
           total: (item.bookID.bookPrice || 0) * (item.quantity || 1),
@@ -252,7 +249,6 @@ const CartDetails = () => {
           ></Button>
           <ShoppingCartOutlined
             style={{ fontSize: "24px", marginRight: "20px", color: "#fff" }}
-
           />
           <Dropdown
             overlay={userMenu}
@@ -381,13 +377,13 @@ const CartDetails = () => {
                   const selectedBooks = cartItems
                     .filter((item) => item.selected) // Lọc sách được chọn
                     .map((item) => ({
+                      bookID: item.bookID, // Thêm bookID vào đối tượng
                       bookTitle: item.name,
                       quantity: item.quantity,
                       price: item.price,
                       total: item.total,
                       image: item.image,
                     }));
-
                   if (selectedBooks.length === 0) {
                     alert("Please select at least one book to purchase.");
                     return;
@@ -411,8 +407,8 @@ const CartDetails = () => {
           backgroundColor: "#343a40",
           padding: "10px 0",
           bottom: 0,
-          position: 'sticky',
-          width: '100%'
+          position: "sticky",
+          width: "100%",
         }}
       >
         <div>© {new Date().getFullYear()} Capybook Management System</div>

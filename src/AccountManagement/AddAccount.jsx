@@ -91,6 +91,10 @@ const AddAccount = () => {
                                 required: true,
                                 message: "Please enter username",
                             },
+                            {
+                                pattern: /^[a-zA-Z0-9]+$/,
+                                message: "Username must be contained letters and numbers!"
+                            }
                         ]}
                     >
                         <Input placeholder="Username of account" />
@@ -104,6 +108,10 @@ const AddAccount = () => {
                                 required: true,
                                 message: "Please enter First Name",
                             },
+                            {
+                                pattern: /^\p{L}+(\s\p{L}+)*$/u,
+                                message: "First name must be contained letters"
+                            }
                         ]}
                     >
                         <Input placeholder="First name of account" />
@@ -117,6 +125,10 @@ const AddAccount = () => {
                                 required: true,
                                 message: "Please enter Last Name",
                             },
+                            {
+                                pattern: /^\p{L}+(\s\p{L}+)*$/u,
+                                message: "Last name must be contained letters"
+                            }
                         ]}
                     >
                         <Input placeholder="Last name of account" />
@@ -130,6 +142,24 @@ const AddAccount = () => {
                                 required: true,
                                 message: "Please enter Date of birth",
                             },
+                            {
+                                validator: (_, value) => {
+                                    if (!value) {
+                                        return Promise.resolve()
+                                    }
+                                    const selectedDate = new Date(value)
+                                    const currentDate = new Date()
+                                    const minDate = new Date('1900-01-01')
+
+                                    if (selectedDate > currentDate) {
+                                        return Promise.reject(new Error("Date cannot be in the future"))
+                                    }
+
+                                    if (selectedDate < minDate) {
+                                        return Promise.reject(new Error("Date cannot be before 1900-01-01"))
+                                    }
+                                }
+                            }
                         ]}
                     >
                         <Input type="date" placeholder="Date of birth" />
@@ -144,6 +174,14 @@ const AddAccount = () => {
                                 message: "Please enter Email",
                                 type: 'email',
                             },
+                            {
+                                validator: (_, value) => {
+                                    if (!value || !/\s/.test(value)) {
+                                        return Promise.resolve()
+                                    }
+                                    return Promise.reject(new Error("Email must not contain spaces"))
+                                }
+                            }
                         ]}
                     >
                         <Input placeholder="Email of account" />
@@ -157,6 +195,10 @@ const AddAccount = () => {
                                 required: true,
                                 message: "Please enter phone",
                             },
+                            {
+                                pattern: /^[0-9]{10,15}$/,
+                                message: "Phone number must be 10-15 digits!"
+                            }
                         ]}
                     >
                         <Input type="tel" placeholder="Phone number of account" />
