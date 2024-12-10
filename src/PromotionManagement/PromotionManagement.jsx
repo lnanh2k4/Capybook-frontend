@@ -305,10 +305,14 @@ const PromotionManagement = () => {
     }
   };
 
-  // Decline promotion
   const handleDecline = (record) => {
     if (!staffID) {
       message.error("Unable to perform action. Staff ID not found.");
+      return;
+    }
+
+    if (!checkAdminRole()) {
+      message.error("You do not have permission to decline promotions.");
       return;
     }
 
@@ -339,6 +343,11 @@ const PromotionManagement = () => {
   const handleApprove = (record) => {
     if (!staffID) {
       message.error("Unable to perform action. Staff ID not found.");
+      return;
+    }
+
+    if (!checkAdminRole()) {
+      message.error("You do not have permission to approve promotions.");
       return;
     }
 
