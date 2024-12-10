@@ -34,7 +34,6 @@ const Notifications = () => {
         const fetchData = async () => {
             setIsLoading(true);
             setError(null);
-
             try {
                 const
                     fetchedNotifications = await fetchNotifications();
@@ -64,6 +63,9 @@ const Notifications = () => {
     const handleLogout = () => {
         logout();
         navigate("/");
+    };
+    const handleDashboardClick = () => {
+        navigate("/dashboard/income-statistic");
     };
     const userMenu = () => {
         if (decodeJWT()) {
