@@ -79,7 +79,14 @@ function AddNotification() {
                     <Form.Item
                         label="Title"
                         name="notTitle"
-                        rules={[{ required: true, message: "Please enter title" }]}
+                        rules={[{
+                            validator: (_, value) => {
+                                if (value.trim() === '') {
+                                    return Promise.reject('Please enter the title!');
+                                }
+                                return Promise.resolve();
+                            },
+                        },]}
                     >
                         <Input placeholder="Title of notification" />
                     </Form.Item>
@@ -87,7 +94,9 @@ function AddNotification() {
                     <Form.Item
                         label="Receiver"
                         name="receiver"
-                        rules={[{ required: true, message: "Please select receiver" }]}
+                        rules={[
+                            { required: true, message: "Please select receiver" }
+                        ]}
                     >
                         <Select>
                             <Option value="0">Admin</Option>
@@ -103,7 +112,9 @@ function AddNotification() {
                     <Form.Item
                         label="Description"
                         name="notDescription"
-                        rules={[{ required: true, message: "Please enter description" }]}
+                        rules={[
+                            { required: true, message: "Please input description" }
+                        ]}
                     >
                         <ReactQuill theme='snow' ref={quillRef} value={text} onChange={setText} style={{ backgroundColor: 'white' }} />
                     </Form.Item>
