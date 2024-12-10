@@ -31,15 +31,19 @@ function AddCategory() {
 
   const handleSubmit = async (values) => {
     try {
-      const categoryData = {
-        catName: values.catName,
-        catDescription: values.catDescription,
-        catStatus: 1,
-      };
+      if (!values.catName.trim()) {
+        message.error("Category name only contains spaces");
+      } else {
+        const categoryData = {
+          catName: values.catName,
+          catDescription: values.catDescription,
+          catStatus: 1,
+        };
+        await addCategory(categoryData);
+        message.success("Category added successfully");
+        navigate("/dashboard/category");
+      }
 
-      await addCategory(categoryData);
-      message.success("Category added successfully");
-      navigate("/dashboard/category");
     } catch (error) {
       console.error("Error adding category:", error);
       message.error("Failed to add category");
@@ -91,7 +95,7 @@ function AddCategory() {
           >
             <TextArea placeholder="Enter category description" />
           </Form.Item>
-
+          <br></br>
           <Form.Item>
             <Button type="primary" htmlType="submit">
               Submit
