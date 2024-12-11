@@ -530,7 +530,7 @@ function AddStock() {
                         rules={[
                             { required: true, message: "Please enter the author" },
                             {
-                                pattern: /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưỲỴÝỳỵỷỹ\s]+$/,
+                                pattern: /^\p{L}+(\s\p{L}+)*$/u,
                                 message: "Author name must contain valid characters and cannot be only spaces",
                             },
                         ]}
@@ -585,7 +585,7 @@ function AddStock() {
                         name="translator"
                         rules={[
                             {
-                                pattern: /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưỲỴÝỳỵỷỹ\s]*$/,
+                                pattern: /^\p{L}+(\s\p{L}+)*$/u,
                                 message: "Translator name must contain valid characters or be empty",
                             },
                         ]}
@@ -639,7 +639,7 @@ function AddStock() {
                         rules={[
                             { required: true, message: "Please enter the publisher" },
                             {
-                                pattern: /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưỲỴÝỳỵỷỹ\s]+$/,
+                                pattern: /^\p{L}+(\s\p{L}+)*$/u,
                                 message: "Publisher name must contain valid characters",
                             },
                         ]}

@@ -53,16 +53,14 @@ function AddBook() {
     const handleSubmit = async (values) => {
         try {
             const formDataToSend = new FormData();
-
-            // Chuyển đổi catIDs thành bookCategories
             const bookCategories = values.catIDs.map((catID) => ({
-                catId: { catID }, // Tạo đối tượng category chỉ chứa `catID`
+                catId: { catID },
             }));
             const isDuplicate = fetchedBooks.some((book) => book.isbn === values.isbn);
 
             if (isDuplicate) {
                 message.error("A book with the same ISBN already exists.");
-                return; // Ngừng thực hiện nếu ISBN bị trùng
+                return;
             }
 
             const bookData = {
@@ -174,7 +172,7 @@ function AddBook() {
                         rules={[
                             { required: true, message: 'Please enter the author' },
                             {
-                                pattern: /^(?!\s*$)[a-zA-Z0-9\u00C0-\u017F\u1EA0-\u1EFF\s]+$/,
+                                pattern: /^\p{L}+(\s\p{L}+)*$/u,
                                 message: 'Author name must contain letters, numbers, and cannot be only spaces',
                             },
                         ]}
@@ -190,13 +188,15 @@ function AddBook() {
                         rules={[
                             { required: true, message: 'Please enter the dimensions' },
                             {
-                                pattern: /^\d+x\d+$/,
-                                message: 'Dimensions must be in the format number x number (e.g., 25x25)',
+                                pattern: /^\d+(\.\d+)?(x\d+(\.\d+)?){1,2}$/,
+                                message: 'Dimensions must be in the format "number x number" (e.g., 25.5x26.3x27.1)',
                             },
                         ]}
                     >
-                        <Input placeholder="25x25" />
+                        <Input placeholder="Dimensions (e.g., 25.5x26.3x27.1)" />
                     </Form.Item>
+
+
 
                     <Form.Item
                         label="Price"
@@ -222,7 +222,7 @@ function AddBook() {
                         rules={[
                             { required: false, message: 'Please enter the translator' },
                             {
-                                pattern: /^(?!\s*$)[a-zA-Z0-9\u00C0-\u017F\u1EA0-\u1EFF\s]+$/,
+                                pattern: /^\p{L}+(\s\p{L}+)*$/u,
                                 message: 'Translator name must contain letters, numbers, and cannot be only spaces',
                             },
                         ]}>
@@ -258,7 +258,7 @@ function AddBook() {
                     <Form.Item label="Publisher" name="publisher" rules={[
                         { required: true, message: 'Please enter the publisher' },
                         {
-                            pattern: /^(?!\s*$)[a-zA-Z0-9\u00C0-\u017F\u1EA0-\u1EFF\s]+$/,
+                            pattern: /^\p{L}+(\s\p{L}+)*$/u,
                             message: 'Publisher name must contain letters, numbers, and cannot be only spaces',
                         },
                     ]}>

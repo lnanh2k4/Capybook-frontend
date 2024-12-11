@@ -114,14 +114,18 @@ function EditBook() {
                 bookStatus: 1,
                 bookCategories, // Gửi lên danh sách các category
             };
-            console.log(bookData)
+            console.log("Sách khi gửi: ", bookData)
             formDataToSend.append('book', JSON.stringify(bookData));
 
             // Attach the image file if it exists
             if (fileList.length > 0) {
                 formDataToSend.append('image', fileList[0].originFileObj);
             }
-            console.log("formdata form editbook: ", formDataToSend)
+            console.log("FormData prepared for submission:");
+            for (let pair of formDataToSend.entries()) {
+                console.log(pair[0] + ": " + pair[1]); // Log nội dung FormData
+            }
+
             await updateBook(bookId, formDataToSend);
             message.success('Book updated successfully');
             navigate("/dashboard/books");
@@ -208,7 +212,7 @@ function EditBook() {
                         rules={[
                             { required: true, message: 'Please enter the author' },
                             {
-                                pattern: /^(?!\s*$)[a-zA-Z0-9\u00C0-\u017F\u1EA0-\u1EFF\s]+$/,
+                                pattern: /^\p{L}+(\s\p{L}+)*$/u,
                                 message: 'Author name must contain valid characters and cannot be empty',
                             },
                         ]}
@@ -222,13 +226,15 @@ function EditBook() {
                         rules={[
                             { required: true, message: 'Please enter the dimensions' },
                             {
-                                pattern: /^\d+x\d+$/,
-                                message: 'Dimensions must be in the format number x number (e.g., 25x25)',
+                                pattern: /^\d+(\.\d+)?(x\d+(\.\d+)?){1,2}$/,
+                                message: 'Dimensions must be in the format "number x number" (e.g., 25.5x26.3x27.1)',
                             },
                         ]}
                     >
-                        <Input placeholder="Dimensions (e.g., 25x25)" />
+                        <Input placeholder="Dimensions (e.g., 25.5x26.3x27.1)" />
                     </Form.Item>
+
+
 
                     <Form.Item
                         label="Price"
@@ -254,7 +260,7 @@ function EditBook() {
                         rules={[
                             { required: false, message: 'Please enter the translator' },
                             {
-                                pattern: /^(?!\s*$)[a-zA-Z0-9\u00C0-\u017F\u1EA0-\u1EFF\s]+$/,
+                                pattern: /^\p{L}+(\s\p{L}+)*$/u,
                                 message: 'Translator name must contain valid characters and cannot be empty',
                             },
                         ]}
@@ -292,7 +298,7 @@ function EditBook() {
                         rules={[
                             { required: true, message: 'Please enter the publisher' },
                             {
-                                pattern: /^(?!\s*$)[a-zA-Z0-9\u00C0-\u017F\u1EA0-\u1EFF\s]+$/,
+                                pattern: /^\p{L}+(\s\p{L}+)*$/u,
                                 message: 'Publisher name must contain letters, numbers, and cannot be only spaces',
                             },
                         ]}
@@ -325,7 +331,7 @@ function EditBook() {
                     </Form.Item>
 
                     <Form.Item
-                        label="ISBN"
+                        label="isbn"
                         name="isbn"
                         rules={[
                             { required: true, message: 'Please enter the ISBN' },
@@ -347,7 +353,7 @@ function EditBook() {
                             placeholder="International Standard Book Number"
                             style={{ width: '100%' }}
                             maxLength={13} // Giới hạn tối đa 13 ký tự
-                            readOnly
+                        //readOnly
                         />
                     </Form.Item>
 

@@ -35,7 +35,7 @@ const Login = () => {
 
                 } else {
                     if (response.data.accountDTO.role === 0 || response.data.accountDTO.role === 2 || response.data.accountDTO.role === 3) {
-                        navigate("/dashboard");
+                        navigate("/dashboard/income-statistic");
                     } else {
                         navigate("/");
                     }
