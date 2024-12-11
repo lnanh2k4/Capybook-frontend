@@ -35,6 +35,7 @@ client.interceptors.response.use(
     }, async (error) => {
         const request = error.config
         if (error.response && error.response.status === 401 && !request._retry) {
+            localStorage.removeItem('jwtToken')
             //window.location.href = '/auth/login'
         }
         return

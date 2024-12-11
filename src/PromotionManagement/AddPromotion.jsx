@@ -109,12 +109,12 @@ const AddPromotion = () => {
         return;
       }
 
-      // Validate: Phần trăm giảm giá phải nằm trong khoảng 1-50%
+      // Validate: Phần trăm giảm giá phải nằm trong khoảng 1-100%
       if (
         trimmedValues.discountPercentage < 1 ||
-        trimmedValues.discountPercentage > 50
+        trimmedValues.discountPercentage > 100
       ) {
-        message.error("Discount percentage must be between 1% and 50%.");
+        message.error("Discount percentage must be between 1% and 100%.");
         return;
       }
 
@@ -191,8 +191,7 @@ const AddPromotion = () => {
             rules={[
               { required: true, message: "Please enter the promotion name" },
               {
-                pattern:
-                  /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơĂĔĕĖėĘęŁłŃńŇňŚśŜŝÙÚÛÜÝàáâãèéêìíòóôõùúûüýÿÑñÇç'.,\s-]*$/,
+                pattern: /^\p{L}[\p{L}\p{N}\s-]*$/u,
                 message:
                   "Promotion Name can only contain letters, numbers, Vietnamese characters, spaces, and certain special characters (.,')",
               },
@@ -249,7 +248,7 @@ const AddPromotion = () => {
               min={1}
               max={50}
               placeholder="Enter discount percentage"
-              style={{ width: "100%" }}
+              style={{ width: "50%" }}
               addonAfter="%"
             />
           </Form.Item>

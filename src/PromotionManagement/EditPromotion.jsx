@@ -90,7 +90,6 @@ const EditPromotion = () => {
         <div className="titlemanagement">
           <div>Promotion Management - Edit Promotion</div>
         </div>
-
         <Form
           form={form}
           onFinish={handleSubmit}
@@ -98,6 +97,10 @@ const EditPromotion = () => {
           onFieldsChange={handleFormChange}
           style={{ maxWidth: "600px", margin: "auto" }}
         >
+          <div style={{ marginBottom: "10px", color: "#666" }}>
+            <strong>Note:</strong> If quantity is 0, the promotion will be
+            inactive.
+          </div>
           <Form.Item
             label="Quantity"
             name="quantity"
@@ -109,7 +112,10 @@ const EditPromotion = () => {
               style={{ width: "100%" }}
             />
           </Form.Item>
-
+          <div style={{ marginTop: "20px", color: "#666" }}>
+            <strong>Note:</strong> If the start date and end date are not within
+            the current date, the promotion will be inactive.
+          </div>
           <Form.Item
             label="Date Range"
             name="dateRange"
@@ -120,12 +126,16 @@ const EditPromotion = () => {
             <RangePicker
               placeholder={["Start date", "End date"]}
               style={{ width: "100%" }}
-              inputReadOnly // Ngăn không cho nhập trực tiếp vào trườn
+              inputReadOnly
               onFocus={() => form.setFieldsValue({ dateRange: null })}
               disabledDate={disabledDate}
             />
           </Form.Item>
-
+          <div style={{ marginTop: "20px", color: "#666" }}>
+            <strong>Note:</strong>If quantity is greater than 0 and the start
+            and end dates are within the current date, the promotion will be
+            active.
+          </div>
           <Form.Item>
             <Button type="primary" htmlType="submit" loading={loading}>
               Save

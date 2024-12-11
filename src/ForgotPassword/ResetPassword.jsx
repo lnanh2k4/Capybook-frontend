@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Form, Input, message } from 'antd';
+import { Button, Col, Form, Input, message, Row } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { resetPassword } from '../config.js';
 import { decodeJWT } from '../jwtConfig.jsx';
@@ -31,12 +31,7 @@ const ResetPassword = () => {
             <Form
                 form={form}
                 name="basic"
-                labelCol={{
-                    span: 8,
-                }}
-                wrapperCol={{
-                    span: 16,
-                }}
+                layout='vertical'
                 className="login-form"
                 initialValues={{
                     remember: true,
@@ -50,57 +45,69 @@ const ResetPassword = () => {
                     alt="Capybook Logo"
                     className="login-logo"
                 />
-                <Form.Item
-                    label="New Password"
-                    name="newPassword"
-                    rules={[
-                        {
-                            required: true,
-                            message: 'Please input your new password!',
-                        },
-                        {
-                            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                            message:
-                                "Password must be at least 8 characters long, include uppercase, lowercase, a number, a special character, and no spaces.",
-                        },
-                    ]}
-                >
-                    <Input />
-                </Form.Item>
-
-                <Form.Item
-                    label="Confirm password"
-                    name="confirmPassword"
-                    rules={[
-                        {
-                            required: true,
-                            message: 'Please input your confirm password!',
-                        },
-                        {
-                            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                            message:
-                                "Confirm password must be at least 8 characters long, include uppercase, lowercase, a number, a special character, and no spaces.",
-                        },
-                        {
-                            validator: (_, value) => {
-                                if (!value || value === form.getFieldValue('password')) {
-                                    return Promise.resolve()
+                <h1>Reset Password</h1>
+                <Row gutter={24} justify={'center'}>
+                    <Col span={24}>
+                        <Form.Item
+                            label="New Password"
+                            name="newPassword"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Please input your new password!',
+                                },
+                                {
+                                    pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                                    message:
+                                        "Password must be at least 8 characters long, include uppercase, lowercase, a number, a special character, and no spaces.",
+                                },
+                            ]}
+                        >
+                            <Input />
+                        </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                        <Form.Item
+                            label="Confirm password"
+                            name="confirmPassword"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Please input your confirm password!',
+                                },
+                                {
+                                    pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                                    message:
+                                        "Confirm password must be at least 8 characters long, include uppercase, lowercase, a number, a special character, and no spaces.",
+                                },
+                                {
+                                    validator: (_, value) => {
+                                        if (!value || value === form.getFieldValue('password')) {
+                                            return Promise.resolve()
+                                        }
+                                        return Promise.reject(
+                                            new Error('Confirm password does not match to password!')
+                                        )
+                                    }
                                 }
-                                return Promise.reject(
-                                    new Error('Confirm password does not match to password!')
-                                )
-                            }
-                        }
-                    ]}
-                >
-                    <Input.Password />
-                </Form.Item>
+                            ]}
+                        >
+                            <Input.Password />
+                        </Form.Item>
+                    </Col>
+                    <Col>
+                        <Form.Item>
+                            <Button type="primary" htmlType="submit">
+                                Save
+                            </Button>
+                        </Form.Item>
+                    </Col>
+                </Row>
 
-                <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                    <Button type="primary" htmlType="submit">
-                        Save
-                    </Button>
-                </Form.Item>
+
+
+
+
             </Form>
         </div>
     );

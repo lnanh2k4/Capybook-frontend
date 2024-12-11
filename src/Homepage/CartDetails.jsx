@@ -103,7 +103,11 @@ const CartDetails = () => {
           setCartItems((prev) =>
             prev.map((item) =>
               item.id === itemId
-                ? { ...item, quantity: item.bookQuantity, total: item.bookQuantity * item.price }
+                ? {
+                  ...item,
+                  quantity: item.bookQuantity,
+                  total: item.bookQuantity * item.price,
+                }
                 : item
             )
           );
@@ -206,17 +210,17 @@ const CartDetails = () => {
     });
   };
 
-
   // Handle select all items
   const handleSelectAll = (e) => {
     const isChecked = e.target.checked;
     setCartItems((prev) =>
       prev.map((item) => ({
         ...item,
-        selected: isChecked && // Chỉ chọn khi tất cả điều kiện hợp lệ
+        selected:
+          isChecked && // Chỉ chọn khi tất cả điều kiện hợp lệ
           item.bookStatus !== 0 &&
           item.bookQuantity > 0 &&
-          item.quantity <= item.bookQuantity
+          item.quantity <= item.bookQuantity,
       }))
     );
   };
@@ -354,7 +358,6 @@ const CartDetails = () => {
               <Checkbox
                 onChange={handleSelectAll}
                 checked={cartItems.every((item) => item.selected)}
-
               />
             </Col>
             <Col span={6}>
@@ -379,7 +382,13 @@ const CartDetails = () => {
               style={{
                 padding: "15px 0",
                 borderBottom: "1px solid #e8e8e8",
-                backgroundColor: item.bookStatus === 0 || item.bookQuantity === 0 ? "#f8d7da" : "transparent",
+
+
+                backgroundColor:
+                  item.bookStatus === 0 || item.bookQuantity === 0
+                    ? "#f8d7da"
+                    : "transparent",
+
               }}
             >
               <Col span={1}>
@@ -387,8 +396,12 @@ const CartDetails = () => {
                   checked={item.selected}
                   onChange={() => handleSelectItem(item.id)}
                   disabled={
-                    item.bookStatus === 0 || item.bookQuantity === 0 || item.quantity > item.bookQuantity
-                  }
+
+                    item.bookStatus === 0 ||
+                    item.bookQuantity === 0 ||
+                    item.quantity > item.bookQuantity
+                  } // Không cho chọn nếu hết hàng
+
                 />
               </Col>
               <Col span={6} style={{ display: "flex", alignItems: "center" }}>
@@ -399,7 +412,12 @@ const CartDetails = () => {
                     width: "40px",
                     height: "50px",
                     marginRight: "10px",
-                    opacity: item.bookStatus === 0 || item.bookQuantity === 0 ? 0.5 : 1,
+
+                    opacity:
+                      item.bookStatus === 0 || item.bookQuantity === 0
+                        ? 0.5
+                        : 1, // Làm mờ nếu không khả dụng hoặc hết hàng
+
                   }}
                 />
                 <Text delete={item.bookStatus === 0 || item.bookQuantity === 0}>
@@ -438,21 +456,21 @@ const CartDetails = () => {
               )}
               {item.bookStatus === 0 && (
                 <Col span={24}>
-                  <Text type="danger">This product is unavailable or has been removed.</Text>
+                  <Text type="danger">
+                    This product is unavailable or has been removed.
+                  </Text>
                 </Col>
               )}
               {item.quantity > item.bookQuantity && (
                 <Col span={24}>
                   <Text type="danger">
-                    Quantity in cart exceeds available stock ({item.bookQuantity} left).
+                    Quantity in cart exceeds available stock (
+                    {item.bookQuantity} left).
                   </Text>
                 </Col>
               )}
             </Row>
           ))}
-
-
-
 
           <Divider />
           <Row justify="end" style={{ marginTop: "20px" }}>
@@ -481,7 +499,9 @@ const CartDetails = () => {
 
                   try {
                     // Gọi hàm xóa từng mục đã chọn khỏi giỏ hàng
-                    for (const item of cartItems.filter((item) => item.selected)) {
+                    for (const item of cartItems.filter(
+                      (item) => item.selected
+                    )) {
                       await handleDeleteItem(item.id); // Gọi hàm xóa
                     }
 
@@ -496,7 +516,6 @@ const CartDetails = () => {
               >
                 Purchase
               </Button>
-
             </Col>
           </Row>
           {/* Hiển thị các mặt hàng không hợp lệ */}
@@ -543,7 +562,10 @@ const CartDetails = () => {
                     backgroundColor: "#fff5f5", // Màu nền khác để phân biệt
                   }}
                 >
-                  <Col span={6} style={{ display: "flex", alignItems: "center" }}>
+                  <Col
+                    span={6}
+                    style={{ display: "flex", alignItems: "center" }}
+                  >
                     <img
                       src={item.image}
                       alt={item.name}
@@ -587,7 +609,6 @@ const CartDetails = () => {
                 </Row>
               ))}
             </Card>
-
           )}
         </Card>
       </Content>

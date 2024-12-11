@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Form, Input, message } from 'antd';
+import { Button, Col, Form, Input, message, Row } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { verifyEmail } from '../config.js';
 
@@ -28,13 +28,6 @@ const VerifyEmail = () => {
     return (
         <div className="login-container">
             <Form
-                name="basic"
-                labelCol={{
-                    span: 8,
-                }}
-                wrapperCol={{
-                    span: 16,
-                }}
                 className="login-form"
                 initialValues={{
                     remember: true,
@@ -48,25 +41,32 @@ const VerifyEmail = () => {
                     alt="Capybook Logo"
                     className="login-logo"
                 />
-                <Form.Item
-                    label="OTP Code"
-                    name="code"
-                    rules={[
-                        {
-                            required: true,
-                            message: 'Please input your code!',
-                        },
-                    ]}
-                >
-                    <Input />
-                </Form.Item>
+                <h1>Verify Email</h1>
+                <p>OTP code has been sent to email {localStorage.getItem('email')}. Please access your email to enter the OTP code. </p>
+                <Row justify={'center'}>
+                    <Col span={24}>
+                        <Form.Item
+                            label="OTP Code"
+                            name="code"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Please input your code!',
+                                },
+                            ]}
+                        >
+                            <Input />
+                        </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                        <Form.Item >
+                            <Button type="primary" htmlType="submit" >
+                                Verify
+                            </Button>
+                        </Form.Item>
+                    </Col>
+                </Row>
 
-
-                <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                    <Button type="primary" htmlType="submit">
-                        Verify
-                    </Button>
-                </Form.Item>
             </Form>
         </div>
     );
