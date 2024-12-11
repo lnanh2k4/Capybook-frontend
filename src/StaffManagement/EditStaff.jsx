@@ -86,41 +86,133 @@ const EditStaff = () => {
                     <Input
                         placeholder="Username of account " readOnly disabled />
                 </Form.Item>
-                <Form.Item label="Fist Name" name="firstName">
+                <Form.Item label="Fist Name" name="firstName"
+                    rules={[
+                        {
+                            required: true,
+                            message: "Please enter First Name",
+                        },
+                        {
+                            pattern: /^\p{L}+(\s\p{L}+)*$/u,
+                            message: "First name must be contained letters"
+                        }
+                    ]}
+                >
                     <Input type="text"
                         placeholder="First name of account" />
                 </Form.Item>
-                <Form.Item label="Last Name" name="lastName">
+                <Form.Item label="Last Name" name="lastName"
+                    rules={[
+                        {
+                            required: true,
+                            message: "Please enter Last Name",
+                        },
+                        {
+                            pattern: /^\p{L}+(\s\p{L}+)*$/u,
+                            message: "Last name must be contained letters"
+                        }
+                    ]}
+                >
                     <Input type="text"
                         placeholder="Last name of account" />
                 </Form.Item>
-                <Form.Item label="Date Of Birth" name="dob">
+                <Form.Item label="Date Of Birth" name="dob"
+                    rules={[
+                        {
+                            required: true,
+                            message: "Please enter Date of birth",
+                        },
+                        {
+                            validator: (_, value) => {
+                                if (!value) {
+                                    return Promise.resolve()
+                                }
+                                const selectedDate = new Date(value)
+                                const currentDate = new Date()
+                                const minDate = new Date('1900-01-01')
+
+                                if (selectedDate > currentDate) {
+                                    return Promise.reject(new Error("Date cannot be in the future"))
+                                }
+
+                                if (selectedDate < minDate) {
+                                    return Promise.reject(new Error("Date cannot be before 1900-01-01"))
+                                }
+                            }
+                        }
+                    ]}
+                >
                     <Input type='date'
                         placeholder="Date of birth" />
                 </Form.Item>
-                <Form.Item label="Email" name="email">
+                <Form.Item label="Email" name="email"
+                    rules={[
+                        {
+                            required: true,
+                            message: "Please enter Email",
+                            type: 'email',
+                        },
+                        {
+                            validator: (_, value) => {
+                                if (!value || !/\s/.test(value)) {
+                                    return Promise.resolve()
+                                }
+                                return Promise.reject(new Error("Email must not contain spaces"))
+                            }
+                        }
+                    ]}
+                >
                     <Input type='email'
                         placeholder="Email of staff" />
                 </Form.Item>
-                <Form.Item label="Phone" name="phone">
+                <Form.Item label="Phone" name="phone"
+                    rules={[
+                        {
+                            required: true,
+                            message: "Please enter phone",
+                        },
+                        {
+                            pattern: /^[0-9]{10,15}$/,
+                            message: "Phone number must be 10-15 digits!"
+                        }
+                    ]}
+                >
                     <Input type='tel'
                         placeholder="Phone number of account" />
                 </Form.Item>
-                <Form.Item label="Sex" name="sex">
+                <Form.Item label="Sex" name="sex"
+                    rules={[
+                        {
+                            required: true,
+                            message: "Please select sex",
+                        },
+                    ]}
+                >
                     <Radio.Group name='sex'>
                         <Radio value="0" > Female </Radio>
                         <Radio value="1" > Male </Radio>
                     </Radio.Group>
                 </Form.Item>
 
-                <Form.Item label="Role" name="role">
+                <Form.Item label="Role" name="role" rules={[
+                    {
+                        required: true,
+                        message: "Please select role",
+                    },
+                ]}>
                     <Select name="role">
                         <Select.Option value="0" >Admin</Select.Option>
                         <Select.Option value="2" >Seller staff</Select.Option>
                         <Select.Option value="3" >Warehouse staff</Select.Option>
                     </Select>
                 </Form.Item>
-                <Form.Item label="Address" name="address">
+                <Form.Item label="Address" name="address"
+                    rules={[
+                        {
+                            required: true,
+                            message: "Please enter address",
+                        },
+                    ]}>
                     <TextArea rows={4} type="text"
                         placeholder="Address of staff" />
                 </Form.Item>

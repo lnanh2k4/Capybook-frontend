@@ -16,12 +16,17 @@ const VerifyEmail = () => {
             const formDataToSend = new FormData()
             formDataToSend.append('code', JSON.stringify(loginData))
             const response = await verifyAccount(formDataToSend)
-            if (checkAdminRole() || checkSellerStaffRole() || checkWarehouseStaffRole()) {
-                navigate('/dashboard')
-                return
+            if (decodeJWT().status === 2) {
+                if (checkAdminRole() || checkSellerStaffRole() || checkWarehouseStaffRole()) {
+                    navigate('/dashboard')
+                    return
+                }
+                navigate('/')
+                console.log(response)
+            } else {
+                navigate('/password/set')
             }
-            navigate('/')
-            console.log(response)
+
         } catch (error) {
             console.log(error)
             message.error('Login failed')
