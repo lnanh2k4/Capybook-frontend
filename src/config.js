@@ -240,10 +240,12 @@ const addPromotion = (promotion, username) => {
 };
 
 const updatePromotion = (id, promotion) => client.put(`/v1/promotions/${id}`, promotion);
-const deletePromotion = (proID) => {
-    console.log("Marking promotion as deleted with ID:", proID);
-    return client.delete(`/v1/promotions/${proID}`);
+const deletePromotion = (proID, staffID) => {
+  return client.delete(`/v1/promotions/${proID}`, {
+    params: { staffID }, // Gửi staffID qua query
+  });
 };
+
 
 const searchPromotions = (id, term) => {
     const params = new URLSearchParams();

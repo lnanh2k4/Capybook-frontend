@@ -42,6 +42,8 @@ const OrderManagement = () => {
   const [selectedStatus, setSelectedStatus] = useState(null);
   const [error, setError] = useState("");
   const [staffID, setStaffID] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   useEffect(() => {
     if (!checkSellerStaffRole() && !checkAdminRole()) {
@@ -340,8 +342,20 @@ const OrderManagement = () => {
           dataSource={orders}
           rowKey="orderID"
           loading={loading}
-          pagination={{ pageSize: 10 }}
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            total: orders.length, // Tổng số phần tử
+            showSizeChanger: true, // Hiển thị tùy chọn thay đổi số lượng phần tử
+            onChange: (page, size) => {
+              setCurrentPage(page);
+              setPageSize(size); // Cập nhật số phần tử trên mỗi trang
+            },
+            showTotal: (total, range) =>
+              `${range[0]}-${range[1]} of ${total} items`, // Hiển thị tổng số phần tử
+          }}
         />
+
         {error && <p style={{ color: "red" }}>{error}</p>}
         <Modal
           title="Edit Order Status"
