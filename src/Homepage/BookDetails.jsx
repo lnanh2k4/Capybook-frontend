@@ -132,12 +132,11 @@ const BookDetails = () => {
       console.log(`Start Date: ${startDate}, End Date: ${endDate}`);
       console.log(`Current Date: ${currentDate}`);
       console.log(
-        `Condition: ${
-          promo.quantity > 0 &&
-          promo.proStatus === 1 &&
-          promo.approvedBy !== null &&
-          currentDate >= startDate &&
-          currentDate <= endDate
+        `Condition: ${promo.quantity > 0 &&
+        promo.proStatus === 1 &&
+        promo.approvedBy !== null &&
+        currentDate >= startDate &&
+        currentDate <= endDate
         }`
       );
       return (
@@ -319,14 +318,14 @@ const BookDetails = () => {
             <div style={{ flex: "1" }}>
               <Image
                 width={300}
-                src={imagePreview || "https://via.placeholder.com/300"}
+                src={imagePreview || "/logo-capybook.png"}
                 alt={bookData.bookTitle}
                 style={{ borderRadius: "8px" }}
               />
               <div style={{ marginTop: "20px", display: "flex", gap: "10px" }}>
                 <Image
                   width={60}
-                  src={imagePreview || "https://via.placeholder.com/60"}
+                  src={imagePreview || "/logo-capybook.png"}
                   style={{ cursor: "pointer" }}
                 />
               </div>

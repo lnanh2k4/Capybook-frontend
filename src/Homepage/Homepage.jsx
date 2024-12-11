@@ -368,7 +368,7 @@ const Homepage = () => {
     if (imageUrl && imageUrl.startsWith("/uploads/book_")) {
       return `http://localhost:6789${imageUrl}`; // Add base URL if needed
     }
-    return imageUrl || "https://via.placeholder.com/150"; // Default image
+    return imageUrl || "/logo-capybook.png"; // Default image
   };
 
   return (
