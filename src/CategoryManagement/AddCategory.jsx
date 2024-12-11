@@ -34,9 +34,11 @@ function AddCategory() {
       if (!values.catName.trim()) {
         message.error("Category name only contains spaces");
       } else {
+        const name = values.catName.trim();
+        const description = values.catDescription?.trim();
         const categoryData = {
-          catName: values.catName,
-          catDescription: values.catDescription,
+          catName: name,
+          catDescription: description,
           catStatus: 1,
         };
         await addCategory(categoryData);
