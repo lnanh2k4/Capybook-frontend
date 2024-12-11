@@ -59,7 +59,13 @@ const EditSupplier = () => {
                     <Form.Item
                         label="Supplier Name"
                         name="supName"
-                        rules={[{ required: true, message: 'Please enter the supplier name' }]}
+                        rules={[
+                            { required: true, message: "Please enter the supplier name" },
+                            {
+                                pattern: /^[A-Za-z0-9\s]+$/,
+                                message: "Supplier name cannot contain special characters",
+                            },
+                        ]}
                     >
                         <Input placeholder="Supplier Name" />
                     </Form.Item>
