@@ -17,7 +17,7 @@ import {
   BellOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
-import { handlePaymentReturn, addOrder } from "../config"; // API gọi backend
+import { handlePaymentReturn, addOrder, deleteCartItem, viewCart } from "../config"; // API gọi backend
 import { decodeJWT } from "../jwtConfig";
 
 const { Header, Footer, Content } = Layout;
@@ -29,7 +29,8 @@ const PaymentSuccessPage = () => {
   const [order, setOrder] = useState(null); // Lưu thông tin order
   const navigate = useNavigate();
   const location = useLocation();
-
+  const username = decodeJWT().sub;
+  const [cartItems, setCartItems] = useState([]);
   // Lấy thông tin từ localStorage
   useEffect(() => {
     const storedOrder = localStorage.getItem("orderData");
@@ -118,6 +119,12 @@ const PaymentSuccessPage = () => {
     localStorage.removeItem("jwtToken");
     navigate("/");
   };
+
+
+
+
+
+
 
   const userMenu = () => {
     if (decodeJWT()) {
@@ -249,9 +256,17 @@ const PaymentSuccessPage = () => {
                 </>
               }
               extra={[
-                <Button type="primary" key="home" onClick={() => navigate("/")}>
-                  Go to Homepage
-                </Button>,
+                <Button
+                  type="primary"
+                  key="cart"
+                  onClick={() => {
+                    // Đồng bộ hóa giỏ hàng
+                    navigate("/"); // Điều hướng tới trang giỏ hàng
+                  }}
+                >
+                  Go to HomgePage
+                </Button>
+                ,
                 <Button key="orders" onClick={() => navigate("/OrderHistory")}>
                   View Orders
                 </Button>,

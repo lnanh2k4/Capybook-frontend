@@ -409,8 +409,9 @@ const viewCart = (username) => {
             throw error; // Ném lỗi để xử lý ở nơi gọi hàm
         });
 };
+
 // Xóa sách khỏi giỏ hàng
-const deleteCartItem = (username, cartID, bookID) => {
+const deleteCartItem = (username, cartID) => {
     return client
         .delete('v1/cart/delete', {
             params: {

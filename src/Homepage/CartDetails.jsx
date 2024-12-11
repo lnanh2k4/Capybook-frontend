@@ -81,25 +81,23 @@ const CartDetails = () => {
       const item = cartItems.find((item) => item.id === itemId);
 
       if (item) {
-        // Kiểm tra nếu số lượng chuyển về 0
-        if (value === 0) {
-          Modal.confirm({
-            title: "Remove book from cart",
-            content: `Are you sure you want to remove "${item.name}" from your cart?`,
-            okText: "Yes",
-            cancelText: "No",
-            onOk: async () => {
-              await handleDeleteItem(itemId); // Xóa sách khỏi giỏ hàng
-            },
+        // Kiểm tra nếu số lượng vượt quá số lượng trong kho
+        if (value > item.bookQuantity) {
+          Modal.error({
+            content: `Quantity in cart exceeds available stock (${item.bookQuantity} left).`,
           });
+
+          // Tự động chỉnh số lượng về mức tối đa có thể đặt
+          setCartItems((prev) =>
+            prev.map((item) =>
+              item.id === itemId
+                ? { ...item, quantity: item.bookQuantity, total: item.bookQuantity * item.price }
+                : item
+            )
+          );
           return;
         }
 
-        // Cập nhật số lượng nếu hợp lệ
-        if (value > item.stockQuantity) {
-          alert(`You can only order up to ${item.stockQuantity} items.`);
-          return;
-        }
         if (value < 1) {
           alert("Quantity cannot be less than 1.");
           return;
@@ -139,8 +137,12 @@ const CartDetails = () => {
     try {
       const item = cartItems.find((item) => item.id === itemId);
       if (item) {
-        await deleteCartItem(username, item.id);
-        setCartItems((prev) => prev.filter((item) => item.id !== itemId));
+        const response = await deleteCartItem(username, item.id);
+        if (response) {
+          setCartItems((prev) => prev.filter((item) => item.id !== itemId));
+        } else {
+          console.error("Failed to delete cart item.");
+        }
       }
     } catch (error) {
       console.error("Error deleting cart item:", error);
@@ -148,13 +150,27 @@ const CartDetails = () => {
   };
 
 
+
   // Handle select all items
   const handleSelectAll = (e) => {
     const isChecked = e.target.checked;
     setCartItems((prev) =>
-      prev.map((item) => ({ ...item, selected: isChecked }))
+      prev.map((item) => ({
+        ...item,
+        selected: isChecked && // Chỉ chọn khi tất cả điều kiện hợp lệ
+          item.bookStatus !== 0 &&
+          item.bookQuantity > 0 &&
+          item.quantity <= item.bookQuantity
+      }))
     );
   };
+  const invalidItems = cartItems.filter(
+    (item) => item.bookStatus === 0 || item.bookQuantity === 0
+  );
+  const validItems = cartItems.filter(
+    (item) => item.bookStatus !== 0 && item.bookQuantity > 0
+  );
+
   const handleDashboardClick = () => {
     navigate("/dashboard/income-statistic");
   };
@@ -282,6 +298,7 @@ const CartDetails = () => {
               <Checkbox
                 onChange={handleSelectAll}
                 checked={cartItems.every((item) => item.selected)}
+
               />
             </Col>
             <Col span={6}>
@@ -299,21 +316,25 @@ const CartDetails = () => {
             <Col span={1}></Col>
           </Row>
           <Divider style={{ margin: 0 }} />
-          {cartItems.map((item) => (
+          {validItems.map((item) => (
             <Row
               key={item.id}
               align="middle"
               style={{
                 padding: "15px 0",
                 borderBottom: "1px solid #e8e8e8",
-                backgroundColor: item.bookStatus === 0 ? "#f8d7da" : "transparent", // Màu nền nếu không khả dụng
+                backgroundColor: item.bookStatus === 0 || item.bookQuantity === 0 ? "#f8d7da" : "transparent",
               }}
             >
               <Col span={1}>
                 <Checkbox
                   checked={item.selected}
                   onChange={() => handleSelectItem(item.id)}
-                  disabled={item.bookStatus === 0} // Không cho chọn sản phẩm
+                  disabled={item.bookStatus === 0 || item.bookQuantity === 0
+
+
+                    || item.quantity > item.bookQuantity
+                  } // Không cho chọn nếu hết hàng
                 />
               </Col>
               <Col span={6} style={{ display: "flex", alignItems: "center" }}>
@@ -324,10 +345,10 @@ const CartDetails = () => {
                     width: "50px",
                     height: "50px",
                     marginRight: "10px",
-                    opacity: item.bookStatus === 0 ? 0.5 : 1, // Làm mờ nếu không khả dụng
+                    opacity: item.bookStatus === 0 || item.bookQuantity === 0 ? 0.5 : 1, // Làm mờ nếu không khả dụng hoặc hết hàng
                   }}
                 />
-                <Text delete={item.bookStatus === 0}>{item.name}</Text>
+                <Text delete={item.bookStatus === 0 || item.bookQuantity === 0}>{item.name}</Text>
               </Col>
               <Col span={4}>
                 <InputNumber
@@ -336,7 +357,7 @@ const CartDetails = () => {
                   value={item.quantity}
                   onChange={(value) => handleQuantityChange(value, item.id)}
                   style={{ width: "80px" }}
-                  disabled={item.bookStatus === 0} // Không cho thay đổi số lượng
+                  disabled={item.bookStatus === 0 || item.bookQuantity === 0} // Không cho thay đổi số lượng
                 />
               </Col>
               <Col span={4}>
@@ -352,15 +373,26 @@ const CartDetails = () => {
                   onClick={() => handleDeleteItem(item.id)}
                 />
               </Col>
+              {item.bookQuantity === 0 && (
+                <Col span={24}>
+                  <Text type="danger">This product is out of stock.</Text>
+                </Col>
+              )}
               {item.bookStatus === 0 && (
                 <Col span={24}>
+                  <Text type="danger">This product is unavailable or has been removed.</Text>
+                </Col>
+              )}
+              {item.quantity > item.bookQuantity && (
+                <Col span={24}>
                   <Text type="danger">
-                    This product is unavailable or has been removed.
+                    Quantity in cart exceeds available stock ({item.bookQuantity} left).
                   </Text>
                 </Col>
               )}
             </Row>
           ))}
+
 
 
           <Divider />
@@ -369,11 +401,10 @@ const CartDetails = () => {
               <Text style={{ fontSize: "16px", fontWeight: "bold" }}>
                 Total amount: {calculateTotal().toLocaleString()} VND
               </Text>
-
               <Button
                 type="primary"
                 style={{ marginLeft: "20px" }}
-                onClick={() => {
+                onClick={async () => {
                   const selectedBooks = cartItems
                     .filter((item) => item.selected) // Lọc sách được chọn
                     .map((item) => ({
@@ -384,20 +415,122 @@ const CartDetails = () => {
                       total: item.total,
                       image: item.image,
                     }));
+
                   if (selectedBooks.length === 0) {
                     alert("Please select at least one book to purchase.");
                     return;
                   }
 
-                  navigate("/OrderPage", {
-                    state: { bookData: selectedBooks },
-                  });
+                  try {
+                    // Gọi hàm xóa từng mục đã chọn khỏi giỏ hàng
+                    for (const item of cartItems.filter((item) => item.selected)) {
+                      await handleDeleteItem(item.id); // Gọi hàm xóa
+                    }
+
+                    // Chuyển hướng sang trang OrderPage với dữ liệu sách đã chọn
+                    navigate("/OrderPage", {
+                      state: { bookData: selectedBooks },
+                    });
+                  } catch (error) {
+                    console.error("Error during purchase:", error);
+                  }
                 }}
               >
                 Purchase
               </Button>
+
             </Col>
           </Row>
+          {/* Hiển thị các mặt hàng không hợp lệ */}
+          {invalidItems.length > 0 && (
+            <Card
+              title="Unavailable Items"
+              style={{
+                marginTop: "20px",
+                border: "1px solid #f0f0f0",
+                backgroundColor: "#fffbe6", // Nền vàng nhạt để phân biệt
+              }}
+            >
+              <Row
+                align="middle"
+                style={{
+                  backgroundColor: "#ff7875",
+                  padding: "10px",
+                  color: "#fff",
+                  fontWeight: "bold",
+                }}
+              >
+                <Col span={6}>
+                  <Text style={{ color: "#fff" }}>Product</Text>
+                </Col>
+                <Col span={4}>
+                  <Text style={{ color: "#fff" }}>Status</Text>
+                </Col>
+                <Col span={4}>
+                  <Text style={{ color: "#fff" }}>Price</Text>
+                </Col>
+                <Col span={4}>
+                  <Text style={{ color: "#fff" }}>Total</Text>
+                </Col>
+                <Col span={1}></Col>
+              </Row>
+              <Divider style={{ margin: 0 }} />
+              {invalidItems.map((item) => (
+                <Row
+                  key={item.id}
+                  align="middle"
+                  style={{
+                    padding: "15px 0",
+                    borderBottom: "1px solid #e8e8e8",
+                    backgroundColor: "#fff5f5", // Màu nền khác để phân biệt
+                  }}
+                >
+                  <Col span={6} style={{ display: "flex", alignItems: "center" }}>
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      style={{
+                        width: "50px",
+                        height: "50px",
+                        marginRight: "10px",
+                        opacity: 0.5, // Làm mờ hình ảnh
+                      }}
+                    />
+                    <Text delete style={{ fontWeight: "bold" }}>
+                      {item.name}
+                    </Text>
+                  </Col>
+                  <Col span={4}>
+                    <Text disabled>Unavailable</Text>
+                  </Col>
+                  <Col span={4}>
+                    <Text>{item.price.toLocaleString()} VND</Text>
+                  </Col>
+                  <Col span={4}>
+                    <Text>{item.total.toLocaleString()} VND</Text>
+                  </Col>
+                  <Col span={1}>
+                    <Button
+                      type="text"
+                      icon={<DeleteOutlined />}
+                      onClick={() => handleDeleteItem(item.id)} // Nút xóa vẫn hoạt động
+                      style={{
+                        color: "#ff4d4f", // Đánh dấu nút xóa màu đỏ
+                      }}
+                    />
+                  </Col>
+                  <Col span={24}>
+                    <Text type="danger">
+                      {item.bookStatus === 0
+                        ? "This product is unavailable or has been removed."
+                        : "This product is out of stock."}
+                    </Text>
+                  </Col>
+                </Row>
+              ))}
+            </Card>
+
+          )}
         </Card>
       </Content>
       <Footer

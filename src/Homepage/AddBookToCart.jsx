@@ -32,6 +32,17 @@ const AddBookToCart = ({ username, bookId, bookData }) => {
         console.log("Book ID:", bookId);
         console.log("Quantity:", quantity);
 
+        // Tính tổng số lượng sách đã có trong giỏ hàng
+        const existingItem = cartItems.find((item) => item.key === bookId);
+        const currentQuantityInCart = existingItem ? existingItem.quantity : 0;
+
+        if (currentQuantityInCart + quantity > bookData.bookQuantity) {
+            Modal.error({
+                content: `Cannot add more than ${bookData.bookQuantity} items of this book to the cart.`,
+            });
+            return;
+        }
+
         try {
             await addBookToCart(username, bookId, quantity);
 
@@ -42,8 +53,8 @@ const AddBookToCart = ({ username, bookId, bookData }) => {
                 price: bookData.bookPrice || 0,
                 originalPrice: bookData.originalPrice || 0,
                 discount: bookData.discount || 0,
-                quantity: quantity,
-                total: quantity * (bookData.bookPrice || 0),
+                quantity: currentQuantityInCart + quantity,
+                total: (currentQuantityInCart + quantity) * (bookData.bookPrice || 0),
                 image: bookData.image || 'https://via.placeholder.com/50',
             };
 
@@ -51,9 +62,8 @@ const AddBookToCart = ({ username, bookId, bookData }) => {
                 const existingItemIndex = prevItems.findIndex((item) => item.key === bookId);
                 if (existingItemIndex >= 0) {
                     const updatedItems = [...prevItems];
-                    updatedItems[existingItemIndex].quantity = quantity;
-                    updatedItems[existingItemIndex].total =
-                        updatedItems[existingItemIndex].quantity * updatedItems[existingItemIndex].price;
+                    updatedItems[existingItemIndex].quantity = newCartItem.quantity;
+                    updatedItems[existingItemIndex].total = newCartItem.total;
                     return updatedItems;
                 } else {
                     return [...prevItems, newCartItem];
@@ -147,7 +157,7 @@ const AddBookToCart = ({ username, bookId, bookData }) => {
                     <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>Quantity</div>
                     <InputNumber
                         min={1}
-                        max={10}
+                        max={bookData.bookQuantity}
                         defaultValue={1}
                         style={{ width: '60px' }}
                         onChange={(value) => {
