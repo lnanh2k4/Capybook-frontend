@@ -25,6 +25,10 @@ const EditCategory = () => {
     const loadCategoryDetail = async () => {
       try {
         const response = await fetchCategoryDetail(catID);
+        if (response.data.catStatus === 0) {
+          navigate("/404")
+          return;
+        }
         const category = response.data;
 
         form.setFieldsValue({
