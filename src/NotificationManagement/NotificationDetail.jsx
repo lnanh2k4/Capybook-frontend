@@ -54,7 +54,7 @@ function NotificationDetail() {
 
             <div className="dashboard-content">
                 <div className="titlemanagement" style={{ textAlign: 'center' }}>
-                    <div>Notification Management - Notification Details</div>
+                    <div>Notification Details</div>
                 </div>
                 <Card title={notificationyData.notTitle}
                     style={{ marginBottom: '30px', padding: '20px' }}

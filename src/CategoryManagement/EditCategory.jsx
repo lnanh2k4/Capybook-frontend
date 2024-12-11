@@ -76,7 +76,7 @@ const EditCategory = () => {
 
       <Card className="dashboard-content" style={{ marginBottom: '50px' }}>
         <div className="titlemanagement">
-          <div>Category Management - Edit Category</div>
+          <div>Edit Category</div>
         </div>
 
         <Form

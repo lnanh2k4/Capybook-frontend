@@ -69,7 +69,7 @@ function AddCategory() {
 
       <Card className="dashboard-content" style={{ marginBottom: '50px' }}>
         <div className="titlemanagement">
-          <div>Category Management - Add Category</div>
+          <div>Add Category</div>
         </div>
 
         <Form
