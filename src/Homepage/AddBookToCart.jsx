@@ -19,7 +19,18 @@ const AddBookToCart = ({ username, bookId, bookData }) => {
   const handleCancel = () => {
     setIsModalVisible(false);
   };
-
+  const normalizeImageUrl = (imageUrl) => {
+    if (!imageUrl || typeof imageUrl !== "string") {
+      return "/logo-capybook.png"; // Đường dẫn ảnh mặc định
+    }
+    if (imageUrl.startsWith("/uploads")) {
+      return `http://localhost:6789${imageUrl}`; // Gắn đường dẫn đầy đủ nếu bắt đầu bằng `/uploads`
+    }
+    if (!imageUrl.startsWith("http")) {
+      return `http://localhost:6789/${imageUrl}`; // Gắn đường dẫn đầy đủ nếu thiếu `http`
+    }
+    return imageUrl; // Trả về ảnh đã hợp lệ
+  };
   const handleAddToCart = async () => {
     if (quantity > bookData.bookQuantity) {
       Modal.error({
@@ -48,7 +59,7 @@ const AddBookToCart = ({ username, bookId, bookData }) => {
           discount: bookData.discount || 0,
           quantity: quantity,
           total: quantity * (bookData.bookPrice || 0),
-          image: bookData.image || "https://via.placeholder.com/50",
+          image: bookData.image || "/logo-capybook.png",
         };
         setCartItems((prevItems) => [...prevItems, newCartItem]);
       }
@@ -87,9 +98,9 @@ const AddBookToCart = ({ username, bookId, bookData }) => {
       render: (text, record) => (
         <div style={{ display: "flex", alignItems: "center" }}>
           <img
-            src={record.image}
+            src={normalizeImageUrl(bookData.image)}
             alt={text}
-            style={{ width: 50, height: 50, marginRight: 10 }}
+            style={{ width: 40, height: 50, marginRight: 10 }}
           />
           <Typography.Text>{text}</Typography.Text>
         </div>

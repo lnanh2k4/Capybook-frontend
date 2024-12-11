@@ -31,16 +31,7 @@ const EditSupplier = () => {
     const handleSubmit = async (values) => {
         setLoading(true); // Set loading state while updating
         try {
-            // Kiểm tra trùng lặp `supplierName`
-            const isDuplicate = suppliers.some(
-                (supplier) =>
-                    supplier.supName === values.supplierName
-            );
 
-            if (isDuplicate) {
-                message.error("A supplier with the same name already exists.");
-                return; // Ngừng thực hiện nếu tên nhà cung cấp bị trùng
-            }
             await updateSupplier(supID, values);
             message.success('Supplier updated successfully');
             navigate("/dashboard/suppliers"); // Navigate back to supplier management after update
@@ -67,60 +58,44 @@ const EditSupplier = () => {
                     style={{ maxWidth: '800px', margin: 'auto' }}
                 >
                     <Form.Item
-                        label="Supplier Email"
-                        name="supplierEmail"
+                        label="Supplier Name"
+                        name="supName"
                         rules={[
-                            { required: true, message: 'Supplier email cannot be empty or only spaces' },
-                            { type: "email", message: "Please enter a valid email address" },
-
+                            { required: true, message: "Please enter the supplier name" },
+                            {
+                                pattern: /^[A-Za-z0-9\s]+$/,
+                                message: "Supplier name cannot contain special characters",
+                            },
                         ]}
                     >
-                        <Input placeholder="Enter supplier email" />
+                        <Input placeholder="Supplier Name" />
                     </Form.Item>
 
                     <Form.Item
                         label="Supplier Phone"
-                        name="supplierPhone"
-                        rules={[
+                        name="supPhone"
+                        rules={[{ required: true, message: 'Please enter the supplier phone' }]}
+                    >
+                        <Input placeholder="Supplier Phone" />
+                    </Form.Item>
 
-                            {
-                                validator: (_, value) => {
-                                    if (!value || value.trim() === "") {
-                                        return Promise.reject(
-                                            new Error("Phone number cannot be empty or only spaces")
-                                        );
-                                    }
-                                    if (!/^[0-9]{10}$/.test(value)) {
-                                        return Promise.reject(
-                                            new Error("Phone number must be exactly 10 digits")
-                                        );
-                                    }
-                                    return Promise.resolve();
-                                },
-                            },
+                    <Form.Item
+                        label="Supplier Email"
+                        name="supEmail"
+                        rules={[
+                            { required: true, message: 'Please enter the supplier email' },
+                            { type: 'email', message: 'Please enter a valid email address' }
                         ]}
                     >
-                        <Input placeholder="Enter supplier phone" />
+                        <Input placeholder="Supplier Email" />
                     </Form.Item>
 
                     <Form.Item
                         label="Supplier Address"
-                        name="supplierAddress"
-                        rules={[
-
-                            {
-                                validator: (_, value) => {
-                                    if (!value || value.trim() === "") {
-                                        return Promise.reject(
-                                            new Error("Supplier address cannot be empty or only spaces")
-                                        );
-                                    }
-                                    return Promise.resolve();
-                                },
-                            },
-                        ]}
+                        name="supAddress"
+                        rules={[{ required: true, message: 'Please enter the supplier address' }]}
                     >
-                        <Input placeholder="Enter supplier address" />
+                        <Input placeholder="Supplier Address" />
                     </Form.Item>
 
                     <Form.Item>

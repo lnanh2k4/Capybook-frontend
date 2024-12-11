@@ -12,6 +12,7 @@ import {
   Dropdown,
   Menu,
   Modal,
+  message
 } from "antd";
 import {
   UserOutlined,
@@ -22,6 +23,7 @@ import {
   LeftOutlined,
   RightOutlined,
   DeleteOutlined,
+  ExclamationCircleOutlined
 } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
 import { viewCart, updateCartItem, deleteCartItem } from "../config"; // API functions
@@ -49,7 +51,7 @@ const CartDetails = () => {
           quantity: item.quantity,
           selected: false,
           total: (item.bookID.bookPrice || 0) * (item.quantity || 1),
-          image: item.bookID.image || "https://via.placeholder.com/50",
+          image: item.bookID.image || "/logo-capybook.png",
           bookStatus: item.bookID.bookStatus,
           bookQuantity: item.bookID.bookQuantity || 0,
         }));
@@ -73,14 +75,25 @@ const CartDetails = () => {
         item.selected ? total + item.price * item.quantity : total,
       0
     );
-
+  const normalizeImageUrl = (imageUrl) => {
+    if (!imageUrl || typeof imageUrl !== "string") {
+      return "/logo-capybook.png"; // Đường dẫn ảnh mặc định
+    }
+    if (imageUrl.startsWith("/uploads")) {
+      return `http://localhost:6789${imageUrl}`; // Gắn đường dẫn đầy đủ nếu bắt đầu bằng `/uploads`
+    }
+    if (!imageUrl.startsWith("http")) {
+      return `http://localhost:6789/${imageUrl}`; // Gắn đường dẫn đầy đủ nếu thiếu `http`
+    }
+    return imageUrl; // Trả về ảnh đã hợp lệ
+  };
   // Handle quantity change
   const handleQuantityChange = async (value, itemId) => {
     try {
       const item = cartItems.find((item) => item.id === itemId);
 
       if (item) {
-        // Kiểm tra nếu số lượng vượt quá số lượng trong kho
+        // Nếu số lượng vượt quá số lượng trong kho
         if (value > item.bookQuantity) {
           Modal.error({
             content: `Quantity in cart exceeds available stock (${item.bookQuantity} left).`,
@@ -91,18 +104,38 @@ const CartDetails = () => {
             prev.map((item) =>
               item.id === itemId
                 ? {
-                    ...item,
-                    quantity: item.bookQuantity,
-                    total: item.bookQuantity * item.price,
-                  }
+                  ...item,
+                  quantity: item.bookQuantity,
+                  total: item.bookQuantity * item.price,
+                }
                 : item
             )
           );
           return;
         }
 
+        // Nếu người dùng nhập số lượng < 1
         if (value < 1) {
-          alert("Quantity cannot be less than 1.");
+          Modal.confirm({
+            title: "Remove item from cart?",
+            content: "You have set the quantity to 0. Do you want to remove this item from your cart?",
+            okText: "Yes",
+            cancelText: "No",
+            onOk: async () => {
+              // Xóa mục khỏi giỏ hàng
+              await handleDeleteItem(itemId);
+            },
+            onCancel: () => {
+              // Đặt lại số lượng cũ nếu người dùng không muốn xóa
+              setCartItems((prev) =>
+                prev.map((item) =>
+                  item.id === itemId
+                    ? { ...item, quantity: 1, total: 1 * item.price }
+                    : item
+                )
+              );
+            },
+          });
           return;
         }
 
@@ -137,19 +170,44 @@ const CartDetails = () => {
   };
 
   const handleDeleteItem = async (itemId) => {
-    try {
-      const item = cartItems.find((item) => item.id === itemId);
-      if (item) {
-        const response = await deleteCartItem(username, item.id);
-        if (response) {
-          setCartItems((prev) => prev.filter((item) => item.id !== itemId));
-        } else {
-          console.error("Failed to delete cart item.");
+    const item = cartItems.find((item) => item.id === itemId);
+    if (!item) return;
+
+    Modal.confirm({
+      title: "Confirm Deletion",
+      icon: <ExclamationCircleOutlined style={{ color: "#faad14" }} />,
+      content: (
+        <>
+          <Text>
+            Are you sure you want to delete <Text strong>{item.name}</Text> from your cart?
+          </Text>
+          <br />
+          <Text type="danger">This action cannot be undone!</Text>
+        </>
+      ),
+      okText: "Yes, Delete",
+      okType: "danger",
+      cancelText: "No, Cancel",
+      centered: true,
+      onOk: async () => {
+        try {
+          const response = await deleteCartItem(username, item.id);
+          if (response) {
+            setCartItems((prev) => prev.filter((item) => item.id !== itemId));
+            message.success("Item deleted successfully.");
+          } else {
+            console.error("Failed to delete cart item.");
+            message.error("Failed to delete the item. Please try again.");
+          }
+        } catch (error) {
+          console.error("Error deleting cart item:", error);
+          message.error("An error occurred while deleting the item.");
         }
-      }
-    } catch (error) {
-      console.error("Error deleting cart item:", error);
-    }
+      },
+      onCancel: () => {
+        message.info("Deletion cancelled.");
+      },
+    });
   };
 
   // Handle select all items
@@ -325,10 +383,12 @@ const CartDetails = () => {
                 padding: "15px 0",
                 borderBottom: "1px solid #e8e8e8",
 
+
                 backgroundColor:
                   item.bookStatus === 0 || item.bookQuantity === 0
                     ? "#f8d7da"
                     : "transparent",
+
               }}
             >
               <Col span={1}>
@@ -336,24 +396,28 @@ const CartDetails = () => {
                   checked={item.selected}
                   onChange={() => handleSelectItem(item.id)}
                   disabled={
+
                     item.bookStatus === 0 ||
                     item.bookQuantity === 0 ||
                     item.quantity > item.bookQuantity
                   } // Không cho chọn nếu hết hàng
+
                 />
               </Col>
               <Col span={6} style={{ display: "flex", alignItems: "center" }}>
                 <img
-                  src={item.image}
+                  src={normalizeImageUrl(item.image)}
                   alt={item.name}
                   style={{
-                    width: "50px",
+                    width: "40px",
                     height: "50px",
                     marginRight: "10px",
+
                     opacity:
                       item.bookStatus === 0 || item.bookQuantity === 0
                         ? 0.5
                         : 1, // Làm mờ nếu không khả dụng hoặc hết hàng
+
                   }}
                 />
                 <Text delete={item.bookStatus === 0 || item.bookQuantity === 0}>
@@ -367,7 +431,7 @@ const CartDetails = () => {
                   value={item.quantity}
                   onChange={(value) => handleQuantityChange(value, item.id)}
                   style={{ width: "80px" }}
-                  disabled={item.bookStatus === 0 || item.bookQuantity === 0} // Không cho thay đổi số lượng
+                  disabled={item.bookStatus === 0 || item.bookQuantity === 0}
                 />
               </Col>
               <Col span={4}>
@@ -379,10 +443,12 @@ const CartDetails = () => {
               <Col span={1}>
                 <Button
                   type="text"
-                  icon={<DeleteOutlined />}
+                  icon={<DeleteOutlined style={{ color: "red", fontSize: "18px" }} />}
                   onClick={() => handleDeleteItem(item.id)}
+                  style={{ cursor: "pointer" }}
                 />
               </Col>
+
               {item.bookQuantity === 0 && (
                 <Col span={24}>
                   <Text type="danger">This product is out of stock.</Text>
