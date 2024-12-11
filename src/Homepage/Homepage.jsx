@@ -428,7 +428,7 @@ const Homepage = () => {
         </div>
       </Header>
 
-      <Content style={{ minHeight: '600px', padding: '20px', backgroundColor: '#8e9a9e' }}>
+      <Content style={{ minHeight: '600px', padding: '20px', backgroundColor: '#b8c0c2' }}>
         <Card>
           <Col>
             <Row gutter={[8, 8]}>
@@ -461,7 +461,7 @@ const Homepage = () => {
                 <SearchOutlined style={{ fontSize: '19px', marginTop: '5px' }} />
                 &nbsp;&nbsp;&nbsp;
                 <Search
-                  placeholder="Search books with title"
+                  placeholder="Search books with title or author"
                   enterButton
                   style={{ maxWidth: "500px" }}
                   onSearch={(value) => handleSearch(value)} // Gọi hàm tìm kiếm khi nhấn Enter
@@ -488,30 +488,36 @@ const Homepage = () => {
         {
           selectedCategory
             ? (
-              <Row gutter={[16, 16]}>
-                {sortedBooks.map((book) => (
-                  <Col key={book.bookID} xs={24} sm={12} md={8} lg={4} xl={4}>
-                    <Card
-                      hoverable
-                      className="book-card"
-                      onClick={() => handleBookClick(book.bookID)}
-                      cover={
-                        <div className="image-container">
-                          <img alt={book.bookTitle} src={normalizeImageUrl(book.image)} className="book-image" style={{ height: '200px', objectFit: 'contain' }} />
-                        </div>
-                      }
-                    >
-                      <Title level={5} className="book-title">{book.bookTitle}</Title>
-                      <Title level={4} type="danger" className="book-price">{`${book.bookPrice.toLocaleString('vi-VN')} đ`}</Title>
-                    </Card>
-                  </Col>
-                ))}
-              </Row>
+              <Card>
+                <Row gutter={[16, 16]}>
+                  {sortedBooks.map((book) => (
+                    <Col key={book.bookID} xs={24} sm={12} md={8} lg={4} xl={4}>
+                      <Card
+                        hoverable
+                        className="book-card"
+                        onClick={() => handleBookClick(book.bookID)}
+                        cover={
+                          <div className="image-container">
+                            <img alt={book.bookTitle} src={normalizeImageUrl(book.image)} className="book-image" style={{ height: '200px', objectFit: 'contain' }} />
+                          </div>
+                        }
+                      >
+                        <Title level={4} className="book-title">{book.bookTitle}</Title>
+                        <Title level={5} type="secondary" className="book-price">Author: {book.author}</Title>
+                        <Title level={5} type="danger" className="book-price">{`${book.bookPrice.toLocaleString('vi-VN')} đ`} </Title>
+                        {book.discount && <Tag color="volcano" className="book-discount">{`${book.discount}% off`}</Tag>}
+                        <Title level={5} type="danger" >Quantity: {book.bookQuantity}</Title>
+                      </Card>
+                    </Col>
+
+                  ))}
+                </Row>
+              </Card>
             )
             : (
               <>
                 {booksByCategory.map(({ category, pages }) => (
-                  <div key={category.catID} style={{ position: 'relative', padding: '20px', marginBottom: '30px', backgroundColor: '#fff' }}>
+                  <Card key={category.catID} style={{ position: 'relative', padding: '20px', marginBottom: '30px', backgroundColor: '#fff' }}>
                     <Divider orientation="center" style={{ fontSize: '24px', color: '#FF4500', borderColor: '#FF4500', marginBottom: '20px' }}>
                       {category.catName}
                     </Divider>
@@ -521,7 +527,7 @@ const Homepage = () => {
                           <Card
                             hoverable
                             onClick={() => handleBookClick(book.bookID)}
-                            className="category-book-card-2"
+                            className="book-card"
                             cover={
                               <img
                                 alt={book.bookTitle}
@@ -530,9 +536,11 @@ const Homepage = () => {
                               />
                             }
                           >
-                            <Title level={4} className="book-title-2">{book.bookTitle}</Title>
-                            <Title level={5} type="danger" className="book-price">{`${book.bookPrice.toLocaleString('vi-VN')} đ`}</Title>
+                            <Title level={4} className="book-title">{book.bookTitle}</Title>
+                            <Title level={5} type="secondary" className="book-price">Author: {book.author}</Title>
+                            <Title level={5} type="danger" className="book-price">{`${book.bookPrice.toLocaleString('vi-VN')} đ`} </Title>
                             {book.discount && <Tag color="volcano" className="book-discount">{`${book.discount}% off`}</Tag>}
+                            <Title level={5} type="danger" >Quantity: {book.bookQuantity}</Title>
                           </Card>
                         </Col>
                       ))}
@@ -542,31 +550,35 @@ const Homepage = () => {
                         <Button type="primary" onClick={() => showModal(category, pages.flat())}>View more</Button>
                       </div>
                     )}
-                  </div>
+                  </Card>
                 ))}
-                <Divider orientation="left" style={{ fontSize: '24px', color: '#080203', borderColor: '#c72a4c', marginBottom: '20px' }}>
-                  All Books
-                </Divider>
-                <Row gutter={[16, 16]}>
-                  {sortedBooks.map((book, index) => (
-                    <Col key={book.bookID || index} xs={24} sm={12} md={8} lg={4} xl={4}>
-                      <Card
-                        hoverable
-                        onClick={() => handleBookClick(book.bookID)}
-                        className="book-card"
-                        cover={
-                          <div className="image-container">
-                            <img alt={book.bookTitle} src={normalizeImageUrl(book.image)} className="book-image" style={{ objectFit: 'contain' }} />
-                          </div>
-                        }
-                      >
-                        <Title level={5} className="book-title">{book.bookTitle}</Title>
-                        <Title level={4} type="danger" className="book-price">{`${book.bookPrice.toLocaleString('vi-VN')} đ`}</Title>
-                        {book.discount && <Tag color="volcano" className="book-discount">{`${book.discount}% off`}</Tag>}
-                      </Card>
-                    </Col>
-                  ))}
-                </Row>
+                <Card>
+                  <Divider orientation="center" style={{ fontSize: '24px', color: '#080203', borderColor: '#c72a4c', marginBottom: '20px' }}>
+                    All Books
+                  </Divider>
+                  <Row gutter={[16, 16]}>
+                    {sortedBooks.map((book, index) => (
+                      <Col key={book.bookID || index} xs={24} sm={12} md={8} lg={4} xl={4}>
+                        <Card
+                          hoverable
+                          onClick={() => handleBookClick(book.bookID)}
+                          className="book-card"
+                          cover={
+                            <div className="image-container">
+                              <img alt={book.bookTitle} src={normalizeImageUrl(book.image)} className="book-image" style={{ objectFit: 'contain' }} />
+                            </div>
+                          }
+                        >
+                          <Title level={4} className="book-title">{book.bookTitle}</Title>
+                          <Title level={5} type="secondary" className="book-price">Author: {book.author}</Title>
+                          <Title level={5} type="danger" className="book-price">{`${book.bookPrice.toLocaleString('vi-VN')} đ`} </Title>
+                          {book.discount && <Tag color="volcano" className="book-discount">{`${book.discount}% off`}</Tag>}
+                          <Title level={5} type="danger" >Quantity: {book.bookQuantity}</Title>
+                        </Card>
+                      </Col>
+                    ))}
+                  </Row>
+                </Card>
               </>
             )
         }
