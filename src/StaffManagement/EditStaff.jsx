@@ -4,12 +4,15 @@ import { fetchStaffDetail, updateStaff } from '../config';
 import DashboardContainer from '../DashBoard/DashBoardContainer';
 import {
     Button,
+    Col,
     Form,
     Input,
     message,
     Radio,
+    Row,
     Select
 } from 'antd';
+import Footer from '../FooterForDashboard/Footer';
 const { TextArea } = Input;
 const EditStaff = () => {
     const { staffID } = useParams();
@@ -55,174 +58,177 @@ const EditStaff = () => {
     }, [staffID, form]);
     return (
         <>
-            <div className="dashboard-container">
+            <div className="dashboard-content">
                 <DashboardContainer />
+                <h1 style={{ textAlign: 'center' }}>Update Staff</h1>
+                {/* <DashboardContainer /> */}
+                <Form
+                    layout="vertical"
+                    style={{ maxWidth: '700px', margin: 'auto' }}
+                    form={form}
+                    onFinish={handleSubmit}
+                >
+                    <Row gutter={24}>
+                        <Col span={12}>
+                            <Form.Item label="Staff ID" name="staffID">
+                                <Input
+                                    placeholder="Staff ID of account " readOnly disabled />
+                            </Form.Item>
+                            <Form.Item label="Username" name="username">
+                                <Input
+                                    placeholder="Username of account " readOnly disabled />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item label="Fist Name" name="firstName"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Please enter First Name",
+                                    },
+                                    {
+                                        pattern: /^\p{L}+(\s\p{L}+)*$/u,
+                                        message: "First name must be contained letters"
+                                    }
+                                ]}
+                            >
+                                <Input type="text"
+                                    placeholder="First name of account" />
+                            </Form.Item>
+                            <Form.Item label="Last Name" name="lastName"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Please enter Last Name",
+                                    },
+                                    {
+                                        pattern: /^\p{L}+(\s\p{L}+)*$/u,
+                                        message: "Last name must be contained letters"
+                                    }
+                                ]}
+                            >
+                                <Input type="text"
+                                    placeholder="Last name of account" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item label="Date Of Birth" name="dob"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Please enter Date of birth",
+                                    },
+                                    {
+                                        validator: (_, value) => {
+                                            if (!value) {
+                                                return Promise.resolve()
+                                            }
+                                            const selectedDate = new Date(value)
+                                            const currentDate = new Date()
+                                            const minDate = new Date('1900-01-01')
+
+                                            if (selectedDate > currentDate) {
+                                                return Promise.reject(new Error("Date cannot be in the future"))
+                                            }
+
+                                            if (selectedDate < minDate) {
+                                                return Promise.reject(new Error("Date cannot be before 1900-01-01"))
+                                            }
+                                        }
+                                    }
+                                ]}
+                            >
+                                <Input type='date'
+                                    placeholder="Date of birth" />
+                            </Form.Item>
+                            <Form.Item label="Email" name="email"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Please enter Email",
+                                        type: 'email',
+                                    },
+                                    {
+                                        validator: (_, value) => {
+                                            if (!value || !/\s/.test(value)) {
+                                                return Promise.resolve()
+                                            }
+                                            return Promise.reject(new Error("Email must not contain spaces"))
+                                        }
+                                    }
+                                ]}
+                            >
+                                <Input type='email'
+                                    placeholder="Email of staff" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item label="Phone" name="phone"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Please enter phone",
+                                    },
+                                    {
+                                        pattern: /^[0-9]{10,15}$/,
+                                        message: "Phone number must be 10-15 digits!"
+                                    }
+                                ]}
+                            >
+                                <Input type='tel'
+                                    placeholder="Phone number of account" />
+                            </Form.Item>
+                            <Form.Item label="Sex" name="sex"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Please select sex",
+                                    },
+                                ]}
+                            >
+                                <Radio.Group name='sex'>
+                                    <Radio value="0" > Female </Radio>
+                                    <Radio value="1" > Male </Radio>
+                                </Radio.Group>
+                            </Form.Item>
+                        </Col>
+                        <Col span={24}>
+                            <Form.Item label="Role" name="role" rules={[
+                                {
+                                    required: true,
+                                    message: "Please select role",
+                                },
+                            ]}>
+                                <Select name="role">
+                                    <Select.Option value="0" >Admin</Select.Option>
+                                    <Select.Option value="2" >Seller staff</Select.Option>
+                                    <Select.Option value="3" >Warehouse staff</Select.Option>
+                                </Select>
+                            </Form.Item>
+                        </Col>
+                        <Col span={24}>
+                            <Form.Item label="Address" name="address"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Please enter address",
+                                    },
+                                ]}>
+                                <TextArea rows={4} type="text"
+                                    placeholder="Address of staff" />
+                            </Form.Item></Col>
+                        <Col span={24}>
+                            <Form.Item style={{ textAlign: 'center' }}>
+                                <Button type="primary" htmlType="submit">
+                                    Save
+                                </Button>
+                                <Button type='default' onClick={goToStaffManagement} style={{ marginLeft: 10 }}>Cancel</Button>
+                            </Form.Item></Col>
+                    </Row>
+
+                </Form >
             </div>
-            <h1 style={{ textAlign: 'center' }}>Update Staff</h1>
-            {/* <DashboardContainer /> */}
-            <Form
-                labelCol={{
-                    span: 4,
-                }}
-                wrapperCol={{
-                    span: 14,
-                }}
-                layout="horizontal"
-                style={{
-                    maxWidth: 600,
-                    marginLeft: '20%',
-                    background: '255, 255, 0, 0.9',
-                    padding: '3%',
-                    borderRadius: '5%'
-                }}
-                form={form}
-                onFinish={handleSubmit}
-            >
-                <Form.Item label="Staff ID" name="staffID">
-                    <Input
-                        placeholder="Staff ID of account " readOnly disabled />
-                </Form.Item>
-                <Form.Item label="Username" name="username">
-                    <Input
-                        placeholder="Username of account " readOnly disabled />
-                </Form.Item>
-                <Form.Item label="Fist Name" name="firstName"
-                    rules={[
-                        {
-                            required: true,
-                            message: "Please enter First Name",
-                        },
-                        {
-                            pattern: /^\p{L}+(\s\p{L}+)*$/u,
-                            message: "First name must be contained letters"
-                        }
-                    ]}
-                >
-                    <Input type="text"
-                        placeholder="First name of account" />
-                </Form.Item>
-                <Form.Item label="Last Name" name="lastName"
-                    rules={[
-                        {
-                            required: true,
-                            message: "Please enter Last Name",
-                        },
-                        {
-                            pattern: /^\p{L}+(\s\p{L}+)*$/u,
-                            message: "Last name must be contained letters"
-                        }
-                    ]}
-                >
-                    <Input type="text"
-                        placeholder="Last name of account" />
-                </Form.Item>
-                <Form.Item label="Date Of Birth" name="dob"
-                    rules={[
-                        {
-                            required: true,
-                            message: "Please enter Date of birth",
-                        },
-                        {
-                            validator: (_, value) => {
-                                if (!value) {
-                                    return Promise.resolve()
-                                }
-                                const selectedDate = new Date(value)
-                                const currentDate = new Date()
-                                const minDate = new Date('1900-01-01')
-
-                                if (selectedDate > currentDate) {
-                                    return Promise.reject(new Error("Date cannot be in the future"))
-                                }
-
-                                if (selectedDate < minDate) {
-                                    return Promise.reject(new Error("Date cannot be before 1900-01-01"))
-                                }
-                            }
-                        }
-                    ]}
-                >
-                    <Input type='date'
-                        placeholder="Date of birth" />
-                </Form.Item>
-                <Form.Item label="Email" name="email"
-                    rules={[
-                        {
-                            required: true,
-                            message: "Please enter Email",
-                            type: 'email',
-                        },
-                        {
-                            validator: (_, value) => {
-                                if (!value || !/\s/.test(value)) {
-                                    return Promise.resolve()
-                                }
-                                return Promise.reject(new Error("Email must not contain spaces"))
-                            }
-                        }
-                    ]}
-                >
-                    <Input type='email'
-                        placeholder="Email of staff" />
-                </Form.Item>
-                <Form.Item label="Phone" name="phone"
-                    rules={[
-                        {
-                            required: true,
-                            message: "Please enter phone",
-                        },
-                        {
-                            pattern: /^[0-9]{10,15}$/,
-                            message: "Phone number must be 10-15 digits!"
-                        }
-                    ]}
-                >
-                    <Input type='tel'
-                        placeholder="Phone number of account" />
-                </Form.Item>
-                <Form.Item label="Sex" name="sex"
-                    rules={[
-                        {
-                            required: true,
-                            message: "Please select sex",
-                        },
-                    ]}
-                >
-                    <Radio.Group name='sex'>
-                        <Radio value="0" > Female </Radio>
-                        <Radio value="1" > Male </Radio>
-                    </Radio.Group>
-                </Form.Item>
-
-                <Form.Item label="Role" name="role" rules={[
-                    {
-                        required: true,
-                        message: "Please select role",
-                    },
-                ]}>
-                    <Select name="role">
-                        <Select.Option value="0" >Admin</Select.Option>
-                        <Select.Option value="2" >Seller staff</Select.Option>
-                        <Select.Option value="3" >Warehouse staff</Select.Option>
-                    </Select>
-                </Form.Item>
-                <Form.Item label="Address" name="address"
-                    rules={[
-                        {
-                            required: true,
-                            message: "Please enter address",
-                        },
-                    ]}>
-                    <TextArea rows={4} type="text"
-                        placeholder="Address of staff" />
-                </Form.Item>
-                <Form.Item>
-                    <Button type="primary" htmlType="submit">
-                        Save
-                    </Button>
-                    <Button type='default' onClick={goToStaffManagement}>Cancel</Button>
-                </Form.Item>
-            </Form >
+            <Footer></Footer>
         </>
     );
 }

@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Form, Input, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { resetPassword } from '../config.js';
-import { decodeJWT } from '../jwtConfig.jsx';
+import { checkAdminRole, checkSellerStaffRole, checkWarehouseStaffRole, decodeJWT } from '../jwtConfig.jsx';
 
 const SetPassword = () => {
     const navigate = useNavigate();
@@ -18,8 +18,11 @@ const SetPassword = () => {
             console.log(values)
             const response = await resetPassword(formDataToSend)
             navigate("/");
-            console.log(response)
-            localStorage.setItem("jwtToken", response.data.token)
+            if (checkAdminRole() || checkSellerStaffRole() || checkWarehouseStaffRole()) {
+                navigate('/dashboard')
+                return
+            }
+            navigate('/')
         } catch (error) {
             console.log(error)
             message.error('Set password failed')
