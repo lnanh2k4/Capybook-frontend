@@ -99,7 +99,6 @@ function AddNotification() {
                         ]}
                     >
                         <Select>
-                            <Option value="0">Admin</Option>
                             <Option value="1">Customer</Option>
                             <Option value="2">Seller staff</Option>
                             <Option value="3">Warehouse staff</Option>
