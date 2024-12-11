@@ -209,7 +209,8 @@ const PromotionManagement = () => {
   const handleLogClick = async (activity = null) => {
     setLogLoading(true); // Bật trạng thái loading
     try {
-      const response = await fetchPromotionLogs(activity);
+      const activityParam = activity === "all" ? null : activity;
+      const response = await fetchPromotionLogs(activityParam);
       const logsData = response.data || [];
 
       // Dùng Promise.all để lấy cả username và proName
@@ -241,6 +242,9 @@ const PromotionManagement = () => {
           }
         })
       );
+
+      // Sắp xếp logs theo ID từ cao đến thấp
+      logsWithDetails.sort((a, b) => b.proLogId - a.proLogId);
 
       setLogs(logsWithDetails); // Cập nhật logs với thông tin mới
       setLogModalVisible(true); // Hiển thị modal logs
@@ -295,7 +299,7 @@ const PromotionManagement = () => {
           }
         })
       );
-
+      logsWithDetails.sort((a, b) => b.proLogId - a.proLogId);
       setLogs(logsWithDetails); // Cập nhật logs với thông tin mới
     } catch (error) {
       console.error("Error fetching promotion logs:", error);
@@ -585,7 +589,7 @@ const PromotionManagement = () => {
           visible={logModalVisible}
           onCancel={() => setLogModalVisible(false)}
           footer={null}
-          width={1000}
+          width={400}
         >
           {logLoading ? (
             <p>Loading...</p>

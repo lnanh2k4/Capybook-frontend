@@ -81,23 +81,25 @@ const AddBookToCart = ({ username, bookId, bookData }) => {
   };
 
   const handleCheckout = () => {
-    console.log("Proceeding to checkout with the following book details:");
-    console.log("Book Data:", bookData);
-    console.log("Quantity:", quantity);
-
-    if (quantity <= 0 || bookData.bookQuantity < quantity) {
-      Modal.error({
-        title: "Invalid Quantity",
-        content: "Please select a valid quantity before proceeding.",
-      });
-      return;
-    }
+    console.log("Data being sent to OrderPage from AddBookToCart:");
+    console.log({
+      bookData: [
+        {
+          bookID: parseInt(bookId, 10),
+          bookTitle: bookData.bookTitle,
+          price: bookData.bookPrice,
+          quantity: quantity,
+          total: quantity * bookData.bookPrice,
+          image: bookData.image,
+        },
+      ],
+    });
 
     navigate("/OrderPage", {
       state: {
         bookData: [
           {
-            bookID: bookId,
+            bookID: parseInt(bookId, 10),
             bookTitle: bookData.bookTitle,
             price: bookData.bookPrice,
             quantity: quantity,
