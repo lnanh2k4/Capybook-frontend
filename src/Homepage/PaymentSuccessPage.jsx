@@ -33,6 +33,7 @@ const PaymentSuccessPage = () => {
   const [cartItems, setCartItems] = useState([]);
   // Lấy thông tin từ localStorage
   useEffect(() => {
+
     const storedOrder = localStorage.getItem("orderData");
     if (storedOrder) {
       setOrder(JSON.parse(storedOrder));
@@ -41,7 +42,49 @@ const PaymentSuccessPage = () => {
       navigate("/cart");
     }
   }, [navigate]);
+  useEffect(() => {
+    const fetchCart = async () => {
+      try {
+        const data = await viewCart(username);
+        const formattedData = data.map((item) => ({
+          id: item.cartID,
+          bookID: item.bookID?.bookID, // Không nên gán `null`, thay vào đó cần kiểm tra lỗi nếu thiếu
+          name: item.bookID?.bookTitle || "Unknown",
+          price: item.bookID?.bookPrice || 0,
+          quantity: item.quantity,
+          selected: false,
+          total: (item.bookID.bookPrice || 0) * (item.quantity || 1),
+          image: item.bookID.image || "/logo-capybook.png",
+          bookStatus: item.bookID.bookStatus,
+          bookQuantity: item.bookID.bookQuantity || 0,
+        }));
+        setCartItems(formattedData);
+      } catch (error) {
+        console.error("Error fetching cart data:", error);
+      }
+    };
+    if (username) {
+      fetchCart();
+    } else {
+      navigate("/auth/login");
+    }
+  }, [username, navigate]);
 
+  const handleDeleteItem = async (itemId) => {
+    try {
+      const item = cartItems.find((item) => item.id === itemId);
+      if (item) {
+        const response = await deleteCartItem(username, item.id);
+        if (response) {
+          setCartItems((prev) => prev.filter((item) => item.id !== itemId));
+        } else {
+          console.error("Failed to delete cart item.");
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting cart item:", error);
+    }
+  };
   // Gọi API để xác minh giao dịch
   const fetchPaymentResult = async () => {
     try {
@@ -259,9 +302,9 @@ const PaymentSuccessPage = () => {
                 <Button
                   type="primary"
                   key="cart"
-                  onClick={() => {
-                    // Đồng bộ hóa giỏ hàng
-                    navigate("/"); // Điều hướng tới trang giỏ hàng
+                  onClick={async () => {
+                    // Xóa giỏ hàng trước
+                    navigate("/"); // Điều hướng tới trang chủ
                   }}
                 >
                   Go to HomgePage
@@ -301,7 +344,8 @@ const PaymentSuccessPage = () => {
           padding: "10px 0",
         }}
       >
-        © {new Date().getFullYear()} Capybook Management System
+        <div>© {new Date().getFullYear()} Capybook Management System</div>
+        <div>All Rights Reserved</div>
       </Footer>
     </Layout>
   );

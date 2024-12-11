@@ -26,7 +26,7 @@ import {
   ExclamationCircleOutlined
 } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
-import { viewCart, updateCartItem, deleteCartItem } from "../config"; // API functions
+import { viewCart, updateCartItem, deleteCartItem, logout } from "../config"; // API functions
 import { decodeJWT } from "../jwtConfig";
 
 const { Header, Footer, Content } = Layout;
@@ -51,7 +51,7 @@ const CartDetails = () => {
           quantity: item.quantity,
           selected: false,
           total: (item.bookID.bookPrice || 0) * (item.quantity || 1),
-          image: item.bookID.image || "/logo-capybook.png",
+          image: item.bookID.image,
           bookStatus: item.bookID.bookStatus,
           bookQuantity: item.bookID.bookQuantity || 0,
         }));
@@ -75,6 +75,7 @@ const CartDetails = () => {
         item.selected ? total + item.price * item.quantity : total,
       0
     );
+
   const normalizeImageUrl = (imageUrl) => {
     if (!imageUrl || typeof imageUrl !== "string") {
       return "/logo-capybook.png"; // Đường dẫn ảnh mặc định
@@ -88,13 +89,20 @@ const CartDetails = () => {
     return imageUrl; // Trả về ảnh đã hợp lệ
   };
   // Handle quantity change
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const handleQuantityChange = async (value, itemId) => {
     try {
       const item = cartItems.find((item) => item.id === itemId);
 
+      // Đảm bảo chỉ xử lý khi có item hợp lệ
+      if (!item) return;
+
+      let modalShown = false;
       if (item) {
         // Nếu số lượng vượt quá số lượng trong kho
         if (value > item.bookQuantity) {
+
           Modal.error({
             content: `Quantity in cart exceeds available stock (${item.bookQuantity} left).`,
           });
@@ -116,6 +124,7 @@ const CartDetails = () => {
 
         // Nếu người dùng nhập số lượng < 1
         if (value < 1) {
+
           Modal.confirm({
             title: "Remove item from cart?",
             content: "You have set the quantity to 0. Do you want to remove this item from your cart?",
@@ -123,17 +132,22 @@ const CartDetails = () => {
             cancelText: "No",
             onOk: async () => {
               // Xóa mục khỏi giỏ hàng
-              await handleDeleteItem(itemId);
+              await handleDeleteItemAfterPay(itemId);
+              setIsModalVisible(false);
             },
             onCancel: () => {
+
               // Đặt lại số lượng cũ nếu người dùng không muốn xóa
               setCartItems((prev) =>
                 prev.map((item) =>
                   item.id === itemId
-                    ? { ...item, quantity: 1, total: 1 * item.price }
+                    ? { ...item, quantity: item.quantity, total: 1 * item.price }
                     : item
+
                 )
+
               );
+              setIsModalVisible(false);
             },
           });
           return;
@@ -209,6 +223,21 @@ const CartDetails = () => {
       },
     });
   };
+  const handleDeleteItemAfterPay = async (itemId) => {
+    try {
+      const item = cartItems.find((item) => item.id === itemId);
+      if (item) {
+        const response = await deleteCartItem(username, item.id);
+        if (response) {
+          setCartItems((prev) => prev.filter((item) => item.id !== itemId));
+        } else {
+          console.error("Failed to delete cart item.");
+        }
+      }
+    } catch (error) {
+      console.error("Error deleting cart item:", error);
+    }
+  };
 
   // Handle select all items
   const handleSelectAll = (e) => {
@@ -230,11 +259,27 @@ const CartDetails = () => {
   const validItems = cartItems.filter(
     (item) => item.bookStatus !== 0 && item.bookQuantity > 0
   );
+  const ConfirmModal = ({ visible, onConfirm, onCancel }) => {
+    return (
+      <Modal
+        visible={visible}
+        title="Remove item from cart?"
+        onOk={onConfirm}
+        onCancel={onCancel}
+        okText="Yes"
+        cancelText="No"
+      >
+        <p>You have set the quantity to 0. Do you want to remove this item from your cart?</p>
+      </Modal>
+    );
+  };
 
   const handleDashboardClick = () => {
     navigate("/dashboard/income-statistic");
   };
-
+  const handleNotificationClick = () => {
+    navigate("/notifications");
+  };
   const handleLogout = () => {
     logout();
     navigate("/");
@@ -318,14 +363,14 @@ const CartDetails = () => {
                   fontSize: "24px",
                   marginRight: "20px",
                   color: "#fff",
+
                 }}
+                onClick={handleNotificationClick}
               />
             }
             style={{ color: "#fff" }}
           ></Button>
-          <ShoppingCartOutlined
-            style={{ fontSize: "24px", marginRight: "20px", color: "#fff" }}
-          />
+
           <Dropdown
             overlay={userMenu}
             trigger={["click"]}
@@ -485,25 +530,26 @@ const CartDetails = () => {
                   const selectedBooks = cartItems
                     .filter((item) => item.selected) // Lọc sách được chọn
                     .map((item) => ({
-                      bookID: item.bookID, // Thêm bookID vào đối tượng
+                      bookID: item.bookID,
                       bookTitle: item.name,
                       quantity: item.quantity,
                       price: item.price,
                       total: item.total,
                       image: item.image,
+                      cartID: item.id, // Lưu lại cartID để xóa sau
                     }));
+
                   if (selectedBooks.length === 0) {
                     alert("Please select at least one book to purchase.");
                     return;
                   }
 
                   try {
-                    // Gọi hàm xóa từng mục đã chọn khỏi giỏ hàng
-                    for (const item of cartItems.filter(
-                      (item) => item.selected
-                    )) {
-                      await handleDeleteItem(item.id); // Gọi hàm xóa
+                    // Xóa các mục đã chọn trong giỏ hàng
+                    for (const item of selectedBooks) {
+                      await handleDeleteItemAfterPay(item.cartID); // Gọi API xóa theo cartID
                     }
+
 
                     // Chuyển hướng sang trang OrderPage với dữ liệu sách đã chọn
                     navigate("/OrderPage", {
@@ -511,11 +557,13 @@ const CartDetails = () => {
                     });
                   } catch (error) {
                     console.error("Error during purchase:", error);
+                    message.error("An error occurred during the purchase process.");
                   }
                 }}
               >
                 Purchase
               </Button>
+
             </Col>
           </Row>
           {/* Hiển thị các mặt hàng không hợp lệ */}
