@@ -374,8 +374,7 @@ function AddStock() {
         <div className="main-container">
             <DashboardContainer />
             <div className="dashboard-content">
-                <h2>Add Stock</h2>
-
+                <h1>Add Stock</h1>
                 <Form form={addStockForm} onFinish={(values) => {
                     console.log("Form submitted:", values);
                     handleSubmit(values);
@@ -408,7 +407,7 @@ function AddStock() {
                         </Select>
                     </Form.Item>
 
-                    <h3>Stock Items</h3>
+                    <h2>Stock Items</h2>
                     {items.map((item, index) => (
                         <div key={index} style={{ display: "flex", gap: "10px", marginBottom: "10px" }}>
                             <Input
@@ -563,7 +562,7 @@ function AddStock() {
                             { required: true, message: "Please enter the quantity" },
                             {
                                 validator: (_, value) => {
-                                    if (!value || (value >= 1 && value <= 10000)) {
+                                    if (!value || (value >= 1 && value < 10001)) {
                                         return Promise.resolve();
                                     }
                                     return Promise.reject(new Error("Quantity must be between 1 and 10,000"));

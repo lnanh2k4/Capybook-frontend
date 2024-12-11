@@ -178,9 +178,9 @@ function BookManagement() {
             </div>
 
             <div className="dashboard-content">
-                <div className="titlemanagement">
-                    <div>Book Management</div>
-                </div>
+                <h1 className="titlemanagement">
+                    Book Management
+                </h1>
                 <div className="action-container">
                     <Button type="primary" onClick={goToAddBook}>
                         Add book

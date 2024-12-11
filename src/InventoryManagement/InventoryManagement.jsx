@@ -426,7 +426,7 @@ function InventoryManagement() {
         <div className="main-container">
             <DashboardContainer />
             <div className="dashboard-content">
-                <h2>Inventory Management</h2>
+                <h1>Inventory Management</h1>
                 <Tabs activeKey={activeTab} onChange={setActiveTab}>
                     <Tabs.TabPane tab="Import" key="import">
                         <Button type="primary" style={{ marginBottom: 16 }} onClick={() => navigate("/dashboard/inventory/addstock")}>

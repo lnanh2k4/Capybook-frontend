@@ -147,9 +147,9 @@ function EditBook() {
                 <DashboardContainer />
             </div>
             <div className="dashboard-content">
-                <div className="titlemanagement">
-                    <div>Book Management - Edit Book</div>
-                </div>
+                <h1 className="titlemanagement">
+                    Edit Book
+                </h1>
 
                 <Form
                     form={form}

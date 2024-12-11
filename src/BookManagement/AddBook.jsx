@@ -117,9 +117,9 @@ function AddBook() {
             </div>
 
             <div className="dashboard-content">
-                <div className="titlemanagement">
-                    <div>Book Management - Add Book</div>
-                </div>
+                <h1 className="titlemanagement">
+                    Add Book
+                </h1>
 
                 <Form
                     form={form}

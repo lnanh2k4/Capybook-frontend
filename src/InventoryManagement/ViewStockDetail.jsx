@@ -111,7 +111,7 @@ function ViewStockDetail() {
         <div className="main-container">
             <DashboardContainer />
             <div className="dashboard-content">
-                <h2>Stock Detail - ID: {stockId}</h2>
+                <h1>Stock Detail - ID: {stockId}</h1>
                 <Table
                     columns={columns}
                     dataSource={stockDetails}

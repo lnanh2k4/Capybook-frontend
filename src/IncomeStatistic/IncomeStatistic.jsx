@@ -437,9 +437,9 @@ const RevenueReport = () => {
         }}
       >
         <div style={{ marginBottom: "40px" }}>
-          <h2 style={{ textAlign: "center", margin: "20px 0" }}>
+          <h1 style={{ textAlign: "center", margin: "20px 0" }}>
             Revenue Report This Month
-          </h2>
+          </h1>
           <div style={{ display: "flex", justifyContent: "center" }}>
             <BarChart
               xAxis={[
