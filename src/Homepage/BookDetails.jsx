@@ -168,7 +168,7 @@ const BookDetails = () => {
           1
         ),
         discount: bestPromo.discount,
-        bookTitle: `[${bestPromo.proCode}] ${book.bookTitle}`, // Gắn mã giảm giá vào tiêu đề
+        bookTitle: `[Promotion code: ${bestPromo.proCode}] ${book.bookTitle}`, // Gắn mã giảm giá vào tiêu đề
       };
     }
 

@@ -9,6 +9,7 @@ const AddBookToCart = ({ username, bookId, bookData }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [cartItems, setCartItems] = useState([]);
   const navigate = useNavigate();
+  const isDisabled = bookData.bookQuantity === 0 || bookData.bookStatus === 0;
 
   const handleShowCart = () => {
     setIsModalVisible(false);
@@ -138,13 +139,15 @@ const AddBookToCart = ({ username, bookId, bookData }) => {
           style={{
             width: "150px",
             height: "45px",
-            backgroundColor: bookData.bookQuantity === 0 ? "#d9d9d9" : "#FF4500",
-            borderColor: bookData.bookQuantity === 0 ? "#d9d9d9" : "#FF4500",
+            backgroundColor: isDisabled ? "#d9d9d9" : "#FF4500",
+            borderColor: isDisabled ? "#d9d9d9" : "#FF4500",
             fontWeight: "bold",
-            color: bookData.bookQuantity === 0 ? "#999" : "#fff",
+            color: isDisabled ? "#999" : "#fff",
+            cursor: isDisabled ? "not-allowed" : "pointer",
           }}
           onClick={handleCheckout}
-          disabled={bookData.bookQuantity === 0}
+          disabled={isDisabled} // Vô hiệu hóa nếu hết sách hoặc trạng thái = 0
+
         >
           Buy now
         </Button>
@@ -157,8 +160,17 @@ const AddBookToCart = ({ username, bookId, bookData }) => {
             defaultValue={1}
             value={quantity}
             onChange={(value) => {
-              setQuantity(value);
+              if (value > bookData.bookQuantity) {
+                Modal.warning({
+                  title: "Exceeds Stock Quantity",
+                  content: `Only ${bookData.bookQuantity} items are available in stock.`,
+                });
+                setQuantity(bookData.bookQuantity);
+              } else {
+                setQuantity(value);
+              }
             }}
+            disabled={isDisabled} // Vô hiệu hóa nếu hết sách hoặc trạng thái = 0
           />
         </div>
 
@@ -166,13 +178,14 @@ const AddBookToCart = ({ username, bookId, bookData }) => {
           style={{
             width: "150px",
             height: "45px",
-            borderColor: bookData.bookQuantity === 0 ? "#d9d9d9" : "#FF4500",
-            color: bookData.bookQuantity === 0 ? "#999" : "#FF4500",
+            borderColor: isDisabled ? "#d9d9d9" : "#FF4500",
+            color: isDisabled ? "#999" : "#FF4500",
             fontWeight: "bold",
+            cursor: isDisabled ? "not-allowed" : "pointer",
           }}
           icon={<ShoppingCartOutlined />}
           onClick={handleAddToCart}
-          disabled={bookData.bookQuantity === 0}
+          disabled={isDisabled} // Vô hiệu hóa nếu hết sách hoặc trạng thái = 0
         >
           Add to cart
         </Button>
