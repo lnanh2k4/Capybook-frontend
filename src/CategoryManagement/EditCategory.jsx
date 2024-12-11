@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, Form, Input, TreeSelect, message } from "antd";
+import { Button, Form, Input, Card, message } from "antd";
 import {
   fetchCategoryDetail,
   fetchCategories,
@@ -73,7 +73,7 @@ const EditCategory = () => {
         <DashboardContainer />
       </div>
 
-      <div className="dashboard-content">
+      <Card className="dashboard-content" style={{ marginBottom: '50px' }}>
         <div className="titlemanagement">
           <div>Category Management - Edit Category</div>
         </div>
@@ -125,14 +125,14 @@ const EditCategory = () => {
             </Button>
           </Form.Item>
         </Form>
-      </div>
+      </Card>
 
       <div className="copyright">
         <div>© {new Date().getFullYear()}</div>
         <div>Capybook Management System</div>
         <div>All Rights Reserved</div>
       </div>
-    </div>
+    </div >
   );
 };
 

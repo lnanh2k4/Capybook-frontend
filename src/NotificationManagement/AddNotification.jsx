@@ -7,6 +7,7 @@ import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import { checkAdminRole, checkSellerStaffRole, checkWarehouseStaffRole, decodeJWT } from '../jwtConfig';
 import {
     Button,
+    Card,
     Form,
     Input,
     Select,
@@ -57,9 +58,13 @@ function AddNotification() {
 
     return (
         <>
-            <h1 style={{ textAlign: 'center' }}>Add Notification</h1>
+
             <DashboardContainer />
-            <div className="add-notification-container">
+            <br></br>
+            <br></br>
+            <br></br>
+            <Card style={{ marginLeft: "200px" }} className="dashboard-content">
+                <h1 style={{ textAlign: 'center' }}>Add Notification</h1>
                 <Form
                     initialValues={{
                         role: 'Please select role',
@@ -74,7 +79,7 @@ function AddNotification() {
                     }}
                     layout="horizontal"
                     onFinish={handleSubmit}
-                    style={{ maxWidth: 1200, margin: '0 auto' }}
+                    style={{ maxWidth: 1200 }}
                 >
                     <Form.Item
                         label="Title"
@@ -125,9 +130,21 @@ function AddNotification() {
                         </div>
                     </Form.Item>
                 </Form>
+            </Card>
+            <br></br>
+            <br></br>
+            <br></br>
+
+            <div className="copyright" style={{ position: 'absolute', width: '89%', marginLeft: '140px', bottom: '0%' }}>
+                <div>© {new Date().getFullYear()}</div>
+                <div>Capybook Management System</div>
+                <div>All Rights Reserved</div>
             </div>
+
         </>
+
     );
+
 };
 
 

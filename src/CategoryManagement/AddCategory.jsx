@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Form, Input, Button, TreeSelect, message } from "antd";
+import { Form, Input, Button, Card, message } from "antd";
 import { fetchCategories, addCategory } from "../config";
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import TextArea from "antd/es/input/TextArea.js";
@@ -65,7 +65,7 @@ function AddCategory() {
         <DashboardContainer />
       </div>
 
-      <div className="dashboard-content">
+      <Card className="dashboard-content" style={{ marginBottom: '50px' }}>
         <div className="titlemanagement">
           <div>Category Management - Add Category</div>
         </div>
@@ -117,7 +117,7 @@ function AddCategory() {
             </Button>
           </Form.Item>
         </Form>
-      </div>
+      </Card>
 
       <div className="copyright">
         <div>© Copyright {new Date().getFullYear()}</div>

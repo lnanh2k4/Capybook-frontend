@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, Form, Input, message } from "antd";
+import { Button, Card, Form, Input, message } from "antd";
 import { fetchCategoryDetail } from "../config";
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import TextArea from "antd/es/input/TextArea.js";
@@ -57,7 +57,7 @@ function CategoryDetail() {
         <DashboardContainer />
       </div>
 
-      <div className="dashboard-content">
+      <Card className="dashboard-content" style={{ marginBottom: '50px' }}>
         <div className="titlemanagement">
           <div>Category Management - Category Details</div>
         </div>
@@ -86,7 +86,7 @@ function CategoryDetail() {
             </Button>
           </Form.Item>
         </Form>
-      </div>
+      </Card>
 
       <div className="copyright">
         <div>© {new Date().getFullYear()}</div>
