@@ -5,6 +5,7 @@ import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import { Form, Input, Button, Radio, message, Select } from 'antd';
 import { checkSellerStaffRole, checkWarehouseStaffRole, decodeJWT, checkAdminRole } from '../jwtConfig.jsx';
 import Password from 'antd/es/input/Password.js';
+import Footer from '../FooterForDashboard/Footer.jsx';
 
 function ChangePassword() {
 
@@ -12,7 +13,7 @@ function ChangePassword() {
     const [form] = Form.useForm(); // Ant Design form instance
 
     const goToProfile = () => {
-        navigate("/dashboard");
+        navigate("/dashboard/profile");
     };
     if (!checkAdminRole() && !checkSellerStaffRole() && !checkWarehouseStaffRole()) {
         return navigate("/404");
@@ -45,75 +46,78 @@ function ChangePassword() {
 
     return (
         <>
-            <h1 style={{ textAlign: 'center' }}> Change Password</h1>
-            <Form
-                form={form}
-                layout="vertical"
-                onFinish={handleSubmit}
-                style={{ maxWidth: '700px', margin: 'auto' }}
-            >
-                <Form.Item
-                    label="Current password"
-                    name="currentPassword"
-                    rules={[{ required: true, message: 'Please enter current password' }]}
+            <div className="dashboard-content" style={{ marginLeft: "250px", marginRight: "100px", marginTop: '1%' }} >
+                <DashboardContainer />
+                <h1 style={{ textAlign: 'center' }}> Change Password</h1>
+                <Form
+                    form={form}
+                    layout="vertical"
+                    onFinish={handleSubmit}
+                    style={{ maxWidth: '700px', margin: 'auto' }}
                 >
-                    <Input.Password placeholder="Current password" />
-                </Form.Item>
-
-                <Form.Item
-                    label="New Password"
-                    name="newPassword"
-                    rules={[
-                        { required: true, message: 'Please enter new password' },
-                        {
-                            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                            message:
-                                "New password must be at least 8 characters long, include uppercase, lowercase, a number, a special character, and no spaces.",
-                        }
-                    ]}
-                >
-                    <Input.Password placeholder="New password of account" />
-                </Form.Item>
-
-                <Form.Item
-                    label="Confirm password"
-                    name="confirmPassword"
-                    rules={[
-                        { required: true, message: 'Please enter confirm password' },
-                        {
-                            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                            message:
-                                "Confirm password must be at least 8 characters long, include uppercase, lowercase, a number, a special character, and no spaces.",
-                        },
-                        {
-                            validator: (_, value) => {
-                                if (!value || value === form.getFieldValue('newPassword')) {
-                                    return Promise.resolve()
-                                }
-                                return Promise.reject(
-                                    new Error('Confirm password does not match to new password!')
-                                )
-                            }
-                        }
-                    ]}
-                >
-                    <Input.Password placeholder="Confirm password of account" />
-                </Form.Item>
-
-                <Form.Item>
-                    <Button type="primary" htmlType="submit">
-                        Save
-                    </Button>
-                    <Button
-                        htmlType="button"
-                        onClick={goToProfile}
-                        style={{ marginLeft: '10px' }}
+                    <Form.Item
+                        label="Current password"
+                        name="currentPassword"
+                        rules={[{ required: true, message: 'Please enter current password' }]}
                     >
-                        Cancel
-                    </Button>
-                </Form.Item>
-            </Form>
+                        <Input.Password placeholder="Current password" />
+                    </Form.Item>
 
+                    <Form.Item
+                        label="New Password"
+                        name="newPassword"
+                        rules={[
+                            { required: true, message: 'Please enter new password' },
+                            {
+                                pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                                message:
+                                    "New password must be at least 8 characters long, include uppercase, lowercase, a number, a special character, and no spaces.",
+                            }
+                        ]}
+                    >
+                        <Input.Password placeholder="New password of account" />
+                    </Form.Item>
+
+                    <Form.Item
+                        label="Confirm password"
+                        name="confirmPassword"
+                        rules={[
+                            { required: true, message: 'Please enter confirm password' },
+                            {
+                                pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                                message:
+                                    "Confirm password must be at least 8 characters long, include uppercase, lowercase, a number, a special character, and no spaces.",
+                            },
+                            {
+                                validator: (_, value) => {
+                                    if (!value || value === form.getFieldValue('newPassword')) {
+                                        return Promise.resolve()
+                                    }
+                                    return Promise.reject(
+                                        new Error('Confirm password does not match to new password!')
+                                    )
+                                }
+                            }
+                        ]}
+                    >
+                        <Input.Password placeholder="Confirm password of account" />
+                    </Form.Item>
+
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit">
+                            Save
+                        </Button>
+                        <Button
+                            htmlType="button"
+                            onClick={goToProfile}
+                            style={{ marginLeft: '10px' }}
+                        >
+                            Cancel
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </div>
+            <Footer></Footer>
         </>
     );
 }

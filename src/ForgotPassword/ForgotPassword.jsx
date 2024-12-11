@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Form, Input, message } from 'antd';
+import { Button, Col, Form, Input, message, Row } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { forgotPassword } from '../config.js';
 
@@ -12,11 +12,11 @@ const ForgotPassword = () => {
                 email: values.email
             }
             localStorage.setItem("username", values.username)
+            localStorage.setItem("email", values.email)
             const formDataToSend = new FormData()
             formDataToSend.append('forgot-password', JSON.stringify(forgotPasswordData))
             navigate("/email/verify")
             const response = await forgotPassword(formDataToSend)
-            console.log(response)
         } catch (error) {
             console.log(error)
             message.error('Login failed')
@@ -45,37 +45,42 @@ const ForgotPassword = () => {
                     alt="Capybook Logo"
                     className="login-logo"
                 />
-                <Form.Item
-                    label="Username"
-                    name="username"
-                    rules={[
-                        {
-                            required: true,
-                            message: 'Please input your username!',
-                        },
-                    ]}
-                >
-                    <Input />
-                </Form.Item>
-
-                <Form.Item
-                    label="Email"
-                    name="email"
-                    rules={[
-                        {
-                            required: true,
-                            message: 'Please input your email!',
-                        },
-                    ]}
-                >
-                    <Input />
-                </Form.Item>
-
-                <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                    <Button type="primary" htmlType="submit">
-                        Send
-                    </Button>
-                </Form.Item>
+                <h1>Forgot Password</h1>
+                <Row gutter={24} justify={'center'}>
+                    <Col span={24}>
+                        <Form.Item
+                            label="Username"
+                            name="username"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Please input your username!',
+                                },
+                            ]}
+                        >
+                            <Input />
+                        </Form.Item>
+                    </Col>
+                    <Col span={24}>
+                        <Form.Item
+                            label="Email"
+                            name="email"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Please input your email!',
+                                },
+                            ]}
+                        >
+                            <Input />
+                        </Form.Item>
+                    </Col>
+                    <Form.Item style={{ textAlign: 'center' }}>
+                        <Button type="primary" htmlType="submit" >
+                            Send
+                        </Button>
+                    </Form.Item>
+                </Row>
             </Form>
         </div>
     );

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button, Form, Input, message } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import { Button, Col, Form, Input, message, Row } from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
 import './Login.css'; // Đường dẫn tới file CSS
 import { login, forgotPassword } from '../config.js';
 import { decodeJWT } from '../jwtConfig.jsx';
@@ -52,12 +52,6 @@ const Login = () => {
         <div className="login-container">
             <Form
                 name="basic"
-                labelCol={{
-                    span: 8,
-                }}
-                wrapperCol={{
-                    span: 16,
-                }}
                 className="login-form"
                 initialValues={{
                     remember: true,
@@ -71,51 +65,53 @@ const Login = () => {
                     alt="Capybook Logo"
                     className="login-logo"
                 />
-                <Form.Item
-                    label="Username"
-                    name="username"
-                    rules={[
-                        {
-                            required: true,
-                            message: 'Please input your username!',
-                        },
-                    ]}
-                >
-                    <Input />
-                </Form.Item>
-
-                <Form.Item
-                    label="Password"
-                    name="password"
-                    rules={[
-                        {
-                            required: true,
-                            message: 'Please input your password!',
-                        },
-                    ]}
-                >
-                    <Input.Password />
-                </Form.Item>
-
-                <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-                    <Button type="primary" htmlType="submit">
-                        Login
-                    </Button>
-                    <Button
-                        type="default"
-                        style={{ marginLeft: '10px' }}
-                        onClick={() => navigate('/register')}
+                <h1>LOGIN</h1>
+                <Row gutter={24}>
+                    <Col span={24}>
+                        <Form.Item
+                            label="Username"
+                            name="username"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: 'Please input your username!',
+                                },
+                            ]}
+                        >
+                            <Input />
+                        </Form.Item>
+                    </Col>
+                    <Col span={24}> <Form.Item
+                        label="Password"
+                        name="password"
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Please input your password!',
+                            },
+                        ]}
                     >
-                        Register
-                    </Button>
-                    <Button
-                        type="default"
-                        style={{ marginLeft: '10px' }}
-                        onClick={() => navigate('/password/forgot')}
-                    >
+                        <Input.Password />
+                    </Form.Item></Col>
+                    <Col span={24} style={{ marginLeft: '120px', marginBottom: '10px' }}> <Link to="/password/forgot">
                         Forgot password
-                    </Button>
-                </Form.Item>
+                    </Link></Col>
+                    <Col span={24}>
+                        <Form.Item style={{ textAlign: 'center' }}>
+                            <Button type="primary" htmlType="submit">
+                                Login
+                            </Button>
+                            <Button
+                                type="default"
+                                style={{ marginLeft: '10px' }}
+                                onClick={() => navigate('/register')}
+                            >
+                                Register
+                            </Button>
+                        </Form.Item></Col>
+
+                </Row>
+
             </Form>
         </div>
     );

@@ -65,6 +65,10 @@ const ProfileManagement = () => {
         navigate("/");
     }
 
+    const handleCartClick = () => {
+        navigate("/cart/ViewDetail");
+    };
+
     const goToChangePassword = () => {
         navigate("/profile/changepassword")
     }
@@ -116,7 +120,7 @@ const ProfileManagement = () => {
                         onClick={handleNotificationClick}
                     >
                     </Button>
-                    <ShoppingCartOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} />
+                    <ShoppingCartOutlined style={{ fontSize: '24px', marginRight: '20px', color: '#fff' }} onClick={handleCartClick} />
                     <Dropdown overlay={userMenu} trigger={['click']} placement="bottomRight">
                         <Button
                             type="text"
