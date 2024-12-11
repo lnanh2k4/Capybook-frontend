@@ -26,6 +26,11 @@ function CategoryDetail() {
 
         if (response === undefined) {
           navigate("/404")
+          return;
+        }
+        if (response.data.catStatus === 0) {
+          navigate("/404")
+          return;
         }
         const category = response.data;
         setCategoryData(category);
