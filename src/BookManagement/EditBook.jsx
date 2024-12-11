@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchBookById, updateBook, fetchCategories } from '../config';
+import { fetchBookById, updateBook, fetchCategories, fetchBooks } from '../config';
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import { Form, Input, Button, InputNumber, Upload, message, Select } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
@@ -14,36 +14,14 @@ function EditBook() {
     const [imagePreview, setImagePreview] = useState(null);
     const [fileList, setFileList] = useState([]);
     const [categories, setCategories] = useState([]);
-
+    const [fetchedBooks, setFetchedBooks] = useState([]);
     useEffect(() => {
-        if (bookId) {
-            fetchBookById(bookId)
-                .then(response => {
-                    const bookData = response.data;
-                    console.log(bookData)
-                    if (response === undefined) {
-                        navigate("/404");
-                    }
-                    form.setFieldsValue({
-                        ...bookData,
-                        publicationYear: bookData.publicationYear.toString(),
-                        catID: bookData.catID,
-                    });
-                    if (bookData.image && bookData.image.startsWith(`/uploads/book_`)) {
-                        setImagePreview(`http://localhost:6789${bookData.image}`);
-                    } else {
-                        setImagePreview(bookData.image);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching book details:', error);
-                    message.error('Failed to fetch book details.');
-                    navigate("/404");
-                });
+        const loadBooks = async () => {
+            const response = await fetchBooks();
+            setFetchedBooks(response.data); // Lưu vào state
+            console.log('Fetched books:', response.data);
         }
-    }, [bookId, form]);
-
-    useEffect(() => {
+        loadBooks();
         if (!checkWarehouseStaffRole() && !checkAdminRole()) {
             return navigate("/404");
         }
@@ -51,7 +29,9 @@ function EditBook() {
             fetchBookById(bookId)
                 .then(response => {
                     const bookData = response.data;
-
+                    if (response === undefined) {
+                        navigate("/404");
+                    }
                     // Map bookCategories to an array of catIDs
                     const catIDs = bookData.bookCategories?.map(category => category.catId.catID) || [];
 
@@ -70,6 +50,7 @@ function EditBook() {
                 .catch(error => {
                     console.error('Error fetching book details:', error);
                     message.error('Failed to fetch book details.');
+                    navigate("/404");
                 });
             fetchCategories()
                 .then((response) => {
@@ -104,7 +85,19 @@ function EditBook() {
             const bookCategories = values.catIDs.map(catID => ({
                 catId: { catID }, // Backend yêu cầu catId là một object chứa catID
             }));
+            console.log("Current Book ID:", bookId); // Debug `bookId`
+            console.log("Fetched Books:", fetchedBooks); // Debug `fetchedBooks`
 
+            // Kiểm tra trùng ISBN nhưng bỏ qua sách đang chỉnh sửa
+            const isDuplicate = fetchedBooks.some((book) => {
+                console.log(`Comparing with Book ID: ${book.bookID}`); // Debug từng sách
+                return book.isbn === values.isbn && String(book.bookID) !== String(bookId); // So sánh `bookId`
+            });
+
+            if (isDuplicate) {
+                message.error("A book with the same ISBN already exists.");
+                return; // Dừng thực hiện nếu ISBN trùng
+            }
             const bookData = {
                 bookTitle: values.bookTitle,
                 publicationYear: values.publicationYear,
@@ -354,6 +347,7 @@ function EditBook() {
                             placeholder="International Standard Book Number"
                             style={{ width: '100%' }}
                             maxLength={13} // Giới hạn tối đa 13 ký tự
+                            readOnly
                         />
                     </Form.Item>
 
