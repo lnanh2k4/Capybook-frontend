@@ -59,7 +59,7 @@ function CategoryDetail() {
 
       <Card className="dashboard-content" style={{ marginBottom: '50px' }}>
         <div className="titlemanagement">
-          <div>Category Management - Category Details</div>
+          <div>Category Details</div>
         </div>
 
         <Form layout="vertical" style={{ maxWidth: "800px", margin: "auto" }}>

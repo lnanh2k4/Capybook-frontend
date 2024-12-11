@@ -13,7 +13,6 @@ const NotificationManagement = () => {
     const navigate = useNavigate();
     const [notification, setNotification] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
-    const [role, setRole] = useState();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -23,15 +22,6 @@ const NotificationManagement = () => {
             return navigate("/404");
         }
         setLoading(true);
-        fetchAccountDetail(decodeJWT().sub).then(response => {
-            setRole(response.data.role);
-            console.log("Role: " + response.data.role)
-        }
-        ).catch(error => {
-            console.error('Error fetching role:', error);
-            setError('Failed to fetch role');
-            message.error('Failed to fetch role');
-        })
         fetchNotifications()
             .then(response => {
                 console.log(response)
@@ -143,7 +133,7 @@ const NotificationManagement = () => {
                         <InfoCircleOutlined />
                     </Button>
                     {
-                        (role === 0) ?
+                        (checkAdminRole()) ?
                             <Button Button type="link" danger onClick={() => handleDelete(record.notID)}>
                                 <DeleteOutlined />
                             </Button>
