@@ -32,9 +32,9 @@ function AddNotification() {
             console.log(response);
             const NotificationData = {
                 staffID: response.data,
-                notTitle: values.notTitle,
+                notTitle: values.notTitle.trim(),
                 receiver: values.receiver,
-                notDescription: text,  // Set description from ReactQuill content
+                notDescription: text.trim(),  // Set description from ReactQuill content
                 notStatus: "1"
             };
             const formDataToSend = new FormData();

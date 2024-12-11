@@ -45,10 +45,11 @@ const EditCategory = () => {
   }, [catID, form]);
 
   const handleSubmit = (values) => {
+    const name = values.catName.trim();
+    const description = values.catDescription?.trim();
     const updatedCategory = {
-      ...values,
-      catName: values.catName,
-      catDescription: values.catDescription,
+      catName: name,
+      catDescription: description,
       catStatus: values.catStatus || 1,
     };
 
