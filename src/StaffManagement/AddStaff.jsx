@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addStaff } from '../config.js';
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
@@ -12,9 +11,14 @@ import {
     Select,
     message
 } from 'antd';
-import { Label } from 'recharts';
+import { checkAdminRole } from '../jwtConfig.jsx';
+import Footer from '../FooterForDashboard/Footer.jsx';
+
 
 const AddStaff = () => {
+    if (!checkAdminRole()) {
+        navigate("/404");
+    }
     const [form] = Form.useForm();  // Sử dụng Ant Design Form API
     const navigate = useNavigate();
 
@@ -71,20 +75,9 @@ const AddStaff = () => {
                         sex: '0',   // Giá trị mặc định cho trường sex
                     }}
                     form={form} // Kết nối với Form API của Ant Design
-                    labelCol={{
-                        span: 4,
-                    }}
-                    wrapperCol={{
-                        span: 14,
-                    }}
-                    layout="horizontal"
+                    layout="vertical"
+                    style={{ maxWidth: '700px', margin: 'auto' }}
                     onFinish={handleSubmit} // Thay đổi onSubmit thành onFinish để Ant Design quản lý submit
-                    style={{
-                        maxWidth: 1200,
-                        background: '255, 255, 0, 0.9',
-
-                        borderRadius: '5%',
-                    }}
                 >
                     <Row gutter={24}>
                         <Col span={12}>
@@ -123,22 +116,7 @@ const AddStaff = () => {
                                 <Input placeholder="First name of account" />
                             </Form.Item>
 
-                            <Form.Item
-                                label="Last Name"
-                                name="lastName"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: "Please enter Last Name",
-                                    },
-                                    {
-                                        pattern: /^\p{L}+(\s\p{L}+)*$/u,
-                                        message: "Last name must be contained letters"
-                                    }
-                                ]}
-                            >
-                                <Input placeholder="Last name of account" />
-                            </Form.Item>
+
                         </Col>
                         <Col span={12}>
                             <Form.Item
@@ -171,7 +149,24 @@ const AddStaff = () => {
                             >
                                 <Input type="date" placeholder="Date of birth" />
                             </Form.Item>
-
+                            <Form.Item
+                                label="Last Name"
+                                name="lastName"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Please enter Last Name",
+                                    },
+                                    {
+                                        pattern: /^\p{L}+(\s\p{L}+)*$/u,
+                                        message: "Last name must be contained letters"
+                                    }
+                                ]}
+                            >
+                                <Input placeholder="Last name of account" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
                             <Form.Item
                                 label="Email"
                                 name="email"
@@ -211,25 +206,7 @@ const AddStaff = () => {
                                 <Input type="tel" placeholder="Phone number of account" />
                             </Form.Item>
                         </Col>
-                    </Row>
-                    <Row gutter={24}>
                         <Col span={12}>
-                            <Form.Item
-                                label="Sex"
-                                name="sex"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: "Please select sex",
-                                    },
-                                ]}
-                            >
-                                <Radio.Group>
-                                    <Radio value="0"> Female </Radio>
-                                    <Radio value="1"> Male </Radio>
-                                </Radio.Group>
-                            </Form.Item>
-
                             <Form.Item
                                 label="Role"
                                 name="role"
@@ -246,8 +223,23 @@ const AddStaff = () => {
                                     <Option value="3">Warehouse staff</Option>
                                 </Select>
                             </Form.Item>
+                            <Form.Item
+                                label="Sex"
+                                name="sex"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Please select sex",
+                                    },
+                                ]}
+                            >
+                                <Radio.Group>
+                                    <Radio value="0"> Female </Radio>
+                                    <Radio value="1"> Male </Radio>
+                                </Radio.Group>
+                            </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col span={24}>
                             <Form.Item
                                 label="Address"
                                 name="address"
@@ -262,13 +254,16 @@ const AddStaff = () => {
                             </Form.Item>
 
                         </Col>
+                        <Col span={24}>
+                            <Form.Item style={{ textAlign: 'center' }}>
+                                <Button type="primary" htmlType="submit" st>Submit</Button>
+                                <Button type="default" onClick={handleReset} style={{ marginLeft: 10 }}>Reset</Button>
+                            </Form.Item>
+                        </Col>
                     </Row>
-                    <Form.Item style={{ marginLeft: '250px' }}>
-                        <Button type="primary" htmlType="submit" st>Submit</Button>
-                        <Button type="default" onClick={handleReset} style={{ marginLeft: 10 }}>Reset</Button>
-                    </Form.Item>
                 </Form>
             </div>
+            <Footer></Footer>
         </>
     );
 }
