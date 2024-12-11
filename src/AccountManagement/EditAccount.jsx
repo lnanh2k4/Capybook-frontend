@@ -116,7 +116,7 @@ function EditAccount() {
                                 {
                                     validator: (_, value) => {
                                         if (!value) {
-                                            return Promise.resolve()
+                                            return Promise.reject(new Error("Please enter the date of birth"))
                                         }
                                         const selectedDate = new Date(value)
                                         const currentDate = new Date()
@@ -129,6 +129,7 @@ function EditAccount() {
                                         if (selectedDate < minDate) {
                                             return Promise.reject(new Error("Date cannot be before 1900-01-01"))
                                         }
+                                        return Promise.resolve()
                                     }
                                 }
                                 ]}
@@ -173,7 +174,14 @@ function EditAccount() {
                                 label="Role"
                                 name="role"
                                 rules={[
-                                    { required: true, message: 'Please select role' }]}
+                                    {
+                                        validator: (_, value) => {
+                                            if (value === 'Please select role') {
+                                                return Promise.reject(new Error("Please select role"))
+                                            }
+                                            return Promise.resolve()
+                                        }
+                                    }]}
                             >
                                 <Select name="role" readOnly>
                                     <Select.Option value="0" >Admin</Select.Option>

@@ -24,7 +24,6 @@ const AddStaff = () => {
 
     const handleSubmit = async (values) => {
         try {
-            console.log(values)
             const staffData = {
                 username: values.username,
                 firstName: values.firstName,
@@ -124,13 +123,9 @@ const AddStaff = () => {
                                 name="dob"
                                 rules={[
                                     {
-                                        required: true,
-                                        message: "Please enter Date of birth",
-                                    },
-                                    {
                                         validator: (_, value) => {
                                             if (!value) {
-                                                return Promise.resolve()
+                                                return Promise.reject(new Error("Please enter Date of birth"))
                                             }
                                             const selectedDate = new Date(value)
                                             const currentDate = new Date()
@@ -143,6 +138,7 @@ const AddStaff = () => {
                                             if (selectedDate < minDate) {
                                                 return Promise.reject(new Error("Date cannot be before 1900-01-01"))
                                             }
+                                            return Promise.resolve()
                                         }
                                     }
                                 ]}
@@ -212,9 +208,13 @@ const AddStaff = () => {
                                 name="role"
                                 rules={[
                                     {
-                                        required: true,
-                                        message: "Please select role",
-                                    },
+                                        validator: (_, value) => {
+                                            if (value === 'Please select role') {
+                                                return Promise.reject(new Error("Please select role"))
+                                            }
+                                            return Promise.resolve()
+                                        }
+                                    }
                                 ]}
                             >
                                 <Select>
@@ -256,7 +256,7 @@ const AddStaff = () => {
                         </Col>
                         <Col span={24}>
                             <Form.Item style={{ textAlign: 'center' }}>
-                                <Button type="primary" htmlType="submit" st>Submit</Button>
+                                <Button type="primary" htmlType="submit" >Submit</Button>
                                 <Button type="default" onClick={handleReset} style={{ marginLeft: 10 }}>Reset</Button>
                             </Form.Item>
                         </Col>

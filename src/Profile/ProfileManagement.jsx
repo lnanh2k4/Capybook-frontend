@@ -241,7 +241,27 @@ const ProfileManagement = () => {
                                 label="Role"
                                 name="role"
                                 rules={[
-                                    { required: true, message: 'Please select role' }]}
+                                    { required: true, message: 'Please select role' },
+                                    {
+                                        validator: (_, value) => {
+                                            if (!value) {
+                                                return Promise.reject(new Error("Please enter the date of birth"))
+                                            }
+                                            const selectedDate = new Date(value)
+                                            const currentDate = new Date()
+                                            const minDate = new Date('1900-01-01')
+
+                                            if (selectedDate > currentDate) {
+                                                return Promise.reject(new Error("Date cannot be in the future"))
+                                            }
+
+                                            if (selectedDate < minDate) {
+                                                return Promise.reject(new Error("Date cannot be before 1900-01-01"))
+                                            }
+                                            return Promise.resolve()
+                                        }
+                                    }
+                                ]}
                                 readOnly disabled
                             >
                                 <Select name="role" readOnly disabled>
