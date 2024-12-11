@@ -52,6 +52,18 @@ const OrderHistory = () => {
         const ordersResponse = await fetchOrders();
         const ordersData = ordersResponse.data || [];
 
+        // Lấy thông tin số điện thoại và tên đầy đủ của khách hàng
+        let customerInfo = { fullName: "N/A", phone: "N/A" };
+        try {
+          const accountResponse = await fetchAccountDetail(username);
+          customerInfo = {
+            fullName: `${accountResponse.data.firstName} ${accountResponse.data.lastName}`,
+            phone: accountResponse.data.phone || "N/A",
+          };
+        } catch (error) {
+          console.error("Failed to fetch account details:", error);
+        }
+
         // Lọc các orders của user hiện tại và sắp xếp giảm dần theo orderID
         const userOrders = ordersData
           .filter(
@@ -64,18 +76,6 @@ const OrderHistory = () => {
 
         // Fetch chi tiết từng order
         const detailsMap = {};
-        let customerPhone = "N/A";
-
-        // Lấy thông tin số điện thoại của người dùng
-        try {
-          const accountResponse = await fetchAccountDetail(username);
-          customerPhone = accountResponse?.data?.phone || "N/A";
-        } catch (error) {
-          console.error(
-            "Failed to fetch account details for phone number",
-            error
-          );
-        }
 
         for (const order of userOrders) {
           const orderDetailsResponse = await fetchOrderDetail(order.orderID);
@@ -109,8 +109,8 @@ const OrderHistory = () => {
           detailsMap[order.orderID] = {
             details: updatedDetails,
             promotionDiscount: promotion?.discount || 0,
-            customerFullName: `${username}`, // Lấy từ decodeJWT
-            customerPhone, // Thêm số điện thoại
+            customerFullName: customerInfo.fullName, // Dùng tên đầy đủ
+            customerPhone: customerInfo.phone, // Thêm số điện thoại
             orderAddress:
               orderDetailsResponse?.data?.order?.orderAddress || "N/A",
           };
@@ -320,7 +320,6 @@ const OrderHistory = () => {
           <ShoppingCartOutlined
             style={{ fontSize: "24px", marginRight: "20px", color: "#fff" }}
             onClick={handleCartClick}
-
           />
           <Dropdown
             overlay={userMenu}
@@ -414,10 +413,7 @@ const OrderHistory = () => {
                     {orderDetailsMap[order.orderID]?.promotionDiscount || 0}%
                   </Descriptions.Item>
 
-                  <Descriptions.Item
-                    label="Total Price After Discount"
-                    span={3}
-                  >
+                  <Descriptions.Item label="Total Price" span={3}>
                     {formatPrice(
                       (orderDetailsMap[order.orderID]?.details || []).reduce(
                         (acc, item) =>

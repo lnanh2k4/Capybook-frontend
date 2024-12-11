@@ -431,53 +431,68 @@ const PromotionManagement = () => {
     {
       title: "Action",
       key: "action",
-      render: (_, record) => (
-        <Space size="middle">
-          <Button
-            type="link"
-            onClick={() => navigate(`/dashboard/detail/${record.proID}`)}
-          >
-            <InfoCircleOutlined />
-          </Button>
+      render: (_, record) => {
+        if (record.approvedBy === null) {
+          // Chỉ hiện nút `Approve` và `Decline` nếu là Admin
+          if (checkAdminRole()) {
+            return (
+              <Space size="middle">
+                <Button
+                  type="link"
+                  onClick={() => navigate(`/dashboard/detail/${record.proID}`)}
+                >
+                  <InfoCircleOutlined />
+                </Button>
+                <Button
+                  type="link"
+                  style={{ color: "green" }}
+                  onClick={() => handleApprove(record)}
+                >
+                  Approve
+                </Button>
+                <Button
+                  type="link"
+                  style={{ color: "red" }}
+                  onClick={() => handleDecline(record)}
+                >
+                  Decline
+                </Button>
+              </Space>
+            );
+          }
 
-          {record.approvedBy === null ? (
-            <>
-              <Button
-                type="link"
-                style={{ color: "green" }}
-                onClick={() => handleApprove(record)}
-              >
-                Approve
-              </Button>
-              <Button
-                type="link"
-                style={{ color: "red" }}
-                onClick={() => handleDecline(record)}
-              >
-                Decline
-              </Button>
-            </>
-          ) : (
+          // Nếu không phải Admin, hiển thị trạng thái "Chờ duyệt"
+          return <Tag color="blue">Pending Approval</Tag>;
+        }
+
+        // Khi đã được phê duyệt
+        return (
+          <Space size="middle">
+            <Button
+              type="link"
+              onClick={() => navigate(`/dashboard/detail/${record.proID}`)}
+            >
+              <InfoCircleOutlined />
+            </Button>
             <Button
               type="link"
               onClick={() => navigate(`/dashboard/edit/${record.proID}`)}
             >
               <EditOutlined style={{ color: "orange" }} />
             </Button>
-          )}
 
-          {/* Hiển thị nút Delete chỉ khi `approvedBy` không phải là null */}
-          {record.approvedBy !== null && (
-            <Button
-              type="link"
-              danger
-              onClick={() => handleDelete(record.proID)}
-            >
-              <DeleteOutlined />
-            </Button>
-          )}
-        </Space>
-      ),
+            {record.approvedBy !== null && (
+              <Button
+                type="link"
+                danger
+                onClick={() => handleDelete(record.proID)}
+              >
+                <DeleteOutlined />
+              </Button>
+            )}
+          </Space>
+        );
+      },
     },
   ];
 
