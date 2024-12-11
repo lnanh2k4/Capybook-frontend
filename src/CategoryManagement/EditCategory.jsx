@@ -25,6 +25,10 @@ const EditCategory = () => {
     const loadCategoryDetail = async () => {
       try {
         const response = await fetchCategoryDetail(catID);
+        if (response.data.catStatus === 0) {
+          navigate("/404")
+          return;
+        }
         const category = response.data;
 
         form.setFieldsValue({
@@ -84,7 +88,15 @@ const EditCategory = () => {
             label="Category Name"
             name="catName"
             rules={[
-              { required: true, message: "Please enter the category name" },
+              {
+                validator: (_, value) => {
+                  const regex = /^[a-zA-Z0-9\s]+$/; // Allow only letters, numbers, and spaces
+                  if (value.trim() === '' || !regex.test(value)) {
+                    return Promise.reject(new Error('Please enter a valid category name (only letters, numbers, and spaces along with characters)'));
+                  }
+                  return Promise.resolve();
+                },
+              },
             ]}
           >
             <Input placeholder="Category Name" />

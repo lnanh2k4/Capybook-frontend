@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Space, Table, Modal, Button, Input, message } from 'antd'; // Ant Design components
-import { fetchNotifications, deleteNotification } from '../config'; // API imports
+import { fetchNotifications, deleteNotification, fetchAccountDetail, fetchStaffByUsername } from '../config'; // API imports
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import { DeleteOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
-import { checkAdminRole, checkSellerStaffRole, checkWarehouseStaffRole } from '../jwtConfig.jsx';
+import { checkAdminRole, checkSellerStaffRole, checkWarehouseStaffRole, decodeJWT } from '../jwtConfig.jsx';
+
 
 const { Search } = Input;
 
@@ -12,6 +13,7 @@ const NotificationManagement = () => {
     const navigate = useNavigate();
     const [notification, setNotification] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [role, setRole] = useState();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -21,8 +23,18 @@ const NotificationManagement = () => {
             return navigate("/404");
         }
         setLoading(true);
+        fetchAccountDetail(decodeJWT().sub).then(response => {
+            setRole(response.data.role);
+            console.log("Role: " + response.data.role)
+        }
+        ).catch(error => {
+            console.error('Error fetching role:', error);
+            setError('Failed to fetch role');
+            message.error('Failed to fetch role');
+        })
         fetchNotifications()
             .then(response => {
+                console.log(response)
                 setNotification(response.data.filter((notification) => notification.notStatus !== 0));
                 setError('');
             })
@@ -130,10 +142,14 @@ const NotificationManagement = () => {
                     <Button type="link" onClick={() => goToNotificationDetail(record.notID)}>
                         <InfoCircleOutlined />
                     </Button>
-                    <Button type="link" danger onClick={() => handleDelete(record.notID)}>
-                        <DeleteOutlined />
-                    </Button>
-                </Space>
+                    {
+                        (role === 0) ?
+                            <Button Button type="link" danger onClick={() => handleDelete(record.notID)}>
+                                <DeleteOutlined />
+                            </Button>
+                            : ''
+                    }
+                </Space >
             ),
         },
     ];

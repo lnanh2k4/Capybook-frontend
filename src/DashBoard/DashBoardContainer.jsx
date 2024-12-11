@@ -124,15 +124,16 @@ const DashboardContainer = () => {
       isInventoryVisible =
       isNotificationVisible =
       isStaffVisible =
-        true;
+      true;
   }
   if (scope.includes("SELLER_STAFF")) {
-    isPromotionVisible = isOrderVisible = isCategoryVisible = true;
+    isPromotionVisible = isOrderVisible = isCategoryVisible, isNotificationVisible = true;
   }
   if (scope.includes("WAREHOUSE_STAFF")) {
     isSupplierVisible = true;
     isInventoryVisible = true;
     isBookVisible = true;
+    isNotificationVisible = true;
   }
 
   const items = [

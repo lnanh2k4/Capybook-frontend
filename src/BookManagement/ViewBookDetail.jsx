@@ -125,7 +125,7 @@ function ViewBookDetail() {
                                 <Descriptions.Item label="Hardcover" contentStyle={{ textAlign: 'left' }}>{bookData.hardcover}</Descriptions.Item>
                                 <Descriptions.Item label="Publisher" contentStyle={{ textAlign: 'left' }}>{bookData.publisher}</Descriptions.Item>
                                 <Descriptions.Item label="Weight" contentStyle={{ textAlign: 'left' }}>{bookData.weight} gram</Descriptions.Item>
-                                <Descriptions.Item label="Isbn" contentStyle={{ textAlign: 'left' }}>{bookData.isbn}</Descriptions.Item>
+                                <Descriptions.Item label="ISBN" contentStyle={{ textAlign: 'left' }}>{bookData.isbn}</Descriptions.Item>
                                 <Descriptions.Item label="Description" contentStyle={{ textAlign: 'left' }}>{bookData.bookDescription}</Descriptions.Item>
                             </Descriptions>
                         </div>

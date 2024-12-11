@@ -70,6 +70,7 @@ import PaymentSuccessPage from "./Homepage/PaymentSuccessPage";
 import Login from "./Login/Login/";
 import Register from "./Register/Register";
 import VerifyAccount from "./Register/verifyAccount";
+import SetPassword from "./Register/SetPassword";
 
 // Import cart
 import CartDetails from "./Homepage/CartDetails";
@@ -190,6 +191,7 @@ function App() {
         <Route path="/password/reset" element={<ResetPassword />} />
         <Route path="/email/verify" element={<VerifyEmail />} />
         <Route path="/account/verify" element={<VerifyAccount />} />
+        <Route path="/password/set" element={<SetPassword />} />
 
         {/* Manage profile */}
         <Route path="/profile" element={<Profile />} />

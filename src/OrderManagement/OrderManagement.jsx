@@ -316,13 +316,16 @@ const OrderManagement = () => {
           style={{
             display: "flex",
             justifyContent: "space-between",
+            alignItems: "center",
             marginBottom: "20px",
           }}
         >
-          <Button type="primary" onClick={goToAddOrder}>
+          {/* <Button type="primary" onClick={goToAddOrder}>
             Add Order
-          </Button>
-          <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          </Button> */}
+          <div
+            style={{ flexGrow: 1, display: "flex", justifyContent: "center" }}
+          >
             <RangePicker onChange={handleDateRangeChange} />
             <Input
               placeholder="Search by Order ID"

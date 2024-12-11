@@ -463,10 +463,10 @@ const RevenueReport = () => {
                   label: "Revenue (VND)",
                 },
               ]}
-              width={1400} // Tăng chiều rộng để có không gian hiển thị
+              width={1800} // Tăng chiều rộng để có không gian hiển thị
               height={400} // Chiều cao của biểu đồ
-              barGap={5} // Khoảng cách giữa các cụm cột
-              barCategoryGap={30} // Khoảng cách giữa các cột trong cụm
+              barGap={20} // Khoảng cách giữa các cụm cột
+              barCategoryGap={90} // Khoảng cách giữa các cột trong cụm
               barLabel={(value) => {
                 if (typeof value === "object") {
                   const numericValue = Number(value?.value || 0);

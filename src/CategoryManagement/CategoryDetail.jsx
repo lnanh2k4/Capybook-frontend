@@ -23,6 +23,15 @@ function CategoryDetail() {
       try {
         // Fetch the current category details
         const response = await fetchCategoryDetail(catID);
+
+        if (response === undefined) {
+          navigate("/404")
+          return;
+        }
+        if (response.data.catStatus === 0) {
+          navigate("/404")
+          return;
+        }
         const category = response.data;
         setCategoryData(category);
       } catch (error) {

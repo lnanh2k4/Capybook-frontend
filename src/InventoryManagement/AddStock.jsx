@@ -513,27 +513,97 @@ function AddStock() {
                         name="publicationYear"
                         rules={[
                             { required: true, message: "Please enter the publication year" },
-                            { type: "number", min: 1900, max: new Date().getFullYear(), message: "Enter a valid year" },
+                            {
+                                type: "number",
+                                min: 1900,
+                                max: new Date().getFullYear(),
+                                message: "Enter a valid year",
+                            },
                         ]}
                     >
                         <InputNumber placeholder="Publication Year" style={{ width: "100%" }} />
                     </Form.Item>
 
-                    <Form.Item label="Author" name="author" rules={[{ required: true, message: "Please enter the author" }]}>
+                    <Form.Item
+                        label="Author"
+                        name="author"
+                        rules={[
+                            { required: true, message: "Please enter the author" },
+                            {
+                                pattern: /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưỲỴÝỳỵỷỹ\s]+$/,
+                                message: "Author name must contain valid characters and cannot be only spaces",
+                            },
+                        ]}
+                    >
                         <Input placeholder="Author" />
                     </Form.Item>
 
-                    <Form.Item label="Price" name="bookPrice" rules={[{ required: true, message: "Please enter the price" }]}>
+                    <Form.Item
+                        label="Price"
+                        name="bookPrice"
+                        rules={[
+                            { required: true, message: "Please enter the price" },
+                            {
+                                validator: (_, value) => {
+                                    if (!value || value <= 100000000) {
+                                        return Promise.resolve();
+                                    }
+                                    return Promise.reject(new Error("Price must not exceed 100,000,000"));
+                                },
+                            },
+                        ]}
+                    >
                         <InputNumber placeholder="Price" style={{ width: "100%" }} />
                     </Form.Item>
 
-                    <Form.Item label="Quantity" name="bookQuantity" rules={[{ required: true, message: "Please enter the quantity" }]}>
-                        <InputNumber min={1} placeholder="Quantity" style={{ width: "100%" }} />
+                    <Form.Item
+                        label="Quantity"
+                        name="bookQuantity"
+                        rules={[
+                            { required: true, message: "Please enter the quantity" },
+                            {
+                                validator: (_, value) => {
+                                    if (!value || (value >= 1 && value <= 10000)) {
+                                        return Promise.resolve();
+                                    }
+                                    return Promise.reject(new Error("Quantity must be between 1 and 10,000"));
+                                },
+                            },
+                        ]}
+                    >
+                        <InputNumber
+                            min={1} // Giá trị tối thiểu là 1
+                            max={10000} // Giá trị tối đa là 10,000
+                            placeholder="Quantity"
+                            style={{ width: "100%" }}
+                        />
                     </Form.Item>
-                    <Form.Item label="Translator" name="translator">
+
+
+                    <Form.Item
+                        label="Translator"
+                        name="translator"
+                        rules={[
+                            {
+                                pattern: /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưỲỴÝỳỵỷỹ\s]*$/,
+                                message: "Translator name must contain valid characters or be empty",
+                            },
+                        ]}
+                    >
                         <Input placeholder="Translator" />
                     </Form.Item>
-                    <Form.Item label="Dimension" name="dimension" rules={[{ required: true, message: "Please enter the dimension" }]}>
+
+                    <Form.Item
+                        label="Dimension"
+                        name="dimension"
+                        rules={[
+                            { required: true, message: "Please enter the dimension" },
+                            {
+                                pattern: /^\d+x\d+$/,
+                                message: "Dimension must be in the format number x number (e.g., 8x10 cm)",
+                            },
+                        ]}
+                    >
                         <Input placeholder="Dimension (e.g., 8x10x2 cm)" />
                     </Form.Item>
 
@@ -542,21 +612,82 @@ function AddStock() {
                         name="isbn"
                         rules={[
                             { required: true, message: "Please enter the ISBN" },
-                            { pattern: /^[0-9]{10,13}$/, message: "ISBN must be 10-13 digits" },
+                            {
+                                validator: (_, value) => {
+                                    if (!value || !/^\d+$/.test(value)) {
+                                        return Promise.reject("ISBN must contain only numbers");
+                                    }
+                                    if (value.length > 13) {
+                                        return Promise.reject("ISBN must not exceed 13 digits");
+                                    }
+                                    return Promise.resolve();
+                                },
+                            },
                         ]}
+                        getValueFromEvent={(event) => event.target.value.replace(/\s+/g, "")}
                     >
-                        <Input placeholder="ISBN" />
+                        <Input
+                            placeholder="International Standard Book Number"
+                            style={{ width: "100%" }}
+                            maxLength={13}
+                        />
                     </Form.Item>
 
-                    <Form.Item label="Publisher" name="publisher" rules={[{ required: true, message: "Please enter the publisher" }]}>
+                    <Form.Item
+                        label="Publisher"
+                        name="publisher"
+                        rules={[
+                            { required: true, message: "Please enter the publisher" },
+                            {
+                                pattern: /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠƯàáâãèéêìíòóôõùúăđĩũơưỲỴÝỳỵỷỹ\s]+$/,
+                                message: "Publisher name must contain valid characters",
+                            },
+                        ]}
+                    >
                         <Input placeholder="Publisher" />
                     </Form.Item>
-                    <Form.Item label="Hardcover" name="hardcover">
-                        <InputNumber placeholder="Hardcover" style={{ width: "100%" }} />
+
+                    <Form.Item
+                        label="Hardcover"
+                        name="hardcover"
+                        rules={[
+                            {
+                                required: true,
+                                validator: (_, value) => {
+                                    if (!value || value <= 10000) {
+                                        return Promise.resolve();
+                                    }
+                                    return Promise.reject(new Error("Hardcover must not exceed 10,000"));
+                                },
+                            },
+                        ]}
+                    >
+                        <InputNumber
+                            placeholder="Hardcover"
+                            style={{ width: "100%" }}
+                            min={1}
+                            max={10000}
+                        />
                     </Form.Item>
-                    <Form.Item label="Weight" name="weight" rules={[{ required: true, message: "Please enter the weight" }]}>
+
+                    <Form.Item
+                        label="Weight"
+                        name="weight"
+                        rules={[
+                            { required: true, message: "Please enter the weight" },
+                            {
+                                validator: (_, value) => {
+                                    if (!value || value <= 100000) {
+                                        return Promise.resolve();
+                                    }
+                                    return Promise.reject(new Error("Weight must not exceed 100,000 grams"));
+                                },
+                            },
+                        ]}
+                    >
                         <InputNumber placeholder="Weight" style={{ width: "100%" }} step={0.01} />
                     </Form.Item>
+
 
                     <Form.Item label="Description" name="bookDescription" rules={[{ required: true, message: "Please enter a description" }]}>
                         <TextArea rows={4} placeholder="Description" />

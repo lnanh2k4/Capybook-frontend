@@ -458,7 +458,7 @@ const Homepage = () => {
                 />
               </Col>
               <Col span={10}>
-                <SearchOutlined style={{ fontSize: '19px' }} />
+                <SearchOutlined style={{ fontSize: '19px', marginTop: '5px' }} />
                 &nbsp;&nbsp;&nbsp;
                 <Search
                   placeholder="Search books with title"

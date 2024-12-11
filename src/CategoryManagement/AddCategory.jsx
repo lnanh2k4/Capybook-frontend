@@ -31,15 +31,19 @@ function AddCategory() {
 
   const handleSubmit = async (values) => {
     try {
-      const categoryData = {
-        catName: values.catName,
-        catDescription: values.catDescription,
-        catStatus: 1,
-      };
+      if (!values.catName.trim()) {
+        message.error("Category name only contains spaces");
+      } else {
+        const categoryData = {
+          catName: values.catName,
+          catDescription: values.catDescription,
+          catStatus: 1,
+        };
+        await addCategory(categoryData);
+        message.success("Category added successfully");
+        navigate("/dashboard/category");
+      }
 
-      await addCategory(categoryData);
-      message.success("Category added successfully");
-      navigate("/dashboard/category");
     } catch (error) {
       console.error("Error adding category:", error);
       message.error("Failed to add category");
@@ -77,7 +81,15 @@ function AddCategory() {
             label="Category Name"
             name="catName"
             rules={[
-              { required: true, message: "Please enter the category name" },
+              {
+                validator: (_, value) => {
+                  const regex = /^[a-zA-Z0-9\s]+$/; // Allow only letters, numbers, and spaces
+                  if (value.trim() === '' || !regex.test(value)) {
+                    return Promise.reject(new Error('Please enter a valid category name (only letters, numbers, and spaces along with characters)'));
+                  }
+                  return Promise.resolve();
+                },
+              },
             ]}
           >
             <Input placeholder="Enter category name" />
@@ -91,7 +103,7 @@ function AddCategory() {
           >
             <TextArea placeholder="Enter category description" />
           </Form.Item>
-
+          <br></br>
           <Form.Item>
             <Button type="primary" htmlType="submit">
               Submit
@@ -112,7 +124,7 @@ function AddCategory() {
         <div>Capybook Management System</div>
         <div>All Rights Reserved</div>
       </div>
-    </div>
+    </div >
   );
 }
 

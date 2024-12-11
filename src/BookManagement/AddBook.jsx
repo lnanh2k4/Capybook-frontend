@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PlusOutlined } from '@ant-design/icons';
 import { Button, Form, Input, InputNumber, Upload, message, Select } from 'antd';
-import { addBook, fetchCategories } from '../config'; // Ensure fetchCategories is imported
+import { addBook, fetchCategories, fetchBooks } from '../config'; // Ensure fetchCategories is imported
 import DashboardContainer from "../DashBoard/DashBoardContainer.jsx";
 import { checkAdminRole, checkWarehouseStaffRole } from "../jwtConfig";
 const { TextArea } = Input;
@@ -14,9 +14,15 @@ function AddBook() {
     const [fileList, setFileList] = useState([]);
     const [categories, setCategories] = useState([]); // Add state for categories
     const navigate = useNavigate();
-
+    const [fetchedBooks, setFetchedBooks] = useState([]);
     // Fetch categories when the component mounts
     useEffect(() => {
+        const loadBooks = async () => {
+            const response = await fetchBooks();
+            setFetchedBooks(response.data); // Lưu vào state
+            console.log('Fetched books:', response.data);
+        }
+        loadBooks();
         if (!checkWarehouseStaffRole() && !checkAdminRole()) {
             return navigate("/404");
         }
@@ -52,6 +58,12 @@ function AddBook() {
             const bookCategories = values.catIDs.map((catID) => ({
                 catId: { catID }, // Tạo đối tượng category chỉ chứa `catID`
             }));
+            const isDuplicate = fetchedBooks.some((book) => book.isbn === values.isbn);
+
+            if (isDuplicate) {
+                message.error("A book with the same ISBN already exists.");
+                return; // Ngừng thực hiện nếu ISBN bị trùng
+            }
 
             const bookData = {
                 bookTitle: values.bookTitle,
@@ -153,23 +165,69 @@ function AddBook() {
                             },
                         ]}
                     >
-                        <InputNumber placeholder="Publication year" style={{ width: '100%' }} />
+                        <InputNumber placeholder="1999..." style={{ width: '100%' }} />
                     </Form.Item>
 
-                    <Form.Item label="Author" name="author" rules={[{ required: true, message: 'Please enter the author' }]}>
-                        <Input placeholder="Author of the book" />
+                    <Form.Item
+                        label="Author"
+                        name="author"
+                        rules={[
+                            { required: true, message: 'Please enter the author' },
+                            {
+                                pattern: /^(?!\s*$)[a-zA-Z0-9\u00C0-\u017F\u1EA0-\u1EFF\s]+$/,
+                                message: 'Author name must contain letters, numbers, and cannot be only spaces',
+                            },
+                        ]}
+                    >
+                        <Input placeholder="Nhut Anh 123" />
                     </Form.Item>
 
-                    <Form.Item label="Dimensions" name="dimension" rules={[{ required: true, message: 'Please enter the dimensions' }]}>
-                        <Input placeholder="Dimensions of the book" />
+
+
+                    <Form.Item
+                        label="Dimensions"
+                        name="dimension"
+                        rules={[
+                            { required: true, message: 'Please enter the dimensions' },
+                            {
+                                pattern: /^\d+x\d+$/,
+                                message: 'Dimensions must be in the format number x number (e.g., 25x25)',
+                            },
+                        ]}
+                    >
+                        <Input placeholder="25x25" />
                     </Form.Item>
 
-                    <Form.Item label="Price" name="bookPrice" rules={[{ required: true, message: 'Please enter the price' }]}>
-                        <Input placeholder="Price of the book" />
+                    <Form.Item
+                        label="Price"
+                        name="bookPrice"
+                        rules={[
+                            { required: true, message: 'Please enter the price' },
+                            {
+                                validator: (_, value) => {
+                                    if (!value || Number(value) <= 100000000) {
+                                        return Promise.resolve();
+                                    }
+                                    return Promise.reject(new Error('Price must not exceed 100,000,000'));
+                                },
+                            },
+                        ]}
+                    >
+                        <Input placeholder="5000000" type="number" />
                     </Form.Item>
 
-                    <Form.Item label="Translator" name="translator">
-                        <Input placeholder="Translator of the book" />
+
+                    <Form.Item label="Translator"
+                        name="translator"
+                        rules={[
+                            { required: false, message: 'Please enter the translator' },
+                            {
+                                pattern: /^(?!\s*$)[a-zA-Z0-9\u00C0-\u017F\u1EA0-\u1EFF\s]+$/,
+                                message: 'Translator name must contain letters, numbers, and cannot be only spaces',
+                            },
+                        ]}>
+                        <Input placeholder="Cong Khanh 123" />
+
                     </Form.Item>
 
                     <Form.Item
@@ -177,26 +235,78 @@ function AddBook() {
                         name="hardcover"
                         rules={[
                             { required: true, message: 'Please enter the hardcover' },
-                            { type: 'number', message: 'Please enter a valid number for the hardcover' },
+                            {
+                                validator: (_, value) => {
+                                    if (!value || value <= 10000) {
+                                        return Promise.resolve();
+                                    }
+                                    return Promise.reject(new Error('Hardcover must not exceed 10,000'));
+                                },
+                            },
                         ]}
                     >
-                        <InputNumber placeholder="Hardcover details" style={{ width: '100%' }} />
+                        <InputNumber
+                            min={1} // Giá trị tối thiểu là 1
+                            max={10000} // Giới hạn tối đa cho InputNumber
+                            step={1} // Bước nhảy là 1
+                            placeholder="Hardcover"
+                            style={{ width: '20%' }}
+                        />
                     </Form.Item>
 
-                    <Form.Item label="Publisher" name="publisher" rules={[{ required: true, message: 'Please enter the publisher' }]}>
+
+                    <Form.Item label="Publisher" name="publisher" rules={[
+                        { required: true, message: 'Please enter the publisher' },
+                        {
+                            pattern: /^(?!\s*$)[a-zA-Z0-9\u00C0-\u017F\u1EA0-\u1EFF\s]+$/,
+                            message: 'Publisher name must contain letters, numbers, and cannot be only spaces',
+                        },
+                    ]}>
                         <Input placeholder="Publisher of the book" />
                     </Form.Item>
 
                     <Form.Item
                         label="Weight"
                         name="weight"
-                        rules={[{ required: true, message: 'Please enter the weight' }]}
+                        rules={[
+                            { required: true, message: 'Please enter the weight' },
+                            {
+                                validator: (_, value) => {
+                                    if (!value || Number(value) <= 100000) {
+                                        return Promise.resolve();
+                                    }
+                                    return Promise.reject(new Error('Weight must not exceed 100,000 gram'));
+                                },
+                            },
+                        ]}
                     >
-                        <InputNumber placeholder="Weight of the book" style={{ width: '100%' }} step={0.01} />
+                        <Input placeholder="100 gram" type="number" />
                     </Form.Item>
 
-                    <Form.Item label="ISBN" name="isbn" rules={[{ required: true, message: 'Please enter the ISBN' }]}>
-                        <Input placeholder="International Standard Book Number" />
+                    <Form.Item
+                        label="ISBN"
+                        name="isbn"
+                        rules={[
+                            { required: true, message: 'Please enter the ISBN' },
+                            {
+                                validator: (_, value) => {
+                                    if (!value || !/^\d+$/.test(value)) {
+                                        return Promise.reject('ISBN must contain only numbers');
+                                    }
+                                    if (value.length > 13) {
+                                        return Promise.reject('ISBN must not exceed 13 digits');
+                                    }
+                                    return Promise.resolve();
+                                },
+                            },
+                        ]}
+                        getValueFromEvent={(event) => event.target.value.replace(/\s+/g, '')}
+                    >
+                        <Input
+                            placeholder="International Standard Book Number"
+                            style={{ width: '100%' }}
+                            maxLength={13} // Giới hạn tối đa 13 ký tự
+                        />
                     </Form.Item>
 
                     <Form.Item
@@ -240,7 +350,7 @@ function AddBook() {
 
             <div className="copyright">
                 <div>© Copyright {new Date().getFullYear()}</div>
-                <div>Cabybook Management System</div>
+                <div>Cabybook Management System </div>
                 <div>All Rights Reserved</div>
             </div>
         </div>
