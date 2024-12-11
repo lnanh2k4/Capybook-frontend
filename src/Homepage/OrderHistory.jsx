@@ -146,6 +146,19 @@ const OrderHistory = () => {
     return new Intl.NumberFormat("vi-VN").format(price);
   };
 
+  const normalizeImageUrl = (imageUrl) => {
+    if (!imageUrl || typeof imageUrl !== "string") {
+      return "/logo-capybook.png"; // Đường dẫn ảnh mặc định
+    }
+    if (imageUrl.startsWith("/uploads")) {
+      return `http://localhost:6789${imageUrl}`; // Gắn đường dẫn đầy đủ nếu bắt đầu bằng `/uploads`
+    }
+    if (!imageUrl.startsWith("http")) {
+      return `http://localhost:6789/${imageUrl}`; // Gắn đường dẫn đầy đủ nếu thiếu `http`
+    }
+    return imageUrl; // Trả về ảnh đã hợp lệ
+  };
+
   const renderOrderDetailsTable = (orderID) => {
     const orderData = orderDetailsMap[orderID];
 
@@ -165,7 +178,7 @@ const OrderHistory = () => {
         render: (image) =>
           image ? (
             <img
-              src={image}
+              src={normalizeImageUrl(image)} // Sử dụng hàm chuẩn hóa
               alt="Book"
               style={{
                 width: "100px",

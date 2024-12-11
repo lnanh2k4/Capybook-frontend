@@ -131,6 +131,19 @@ const OrderPage = () => {
     }
   };
 
+  const normalizeImageUrl = (imageUrl) => {
+    if (!imageUrl || typeof imageUrl !== "string") {
+      return "/logo-capybook.png"; // Đường dẫn ảnh mặc định
+    }
+    if (imageUrl.startsWith("/uploads")) {
+      return `http://localhost:6789${imageUrl}`; // Gắn đường dẫn đầy đủ nếu bắt đầu bằng `/uploads`
+    }
+    if (!imageUrl.startsWith("http")) {
+      return `http://localhost:6789/${imageUrl}`; // Gắn đường dẫn đầy đủ nếu thiếu `http`
+    }
+    return imageUrl; // Trả về ảnh đã hợp lệ
+  };
+
   const checkBookQuantities = async () => {
     try {
       for (const item of cartItems) {
@@ -326,7 +339,7 @@ const OrderPage = () => {
                   key: "image",
                   render: (image) => (
                     <img
-                      src={image || "https://via.placeholder.com/80"}
+                      src={normalizeImageUrl(image)}
                       alt="Book"
                       style={{
                         width: "80px",
