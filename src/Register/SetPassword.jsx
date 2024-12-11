@@ -4,25 +4,25 @@ import { useNavigate } from 'react-router-dom';
 import { resetPassword } from '../config.js';
 import { decodeJWT } from '../jwtConfig.jsx';
 
-const ResetPassword = () => {
+const SetPassword = () => {
     const navigate = useNavigate();
     const [form] = Form.useForm();
     const onFinish = async (values) => {
         try {
             const resetPasswordData = {
-                username: localStorage.getItem("username"),
-                password: values.newPassword
+                username: decodeJWT().sub,
+                password: values.password
             }
             const formDataToSend = new FormData()
             formDataToSend.append('password', JSON.stringify(resetPasswordData))
             console.log(values)
             const response = await resetPassword(formDataToSend)
-            navigate("/auth/login");
+            navigate("/");
             console.log(response)
             localStorage.setItem("jwtToken", response.data.token)
         } catch (error) {
             console.log(error)
-            message.error('Login failed')
+            message.error('Set password failed')
         }
 
     };
@@ -51,8 +51,8 @@ const ResetPassword = () => {
                     className="login-logo"
                 />
                 <Form.Item
-                    label="New Password"
-                    name="newPassword"
+                    label="Password"
+                    name="password"
                     rules={[
                         {
                             required: true,
@@ -71,6 +71,7 @@ const ResetPassword = () => {
                 <Form.Item
                     label="Confirm password"
                     name="confirmPassword"
+                    dependencies={['password']}
                     rules={[
                         {
                             required: true,
@@ -106,4 +107,4 @@ const ResetPassword = () => {
     );
 };
 
-export default ResetPassword;
+export default SetPassword;

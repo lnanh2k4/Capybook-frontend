@@ -7,9 +7,14 @@ import {
   Dropdown,
   Input,
   Tag,
-  InputNumber,
 } from "antd"; // Added Tag here
-import { fetchBookById, logout, fetchPromotions } from "../config";
+import {
+  fetchBookById,
+  logout,
+  fetchPromotions,
+  fetchOrders,
+  fetchOrderDetail,
+} from "../config";
 import {
   AppstoreOutlined,
   ShoppingCartOutlined,
@@ -42,9 +47,11 @@ const BookDetails = () => {
     image: null,
     bookPrice: "",
     isbn: "",
+    quantity: 0,
   });
 
   const [imagePreview, setImagePreview] = useState(null);
+  const [soldCount, setSoldCount] = useState(0); // Di chuyển dòng này vào đây
 
   useEffect(() => {
     const fetchData = async () => {
@@ -80,8 +87,34 @@ const BookDetails = () => {
         console.error("Error fetching data:", error);
       }
     };
+    const fetchSoldCount = async () => {
+      try {
+        // Fetch danh sách đơn hàng
+        const ordersResponse = await fetchOrders();
+        const orders = ordersResponse.data || [];
+
+        let count = 0;
+        // Lọc và đếm các đơn hàng có chứa sách với bookId
+        for (const order of orders) {
+          const orderDetailsResponse = await fetchOrderDetail(order.orderID);
+          const orderDetails = orderDetailsResponse?.data?.orderDetails || [];
+          const containsBook = orderDetails.some(
+            (detail) => detail.bookID === parseInt(bookId, 10)
+          );
+
+          if (containsBook) {
+            count += 1;
+          }
+        }
+
+        setSoldCount(count); // Cập nhật số đơn hàng chứa sách này
+      } catch (error) {
+        console.error("Error fetching sold count:", error);
+      }
+    };
 
     fetchData();
+    fetchSoldCount();
   }, [bookId]);
 
   const applyPromotion = (book, promotions) => {
@@ -99,11 +132,12 @@ const BookDetails = () => {
       console.log(`Start Date: ${startDate}, End Date: ${endDate}`);
       console.log(`Current Date: ${currentDate}`);
       console.log(
-        `Condition: ${promo.quantity > 0 &&
-        promo.proStatus === 1 &&
-        promo.approvedBy !== null &&
-        currentDate >= startDate &&
-        currentDate <= endDate
+        `Condition: ${
+          promo.quantity > 0 &&
+          promo.proStatus === 1 &&
+          promo.approvedBy !== null &&
+          currentDate >= startDate &&
+          currentDate <= endDate
         }`
       );
       return (
@@ -150,8 +184,8 @@ const BookDetails = () => {
     navigate("/");
   };
   const handleCartClick = () => {
-    navigate("/cart/ViewDetail")
-  }
+    navigate("/cart/ViewDetail");
+  };
   const handleDashboardClick = () => {
     navigate("/dashboard");
   };
@@ -342,7 +376,7 @@ const BookDetails = () => {
                     marginBottom: "10px",
                   }}
                 >
-                  {`${bookData.bookPrice.toLocaleString("vi-VN")}`} đ
+                  {`${bookData.bookPrice.toLocaleString("vi-VN")}`} VND
                   {bookData.discount > 0 && (
                     <>
                       {" "}
@@ -353,7 +387,9 @@ const BookDetails = () => {
                           color: "#999",
                         }}
                       >
-                        {`${bookData.originalPrice.toLocaleString("vi-VN")} đ`}
+                        {`${bookData.originalPrice.toLocaleString(
+                          "vi-VN"
+                        )} VND`}
                       </span>
                       <Tag color="volcano" style={{ marginLeft: "10px" }}>
                         {`${bookData.discount}% off`}
@@ -361,8 +397,9 @@ const BookDetails = () => {
                     </>
                   )}
                 </div>
-
-                <div style={{ fontSize: "14px", color: "#999" }}>Sold: 52</div>
+                <Descriptions.Item label="Sold">
+                  Sold: {soldCount}
+                </Descriptions.Item>
               </div>
 
               <div style={{ marginBottom: "20px" }}>
@@ -375,9 +412,14 @@ const BookDetails = () => {
 
               <div style={{ marginBottom: "20px" }}>
                 <h3 style={{ fontWeight: "bold", marginBottom: "10px" }}>
-                  Quantity
+                  Stock
                 </h3>
-                <InputNumber min={1} max={999} defaultValue={1} />
+                <div style={{ fontSize: "16px", color: "#333" }}>
+                  Available Stock:{" "}
+                  <span style={{ fontWeight: "bold" }}>
+                    {bookData.bookQuantity}
+                  </span>
+                </div>
               </div>
               <div>
                 <h4>Description</h4>

@@ -22,7 +22,6 @@ import {
   LeftOutlined,
   RightOutlined,
   DeleteOutlined,
-
 } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
 import { viewCart, updateCartItem, deleteCartItem } from "../config"; // API functions
@@ -146,7 +145,6 @@ const CartDetails = () => {
       console.error("Error deleting cart item:", error);
     }
   };
-
 
   // Handle select all items
   const handleSelectAll = (e) => {
@@ -306,7 +304,8 @@ const CartDetails = () => {
               style={{
                 padding: "15px 0",
                 borderBottom: "1px solid #e8e8e8",
-                backgroundColor: item.bookStatus === 0 ? "#f8d7da" : "transparent", // Màu nền nếu không khả dụng
+                backgroundColor:
+                  item.bookStatus === 0 ? "#f8d7da" : "transparent", // Màu nền nếu không khả dụng
               }}
             >
               <Col span={1}>
@@ -362,7 +361,6 @@ const CartDetails = () => {
             </Row>
           ))}
 
-
           <Divider />
           <Row justify="end" style={{ marginTop: "20px" }}>
             <Col>
@@ -384,6 +382,8 @@ const CartDetails = () => {
                       total: item.total,
                       image: item.image,
                     }));
+                  console.log("Data being sent to OrderPage from CartDetail:");
+                  console.log({ bookData: selectedBooks });
                   if (selectedBooks.length === 0) {
                     alert("Please select at least one book to purchase.");
                     return;

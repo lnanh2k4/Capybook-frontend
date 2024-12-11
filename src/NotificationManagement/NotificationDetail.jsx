@@ -24,9 +24,11 @@ function NotificationDetail() {
                 console.log(response)
                 if (response === undefined) {
                     navigate("/404")
+                    return;
                 }
                 if (response.data.notStatus === 0) {
                     navigate("/404")
+                    return;
                 }
 
                 setNotificationData(response.data);

@@ -48,14 +48,34 @@ const AddPromotion = () => {
   }, [username]);
 
   const handleSubmit = async (values) => {
-    // Kiểm tra xem StaffID có tồn tại không
+    // Trim các giá trị input
+    const trimmedValues = {
+      promotionName: values.promotionName?.trim(),
+      promotionCode: values.promotionCode?.trim(),
+      discountPercentage: values.discountPercentage,
+      quantity: values.quantity,
+      dateRange: values.dateRange,
+    };
+
+    // Validate các trường input sau khi trim
+    if (!trimmedValues.promotionName) {
+      message.error("Promotion name cannot be empty or only spaces.");
+      return;
+    }
+
+    if (!trimmedValues.promotionCode) {
+      message.error("Promotion code cannot be empty or only spaces.");
+      return;
+    }
+
+    // Kiểm tra StaffID
     if (!staffID) {
       message.error("Staff information not found. Please try again.");
       return;
     }
 
     try {
-      const [startDate, endDate] = values.dateRange;
+      const [startDate, endDate] = trimmedValues.dateRange;
 
       // Validate: Ngày bắt đầu phải nhỏ hơn ngày kết thúc
       if (startDate.isAfter(endDate)) {
@@ -66,11 +86,13 @@ const AddPromotion = () => {
       // Validate: Tên và mã promotion không được trùng lặp
       const isNameDuplicate = existingPromotions.some(
         (promo) =>
-          promo.proName.toLowerCase() === values.promotionName.toLowerCase()
+          promo.proName.toLowerCase() ===
+          trimmedValues.promotionName.toLowerCase()
       );
       const isCodeDuplicate = existingPromotions.some(
         (promo) =>
-          promo.proCode.toLowerCase() === values.promotionCode.toLowerCase()
+          promo.proCode.toLowerCase() ===
+          trimmedValues.promotionCode.toLowerCase()
       );
 
       if (isNameDuplicate) {
@@ -88,23 +110,26 @@ const AddPromotion = () => {
       }
 
       // Validate: Phần trăm giảm giá phải nằm trong khoảng 1-50%
-      if (values.discountPercentage < 1 || values.discountPercentage > 50) {
+      if (
+        trimmedValues.discountPercentage < 1 ||
+        trimmedValues.discountPercentage > 50
+      ) {
         message.error("Discount percentage must be between 1% and 50%.");
         return;
       }
 
       // Validate: Số lượng phải lớn hơn 0
-      if (values.quantity <= 0) {
+      if (trimmedValues.quantity <= 0) {
         message.error("Quantity must be greater than 0.");
         return;
       }
 
       // Tạo dữ liệu gửi đi
       const promotionData = {
-        proName: values.promotionName,
-        proCode: values.promotionCode,
-        quantity: values.quantity,
-        discount: values.discountPercentage,
+        proName: trimmedValues.promotionName,
+        proCode: trimmedValues.promotionCode,
+        quantity: trimmedValues.quantity,
+        discount: trimmedValues.discountPercentage,
         startDate: startDate.format("YYYY-MM-DD"),
         endDate: endDate.format("YYYY-MM-DD"),
         proStatus: 1,
@@ -166,9 +191,10 @@ const AddPromotion = () => {
             rules={[
               { required: true, message: "Please enter the promotion name" },
               {
-                pattern: /^[a-zA-Z0-9\s]*$/,
+                pattern:
+                  /^[a-zA-ZÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơĂĔĕĖėĘęŁłŃńŇňŚśŜŝÙÚÛÜÝàáâãèéêìíòóôõùúûüýÿÑñÇç'.,\s-]*$/,
                 message:
-                  "Promotion Name can only contain letters, numbers, and spaces",
+                  "Promotion Name can only contain letters, numbers, Vietnamese characters, spaces, and certain special characters (.,')",
               },
               {
                 max: 30,
@@ -190,7 +216,17 @@ const AddPromotion = () => {
               },
             ]}
           >
-            <Input placeholder="Enter promotion code" />
+            <Input
+              placeholder="Enter promotion code"
+              onChange={(e) => {
+                const sanitizedValue = e.target.value
+                  .replace(/\s+/g, "")
+                  .toUpperCase();
+                form.setFieldsValue({
+                  promotionCode: sanitizedValue,
+                });
+              }}
+            />
           </Form.Item>
 
           <Form.Item
