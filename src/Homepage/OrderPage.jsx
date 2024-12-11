@@ -175,13 +175,22 @@ const OrderPage = () => {
   };
 
   const handleCheckout = async () => {
-    const canPurchase = await checkBookQuantities(); // Gọi hàm kiểm tra
+    const canPurchase = await checkBookQuantities(); // Gọi hàm kiểm tra số lượng
     if (!canPurchase) return; // Dừng lại nếu không đủ sách
 
-    try {
-      const totalAmount =
-        discountedTotal !== null ? discountedTotal : calculateTotal();
+    const totalAmount =
+      discountedTotal !== null ? discountedTotal : calculateTotal();
 
+    if (totalAmount < 10000) {
+      // Kiểm tra tổng giá trị đơn hàng
+      Modal.warning({
+        title: "Order Minimum Requirement",
+        content: "Your order must be at least 10,000 VND.",
+      });
+      return; // Dừng lại nếu tổng giá trị nhỏ hơn 10,000 VND
+    }
+
+    try {
       const order = {
         customerInfo: accountInfo,
         cartItems: cartItems.map((item) => ({
