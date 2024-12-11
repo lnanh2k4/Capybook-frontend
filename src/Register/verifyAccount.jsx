@@ -37,12 +37,6 @@ const VerifyEmail = () => {
         <div className="login-container">
             <Form
                 name="basic"
-                labelCol={{
-                    span: 8,
-                }}
-                wrapperCol={{
-                    span: 16,
-                }}
                 className="login-form"
                 initialValues={{
                     remember: true,
@@ -56,6 +50,8 @@ const VerifyEmail = () => {
                     alt="Capybook Logo"
                     className="login-logo"
                 />
+                <h1>Verify Account</h1>
+                <p>OTP code has been sent to email <strong>{decodeJWT().email}</strong>. Please access your email to enter the OTP code. </p>
                 <Form.Item
                     label="OTP Code"
                     name="code"
@@ -70,7 +66,7 @@ const VerifyEmail = () => {
                 </Form.Item>
 
 
-                <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                <Form.Item >
                     <Button type="primary" htmlType="submit">
                         Verify
                     </Button>

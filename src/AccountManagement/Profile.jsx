@@ -93,19 +93,6 @@ function Profile() {
                         </Col>
                         <Col span={12}>
                             <Form.Item
-                                label="Last Name"
-                                name="lastName"
-                                rules={[
-                                    { required: true, message: 'Please enter last name' },
-                                    {
-                                        pattern: /^\p{L}+(\s\p{L}+)*$/u,
-                                        message: "Last name must be contained letters"
-                                    }
-                                ]}
-                            >
-                                <Input placeholder="Last name of account" disabled={!isEditing} />
-                            </Form.Item>
-                            <Form.Item
                                 label="Date of birth"
                                 name="dob"
                                 rules={[{ required: true, message: 'Please enter the dimensions' },
@@ -132,10 +119,24 @@ function Profile() {
                             >
                                 <Input type='date' placeholder="Date of birth of account" disabled={!isEditing} />
                             </Form.Item>
+                            <Form.Item
+                                label="Last Name"
+                                name="lastName"
+                                rules={[
+                                    { required: true, message: 'Please enter last name' },
+                                    {
+                                        pattern: /^\p{L}+(\s\p{L}+)*$/u,
+                                        message: "Last name must be contained letters"
+                                    }
+                                ]}
+                            >
+                                <Input placeholder="Last name of account" disabled={!isEditing} />
+                            </Form.Item>
+
                         </Col>
                         <Col span={12}>
                             <Form.Item
-                                label="email"
+                                label="Email"
                                 name="email"
                                 rules={[
                                     { required: true, message: 'Please enter email' },

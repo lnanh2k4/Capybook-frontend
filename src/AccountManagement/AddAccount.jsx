@@ -114,22 +114,6 @@ const AddAccount = () => {
                         </Col>
                         <Col span={12}>
                             <Form.Item
-                                label="Last Name"
-                                name="lastName"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: "Please enter Last Name",
-                                    },
-                                    {
-                                        pattern: /^\p{L}+(\s\p{L}+)*$/u,
-                                        message: "Last name must be contained letters"
-                                    }
-                                ]}
-                            >
-                                <Input placeholder="Last name of account" />
-                            </Form.Item>
-                            <Form.Item
                                 label="Date Of Birth"
                                 name="dob"
                                 rules={[
@@ -156,6 +140,23 @@ const AddAccount = () => {
                             >
                                 <Input type="date" placeholder="Date of birth" />
                             </Form.Item>
+                            <Form.Item
+                                label="Last Name"
+                                name="lastName"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Please enter Last Name",
+                                    },
+                                    {
+                                        pattern: /^\p{L}+(\s\p{L}+)*$/u,
+                                        message: "Last name must be contained letters"
+                                    }
+                                ]}
+                            >
+                                <Input placeholder="Last name of account" />
+                            </Form.Item>
+
                         </Col>
                         <Col span={12}>
                             <Form.Item

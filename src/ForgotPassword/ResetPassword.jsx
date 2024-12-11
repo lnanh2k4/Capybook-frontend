@@ -82,7 +82,8 @@ const ResetPassword = () => {
                                 },
                                 {
                                     validator: (_, value) => {
-                                        if (!value || value === form.getFieldValue('password')) {
+                                        console.log(value, " | ", form.getFieldValue('newPassword'))
+                                        if (!value || value === form.getFieldValue('newPassword')) {
                                             return Promise.resolve()
                                         }
                                         return Promise.reject(

@@ -58,9 +58,9 @@ const EditStaff = () => {
     }, [staffID, form]);
     return (
         <>
-            <div className="dashboard-content">
+            <div className="dashboard-content" style={{ marginLeft: "250px", marginRight: "100px" }}>
                 <DashboardContainer />
-                <h1 style={{ textAlign: 'center' }}>Update Staff</h1>
+                <h1 style={{ textAlign: 'center' }}>Edit Staff</h1>
                 {/* <DashboardContainer /> */}
                 <Form
                     layout="vertical"
@@ -74,12 +74,6 @@ const EditStaff = () => {
                                 <Input
                                     placeholder="Staff ID of account " readOnly disabled />
                             </Form.Item>
-                            <Form.Item label="Username" name="username">
-                                <Input
-                                    placeholder="Username of account " readOnly disabled />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
                             <Form.Item label="Fist Name" name="firstName"
                                 rules={[
                                     {
@@ -95,6 +89,13 @@ const EditStaff = () => {
                                 <Input type="text"
                                     placeholder="First name of account" />
                             </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item label="Username" name="username">
+                                <Input
+                                    placeholder="Username of account " readOnly disabled />
+                            </Form.Item>
+
                             <Form.Item label="Last Name" name="lastName"
                                 rules={[
                                     {
@@ -138,6 +139,23 @@ const EditStaff = () => {
                                 <Input type='date'
                                     placeholder="Date of birth" />
                             </Form.Item>
+                            <Form.Item label="Phone" name="phone"
+                                rules={[
+                                    {
+                                        required: true,
+                                        message: "Please enter phone",
+                                    },
+                                    {
+                                        pattern: /^[0-9]{10,15}$/,
+                                        message: "Phone number must be 10-15 digits!"
+                                    }
+                                ]}
+                            >
+                                <Input type='tel'
+                                    placeholder="Phone number of account" />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
                             <Form.Item label="Email" name="email"
                                 rules={[
                                     {
@@ -158,23 +176,7 @@ const EditStaff = () => {
                                 <Input type='email'
                                     placeholder="Email of staff" />
                             </Form.Item>
-                        </Col>
-                        <Col span={12}>
-                            <Form.Item label="Phone" name="phone"
-                                rules={[
-                                    {
-                                        required: true,
-                                        message: "Please enter phone",
-                                    },
-                                    {
-                                        pattern: /^[0-9]{10,15}$/,
-                                        message: "Phone number must be 10-15 digits!"
-                                    }
-                                ]}
-                            >
-                                <Input type='tel'
-                                    placeholder="Phone number of account" />
-                            </Form.Item>
+
                             <Form.Item label="Sex" name="sex"
                                 rules={[
                                     {
