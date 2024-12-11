@@ -173,17 +173,8 @@ const PromotionManagement = () => {
   const handleDelete = (proID) => {
     const promotionToDelete = promotions.find((promo) => promo.proID === proID);
 
-    const isWithinActiveDateRange = moment().isBetween(
-      moment(promotionToDelete.startDate),
-      moment(promotionToDelete.endDate),
-      "day",
-      "[]"
-    );
-
-    if (isWithinActiveDateRange && promotionToDelete.quantity > 0) {
-      message.warning(
-        `Cannot delete promotion "${promotionToDelete.proName}" because it is currently active and quantity is greater than 0.`
-      );
+    if (!promotionToDelete) {
+      message.error("Promotion not found.");
       return;
     }
 
@@ -195,12 +186,20 @@ const PromotionManagement = () => {
       cancelText: "No",
       onOk: async () => {
         try {
-          await deletePromotion(proID);
+          // Gửi yêu cầu DELETE với staffID
+          await deletePromotion(proID, staffID);
           message.success("Promotion deleted successfully");
-          fetchPromotionsData();
+          fetchPromotionsData(); // Cập nhật lại danh sách promotions
         } catch (error) {
-          console.error("Error deleting promotion:", error);
-          message.error("Failed to delete promotion");
+          console.error(
+            "Error deleting promotion:",
+            error.response?.data || error.message
+          );
+          message.error(
+            `Failed to delete promotion: ${
+              error.response?.data || "Unknown error"
+            }`
+          );
         }
       },
     });
@@ -583,6 +582,8 @@ const PromotionManagement = () => {
                 <Option value="create">Created</Option>
                 <Option value="approve">Approved</Option>
                 <Option value="reject">Rejected</Option>
+                <Option value="delete">Deleted</Option>{" "}
+                {/* Thêm filter Delete */}
               </Select>
             </div>
           }
@@ -604,6 +605,8 @@ const PromotionManagement = () => {
                         ? "red"
                         : log.proAction === 2
                         ? "green"
+                        : log.proAction === 4
+                        ? "red" // Màu cho Delete
                         : "blue"
                     }
                   >
@@ -616,9 +619,15 @@ const PromotionManagement = () => {
                         ? `${log.username || "Unknown"} approved promotion "${
                             log.proName || "Unknown Promotion"
                           }"`
-                        : `${log.username || "Unknown"} rejected promotion "${
+                        : log.proAction === 3
+                        ? `${log.username || "Unknown"} rejected promotion "${
                             log.proName || "Unknown Promotion"
-                          }`}
+                          }"`
+                        : log.proAction === 4
+                        ? `${log.username || "Unknown"} deleted promotion "${
+                            log.proName || "Unknown Promotion"
+                          }"`
+                        : ""}
                     </p>
                     <small>
                       {log.proLogDate

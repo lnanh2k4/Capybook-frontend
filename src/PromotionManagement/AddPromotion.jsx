@@ -227,7 +227,6 @@ const AddPromotion = () => {
               }}
             />
           </Form.Item>
-
           <Form.Item
             label="Discount %"
             name="discountPercentage"
@@ -248,7 +247,7 @@ const AddPromotion = () => {
               min={1}
               max={50}
               placeholder="Enter discount percentage"
-              style={{ width: "50%" }}
+              style={{ width: "100%" }} // Đặt chiều rộng là 100% để đồng nhất với các input khác
               addonAfter="%"
             />
           </Form.Item>
