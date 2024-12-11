@@ -594,17 +594,17 @@ function AddStock() {
                     </Form.Item>
 
                     <Form.Item
-                        label="Dimension"
+                        label="Dimensions"
                         name="dimension"
                         rules={[
-                            { required: true, message: "Please enter the dimension" },
+                            { required: true, message: 'Please enter the dimensions' },
                             {
-                                pattern: /^\d+x\d+$/,
-                                message: "Dimension must be in the format number x number (e.g., 8x10 cm)",
+                                pattern: /^\d+(\.\d+)?(x\d+(\.\d+)?){1,2}$/,
+                                message: 'Dimensions must be in the format "number x number" (e.g., 25.5x26.3x27.1)',
                             },
                         ]}
                     >
-                        <Input placeholder="Dimension (e.g., 8x10x2 cm)" />
+                        <Input placeholder="Dimensions (e.g., 25.5x26.3x27.1)" />
                     </Form.Item>
 
                     <Form.Item
