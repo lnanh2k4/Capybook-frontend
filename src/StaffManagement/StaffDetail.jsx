@@ -61,19 +61,20 @@ const AccountDetail = () => {
                                     value={formData.staffID || ''}
                                     placeholder="Staff ID of account " readOnly disabled />
                             </Form.Item>
-                            <Form.Item label="Username">
-                                <Input name="username"
-                                    value={formData.username || ''}
-                                    placeholder="Username of account " readOnly disabled />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
                             <Form.Item label="Fist Name">
                                 <Input type="text"
                                     name="firstName"
                                     value={formData.firstName || ''}
                                     placeholder="First name of account" readOnly />
                             </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item label="Username">
+                                <Input name="username"
+                                    value={formData.username || ''}
+                                    placeholder="Username of account " readOnly disabled />
+                            </Form.Item>
+
                             <Form.Item label="Last Name">
                                 <Input type="text"
                                     name="lastName"
@@ -87,19 +88,20 @@ const AccountDetail = () => {
                                     value={formData.dob || ''}
                                     placeholder="Date of birth" readOnly />
                             </Form.Item>
-                            <Form.Item label="Email">
-                                <Input type='email'
-                                    name="email"
-                                    value={formData.email || ''}
-                                    placeholder="Email of account" readOnly />
-                            </Form.Item>
-                        </Col>
-                        <Col span={12}>
+
                             <Form.Item label="Phone">
                                 <Input type='tel'
                                     name="phone"
                                     value={formData.phone || ''}
                                     placeholder="Phone number of account" readOnly />
+                            </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                            <Form.Item label="Email">
+                                <Input type='email'
+                                    name="email"
+                                    value={formData.email || ''}
+                                    placeholder="Email of account" readOnly />
                             </Form.Item>
                             <Form.Item label="Sex" readOnly>
                                 <Radio.Group name='sex' value={String(formData.sex)} readOnly>

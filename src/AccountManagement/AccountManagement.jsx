@@ -193,7 +193,7 @@ const AccountManagement = () => {
                 <div className="action-container" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
                     <Button type="primary" onClick={goToAddAccount}>Add Account</Button>
                     <Input
-                        placeholder="Search by username or full name"
+                        placeholder="Search by username or name of account"
                         value={searchKey}
                         onChange={(e) => handleSearch(e.target.value)}
                         style={{ width: 300 }}

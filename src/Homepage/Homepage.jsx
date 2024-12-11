@@ -603,7 +603,7 @@ const Homepage = () => {
         <Card>
           {selectedCategory ? (
             <>
-              {categories.at(selectedCategory - 1).catName} type:{" "}
+              {categories.at(selectedCategory - 1).catName} type:
               {categories.at(selectedCategory - 1).catDescription}
             </>
           ) : (

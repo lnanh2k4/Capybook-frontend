@@ -97,19 +97,6 @@ function EditAccount() {
                         </Col>
                         <Col span={12}>
                             <Form.Item
-                                label="Last Name"
-                                name="lastName"
-                                rules={[
-                                    { required: true, message: 'Please enter last name' },
-                                    {
-                                        pattern: /^\p{L}+(\s\p{L}+)*$/u,
-                                        message: "Last name must be contained letters"
-                                    }
-                                ]}
-                            >
-                                <Input placeholder="Last name of account" />
-                            </Form.Item>
-                            <Form.Item
                                 label="Date of birth"
                                 name="dob"
                                 rules={[{ required: true, message: 'Please enter the date of birth' },
@@ -136,6 +123,20 @@ function EditAccount() {
                             >
                                 <Input type='date' placeholder="Date of birth of account" />
                             </Form.Item>
+                            <Form.Item
+                                label="Last Name"
+                                name="lastName"
+                                rules={[
+                                    { required: true, message: 'Please enter last name' },
+                                    {
+                                        pattern: /^\p{L}+(\s\p{L}+)*$/u,
+                                        message: "Last name must be contained letters"
+                                    }
+                                ]}
+                            >
+                                <Input placeholder="Last name of account" />
+                            </Form.Item>
+
                         </Col>
                         <Col span={12}>
                             <Form.Item

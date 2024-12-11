@@ -42,7 +42,7 @@ const VerifyEmail = () => {
                     className="login-logo"
                 />
                 <h1>Verify Email</h1>
-                <p>OTP code has been sent to email {localStorage.getItem('email')}. Please access your email to enter the OTP code. </p>
+                <p>OTP code has been sent to email <strong>{localStorage.getItem('email')}</strong>. Please access your email to enter the OTP code. </p>
                 <Row justify={'center'}>
                     <Col span={24}>
                         <Form.Item

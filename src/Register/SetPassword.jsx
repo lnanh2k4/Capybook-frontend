@@ -34,16 +34,11 @@ const SetPassword = () => {
             <Form
                 form={form}
                 name="basic"
-                labelCol={{
-                    span: 8,
-                }}
-                wrapperCol={{
-                    span: 16,
-                }}
                 className="login-form"
                 initialValues={{
                     remember: true,
                 }}
+                layout='vertical'
                 onFinish={onFinish}
                 autoComplete="off"
             >
@@ -53,6 +48,7 @@ const SetPassword = () => {
                     alt="Capybook Logo"
                     className="login-logo"
                 />
+                <h1>Set Password</h1>
                 <Form.Item
                     label="Password"
                     name="password"
@@ -100,7 +96,7 @@ const SetPassword = () => {
                     <Input.Password />
                 </Form.Item>
 
-                <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                <Form.Item>
                     <Button type="primary" htmlType="submit">
                         Save
                     </Button>

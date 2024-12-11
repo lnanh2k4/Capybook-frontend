@@ -183,7 +183,7 @@ const StaffManagement = () => {
                 <div className="action-container" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
                     <Button type="primary" onClick={goToAddStaff}>Add Staff</Button>
                     <Input
-                        placeholder="Search by name of staff"
+                        placeholder="Search by staff ID or name of staff"
                         value={searchKey}
                         onChange={(e) => handleSearch(e.target.value)}
                         style={{ width: 300 }}
@@ -199,8 +199,12 @@ const StaffManagement = () => {
 
                 {error && <p style={{ color: 'red' }}>{error}</p>}
             </div>
+            <div className="copyright">
+                <div>© Copyright {new Date().getFullYear()}</div>
+                <div>Cabybook Management System</div>
+                <div>All Rights Reserved</div>
+            </div>
 
-            <Footer></Footer>
         </div>
     );
 };
