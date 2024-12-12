@@ -204,7 +204,7 @@ const updateBook = (bookId, formDataToSend) => {
     return axios.put(`${URLString}v1/books/${bookId}`, formDataToSend);
 };
 const deleteBook = (id) => client.delete(`/books/${id}`);
-const fetchBookById = (bookId) => client.get(`/v1/books/${bookId}`);
+const fetchBookById = (bookId) => axios.get(`${URLString}v1/books/${bookId}`);
 const fetchSuppliers = () => client.get('v1/suppliers/');
 // Fetch supplier details by ID
 const fetchSupplierDetail = (supID) => {
@@ -229,6 +229,7 @@ const updateSupplier = (supID, supplierData) => {
 const fetchSupplierById = (supID) => client.get(`/v1/suppliers/${supID}`);
 
 const fetchPromotions = () => client.get('v1/promotions/');
+const fetchPromotionsHomepage = () => axios.get(`${URLString}v1/promotions/`);
 const fetchPromotionDetail = (proID) => {
     console.log("Fetching promotion detail for ID:", proID);
     return client.get(`/v1/promotions/${proID}`);
@@ -241,9 +242,9 @@ const addPromotion = (promotion, username) => {
 
 const updatePromotion = (id, promotion) => client.put(`/v1/promotions/${id}`, promotion);
 const deletePromotion = (proID, staffID) => {
-  return client.delete(`/v1/promotions/${proID}`, {
-    params: { staffID }, // Gửi staffID qua query
-  });
+    return client.delete(`/v1/promotions/${proID}`, {
+        params: { staffID }, // Gửi staffID qua query
+    });
 };
 
 
@@ -289,6 +290,7 @@ const searchCategoriesByParent = (parent) => {
 const fetchCategoryById = (catID) => client.get(`/v1/categories/${catID}`);
 
 const fetchOrders = () => client.get('v1/orders/');
+const fetchOrdersHomepage = () => axios.get(`${URLString}v1/orders/`);
 
 const searchOrders = (searchTerm) => {
     return client.get(`/v1/orders/search?term=${searchTerm}`);
@@ -321,8 +323,9 @@ const fetchOrderDetailsByOrderID = (id) => {
     return axios.get(`/api/v1/orders/details/${id}`);
 };
 
-export const fetchOrderDetail = (orderID) => client.get(`/v1/orders/${orderID}`);
+export const fetchOrderDetail = (orderID) => client.get(`v1/orders/${orderID}`);
 
+export const fetchOrderDetail_homepage = (orderID) => axios.get(`${URLStrings}v1/orders/${orderID}`);
 const fetchImportStocks = async () => {
     try {
         const response = await client.get('/v1/importStock/'); // Đảm bảo đây là GET yêu cầu
@@ -520,6 +523,8 @@ export {
     changePassword,
     searchCategoriesByParent,
     deleteNotification,
-    fetchNotificationDetail
+    fetchNotificationDetail,
+    fetchPromotionsHomepage,
+    fetchOrdersHomepage
 };
 

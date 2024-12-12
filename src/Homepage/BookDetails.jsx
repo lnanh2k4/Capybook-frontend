@@ -14,6 +14,9 @@ import {
   fetchPromotions,
   fetchOrders,
   fetchOrderDetail,
+  fetchPromotionsHomepage,
+  fetchOrdersHomepage,
+  fetchOrderDetail_homepage,
 } from "../config";
 import {
   AppstoreOutlined,
@@ -25,15 +28,20 @@ import {
 import AddBookToCart from "./AddBookToCart";
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { decodeJWT } from "../jwtConfig";
+import { checkAdminRole, checkCustomerRole, checkSellerStaffRole, checkWarehouseStaffRole, decodeJWT } from "../jwtConfig";
 
 const { Header, Content, Footer } = Layout;
 const { Search } = Input; // Correct Search import
 
 const BookDetails = () => {
+
   const { bookId } = useParams(); // Get bookId from URL
   const navigate = useNavigate(); // Navigation handler
-  const username = decodeJWT().sub;
+  let username;
+  if (localStorage.getItem("jwtToken") !== null) {
+    username = decodeJWT()?.sub;
+  }
+
   const [bookData, setBookData] = useState({
     bookTitle: "",
     publicationYear: "",
@@ -57,7 +65,7 @@ const BookDetails = () => {
     const fetchData = async () => {
       try {
         const bookResponse = await fetchBookById(bookId);
-        const promotionResponse = await fetchPromotions();
+        const promotionResponse = await fetchPromotionsHomepage();
         console.log(bookResponse);
         if (bookResponse === undefined) {
           navigate("/404");
@@ -90,13 +98,13 @@ const BookDetails = () => {
     const fetchSoldCount = async () => {
       try {
         // Fetch danh sách đơn hàng
-        const ordersResponse = await fetchOrders();
+        const ordersResponse = await fetchOrdersHomepage();
         const orders = ordersResponse.data || [];
 
         let count = 0;
         // Lọc và đếm các đơn hàng có chứa sách với bookId
         for (const order of orders) {
-          const orderDetailsResponse = await fetchOrderDetail(order.orderID);
+          const orderDetailsResponse = await fetchOrderDetail_homepage(order.orderID);
           const orderDetails = orderDetailsResponse?.data?.orderDetails || [];
           const containsBook = orderDetails.some(
             (detail) => detail.bookID === parseInt(bookId, 10)

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Spin, message, Table, Modal, Button } from "antd";
-import { BarChart } from "@mui/x-charts/BarChart";
+import { LineChart } from "@mui/x-charts/LineChart";
+
 import {
   fetchImportStockDetailsByStockId,
   fetchImportStocks,
@@ -441,48 +442,37 @@ const RevenueReport = () => {
             Revenue Report This Month
           </h1>
           <div style={{ display: "flex", justifyContent: "center" }}>
-            <BarChart
+            <LineChart
               xAxis={[
                 {
                   scaleType: "band",
                   data: sortedData.map((item) => item.date),
-                  padding: 0.2, // Tăng khoảng cách giữa các cụm cột
+                  label: "Dates",
                 },
               ]}
               series={[
                 {
                   data: filteredData.map((item) => item.Import),
                   label: "Import (VND)",
+                  color: "#8884d8",
                 },
                 {
                   data: filteredData.map((item) => item.Export),
                   label: "Export (VND)",
+                  color: "#82ca9d",
                 },
                 {
                   data: filteredData.map((item) => item.Revenue),
                   label: "Revenue (VND)",
+                  color: "#ff7300",
+                  lineStyle: { strokeWidth: 2 },
                 },
               ]}
-              width={1800} // Tăng chiều rộng để có không gian hiển thị
-              height={400} // Chiều cao của biểu đồ
-              barGap={20} // Khoảng cách giữa các cụm cột
-              barCategoryGap={90} // Khoảng cách giữa các cột trong cụm
-              barLabel={(value) => {
-                if (typeof value === "object") {
-                  const numericValue = Number(value?.value || 0);
-                  return `${numericValue.toLocaleString()} VND`;
-                } else if (typeof value === "number") {
-                  return `${value.toLocaleString()} VND`;
-                }
-                return "0 VND"; // Trường hợp không hợp lệ
-              }}
-              barLabelPosition="top" // Đặt nhãn ở trên đỉnh cột
-              barLabelStyle={{
-                transform: "translateY(-10px)", // Dịch chuyển nhãn lên trên đỉnh cột
-                fontWeight: "bold", // Tùy chỉnh kiểu chữ nếu cần
-                fontSize: "12px", // Kích thước chữ
-              }}
+              width={2000}
+              height={400}
+              tooltip={(value) => `${value.toLocaleString()} VND`} // Hiển thị giá trị qua tooltip
             />
+
           </div>
         </div>
 
