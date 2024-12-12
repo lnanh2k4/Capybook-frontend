@@ -19,7 +19,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import "./Homepage.css";
 import { fetchAccountDetail, logout, fetchNotifications } from "../config"; // Fetch books and categories from API
-import { decodeJWT } from "../jwtConfig";
+import { checkAdminRole, checkCustomerRole, checkSellerStaffRole, checkWarehouseStaffRole, decodeJWT } from "../jwtConfig";
 
 const { Header, Footer, Content } = Layout;
 
@@ -34,16 +34,18 @@ const Notifications = () => {
         const fetchData = async () => {
             setIsLoading(true);
             setError(null);
-            try {
-                const
-                    fetchedNotifications = await fetchNotifications();
-                setNotifications(fetchedNotifications.data.filter(notification => notification.notStatus != 0 && (notification.receiver == 6 || notification.receiver == 1 || notification.receiver == 5)));
-            } catch (error) {
-                console.error('Failed to fetch notifications:', error);
-                setError(error.message || 'An error occurred.');
-                setNotifications("null");
-            } finally {
-                setIsLoading(false);
+            if (checkAdminRole() || checkCustomerRole() || checkWarehouseStaffRole() || checkSellerStaffRole()) {
+                try {
+                    const
+                        fetchedNotifications = await fetchNotifications();
+                    setNotifications(fetchedNotifications.data.filter(notification => notification.notStatus != 0 && (notification.receiver == 6 || notification.receiver == 1 || notification.receiver == 5)));
+                } catch (error) {
+                    console.error('Failed to fetch notifications:', error);
+                    setError(error.message || 'An error occurred.');
+                    setNotifications("null");
+                } finally {
+                    setIsLoading(false);
+                }
             }
         };
 
