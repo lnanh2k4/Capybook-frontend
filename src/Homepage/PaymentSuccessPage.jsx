@@ -70,21 +70,40 @@ const PaymentSuccessPage = () => {
     }
   }, [username, navigate]);
 
-  const handleDeleteItem = async (itemId) => {
+  const handleDeleteCartItems = async (cartItemsToDelete) => {
     try {
-      const item = cartItems.find((item) => item.id === itemId);
-      if (item) {
-        const response = await deleteCartItem(username, item.id);
-        if (response) {
-          setCartItems((prev) => prev.filter((item) => item.id !== itemId));
+      if (!cartItemsToDelete || cartItemsToDelete.length === 0) {
+        throw new Error("No cart items to delete.");
+      }
+
+      // Lặp qua danh sách các cartID cần xóa
+      for (const item of cartItemsToDelete) {
+        const { cartID } = item;
+
+        // Gọi API xóa từng mục
+        const response = await deleteCartItem(username, cartID);
+
+        if (response && response.status === 200) {
+          console.log(`Deleted item with cartID ${cartID} successfully.`);
         } else {
-          console.error("Failed to delete cart item.");
+          throw new Error(`Failed to delete cart item with ID ${cartID}.`);
         }
       }
+
+      // Cập nhật danh sách cartItems sau khi xóa thành công
+      setCartItems((prevItems) =>
+        prevItems.filter(
+          (item) => !cartItemsToDelete.some((deleteItem) => deleteItem.cartID === item.cartID)
+        )
+      );
+
+      console.log("All selected cart items deleted successfully.");
     } catch (error) {
-      console.error("Error deleting cart item:", error);
+      console.error("Error deleting cart items:", error.message);
     }
   };
+
+
   // Gọi API để xác minh giao dịch
   const fetchPaymentResult = async () => {
     try {
@@ -94,7 +113,10 @@ const PaymentSuccessPage = () => {
       setPaymentResult(response);
 
       if (response.status === "success") {
-        await saveOrderToBackend(); // Thêm đơn hàng vào backend
+        await saveOrderToBackend();
+        const itemsToDelete = order.cartItems;
+
+        await handleDeleteCartItems(itemsToDelete);// Thêm đơn hàng vào backend
       } else {
         message.error("Payment failed. Please try again.");
       }

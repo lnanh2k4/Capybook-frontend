@@ -327,7 +327,14 @@ const OrderPage = () => {
             </div>
           </Card>
           {/* Book List */}
-          <Card title="Books">
+          <Card
+            title="Books"
+            style={{
+              border: "2px solid #87CEEB", // Đường viền màu xanh nước biển
+              borderRadius: "8px", // Bo góc mềm mại
+              boxShadow: "0 4px 8px rgba(135, 206, 235, 0.5)", // Thêm hiệu ứng bóng
+            }}
+          >
             <Table
               dataSource={cartItems}
               rowKey={(record) => record.bookID}
