@@ -284,6 +284,13 @@ const CartDetails = () => {
     logout();
     navigate("/");
   };
+  // Hàm tính tổng số sản phẩm hợp lệ trong cart
+  const countValidItems = () => {
+    return cartItems.filter(
+      (item) => item.bookStatus !== 0 && item.bookQuantity > 0
+    ).length;
+  };
+
   const userMenu = () => {
     if (decodeJWT()) {
       return (
@@ -347,13 +354,9 @@ const CartDetails = () => {
             alt="Capybook Logo"
             style={{ height: "40px", marginRight: "20px" }}
           />
-          <div
-            className="logo"
-            style={{ fontSize: "20px", fontWeight: "bold" }}
-          >
-            Capybook
-          </div>
+          <div style={{ fontSize: "20px", fontWeight: "bold" }}>Capybook</div>
         </div>
+
         <div style={{ display: "flex", alignItems: "center" }}>
           <Button
             type="text"
@@ -389,207 +392,55 @@ const CartDetails = () => {
         </div>
       </Header>
       <Content style={{ padding: "20px", backgroundColor: "#f0f2f5" }}>
-        <Card title="Shopping Cart" style={{ width: "100%" }}>
-          <Row
-            align="middle"
-            style={{
-              backgroundColor: "#1E90FF",
-              padding: "10px",
-              color: "#fff",
-              fontWeight: "bold",
-            }}
-          >
-            <Col span={1}>
-              <Checkbox
-                onChange={handleSelectAll}
-                checked={cartItems.every((item) => item.selected)}
-              />
-            </Col>
-            <Col span={6}>
-              <Text style={{ color: "#fff" }}>Product</Text>
-            </Col>
-            <Col span={4}>
-              <Text style={{ color: "#fff" }}>Quantity</Text>
-            </Col>
-            <Col span={4}>
-              <Text style={{ color: "#fff" }}>Price</Text>
-            </Col>
-            <Col span={4}>
-              <Text style={{ color: "#fff" }}>Total</Text>
-            </Col>
-            <Col span={1}></Col>
-          </Row>
-          <Divider style={{ margin: 0 }} />
-          {validItems.map((item) => (
-            <Row
-              key={item.id}
-              align="middle"
-              style={{
-                padding: "15px 0",
-                borderBottom: "1px solid #e8e8e8",
-
-
-                backgroundColor:
-                  item.bookStatus === 0 || item.bookQuantity === 0
-                    ? "#f8d7da"
-                    : "transparent",
-
-              }}
-            >
-              <Col span={1}>
-                <Checkbox
-                  checked={item.selected}
-                  onChange={() => handleSelectItem(item.id)}
-                  disabled={
-
-                    item.bookStatus === 0 ||
-                    item.bookQuantity === 0 ||
-                    item.quantity > item.bookQuantity
-                  } // Không cho chọn nếu hết hàng
-
-                />
-              </Col>
-              <Col span={6} style={{ display: "flex", alignItems: "center" }}>
-                <img
-                  src={normalizeImageUrl(item.image)}
-                  alt={item.name}
-                  style={{
-                    width: "40px",
-                    height: "50px",
-                    marginRight: "10px",
-
-                    opacity:
-                      item.bookStatus === 0 || item.bookQuantity === 0
-                        ? 0.5
-                        : 1, // Làm mờ nếu không khả dụng hoặc hết hàng
-
-                  }}
-                />
-                <Text delete={item.bookStatus === 0 || item.bookQuantity === 0}>
-                  {item.name}
-                </Text>
-              </Col>
-              <Col span={4}>
-                <InputNumber
-                  min={0}
-                  max={item.bookQuantity}
-                  value={item.quantity}
-                  onChange={(value) => handleQuantityChange(value, item.id)}
-                  style={{ width: "80px" }}
-                  disabled={item.bookStatus === 0 || item.bookQuantity === 0}
-                />
-              </Col>
-              <Col span={4}>
-                <Text>{item.price.toLocaleString()} VND</Text>
-              </Col>
-              <Col span={4}>
-                <Text>{item.total.toLocaleString()} VND</Text>
-              </Col>
-              <Col span={1}>
-                <Button
-                  type="text"
-                  icon={<DeleteOutlined style={{ color: "red", fontSize: "18px" }} />}
-                  onClick={() => handleDeleteItem(item.id)}
-                  style={{ cursor: "pointer" }}
-                />
-              </Col>
-
-              {item.bookQuantity === 0 && (
-                <Col span={24}>
-                  <Text type="danger">This product is out of stock.</Text>
-                </Col>
-              )}
-              {item.bookStatus === 0 && (
-                <Col span={24}>
-                  <Text type="danger">
-                    This product is unavailable or has been removed.
-                  </Text>
-                </Col>
-              )}
-              {item.quantity > item.bookQuantity && (
-                <Col span={24}>
-                  <Text type="danger">
-                    Quantity in cart exceeds available stock (
-                    {item.bookQuantity} left).
-                  </Text>
-                </Col>
-              )}
-            </Row>
-          ))}
-
-          <Divider />
-          <Row justify="end" style={{ marginTop: "20px" }}>
-            <Col>
-              <Text style={{ fontSize: "16px", fontWeight: "bold" }}>
-                Total amount: {calculateTotal().toLocaleString()} VND
+        <Card
+          title={
+            <div>
+              Shopping Cart - CapyBook{" "}
+              <Text type="secondary" style={{ fontSize: "14px" }}>
+                ({countValidItems()} products)
               </Text>
+            </div>
+          }
+          style={{ width: "100%" }}
+
+
+        >
+          {cartItems.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "20px" }}>
+              <Text style={{ fontSize: "18px", fontWeight: "bold" }}>Your Cart is empty </Text>
               <Button
                 type="primary"
-                style={{ marginLeft: "20px" }}
-                onClick={async () => {
-                  const selectedBooks = cartItems
-                    .filter((item) => item.selected) // Lọc sách được chọn
-                    .map((item) => ({
-                      bookID: item.bookID,
-                      bookTitle: item.name,
-                      quantity: item.quantity,
-                      price: item.price,
-                      total: item.total,
-                      image: item.image,
-                      cartID: item.id, // Lưu lại cartID để xóa sau
-                    }));
-
-                  if (selectedBooks.length === 0) {
-                    alert("Please select at least one book to purchase.");
-                    return;
-                  }
-
-                  try {
-                    // Xóa các mục đã chọn trong giỏ hàng
-                    for (const item of selectedBooks) {
-                      await handleDeleteItemAfterPay(item.cartID); // Gọi API xóa theo cartID
-                    }
-
-
-                    // Chuyển hướng sang trang OrderPage với dữ liệu sách đã chọn
-                    navigate("/OrderPage", {
-                      state: { bookData: selectedBooks },
-                    });
-                  } catch (error) {
-                    console.error("Error during purchase:", error);
-                    message.error("An error occurred during the purchase process.");
-                  }
-                }}
+                style={{ marginTop: "20px" }}
+                onClick={() => navigate("/")} // Điều hướng người dùng đến trang sách
               >
-                Purchase
+                Go to Homepage
               </Button>
+            </div>
+          ) : (
+            <>
 
-            </Col>
-          </Row>
-          {/* Hiển thị các mặt hàng không hợp lệ */}
-          {invalidItems.length > 0 && (
-            <Card
-              title="Unavailable Items"
-              style={{
-                marginTop: "20px",
-                border: "1px solid #f0f0f0",
-                backgroundColor: "#fffbe6", // Nền vàng nhạt để phân biệt
-              }}
-            >
               <Row
                 align="middle"
                 style={{
-                  backgroundColor: "#ff7875",
+                  backgroundColor: "#1E90FF",
                   padding: "10px",
                   color: "#fff",
                   fontWeight: "bold",
+                  borderRadius: "10px",
                 }}
               >
+                <Col span={1}>
+                  <Checkbox
+                    onChange={handleSelectAll}
+                    checked={cartItems.every((item) => item.selected)}
+                  />
+                </Col>
                 <Col span={6}>
-                  <Text style={{ color: "#fff" }}>Product</Text>
+                  <Text style={{ color: "#fff" }}>Select all </Text>
+                  ({countValidItems()} products)
                 </Col>
                 <Col span={4}>
-                  <Text style={{ color: "#fff" }}>Status</Text>
+                  <Text style={{ color: "#fff" }}>Quantity</Text>
                 </Col>
                 <Col span={4}>
                   <Text style={{ color: "#fff" }}>Price</Text>
@@ -600,36 +451,64 @@ const CartDetails = () => {
                 <Col span={1}></Col>
               </Row>
               <Divider style={{ margin: 0 }} />
-              {invalidItems.map((item) => (
+              {validItems.map((item) => (
                 <Row
                   key={item.id}
                   align="middle"
                   style={{
                     padding: "15px 0",
                     borderBottom: "1px solid #e8e8e8",
-                    backgroundColor: "#fff5f5", // Màu nền khác để phân biệt
+
+
+                    backgroundColor:
+                      item.bookStatus === 0 || item.bookQuantity === 0
+                        ? "#f8d7da"
+                        : "transparent",
+
                   }}
                 >
-                  <Col
-                    span={6}
-                    style={{ display: "flex", alignItems: "center" }}
-                  >
+                  <Col span={1}>
+                    <Checkbox
+                      checked={item.selected}
+                      onChange={() => handleSelectItem(item.id)}
+                      disabled={
+
+                        item.bookStatus === 0 ||
+                        item.bookQuantity === 0 ||
+                        item.quantity > item.bookQuantity
+                      } // Không cho chọn nếu hết hàng
+
+                    />
+                  </Col>
+                  <Col span={6} style={{ display: "flex", alignItems: "center" }}>
                     <img
-                      src={item.image}
+                      src={normalizeImageUrl(item.image)}
                       alt={item.name}
                       style={{
-                        width: "50px",
+                        width: "40px",
                         height: "50px",
                         marginRight: "10px",
-                        opacity: 0.5, // Làm mờ hình ảnh
+
+                        opacity:
+                          item.bookStatus === 0 || item.bookQuantity === 0
+                            ? 0.5
+                            : 1, // Làm mờ nếu không khả dụng hoặc hết hàng
+
                       }}
                     />
-                    <Text delete style={{ fontWeight: "bold" }}>
+                    <Text delete={item.bookStatus === 0 || item.bookQuantity === 0}>
                       {item.name}
                     </Text>
                   </Col>
                   <Col span={4}>
-                    <Text disabled>Unavailable</Text>
+                    <InputNumber
+                      min={0}
+                      max={item.bookQuantity}
+                      value={item.quantity}
+                      onChange={(value) => handleQuantityChange(value, item.id)}
+                      style={{ width: "80px" }}
+                      disabled={item.bookStatus === 0 || item.bookQuantity === 0}
+                    />
                   </Col>
                   <Col span={4}>
                     <Text>{item.price.toLocaleString()} VND</Text>
@@ -640,24 +519,180 @@ const CartDetails = () => {
                   <Col span={1}>
                     <Button
                       type="text"
-                      icon={<DeleteOutlined />}
-                      onClick={() => handleDeleteItem(item.id)} // Nút xóa vẫn hoạt động
-                      style={{
-                        color: "#ff4d4f", // Đánh dấu nút xóa màu đỏ
-                      }}
+                      icon={<DeleteOutlined style={{ color: "red", fontSize: "18px" }} />}
+                      onClick={() => handleDeleteItem(item.id)}
+                      style={{ cursor: "pointer" }}
                     />
                   </Col>
-                  <Col span={24}>
-                    <Text type="danger">
-                      {item.bookStatus === 0
-                        ? "This product is unavailable or has been removed."
-                        : "This product is out of stock."}
-                    </Text>
-                  </Col>
+
+                  {item.bookQuantity === 0 && (
+                    <Col span={24}>
+                      <Text type="danger">This product is out of stock.</Text>
+                    </Col>
+                  )}
+                  {item.bookStatus === 0 && (
+                    <Col span={24}>
+                      <Text type="danger">
+                        This product is unavailable or has been removed.
+                      </Text>
+                    </Col>
+                  )}
+                  {item.quantity > item.bookQuantity && (
+                    <Col span={24}>
+                      <Text type="danger">
+                        Quantity in cart exceeds available stock (
+                        {item.bookQuantity} left).
+                      </Text>
+                    </Col>
+                  )}
                 </Row>
               ))}
-            </Card>
+
+              <Divider />
+              <Row justify="end" style={{ marginTop: "20px" }}>
+                <Col>
+                  <Text style={{ fontSize: "16px", fontWeight: "bold" }}>
+                    Total amount: {calculateTotal().toLocaleString()} VND
+                  </Text>
+                  <Button
+                    type="primary"
+                    style={{ marginLeft: "20px" }}
+                    onClick={async () => {
+                      const selectedBooks = cartItems
+                        .filter((item) => item.selected) // Lọc sách được chọn
+                        .map((item) => ({
+                          bookID: item.bookID,
+                          bookTitle: item.name,
+                          quantity: item.quantity,
+                          price: item.price,
+                          total: item.total,
+                          image: item.image,
+                          cartID: item.id, // Lưu lại cartID để xóa sau
+                        }));
+
+                      if (selectedBooks.length === 0) {
+                        alert("Please select at least one book to purchase.");
+                        return;
+                      }
+
+                      try {
+                        // Xóa các mục đã chọn trong giỏ hàng
+                        for (const item of selectedBooks) {
+                          // Gọi API xóa theo cartID
+                        }
+
+
+                        // Chuyển hướng sang trang OrderPage với dữ liệu sách đã chọn
+                        navigate("/OrderPage", {
+                          state: { bookData: selectedBooks },
+                        });
+                      } catch (error) {
+                        console.error("Error during purchase:", error);
+                        message.error("An error occurred during the purchase process.");
+                      }
+                    }}
+                  >
+                    Purchase
+                  </Button>
+
+                </Col>
+              </Row>
+              {/* Hiển thị các mặt hàng không hợp lệ */}
+              {invalidItems.length > 0 && (
+                <Card
+                  title="Unavailable Items"
+                  style={{
+                    marginTop: "20px",
+                    border: "1px solid #f0f0f0",
+                    backgroundColor: "#fffbe6", // Nền vàng nhạt để phân biệt
+                  }}
+                >
+                  <Row
+                    align="middle"
+                    style={{
+                      backgroundColor: "#ff7875",
+                      padding: "10px",
+                      color: "#fff",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    <Col span={6}>
+                      <Text style={{ color: "#fff" }}>Product</Text>
+                    </Col>
+                    <Col span={4}>
+                      <Text style={{ color: "#fff" }}>Status</Text>
+                    </Col>
+                    <Col span={4}>
+                      <Text style={{ color: "#fff" }}>Price</Text>
+                    </Col>
+                    <Col span={4}>
+                      <Text style={{ color: "#fff" }}>Total</Text>
+                    </Col>
+                    <Col span={1}></Col>
+                  </Row>
+                  <Divider style={{ margin: 0 }} />
+                  {invalidItems.map((item) => (
+                    <Row
+                      key={item.id}
+                      align="middle"
+                      style={{
+                        padding: "15px 0",
+                        borderBottom: "1px solid #e8e8e8",
+                        backgroundColor: "#fff5f5", // Màu nền khác để phân biệt
+                      }}
+                    >
+                      <Col
+                        span={6}
+                        style={{ display: "flex", alignItems: "center" }}
+                      >
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          style={{
+                            width: "50px",
+                            height: "50px",
+                            marginRight: "10px",
+                            opacity: 0.5, // Làm mờ hình ảnh
+                          }}
+                        />
+                        <Text delete style={{ fontWeight: "bold" }}>
+                          {item.name}
+                        </Text>
+                      </Col>
+                      <Col span={4}>
+                        <Text disabled>Unavailable</Text>
+                      </Col>
+                      <Col span={4}>
+                        <Text>{item.price.toLocaleString()} VND</Text>
+                      </Col>
+                      <Col span={4}>
+                        <Text>{item.total.toLocaleString()} VND</Text>
+                      </Col>
+                      <Col span={1}>
+                        <Button
+                          type="text"
+                          icon={<DeleteOutlined />}
+                          onClick={() => handleDeleteItem(item.id)} // Nút xóa vẫn hoạt động
+                          style={{
+                            color: "#ff4d4f", // Đánh dấu nút xóa màu đỏ
+                          }}
+                        />
+                      </Col>
+                      <Col span={24}>
+                        <Text type="danger">
+                          {item.bookStatus === 0
+                            ? "This product is unavailable or has been removed."
+                            : "This product is out of stock."}
+                        </Text>
+                      </Col>
+                    </Row>
+                  ))}
+                </Card>
+
+              )}
+            </>
           )}
+
         </Card>
       </Content>
       <Footer
