@@ -290,7 +290,7 @@ const searchCategoriesByParent = (parent) => {
 const fetchCategoryById = (catID) => client.get(`/v1/categories/${catID}`);
 
 const fetchOrders = () => client.get('v1/orders/');
-const fetchOrdersHomepage = () => client.get(`${URLString}v1/orders/`);
+const fetchOrdersHomepage = () => axios.get(`${URLString}v1/orders/`);
 
 const searchOrders = (searchTerm) => {
     return client.get(`/v1/orders/search?term=${searchTerm}`);
@@ -323,8 +323,9 @@ const fetchOrderDetailsByOrderID = (id) => {
     return axios.get(`/api/v1/orders/details/${id}`);
 };
 
-export const fetchOrderDetail = (orderID) => axios.get(`${URLString}v1/orders/${orderID}`);
+export const fetchOrderDetail = (orderID) => client.get(`v1/orders/${orderID}`);
 
+export const fetchOrderDetail_homepage = (orderID) => axios.get(`${URLStrings}v1/orders/${orderID}`);
 const fetchImportStocks = async () => {
     try {
         const response = await client.get('/v1/importStock/'); // Đảm bảo đây là GET yêu cầu

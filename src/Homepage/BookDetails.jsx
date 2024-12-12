@@ -16,6 +16,7 @@ import {
   fetchOrderDetail,
   fetchPromotionsHomepage,
   fetchOrdersHomepage,
+  fetchOrderDetail_homepage,
 } from "../config";
 import {
   AppstoreOutlined,
@@ -103,7 +104,7 @@ const BookDetails = () => {
         let count = 0;
         // Lọc và đếm các đơn hàng có chứa sách với bookId
         for (const order of orders) {
-          const orderDetailsResponse = await fetchOrderDetail(order.orderID);
+          const orderDetailsResponse = await fetchOrderDetail_homepage(order.orderID);
           const orderDetails = orderDetailsResponse?.data?.orderDetails || [];
           const containsBook = orderDetails.some(
             (detail) => detail.bookID === parseInt(bookId, 10)
