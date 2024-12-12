@@ -98,20 +98,37 @@ const OrderPage = () => {
 
   // Áp dụng mã khuyến mãi
   const handleApplyPromotion = () => {
-    // Lấy ngày hiện tại và cộng thêm 1 ngày
-    const today = new Date();
-    today.setDate(today.getDate() + 1); // Cộng thêm 1 ngày
+    // Loại bỏ các ký tự không hợp lệ, chỉ giữ lại chữ cái và số
+    const sanitizedCode = promotionCode.replace(/[^a-zA-Z0-9]/g, "");
 
-    console.log("Modified Today Date:", today); // Debug
+    if (sanitizedCode !== promotionCode) {
+      message.warning(
+        "Promotion code contained invalid characters and was sanitized."
+      );
+    }
+
+    setPromotionCode(sanitizedCode); // Cập nhật giá trị hợp lệ
+
+    // Kiểm tra nếu mã khuyến mãi rỗng sau khi loại bỏ ký tự không hợp lệ
+    if (!sanitizedCode) {
+      setPromotionMessage(
+        "Invalid promotion code format. Only alphanumeric characters are allowed."
+      );
+      setDiscountedTotal(null);
+      return;
+    }
+
+    // Lấy ngày hiện tại
+    const today = new Date();
 
     // Tìm mã khuyến mãi hợp lệ từ danh sách khuyến mãi
     const matchedPromotion = promotions.find(
       (promo) =>
-        promo.proCode === promotionCode &&
-        new Date(promo.startDate) <= today && // So sánh với ngày đã chỉnh sửa
-        new Date(promo.endDate) >= today && // So sánh với ngày đã chỉnh sửa
+        promo.proCode === sanitizedCode &&
+        new Date(promo.startDate) <= today &&
+        new Date(promo.endDate) >= today &&
         promo.quantity > 0 &&
-        promo.proStatus === 1 // Chỉ áp dụng mã khuyến mãi còn hiệu lực
+        promo.proStatus === 1
     );
 
     if (matchedPromotion) {
@@ -123,11 +140,11 @@ const OrderPage = () => {
       setDiscountedTotal(discountedTotal);
 
       setPromotionMessage(
-        `Promotion "${promotionCode}" applied successfully! You save ${discount}%. Total after discount: ${discountedTotal.toLocaleString()} VND`
+        `Promotion "${sanitizedCode}" applied successfully! You save ${discount}%. Total after discount: ${discountedTotal.toLocaleString()} VND`
       );
     } else {
       setPromotionMessage("Invalid or expired promotion code.");
-      setDiscountedTotal(null); // Không áp dụng giảm giá
+      setDiscountedTotal(null);
     }
   };
 
@@ -217,7 +234,8 @@ const OrderPage = () => {
 
       localStorage.setItem("orderData", JSON.stringify(order));
 
-      const response = await createPayment(totalAmount);
+      const roundedAmount = Math.round(totalAmount); // Làm tròn giá trị
+      const response = await createPayment(roundedAmount); // Gửi giá trị làm tròn
       const paymentUrl = response.data;
       window.location.href = paymentUrl;
     } catch (error) {
@@ -275,7 +293,25 @@ const OrderPage = () => {
       <Content style={{ padding: "20px", backgroundColor: "#f0f2f5" }}>
         <Card title="Order Summary">
           {/* Shipping Information */}
-          <Card title="Shipping Information" style={{ marginBottom: "20px" }}>
+          <Card
+            title="Shipping Information"
+            style={{
+              marginBottom: "20px",
+              backgroundColor: "#f5f5f5", // Nền xám nhạt
+              borderRadius: "8px", // Bo góc mềm mại
+              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // Thêm hiệu ứng bóng
+            }}
+            onMouseEnter={
+              (e) =>
+                (e.currentTarget.style.boxShadow =
+                  "0 6px 12px rgba(0, 123, 255, 0.5)") // Bóng xanh khi hover
+            }
+            onMouseLeave={
+              (e) =>
+                (e.currentTarget.style.boxShadow =
+                  "0 4px 8px rgba(135, 206, 235, 0.5)") // Quay lại bóng mặc định
+            }
+          >
             <div>
               <p>
                 <strong>Name:</strong> {accountInfo.firstName}{" "}
@@ -330,10 +366,20 @@ const OrderPage = () => {
           <Card
             title="Books"
             style={{
-              border: "2px solid #87CEEB", // Đường viền màu xanh nước biển
               borderRadius: "8px", // Bo góc mềm mại
               boxShadow: "0 4px 8px rgba(135, 206, 235, 0.5)", // Thêm hiệu ứng bóng
+              backgroundColor: "#f5f5f5", // Nền xám nhạt
             }}
+            onMouseEnter={
+              (e) =>
+                (e.currentTarget.style.boxShadow =
+                  "0 6px 12px rgba(0, 123, 255, 0.5)") // Bóng xanh khi hover
+            }
+            onMouseLeave={
+              (e) =>
+                (e.currentTarget.style.boxShadow =
+                  "0 4px 8px rgba(135, 206, 235, 0.5)") // Quay lại bóng mặc định
+            }
           >
             <Table
               dataSource={cartItems}
@@ -387,7 +433,25 @@ const OrderPage = () => {
           </Card>
 
           {/* Promotion */}
-          <Card title="Apply Promotion" style={{ marginTop: "20px" }}>
+          <Card
+            title="Books"
+            style={{
+              borderRadius: "8px", // Bo góc mềm mại
+              boxShadow: "0 4px 8px rgba(135, 206, 235, 0.5)", // Thêm hiệu ứng bóng
+              backgroundColor: "#f5f5f5", // Nền xám nhạt
+              marginTop: "20px", //ok
+            }}
+            onMouseEnter={
+              (e) =>
+                (e.currentTarget.style.boxShadow =
+                  "0 6px 12px rgba(0, 123, 255, 0.5)") // Bóng xanh khi hover
+            }
+            onMouseLeave={
+              (e) =>
+                (e.currentTarget.style.boxShadow =
+                  "0 4px 8px rgba(135, 206, 235, 0.5)") // Quay lại bóng mặc định
+            }
+          >
             <Row
               align="middle"
               style={{ marginBottom: "10px", padding: "10px" }}
@@ -396,7 +460,13 @@ const OrderPage = () => {
                 <Input
                   placeholder="Enter promotion code"
                   value={promotionCode}
-                  onChange={(e) => setPromotionCode(e.target.value)}
+                  onChange={(e) => {
+                    const sanitizedCode = e.target.value.replace(
+                      /[^a-zA-Z0-9]/g,
+                      ""
+                    ); // Loại bỏ ký tự không hợp lệ
+                    setPromotionCode(sanitizedCode.toUpperCase()); // Chuyển đổi thành chữ hoa
+                  }}
                 />
               </Col>
               <Col span={6}>
@@ -409,6 +479,7 @@ const OrderPage = () => {
                 </Button>
               </Col>
             </Row>
+
             {promotionMessage && (
               <Text
                 type="success"

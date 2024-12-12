@@ -11,10 +11,8 @@ import {
 import {
   fetchBookById,
   logout,
-  fetchPromotions,
   fetchOrders,
   fetchOrderDetail,
-  fetchPromotionsHomepage,
   fetchOrdersHomepage,
   fetchOrderDetail_homepage,
 } from "../config";
@@ -28,13 +26,18 @@ import {
 import AddBookToCart from "./AddBookToCart";
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { checkAdminRole, checkCustomerRole, checkSellerStaffRole, checkWarehouseStaffRole, decodeJWT } from "../jwtConfig";
+import {
+  checkAdminRole,
+  checkCustomerRole,
+  checkSellerStaffRole,
+  checkWarehouseStaffRole,
+  decodeJWT,
+} from "../jwtConfig";
 
 const { Header, Content, Footer } = Layout;
 const { Search } = Input; // Correct Search import
 
 const BookDetails = () => {
-
   const { bookId } = useParams(); // Get bookId from URL
   const navigate = useNavigate(); // Navigation handler
   let username;
@@ -53,7 +56,7 @@ const BookDetails = () => {
     weight: "",
     bookDescription: "",
     image: null,
-    bookPrice: "",
+    bookPrice: "", // Chỉ lấy giá gốc
     isbn: "",
     quantity: 0,
   });
@@ -65,26 +68,16 @@ const BookDetails = () => {
     const fetchData = async () => {
       try {
         const bookResponse = await fetchBookById(bookId);
-        const promotionResponse = await fetchPromotionsHomepage();
-        console.log(bookResponse);
+
         if (bookResponse === undefined) {
           navigate("/404");
         }
+
         if (bookResponse?.data) {
-          const book = {
-            ...bookResponse.data,
-            originalPrice: bookResponse.data.bookPrice,
-          };
-
-          // Cập nhật `bookData` sau khi áp dụng khuyến mãi
-          const updatedBook = applyPromotion(
-            book,
-            promotionResponse?.data || []
-          );
-          setBookData(updatedBook);
-
-          // Cập nhật hình ảnh nếu cần
+          const book = bookResponse.data;
+          setBookData(book); // Cập nhật trực tiếp bookData từ API
           const imageFromDB = book.image;
+
           if (imageFromDB && imageFromDB.startsWith(`/uploads/book_`)) {
             setImagePreview(`http://localhost:6789${imageFromDB}`);
           } else {
@@ -104,7 +97,9 @@ const BookDetails = () => {
         let count = 0;
         // Lọc và đếm các đơn hàng có chứa sách với bookId
         for (const order of orders) {
-          const orderDetailsResponse = await fetchOrderDetail_homepage(order.orderID);
+          const orderDetailsResponse = await fetchOrderDetail_homepage(
+            order.orderID
+          );
           const orderDetails = orderDetailsResponse?.data?.orderDetails || [];
           const containsBook = orderDetails.some(
             (detail) => detail.bookID === parseInt(bookId, 10)
@@ -124,64 +119,6 @@ const BookDetails = () => {
     fetchData();
     fetchSoldCount();
   }, [bookId]);
-
-  const applyPromotion = (book, promotions) => {
-    // Lấy ngày hiện tại và trừ đi 1 ngày
-    const currentDate = new Date();
-    currentDate.setDate(currentDate.getDate() + 1); // Trừ đi 1 ngày
-
-    console.log("Modified Current Date:", currentDate); // Log currentDate sau khi thay đổi
-
-    // Lọc các khuyến mãi hợp lệ
-    const validPromotions = promotions.filter((promo) => {
-      const startDate = new Date(promo.startDate);
-      const endDate = new Date(promo.endDate);
-      console.log(`Checking Promo: ${promo.proCode}`);
-      console.log(`Start Date: ${startDate}, End Date: ${endDate}`);
-      console.log(`Current Date: ${currentDate}`);
-      console.log(
-        `Condition: ${promo.quantity > 0 &&
-        promo.proStatus === 1 &&
-        promo.approvedBy !== null &&
-        currentDate >= startDate &&
-        currentDate <= endDate
-        }`
-      );
-      return (
-        promo.quantity > 0 && // Khuyến mãi còn số lượng
-        promo.proStatus === 1 && // Khuyến mãi đang hoạt động
-        promo.approvedBy !== null && // Đã được phê duyệt
-        currentDate >= startDate && // Trong thời gian bắt đầu
-        currentDate <= endDate // Trong thời gian kết thúc
-      );
-    });
-
-    console.log("Valid Promotions for Book:", validPromotions); // Debug
-
-    // Tìm khuyến mãi tốt nhất (nếu có)
-    const bestPromo = validPromotions.reduce(
-      (max, promo) => (promo.discount > (max?.discount || 0) ? promo : max),
-      null
-    );
-
-    if (bestPromo) {
-      console.log("Best Promotion Applied:", bestPromo); // Debug
-      return {
-        ...book,
-        bookPrice: Math.max(
-          Math.round(
-            book.originalPrice - (book.originalPrice * bestPromo.discount) / 100
-          ),
-          1
-        ),
-        discount: bestPromo.discount,
-        bookTitle: `[Promotion code: ${bestPromo.proCode}] ${book.bookTitle}`, // Gắn mã giảm giá vào tiêu đề
-      };
-    }
-
-    console.log("No Valid Promotions Found"); // Debug
-    return book;
-  };
 
   const handleNotificationClick = () => {
     navigate("/notifications");

@@ -17,7 +17,12 @@ import {
   BellOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
-import { handlePaymentReturn, addOrder, deleteCartItem, viewCart } from "../config"; // API gọi backend
+import {
+  handlePaymentReturn,
+  addOrder,
+  deleteCartItem,
+  viewCart,
+} from "../config"; // API gọi backend
 import { decodeJWT } from "../jwtConfig";
 
 const { Header, Footer, Content } = Layout;
@@ -33,7 +38,6 @@ const PaymentSuccessPage = () => {
   const [cartItems, setCartItems] = useState([]);
   // Lấy thông tin từ localStorage
   useEffect(() => {
-
     const storedOrder = localStorage.getItem("orderData");
     if (storedOrder) {
       setOrder(JSON.parse(storedOrder));
@@ -48,27 +52,27 @@ const PaymentSuccessPage = () => {
         const data = await viewCart(username);
         const formattedData = data.map((item) => ({
           id: item.cartID,
-          bookID: item.bookID?.bookID, // Không nên gán `null`, thay vào đó cần kiểm tra lỗi nếu thiếu
+          bookID: item.bookID?.bookID || null,
           name: item.bookID?.bookTitle || "Unknown",
           price: item.bookID?.bookPrice || 0,
           quantity: item.quantity,
-          selected: false,
-          total: (item.bookID.bookPrice || 0) * (item.quantity || 1),
-          image: item.bookID.image || "/logo-capybook.png",
-          bookStatus: item.bookID.bookStatus,
-          bookQuantity: item.bookID.bookQuantity || 0,
+          total: (item.bookID?.bookPrice || 0) * (item.quantity || 1),
+          image: item.bookID?.image || "/logo-capybook.png",
+          bookStatus: item.bookID?.bookStatus,
+          bookQuantity: item.bookID?.bookQuantity || 0,
         }));
         setCartItems(formattedData);
       } catch (error) {
         console.error("Error fetching cart data:", error);
       }
     };
+
     if (username) {
       fetchCart();
     } else {
       navigate("/auth/login");
     }
-  }, [username, navigate]);
+  }, [username, navigate]); // Chỉ phụ thuộc vào `username` và `navigate`
 
   const handleDeleteCartItems = async (cartItemsToDelete) => {
     try {
@@ -76,11 +80,9 @@ const PaymentSuccessPage = () => {
         throw new Error("No cart items to delete.");
       }
 
-      // Lặp qua danh sách các cartID cần xóa
       for (const item of cartItemsToDelete) {
         const { cartID } = item;
 
-        // Gọi API xóa từng mục
         const response = await deleteCartItem(username, cartID);
 
         if (response && response.status === 200) {
@@ -90,19 +92,19 @@ const PaymentSuccessPage = () => {
         }
       }
 
-      // Cập nhật danh sách cartItems sau khi xóa thành công
+      // Tránh kích hoạt lại trạng thái nếu không cần thiết
       setCartItems((prevItems) =>
         prevItems.filter(
-          (item) => !cartItemsToDelete.some((deleteItem) => deleteItem.cartID === item.cartID)
+          (item) =>
+            !cartItemsToDelete.some(
+              (deleteItem) => deleteItem.cartID === item.cartID
+            )
         )
       );
-
-      console.log("All selected cart items deleted successfully.");
     } catch (error) {
       console.error("Error deleting cart items:", error.message);
     }
   };
-
 
   // Gọi API để xác minh giao dịch
   const fetchPaymentResult = async () => {
@@ -113,10 +115,16 @@ const PaymentSuccessPage = () => {
       setPaymentResult(response);
 
       if (response.status === "success") {
-        await saveOrderToBackend();
-        const itemsToDelete = order.cartItems;
-
-        await handleDeleteCartItems(itemsToDelete);// Thêm đơn hàng vào backend
+        // Đảm bảo `order` và `order.cartItems` tồn tại
+        if (order && order.cartItems && order.cartItems.length > 0) {
+          await saveOrderToBackend();
+          await handleDeleteCartItems(order.cartItems);
+          // Làm sạch `cartItems` sau khi xóa thành công
+          setCartItems([]);
+          setOrder(null); // Chỉ xóa `order` sau khi xóa giỏ hàng
+        } else {
+          console.error("Order or cart items are missing.");
+        }
       } else {
         message.error("Payment failed. Please try again.");
       }
@@ -134,8 +142,8 @@ const PaymentSuccessPage = () => {
   // Thêm đơn hàng vào backend
   const saveOrderToBackend = async () => {
     try {
-      if (!order) {
-        throw new Error("Order data is missing.");
+      if (!order || !order.cartItems || order.cartItems.length === 0) {
+        throw new Error("Order data is missing or empty.");
       }
 
       const orderDetails = order.cartItems.map((item) => {
@@ -161,7 +169,6 @@ const PaymentSuccessPage = () => {
 
       const response = await addOrder({ orderDTO, orderDetails });
 
-      // Kiểm tra trạng thái phản hồi
       if (response.status === 201) {
         message.success("Order saved successfully!");
         localStorage.removeItem("orderData");
@@ -184,12 +191,6 @@ const PaymentSuccessPage = () => {
     localStorage.removeItem("jwtToken");
     navigate("/");
   };
-
-
-
-
-
-
 
   const userMenu = () => {
     if (decodeJWT()) {
@@ -330,8 +331,7 @@ const PaymentSuccessPage = () => {
                   }}
                 >
                   Go to HomgePage
-                </Button>
-                ,
+                </Button>,
                 <Button key="orders" onClick={() => navigate("/OrderHistory")}>
                   View Orders
                 </Button>,
@@ -346,7 +346,15 @@ const PaymentSuccessPage = () => {
                 <Button
                   type="primary"
                   key="retry"
-                  onClick={() => navigate("/cart")}
+                  onClick={() => {
+                    if (order) {
+                      navigate("/OrderPage", { state: { orderData: order } });
+                    } else {
+                      message.error(
+                        "Order data is missing. Cannot retry payment."
+                      );
+                    }
+                  }}
                 >
                   Retry Payment
                 </Button>,
