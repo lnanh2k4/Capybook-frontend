@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Form, Input, Card, message } from "antd";
+import TextArea from "antd/es/input/TextArea.js";
 import {
   fetchCategoryDetail,
   fetchCategories,
@@ -110,7 +111,7 @@ const EditCategory = () => {
               { required: false, message: "Please enter the description" },
             ]}
           >
-            <Input placeholder="Category Description" />
+            <TextArea placeholder="Category Description" />
           </Form.Item>
 
           <Form.Item>
