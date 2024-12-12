@@ -98,7 +98,7 @@ const BookDetails = () => {
     const fetchSoldCount = async () => {
       try {
         // Fetch danh sách đơn hàng
-        const ordersResponse = await fetchOrdersHomepage();
+        const ordersResponse = await fetchOrders();
         const orders = ordersResponse.data || [];
 
         let count = 0;
