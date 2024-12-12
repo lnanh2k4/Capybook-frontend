@@ -132,13 +132,9 @@ const NotificationManagement = () => {
                     <Button type="link" onClick={() => goToNotificationDetail(record.notID)}>
                         <InfoCircleOutlined />
                     </Button>
-                    {
-                        (checkAdminRole()) ?
-                            <Button Button type="link" danger onClick={() => handleDelete(record.notID)}>
-                                <DeleteOutlined />
-                            </Button>
-                            : ''
-                    }
+                    <Button Button type="link" danger onClick={() => handleDelete(record.notID)}>
+                        <DeleteOutlined />
+                    </Button>
                 </Space >
             ),
         },
