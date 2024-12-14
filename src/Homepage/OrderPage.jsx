@@ -303,13 +303,13 @@ const OrderPage = () => {
             }}
             onMouseEnter={
               (e) =>
-                (e.currentTarget.style.boxShadow =
-                  "0 6px 12px rgba(0, 123, 255, 0.5)") // Bóng xanh khi hover
+              (e.currentTarget.style.boxShadow =
+                "0 6px 12px rgba(0, 123, 255, 0.5)") // Bóng xanh khi hover
             }
             onMouseLeave={
               (e) =>
-                (e.currentTarget.style.boxShadow =
-                  "0 4px 8px rgba(135, 206, 235, 0.5)") // Quay lại bóng mặc định
+              (e.currentTarget.style.boxShadow =
+                "0 4px 8px rgba(135, 206, 235, 0.5)") // Quay lại bóng mặc định
             }
           >
             <div>
@@ -372,13 +372,13 @@ const OrderPage = () => {
             }}
             onMouseEnter={
               (e) =>
-                (e.currentTarget.style.boxShadow =
-                  "0 6px 12px rgba(0, 123, 255, 0.5)") // Bóng xanh khi hover
+              (e.currentTarget.style.boxShadow =
+                "0 6px 12px rgba(0, 123, 255, 0.5)") // Bóng xanh khi hover
             }
             onMouseLeave={
               (e) =>
-                (e.currentTarget.style.boxShadow =
-                  "0 4px 8px rgba(135, 206, 235, 0.5)") // Quay lại bóng mặc định
+              (e.currentTarget.style.boxShadow =
+                "0 4px 8px rgba(135, 206, 235, 0.5)") // Quay lại bóng mặc định
             }
           >
             <Table
@@ -443,13 +443,13 @@ const OrderPage = () => {
             }}
             onMouseEnter={
               (e) =>
-                (e.currentTarget.style.boxShadow =
-                  "0 6px 12px rgba(0, 123, 255, 0.5)") // Bóng xanh khi hover
+              (e.currentTarget.style.boxShadow =
+                "0 6px 12px rgba(0, 123, 255, 0.5)") // Bóng xanh khi hover
             }
             onMouseLeave={
               (e) =>
-                (e.currentTarget.style.boxShadow =
-                  "0 4px 8px rgba(135, 206, 235, 0.5)") // Quay lại bóng mặc định
+              (e.currentTarget.style.boxShadow =
+                "0 4px 8px rgba(135, 206, 235, 0.5)") // Quay lại bóng mặc định
             }
           >
             <Row
