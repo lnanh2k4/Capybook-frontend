@@ -74,35 +74,19 @@ const PaymentSuccessPage = () => {
     }
   }, [username, navigate]); // Chỉ phụ thuộc vào `username` và `navigate`
 
-  const handleDeleteCartItems = async (cartItemsToDelete) => {
+  const handleDeleteItemAfterPay = async (itemId) => {
     try {
-      if (!cartItemsToDelete || cartItemsToDelete.length === 0) {
-        throw new Error("No cart items to delete.");
-      }
-
-      for (const item of cartItemsToDelete) {
-        const { cartID } = item;
-
-        const response = await deleteCartItem(username, cartID);
-
-        if (response && response.status === 200) {
-          console.log(`Deleted item with cartID ${cartID} successfully.`);
+      const item = cartItems.find((item) => item.id === itemId);
+      if (item) {
+        const response = await deleteCartItem(username, item.id);
+        if (response) {
+          setCartItems((prev) => prev.filter((item) => item.id !== itemId));
         } else {
-          throw new Error(`Failed to delete cart item with ID ${cartID}.`);
+          console.error("Failed to delete cart item.");
         }
       }
-
-      // Tránh kích hoạt lại trạng thái nếu không cần thiết
-      setCartItems((prevItems) =>
-        prevItems.filter(
-          (item) =>
-            !cartItemsToDelete.some(
-              (deleteItem) => deleteItem.cartID === item.cartID
-            )
-        )
-      );
     } catch (error) {
-      console.error("Error deleting cart items:", error.message);
+      console.error("Error deleting cart item:", error);
     }
   };
 
@@ -118,10 +102,9 @@ const PaymentSuccessPage = () => {
         // Đảm bảo `order` và `order.cartItems` tồn tại
         if (order && order.cartItems && order.cartItems.length > 0) {
           await saveOrderToBackend();
-          await handleDeleteCartItems(order.cartItems);
+
           // Làm sạch `cartItems` sau khi xóa thành công
-          setCartItems([]);
-          setOrder(null); // Chỉ xóa `order` sau khi xóa giỏ hàng
+          // Chỉ xóa `order` sau khi xóa giỏ hàng
         } else {
           console.error("Order or cart items are missing.");
         }
@@ -191,7 +174,7 @@ const PaymentSuccessPage = () => {
     localStorage.removeItem("jwtToken");
     navigate("/");
   };
-
+  // Ch
   const userMenu = () => {
     if (decodeJWT()) {
       return (
@@ -356,10 +339,10 @@ const PaymentSuccessPage = () => {
                     }
                   }}
                 >
-                  Retry Payment
+                  Return Homepage
                 </Button>,
-                <Button key="support" onClick={() => navigate("/support")}>
-                  Contact Support
+                <Button key="support" onClick={() => navigate("/cart/ViewDetail")}>
+                  Return Shoping Cart
                 </Button>,
               ]}
             />

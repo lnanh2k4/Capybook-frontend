@@ -122,34 +122,8 @@ const CartDetails = () => {
         }
 
         // Nếu người dùng nhập số lượng < 1
-        if (value < 1) {
-          Modal.confirm({
-            title: "Remove item from cart?",
-            content:
-              "You have set the quantity to 0. Do you want to remove this item from your cart?",
-            okText: "Yes",
-            cancelText: "No",
-            onOk: async () => {
-              // Xóa mục khỏi giỏ hàng
-              await handleDeleteItemAfterPay(itemId);
-              setIsModalVisible(false);
-            },
-            onCancel: () => {
-              // Đặt lại số lượng cũ nếu người dùng không muốn xóa
-              setCartItems((prev) =>
-                prev.map((item) =>
-                  item.id === itemId
-                    ? {
-                      ...item,
-                      quantity: item.quantity,
-                      total: 1 * item.price,
-                    }
-                    : item
-                )
-              );
-              setIsModalVisible(false);
-            },
-          });
+        if (value <= 0) {
+          handleZeroQuantity(itemId, item);
           return;
         }
 
@@ -172,6 +146,38 @@ const CartDetails = () => {
     } catch (error) {
       console.error("Error updating cart item quantity:", error);
     }
+  };
+  const handleZeroQuantity = (itemId, item) => {
+    if (isModalVisible) return; // Đảm bảo không hiển thị Modal nhiều lần
+    setIsModalVisible(true);
+
+    Modal.confirm({
+      title: "Remove item from cart?",
+      content:
+        "You have set the quantity to 0. Do you want to remove this item from your cart?",
+      okText: "Yes",
+      cancelText: "No",
+      onOk: async () => {
+        // Xóa mục khỏi giỏ hàng
+        await handleDeleteItemAfterPay(itemId);
+        setIsModalVisible(false);
+      },
+      onCancel: () => {
+        // Đặt lại số lượng cũ nếu người dùng không muốn xóa
+        setCartItems((prev) =>
+          prev.map((item) =>
+            item.id === itemId
+              ? {
+                ...item,
+                quantity: item.quantity,
+                total: item.quantity * item.price,
+              }
+              : item
+          )
+        );
+        setIsModalVisible(false);
+      },
+    });
   };
 
   // Handle select item
