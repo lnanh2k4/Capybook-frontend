@@ -407,7 +407,9 @@ const CartDetails = () => {
         >
           {cartItems.length === 0 ? (
             <div style={{ textAlign: "center", padding: "20px" }}>
+
               <Text style={{ fontSize: "18px", fontWeight: "bold" }}>Your Cart is empty </Text>
+              <div style={{ marginTop: "20px" }}></div>
               <Button
                 type="primary"
                 style={{ marginTop: "20px" }}
