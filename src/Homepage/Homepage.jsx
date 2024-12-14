@@ -18,6 +18,7 @@ import {
   notification,
   Space,
   Table,
+  Badge,
 } from "antd";
 import {
   UserOutlined,
@@ -115,6 +116,32 @@ const Homepage = () => {
 
     return roots;
   };
+  useEffect(() => {
+    const fetchApplicablePromotions = async () => {
+      try {
+        const response = await fetchPromotions();
+        const today = new Date();
+
+        const applicable = response.data.filter(
+          (promo) =>
+            new Date(promo.startDate) <= today &&
+            new Date(promo.endDate) >= today &&
+            promo.quantity > 0 &&
+            promo.proStatus === 1
+        );
+
+        setApplicablePromotions(applicable); // Lưu khuyến mãi hợp lệ vào state
+      } catch (error) {
+        console.error("Error fetching promotions:", error);
+        Modal.error({
+          title: "Error",
+          content: "Failed to fetch promotions. Please try again later.",
+        });
+      }
+    };
+
+    fetchApplicablePromotions(); // Gọi hàm fetch promotions
+  }, []); // Chỉ gọi một lần khi component mount
 
   const handleFetchPromotions = async () => {
     try {
@@ -468,10 +495,18 @@ const Homepage = () => {
           />
           <Button
             type="text"
-            icon={<FallOutlined style={{ fontSize: "24px", color: "#fff" }} />}
-            onClick={() => handleFetchPromotions()}
             style={{ marginRight: "10px", color: "#fff" }}
-          />
+            onClick={handleFetchPromotions}
+          >
+            <Badge
+              count={applicablePromotions.length} // Số lượng khuyến mãi
+              overflowCount={99} // Giới hạn số hiển thị
+              style={{ backgroundColor: "#f5222d" }} // Màu sắc của badge
+            >
+              <FallOutlined style={{ fontSize: "24px", color: "#fff" }} />
+            </Badge>
+          </Button>
+
           <Modal
             title="Applicable Promotions"
             visible={isPromotionModalVisible}

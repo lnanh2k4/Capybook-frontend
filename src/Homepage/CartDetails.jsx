@@ -12,7 +12,7 @@ import {
   Dropdown,
   Menu,
   Modal,
-  message
+  message,
 } from "antd";
 import {
   UserOutlined,
@@ -23,7 +23,7 @@ import {
   LeftOutlined,
   RightOutlined,
   DeleteOutlined,
-  ExclamationCircleOutlined
+  ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
 import { viewCart, updateCartItem, deleteCartItem, logout } from "../config"; // API functions
@@ -102,7 +102,6 @@ const CartDetails = () => {
       if (item) {
         // Nếu số lượng vượt quá số lượng trong kho
         if (value > item.bookQuantity) {
-
           Modal.error({
             content: `Quantity in cart exceeds available stock (${item.bookQuantity} left).`,
           });
@@ -124,10 +123,10 @@ const CartDetails = () => {
 
         // Nếu người dùng nhập số lượng < 1
         if (value < 1) {
-
           Modal.confirm({
             title: "Remove item from cart?",
-            content: "You have set the quantity to 0. Do you want to remove this item from your cart?",
+            content:
+              "You have set the quantity to 0. Do you want to remove this item from your cart?",
             okText: "Yes",
             cancelText: "No",
             onOk: async () => {
@@ -136,16 +135,17 @@ const CartDetails = () => {
               setIsModalVisible(false);
             },
             onCancel: () => {
-
               // Đặt lại số lượng cũ nếu người dùng không muốn xóa
               setCartItems((prev) =>
                 prev.map((item) =>
                   item.id === itemId
-                    ? { ...item, quantity: item.quantity, total: 1 * item.price }
+                    ? {
+                      ...item,
+                      quantity: item.quantity,
+                      total: 1 * item.price,
+                    }
                     : item
-
                 )
-
               );
               setIsModalVisible(false);
             },
@@ -193,7 +193,8 @@ const CartDetails = () => {
       content: (
         <>
           <Text>
-            Are you sure you want to delete <Text strong>{item.name}</Text> from your cart?
+            Are you sure you want to delete <Text strong>{item.name}</Text> from
+            your cart?
           </Text>
           <br />
           <Text type="danger">This action cannot be undone!</Text>
@@ -269,7 +270,10 @@ const CartDetails = () => {
         okText="Yes"
         cancelText="No"
       >
-        <p>You have set the quantity to 0. Do you want to remove this item from your cart?</p>
+        <p>
+          You have set the quantity to 0. Do you want to remove this item from
+          your cart?
+        </p>
       </Modal>
     );
   };
@@ -366,7 +370,6 @@ const CartDetails = () => {
                   fontSize: "24px",
                   marginRight: "20px",
                   color: "#fff",
-
                 }}
                 onClick={handleNotificationClick}
               />
@@ -402,14 +405,14 @@ const CartDetails = () => {
             </div>
           }
           style={{ width: "100%" }}
-
-
         >
           {cartItems.length === 0 ? (
             <div style={{ textAlign: "center", padding: "20px" }}>
 
-              <Text style={{ fontSize: "18px", fontWeight: "bold" }}>Your Cart is empty </Text>
-              <div style={{ marginTop: "20px" }}></div>
+              <Text style={{ fontSize: "18px", fontWeight: "bold" }}>
+                Your Cart is empty{" "}
+              </Text>
+
               <Button
                 type="primary"
                 style={{ marginTop: "20px" }}
@@ -420,7 +423,6 @@ const CartDetails = () => {
             </div>
           ) : (
             <>
-
               <Row
                 align="middle"
                 style={{
@@ -438,8 +440,8 @@ const CartDetails = () => {
                   />
                 </Col>
                 <Col span={6}>
-                  <Text style={{ color: "#fff" }}>Select all </Text>
-                  ({countValidItems()} products)
+                  <Text style={{ color: "#fff" }}>Select all </Text>(
+                  {countValidItems()} products)
                 </Col>
                 <Col span={4}>
                   <Text style={{ color: "#fff" }}>Quantity</Text>
@@ -461,12 +463,10 @@ const CartDetails = () => {
                     padding: "15px 0",
                     borderBottom: "1px solid #e8e8e8",
 
-
                     backgroundColor:
                       item.bookStatus === 0 || item.bookQuantity === 0
                         ? "#f8d7da"
                         : "transparent",
-
                   }}
                 >
                   <Col span={1}>
@@ -474,15 +474,16 @@ const CartDetails = () => {
                       checked={item.selected}
                       onChange={() => handleSelectItem(item.id)}
                       disabled={
-
                         item.bookStatus === 0 ||
                         item.bookQuantity === 0 ||
                         item.quantity > item.bookQuantity
                       } // Không cho chọn nếu hết hàng
-
                     />
                   </Col>
-                  <Col span={6} style={{ display: "flex", alignItems: "center" }}>
+                  <Col
+                    span={6}
+                    style={{ display: "flex", alignItems: "center" }}
+                  >
                     <img
                       src={normalizeImageUrl(item.image)}
                       alt={item.name}
@@ -495,10 +496,11 @@ const CartDetails = () => {
                           item.bookStatus === 0 || item.bookQuantity === 0
                             ? 0.5
                             : 1, // Làm mờ nếu không khả dụng hoặc hết hàng
-
                       }}
                     />
-                    <Text delete={item.bookStatus === 0 || item.bookQuantity === 0}>
+                    <Text
+                      delete={item.bookStatus === 0 || item.bookQuantity === 0}
+                    >
                       {item.name}
                     </Text>
                   </Col>
@@ -509,7 +511,9 @@ const CartDetails = () => {
                       value={item.quantity}
                       onChange={(value) => handleQuantityChange(value, item.id)}
                       style={{ width: "80px" }}
-                      disabled={item.bookStatus === 0 || item.bookQuantity === 0}
+                      disabled={
+                        item.bookStatus === 0 || item.bookQuantity === 0
+                      }
                     />
                   </Col>
                   <Col span={4}>
@@ -521,7 +525,11 @@ const CartDetails = () => {
                   <Col span={1}>
                     <Button
                       type="text"
-                      icon={<DeleteOutlined style={{ color: "red", fontSize: "18px" }} />}
+                      icon={
+                        <DeleteOutlined
+                          style={{ color: "red", fontSize: "18px" }}
+                        />
+                      }
                       onClick={() => handleDeleteItem(item.id)}
                       style={{ cursor: "pointer" }}
                     />
@@ -583,20 +591,20 @@ const CartDetails = () => {
                           // Gọi API xóa theo cartID
                         }
 
-
                         // Chuyển hướng sang trang OrderPage với dữ liệu sách đã chọn
                         navigate("/OrderPage", {
                           state: { bookData: selectedBooks },
                         });
                       } catch (error) {
                         console.error("Error during purchase:", error);
-                        message.error("An error occurred during the purchase process.");
+                        message.error(
+                          "An error occurred during the purchase process."
+                        );
                       }
                     }}
                   >
                     Purchase
                   </Button>
-
                 </Col>
               </Row>
               {/* Hiển thị các mặt hàng không hợp lệ */}
@@ -690,11 +698,9 @@ const CartDetails = () => {
                     </Row>
                   ))}
                 </Card>
-
               )}
             </>
           )}
-
         </Card>
       </Content>
       <Footer

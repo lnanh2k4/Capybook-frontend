@@ -10,6 +10,7 @@ import {
   Typography,
   message,
   Input,
+  Modal,
 } from "antd";
 import {
   UserOutlined,
@@ -40,6 +41,8 @@ const OrderHistory = () => {
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState(""); // Kết nối với thanh tìm kiếm
   const navigate = useNavigate();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedOrderDetails, setSelectedOrderDetails] = useState(null);
 
   // Fetch all orders and initialize filteredOrders
   useEffect(() => {
@@ -127,6 +130,22 @@ const OrderHistory = () => {
 
     fetchAllOrders();
   }, []);
+
+  const handleViewOrderDetails = (orderID) => {
+    const selectedOrder = orderDetailsMap[orderID];
+    if (selectedOrder) {
+      setSelectedOrderDetails({
+        ...selectedOrder,
+        orderID,
+        orderDate: orders.find((order) => order.orderID === orderID)?.orderDate,
+        orderStatus: orders.find((order) => order.orderID === orderID)
+          ?.orderStatus,
+      });
+      setModalVisible(true);
+    } else {
+      message.error("Order details not found.");
+    }
+  };
 
   // Handle search
   const handleSearch = (searchTerm) => {
@@ -285,6 +304,151 @@ const OrderHistory = () => {
     }
   };
 
+  const renderOrderDetailsModal = () => {
+    if (!selectedOrderDetails) return null;
+
+    const {
+      details,
+      orderID,
+      orderDate,
+      orderStatus,
+      orderAddress,
+      promotionDiscount,
+      customerFullName, // Thêm fullname của user
+    } = selectedOrderDetails;
+
+    const columns = [
+      {
+        title: "Image",
+        dataIndex: ["book", "image"],
+        key: "image",
+        render: (image) =>
+          image ? (
+            <img
+              src={normalizeImageUrl(image)}
+              alt="Book"
+              style={{
+                width: "80px",
+                height: "80px",
+                objectFit: "cover",
+                border: "1px solid #ddd",
+                borderRadius: "4px",
+              }}
+            />
+          ) : (
+            "No Image"
+          ),
+      },
+      {
+        title: "Title",
+        dataIndex: ["book", "bookTitle"],
+        key: "bookTitle",
+      },
+      {
+        title: "Author",
+        dataIndex: ["book", "author"],
+        key: "author",
+      },
+      {
+        title: "ISBN",
+        dataIndex: ["book", "isbn"],
+        key: "isbn",
+      },
+      {
+        title: "Quantity",
+        dataIndex: "quantity",
+        key: "quantity",
+      },
+      {
+        title: "Unit Price",
+        dataIndex: ["book", "bookPrice"],
+        key: "bookPrice",
+        render: (price) => `${formatPrice(price || 0)} VNĐ`,
+      },
+      {
+        title: "Total Price",
+        key: "totalPrice",
+        render: (_, record) =>
+          `${formatPrice(record.quantity * (record.book?.bookPrice || 0))} VNĐ`,
+      },
+    ];
+
+    return (
+      <Modal
+        title={`Order Details - Order ID: ${orderID}`}
+        visible={modalVisible}
+        onCancel={() => setModalVisible(false)}
+        footer={[
+          <Button key="close" onClick={() => setModalVisible(false)}>
+            Close
+          </Button>,
+        ]}
+        width={800}
+      >
+        <Descriptions bordered column={1}>
+          <Descriptions.Item label="User Fullname">
+            {customerFullName || "N/A"}
+          </Descriptions.Item>
+          <Descriptions.Item label="Order Date">{orderDate}</Descriptions.Item>
+          <Descriptions.Item label="Order Status">
+            {orderStatus === 0
+              ? "Processing"
+              : orderStatus === 1
+              ? "Cancelled"
+              : orderStatus === 2
+              ? "Delivering"
+              : orderStatus === 3
+              ? "Delivered"
+              : orderStatus === 4
+              ? "Returned"
+              : "Unknown"}
+          </Descriptions.Item>
+          <Descriptions.Item label="Order Address">
+            {orderAddress || "N/A"}
+          </Descriptions.Item>
+        </Descriptions>
+
+        <Table
+          columns={columns}
+          dataSource={details}
+          rowKey={(record) => record.book?.bookID || record.ODID}
+          pagination={false}
+          style={{ marginTop: "20px" }}
+        />
+
+        <Descriptions
+          title="Order Summary"
+          bordered
+          column={1}
+          style={{ marginTop: "20px" }}
+        >
+          <Descriptions.Item label="Total Books Price">
+            {formatPrice(
+              details.reduce(
+                (acc, item) =>
+                  acc + item.quantity * (item.book?.bookPrice || 0),
+                0
+              )
+            )}
+          </Descriptions.Item>
+          <Descriptions.Item label="Promotion Discount">
+            {promotionDiscount || 0}%
+          </Descriptions.Item>
+          <Descriptions.Item label="Final Price">
+            {formatPrice(
+              details.reduce(
+                (acc, item) =>
+                  acc + item.quantity * (item.book?.bookPrice || 0),
+                0
+              ) *
+                (1 - promotionDiscount / 100)
+            )}
+          </Descriptions.Item>
+        </Descriptions>
+      </Modal>
+    );
+  };
+
   return (
     <Layout>
       {/* Header */}
@@ -352,99 +516,140 @@ const OrderHistory = () => {
         </div>
       </Header>
 
-      {/* Content */}
       <Content style={{ padding: "20px", minHeight: "600px" }}>
         <Title level={2} style={{ textAlign: "center" }}>
           Order History
         </Title>
         {loading ? (
           <div>Loading...</div>
-        ) : filteredOrders.length === 0 ? ( // Sử dụng filteredOrders ở đây
+        ) : filteredOrders.length === 0 ? (
           <div style={{ textAlign: "center", fontSize: "18px", color: "#555" }}>
             No orders found.
           </div>
         ) : (
-          filteredOrders.map(
-            (
-              order // Và ở đây
-            ) => (
+          filteredOrders.map((order) => {
+            const details = orderDetailsMap[order.orderID]?.details || [];
+            const firstBook = details[0]; // Lấy cuốn sách đầu tiên
+            const finalPrice =
+              details.reduce(
+                (acc, item) =>
+                  acc + item.quantity * (item.book?.bookPrice || 0),
+                0
+              ) *
+              (1 -
+                (orderDetailsMap[order.orderID]?.promotionDiscount || 0) / 100); // Tính tổng tiền cuối cùng
+
+            return (
               <Card
                 key={order.orderID}
                 title={`Order ID: ${order.orderID}`}
-                style={{ marginBottom: "20px", border: "1px solid #ddd" }}
+                style={{
+                  marginBottom: "20px",
+                  border: "1px solid #ddd",
+                  cursor: "pointer",
+                }}
+                onClick={() => handleViewOrderDetails(order.orderID)}
               >
-                <Descriptions bordered column={1}>
-                  <Descriptions.Item label="Customer Name">
-                    {orderDetailsMap[order.orderID]?.customerFullName || "N/A"}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Phone Number">
-                    {orderDetailsMap[order.orderID]?.customerPhone || "N/A"}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Order Address">
-                    {orderDetailsMap[order.orderID]?.orderAddress || "N/A"}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Order Date">
-                    {order.orderDate}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Status">
-                    {order.orderStatus === 0
-                      ? "Processing"
-                      : order.orderStatus === 1
-                      ? "Cancelled"
-                      : order.orderStatus === 2
-                      ? "Delivering"
-                      : order.orderStatus === 3
-                      ? "Delivered"
-                      : order.orderStatus === 4
-                      ? "Returned"
-                      : "Unknown"}
-                  </Descriptions.Item>
-                </Descriptions>
+                <p>Order Date: {order.orderDate}</p>
+                <p>
+                  Status:{" "}
+                  {order.orderStatus === 0
+                    ? "Processing"
+                    : order.orderStatus === 1
+                    ? "Cancelled"
+                    : order.orderStatus === 2
+                    ? "Delivering"
+                    : order.orderStatus === 3
+                    ? "Delivered"
+                    : order.orderStatus === 4
+                    ? "Returned"
+                    : "Unknown"}
+                </p>
 
-                <Title level={4} style={{ marginTop: "20px" }}>
-                  Order Details
-                </Title>
-                {renderOrderDetailsTable(order.orderID)}
+                {/* Hiển thị danh sách sách dưới dạng bảng */}
+                {details.length > 0 && (
+                  <table
+                    style={{
+                      width: "100%",
+                      borderCollapse: "collapse",
+                      marginTop: "10px",
+                    }}
+                  >
+                    <thead>
+                      <tr>
+                        <th
+                          style={{
+                            border: "1px solid #ddd",
+                            padding: "8px",
+                            textAlign: "left",
+                          }}
+                        >
+                          Title
+                        </th>
+                        <th
+                          style={{
+                            border: "1px solid #ddd",
+                            padding: "8px",
+                            textAlign: "center",
+                          }}
+                        >
+                          Quantity
+                        </th>
+                        <th
+                          style={{
+                            border: "1px solid #ddd",
+                            padding: "8px",
+                            textAlign: "right",
+                          }}
+                        >
+                          Total Price
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {details.map((item, index) => (
+                        <tr key={index}>
+                          <td
+                            style={{ border: "1px solid #ddd", padding: "8px" }}
+                          >
+                            {item.book?.bookTitle || "Unknown Title"}
+                          </td>
+                          <td
+                            style={{
+                              border: "1px solid #ddd",
+                              padding: "8px",
+                              textAlign: "center",
+                            }}
+                          >
+                            {item.quantity}
+                          </td>
+                          <td
+                            style={{
+                              border: "1px solid #ddd",
+                              padding: "8px",
+                              textAlign: "right",
+                            }}
+                          >
+                            {formatPrice(
+                              item.quantity * (item.book?.bookPrice || 0)
+                            )}{" "}
+                            VNĐ
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
 
-                <Descriptions
-                  title="Order Summary"
-                  bordered
-                  style={{ marginTop: "20px" }}
-                >
-                  <Descriptions.Item label="Total Books Price" span={3}>
-                    {formatPrice(
-                      (orderDetailsMap[order.orderID]?.details || []).reduce(
-                        (acc, item) =>
-                          acc + item.quantity * (item.book?.bookPrice || 0),
-                        0
-                      )
-                    )}{" "}
-                    VNĐ
-                  </Descriptions.Item>
-
-                  <Descriptions.Item label="Promotion Discount (%)" span={3}>
-                    {orderDetailsMap[order.orderID]?.promotionDiscount || 0}%
-                  </Descriptions.Item>
-
-                  <Descriptions.Item label="Total Price" span={3}>
-                    {formatPrice(
-                      (orderDetailsMap[order.orderID]?.details || []).reduce(
-                        (acc, item) =>
-                          acc + item.quantity * (item.book?.bookPrice || 0),
-                        0
-                      ) *
-                        (1 -
-                          (orderDetailsMap[order.orderID]?.promotionDiscount ||
-                            0) /
-                            100)
-                    )}{" "}
-                    VNĐ
-                  </Descriptions.Item>
-                </Descriptions>
+                {/* Hiển thị tổng tiền cuối */}
+                <p>
+                  Final Price: <strong>{formatPrice(finalPrice)} VNĐ</strong>
+                </p>
               </Card>
-            )
-          )
+            );
+          })
         )}
+        {renderOrderDetailsModal()}
       </Content>
 
       {/* Footer */}
