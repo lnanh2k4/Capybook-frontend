@@ -73,7 +73,7 @@ const AddSupplier = () => {
 
             <div className="dashboard-content">
                 <div className="titlemanagement">
-                    <div>Supplier Management - Add Supplier</div>
+                    <div>Add Supplier</div>
                 </div>
 
                 <Form
