@@ -140,7 +140,7 @@ const OrderDetail = () => {
         style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}
       >
         <Card
-          title="Order Management - View Order Detail"
+          title="View Order Detail"
           style={{ marginBottom: "30px", padding: "20px" }}
         >
           <Descriptions bordered column={1} style={{ marginBottom: "20px" }}>

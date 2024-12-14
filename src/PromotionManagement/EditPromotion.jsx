@@ -88,7 +88,7 @@ const EditPromotion = () => {
 
       <div className="dashboard-content">
         <div className="titlemanagement">
-          <div>Promotion Management - Edit Promotion</div>
+          <div>Edit Promotion</div>
         </div>
         <Form
           form={form}
