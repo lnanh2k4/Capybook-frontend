@@ -48,7 +48,7 @@ const EditSupplier = () => {
             <DashboardContainer />
             <div className="dashboard-content">
                 <div className="titlemanagement">
-                    <h1>Supplier Management - Edit Supplier</h1>
+                    <h1>Edit Supplier</h1>
                 </div>
 
                 <Form
