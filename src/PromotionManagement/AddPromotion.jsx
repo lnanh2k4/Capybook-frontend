@@ -175,7 +175,7 @@ const AddPromotion = () => {
 
       <div className="dashboard-content">
         <div className="titlemanagement">
-          <div>Promotion Management - Add Promotion</div>
+          <div>Add Promotion</div>
         </div>
 
         <Form
